@@ -10,7 +10,7 @@
 
 # 1. Общий статус
 
-**Фундамент документации создан. `DU-01 — System Context` завершён и принят. Реализация ещё не начата.**
+**Фундамент документации создан. `DU-01` и `DU-02` завершены и приняты. Реализация ещё не начата.**
 
 На текущем этапе зафиксированы:
 
@@ -19,14 +19,13 @@
 - исследовательская методология;
 - базовые принципы проектирования;
 - глоссарий;
-- правила для агентов разработки;
+- правила для coding agents;
 - реестры ADR, точных контрактов и будущих версий;
 - карта кандидатных модулей и архитектурных областей;
-- канонический порядок `DU-00` … `DU-32` в `documentation-plan.md`;
+- канонический порядок `DU-00` … `DU-32`;
 - системный контекст MINDRA;
-- логические границы Agent, Environment, training/evaluation infrastructure, artifact/storage/compute;
-- независимость logical ownership от process/device/provider topology;
-- первый accepted ADR.
+- dependency/composition model;
+- два accepted ADR.
 
 ---
 
@@ -35,11 +34,8 @@
 ```text
 DU-00 — Documentation Foundation
 DU-01 — System Context
+DU-02 — Dependency & Composition Rules
 ```
-
-## DU-00
-
-Зафиксировал общие правила, исследовательскую дисциплину и карту дальнейшей работы, но не принял детальные module semantics.
 
 ## DU-01
 
@@ -47,96 +43,87 @@ DU-01 — System Context
 
 - [`system-context.md`](system-context.md).
 
-Приняты основные invariants:
+Главные результаты:
 
-- `MINDRA Agent` является логической когнитивной системой, а не процессом/VM/GPU;
-- `Environment` находится вне Agent boundary;
-- Cortex является внутренней logical capability, хотя backend может физически выполняться удалённо;
-- `Execution Runtime` хостит Agent, но не является когнитивным модулем;
-- `Training Runtime` и `Evaluation Runtime` находятся вне Agent boundary;
-- `Experiment Runner` и artifact pipeline относятся к external research control/infrastructure plane;
+- `MINDRA Agent` является логической когнитивной системой, а не process/VM/GPU;
+- `Environment`, `Training Runtime`, `Evaluation Runtime`, `Experiment Runner` и artifact infrastructure находятся за отдельными логическими границами;
+- Cortex является внутренней capability Agent, даже если backend физически исполняется удалённо;
 - deployment topology не определяет architecture semantics;
-- logical state ownership не зависит от physical storage location;
-- evaluation-derived information не является normal agent-visible input;
-- Agent должен иметь корректный execution mode без trainer/evaluator.
+- evaluation-derived information не является normal agent-visible input.
 
 Accepted decision:
 
-- [`ADR-0001 — Логические границы независимы от deployment topology`](decisions/ADR-0001-logical-boundaries-independent-of-deployment.md).
+- [`ADR-0001`](decisions/ADR-0001-logical-boundaries-independent-of-deployment.md).
+
+## DU-02
+
+Канонический документ:
+
+- [`dependency-rules.md`](dependency-rules.md).
+
+Главные результаты:
+
+- concrete implementations разрешаются на явной composition boundary;
+- принят `Composition Root` как logical owner сборки конкретного запуска;
+- потребители получают зависимости явно и не используют runtime Service Locator;
+- registry допустим только как composition/discovery catalogue;
+- cognitive modules по умолчанию не владеют concrete references на peers;
+- runtime feedback loops не должны превращаться в static dependency cycles;
+- shared mutable globals запрещены как межмодульный state mechanism;
+- Agent/core не зависит от Training/Evaluation Runtime;
+- concrete Cortex/provider details изолируются за capability boundary;
+- no-op/dummy/control implementations должны подключаться через ту же composition semantics;
+- behavior-changing fallback обязан быть явным и наблюдаемым;
+- будущая структура кода должна позволять автоматически проверять dependency rules.
+
+Accepted decision:
+
+- [`ADR-0002`](decisions/ADR-0002-explicit-composition-no-runtime-service-locator.md).
 
 ---
 
 # 3. Следующий допустимый Design Update
 
 ```text
-DU-02 — Dependency & Composition Rules
-```
-
-Цель `DU-02` — превратить принятые логические границы `DU-01` в явные правила зависимостей и композиции:
-
-- допустимые dependency directions;
-- shared contracts;
-- composition root;
-- abstract vs concrete dependencies;
-- правила Cortex backend isolation;
-- взаимодействие runtime и training code;
-- evaluator access;
-- module-private state;
-- disabled/control implementations;
-- предотвращение circular hidden coupling.
-
-После принятия `DU-02` допускается:
-
-```text
 DU-03 — Runtime / Temporal Model
 ```
 
-Детальный design когнитивных модулей до завершения фундаментальной цепочки:
+Цель `DU-03` — определить временную семантику MINDRA до проектирования `CognitiveState` и module lifecycle.
+
+Обязательные области:
 
 ```text
-DU-02 Dependency & Composition Rules
-→ DU-03 Runtime / Temporal Model
-→ DU-04 CognitiveState Semantics
-→ DU-05 Module Protocol & Scheduling
-→ DU-06 Observability & Intervention
+environment tick
+cognitive step
+module compute phase
+action dispatch
+outcome observation
+runtime state update
+online learning update
+replay step
+consolidation step
+evaluation-only execution
 ```
 
-считается преждевременным.
+Также предстоит определить:
+
+- sync/async semantics на архитектурном уровне;
+- step/episode/session identity;
+- ordering и causal consistency;
+- сколько cognitive cycles допустимо на один Environment tick;
+- что переживает episode reset;
+- relation между fixed scheduler и будущим Executive Control;
+- требования к deterministic replay.
+
+После принятия `DU-03` допускается:
+
+```text
+DU-04 — CognitiveState Semantics
+```
 
 ---
 
-# 4. Карта будущих модульных областей
-
-План проектирования включает, среди прочего:
-
-```text
-Environment
-Perception / Representation
-Goal System
-Cortex
-Memory Core
-World Model
-Self Model
-Intrinsic Signals
-Drives
-Appraisal
-Affect Dynamics
-Valuation
-Salience / Attention
-Memory Regulation / Consolidation
-Workspace
-Metacognitive / Executive Control
-Policy / Planner
-Action Boundary
-```
-
-Подробная карта: [`modules/README.md`](modules/README.md).
-
-Наличие области в этой карте не означает, что отдельный module boundary уже принят. Соответствующий `DU` обязан подтвердить необходимость отдельной ответственности или аргументированно объединить/отложить её.
-
----
-
-# 5. Что уже принято на system-context уровне
+# 4. Действующие фундаментальные границы
 
 Канонически различаются:
 
@@ -147,14 +134,13 @@ Execution Runtime
 Training Runtime
 Evaluation Runtime
 Experiment Runner
-Artifact Collector
-Artifact Storage
+Artifact Collector / Artifact Storage
 Compute Substrate
 Cortex Execution Provider
-Researcher / Operator
+Composition Root
 ```
 
-Принцип:
+Главные relations:
 
 ```text
 logical architecture boundary
@@ -162,7 +148,32 @@ logical architecture boundary
 process / device / machine boundary
 ```
 
-Active Agent Memory и Artifact Storage также считаются разными логическими сущностями даже при физическом использовании одного storage backend.
+и:
+
+```text
+runtime feedback cycle
+≠
+static dependency cycle
+```
+
+---
+
+# 5. Действующие dependency invariants
+
+До их явного изменения через design/ADR запрещаются:
+
+- module → concrete peer imports;
+- cognitive/runtime code → global Service Locator;
+- shared mutable global state для cognition;
+- Agent/core → trainer/evaluator imports;
+- independent module → concrete Cortex backend/provider SDK;
+- runtime core → backend-specific behavior branches;
+- cross-module direct private-state mutation;
+- scattered ablation flags вместо composition substitution;
+- hidden behavior-changing fallback;
+- dynamic plugin discovery внутри cognitive step.
+
+Конкретная Python/package реализация этих правил ещё не выбрана.
 
 ---
 
@@ -170,7 +181,6 @@ Active Agent Memory и Artifact Storage также считаются разны
 
 Пока отсутствуют accepted решения по:
 
-- dependency/composition rules;
 - runtime/temporal model;
 - canonical `CognitiveState`;
 - module lifecycle/scheduling;
@@ -178,7 +188,7 @@ Active Agent Memory и Artifact Storage также считаются разны
 - Environment/MicroWorld;
 - Perception representation;
 - Goal System;
-- exact Cortex contract/backend;
+- Cortex contract/backend;
 - Memory Core;
 - World Model;
 - Self Model;
@@ -202,6 +212,15 @@ Active Agent Memory и Artifact Storage также считаются разны
 - version roadmap;
 - implementation sequences.
 
+Также пока **не выбраны**:
+
+- exact Python package tree;
+- `Protocol`/ABC/другой interface mechanism;
+- DI/config framework;
+- registry implementation;
+- plugin `entry points`;
+- concrete architecture-test tool.
+
 ---
 
 # 7. Статус реализации
@@ -213,7 +232,7 @@ Active Agent Memory и Artifact Storage также считаются разны
 Принятый implementation HEAD: отсутствует
 ```
 
-Завершение `DU-01` не является разрешением Codex начать реализацию.
+Наличие detailed design не является разрешением Codex начать implementation до появления version roadmap и implementation sequence.
 
 ---
 
@@ -230,19 +249,18 @@ Active Agent Memory и Artifact Storage также считаются разны
 - Google Colab как единственный runtime;
 - конкретные latent dimensions;
 - окончательную структуру `src/`;
-- отдельный Workspace/Affect/Executive Control только на основании когнитивной аналогии;
-- конкретный process/thread/distributed graph;
-- конкретный cloud/storage provider.
+- отдельный Workspace/Affect/Executive Control только на основании когнитивной аналогии.
 
-Эти варианты являются кандидатами для будущего targeted research/design comparison.
+Эти варианты остаются кандидатами для targeted research/design comparison.
 
 ---
 
 # 9. Канонические ссылки
 
-- системный контекст: [`system-context.md`](system-context.md);
-- `ADR-0001`: [`decisions/ADR-0001-logical-boundaries-independent-of-deployment.md`](decisions/ADR-0001-logical-boundaries-independent-of-deployment.md);
 - порядок Design Updates: [`documentation-plan.md`](documentation-plan.md);
+- системный контекст: [`system-context.md`](system-context.md);
+- dependency/composition rules: [`dependency-rules.md`](dependency-rules.md);
+- ADR registry: [`decisions/README.md`](decisions/README.md);
 - карта областей: [`modules/README.md`](modules/README.md);
 - общие принципы: [`principles.md`](principles.md);
 - термины: [`glossary.md`](glossary.md);
