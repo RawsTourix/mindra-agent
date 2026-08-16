@@ -4,9 +4,9 @@
 
 `docs/design/` — каноническое место архитектурной документации MINDRA.
 
-Здесь должны фиксироваться принятые семантики, invariants, границы модулей, internal contracts, архитектурные решения и будущие version plans.
+Здесь фиксируются принятые семантики, invariants, границы модулей, internal contracts, архитектурные решения и будущие version plans.
 
-На текущем этапе сформирован documentation foundation, приняты `DU-01 — System Context` и `DU-02 — Dependency & Composition Rules`. Детальные subsystem design добавляются последовательно после отдельного исследования вариантов.
+На текущем этапе сформирован documentation foundation и приняты `DU-01` … `DU-03`. Детальные subsystem design добавляются последовательно после отдельного исследования вариантов.
 
 ---
 
@@ -37,8 +37,9 @@ Research evidence не переписывает design напрямую: про�
 
 ## Canonical system design
 
-- [`system-context.md`](system-context.md) — `DU-01`: логическая граница Agent, Environment, training/evaluation infrastructure, artifact/storage/compute boundaries и разрешённые потоки данных;
-- [`dependency-rules.md`](dependency-rules.md) — `DU-02`: dependency directions, Composition Root, dependency inversion, backend isolation, no-op/control composition и запрет runtime Service Locator/shared mutable globals.
+- [`system-context.md`](system-context.md) — `DU-01`: логические границы Agent, Environment, training/evaluation infrastructure, artifact/storage/compute и разрешённые потоки данных;
+- [`dependency-rules.md`](dependency-rules.md) — `DU-02`: dependency directions, Composition Root, dependency inversion, backend isolation и запрет runtime Service Locator/shared mutable globals;
+- [`execution-model.md`](execution-model.md) — `DU-03`: иерархическое логическое время, Agent Session/Episode/Decision Window/Cognitive Cycle, causal commit boundaries, async semantics и replay requirements.
 
 ## Карта модулей
 
@@ -50,7 +51,8 @@ Research evidence не переписывает design напрямую: про�
 
 - [`decisions/README.md`](decisions/README.md);
 - [`ADR-0001`](decisions/ADR-0001-logical-boundaries-independent-of-deployment.md) — logical responsibility boundary independent of deployment topology;
-- [`ADR-0002`](decisions/ADR-0002-explicit-composition-no-runtime-service-locator.md) — explicit Composition Root и запрет runtime Service Locator.
+- [`ADR-0002`](decisions/ADR-0002-explicit-composition-no-runtime-service-locator.md) — explicit Composition Root и запрет runtime Service Locator;
+- [`ADR-0003`](decisions/ADR-0003-hierarchical-logical-time.md) — hierarchical logical time и causal commit boundaries.
 
 ## Exact internal contracts
 
@@ -79,7 +81,7 @@ Research evidence не переписывает design напрямую: про�
 
 Канонический порядок: [`documentation-plan.md`](documentation-plan.md).
 
-Текущий следующий update: `DU-03 — Runtime / Temporal Model`.
+Текущий следующий update: `DU-04 — CognitiveState Semantics`.
 
 ---
 
@@ -143,15 +145,18 @@ Implementation-ready design должен минимизировать архит
 
 # 7. Текущая граница
 
-Приняты `DU-01` и `DU-02`, но пока не существует accepted detailed cognitive module design, exact module contract или version roadmap.
+Приняты `DU-01`, `DU-02` и `DU-03`, но пока не существует accepted detailed cognitive module design, exact module contract или version roadmap.
 
-Уже канонически запрещены:
+Канонически уже зафиксированы:
 
-- hidden concrete peer dependencies;
-- runtime Service Locator внутри cognitive/runtime code;
-- shared mutable globals как неформальный state bus;
-- Agent → Training/Evaluation Runtime dependency;
-- concrete Cortex/provider leakage в независимые потребители.
+- logical architecture boundary не равна deployment topology;
+- hidden concrete dependencies/runtime Service Locator запрещены;
+- runtime feedback cycle не равен static dependency cycle;
+- logical causal time не равно wall-clock;
+- Environment Episode не равно Agent Session;
+- Cognitive Cycle не равно Environment Transition;
+- runtime state update не равно Learning Update;
+- causal replay является архитектурной целью, а bitwise replay — best-effort свойством runtime.
 
 Обсуждавшиеся ранее Qwen, TensorDict, PPO, Dreamer, RND, ICM, FAISS, PEFT/LoRA, Colab и другие технологии являются кандидатами для будущего анализа, но не каноническими требованиями.
 
