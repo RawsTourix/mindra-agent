@@ -6,7 +6,7 @@
 
 Здесь должны фиксироваться принятые семантики, invariants, границы модулей, internal contracts, архитектурные решения и будущие version plans.
 
-На текущем этапе сформирован documentation foundation и подробный порядок будущих Design Updates. Детальные subsystem design будут добавляться последовательно после отдельного исследования вариантов.
+На текущем этапе сформирован documentation foundation, принят системный контекст `DU-01` и определён подробный порядок последующих Design Updates. Детальные subsystem design добавляются последовательно после отдельного исследования вариантов.
 
 ---
 
@@ -35,6 +35,10 @@ Research evidence не переписывает design напрямую: про�
 - [`documentation-plan.md`](documentation-plan.md) — канонический порядок `DU-00` … `DU-32`;
 - [`current.md`](current.md) — фактический статус и следующий допустимый шаг.
 
+## Canonical system design
+
+- [`system-context.md`](system-context.md) — `DU-01`: логическая граница Agent, Environment, training/evaluation infrastructure, artifact/storage/compute boundaries и разрешённые потоки данных.
+
 ## Карта модулей
 
 - [`modules/README.md`](modules/README.md) — предварительная карта архитектурных областей, их responsibilities, различий и зависимостей.
@@ -43,7 +47,8 @@ Research evidence не переписывает design напрямую: про�
 
 ## Decision records
 
-- [`decisions/README.md`](decisions/README.md).
+- [`decisions/README.md`](decisions/README.md);
+- [`ADR-0001`](decisions/ADR-0001-logical-boundaries-independent-of-deployment.md) — logical responsibility boundary independent of deployment topology.
 
 ## Exact internal contracts
 
@@ -72,7 +77,7 @@ Research evidence не переписывает design напрямую: про�
 
 Канонический порядок: [`documentation-plan.md`](documentation-plan.md).
 
-Текущий следующий update: `DU-01 — System Context`.
+Текущий следующий update: `DU-02 — Dependency & Composition Rules`.
 
 ---
 
@@ -136,7 +141,7 @@ Implementation-ready design должен минимизировать архит
 
 # 7. Текущая граница
 
-Пока не существует accepted detailed module design, exact module contract или version roadmap.
+Принят `DU-01 — System Context`, но пока не существует accepted detailed cognitive module design, exact module contract или version roadmap.
 
 Обсуждавшиеся ранее Qwen, TensorDict, PPO, Dreamer, RND, ICM, FAISS, PEFT/LoRA, Colab и другие технологии являются кандидатами для будущего анализа, но не каноническими требованиями.
 
