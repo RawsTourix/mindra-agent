@@ -13,7 +13,8 @@
 В будущем здесь могут появиться спецификации уровня:
 
 - `CognitiveState` schema;
-- module protocol;
+- `ModuleProtocol`;
+- `ModuleDescriptor`;
 - Cortex backend contract;
 - Environment API;
 - checkpoint format;
@@ -33,10 +34,13 @@ Exact contract должен фиксировать, где применимо:
 - required/optional semantics;
 - shape/dtype/device semantics для tensor data;
 - ownership;
+- declared reads/writes;
+- freshness/availability requirements;
 - lifecycle;
+- private-state/snapshot obligations;
+- error/degradation behavior;
 - versioning;
 - serialization;
-- error/degradation behavior;
 - backward/forward compatibility expectations;
 - invariants, которые можно проверить автоматическими tests.
 
@@ -57,8 +61,21 @@ Exact contract уточняет форму принятой семантики, 
 
 ---
 
-# Состояние
+# Текущий статус
 
-На стадии documentation foundation exact internal contracts отсутствуют.
+После `DU-04` и `DU-05` уже приняты semantic requirements для:
 
-Они будут создаваться после проектирования соответствующих semantic boundaries.
+- versioned committed `CognitiveState`;
+- state ownership/provenance/scopes;
+- module descriptors и declared dependencies;
+- DAG/wave scheduling;
+- staged public/private effects;
+- lifecycle/failure semantics.
+
+Однако **exact Python contracts пока намеренно не зафиксированы**.
+
+Причина: будущие module-specific Design Updates (`DU-07` … `DU-24`) должны сначала проверить semantic protocol реальными требованиями Environment, Cortex, Memory, World Model, Policy и других подсистем. Это позволит не закрепить слишком ранний API, который придётся ломать после первого же содержательного модуля.
+
+До contract freeze запрещено считать обсуждавшиеся `Protocol`, ABC, TensorDict `in_keys/out_keys`, dataclass schemas или конкретный scheduler result type каноническими.
+
+Exact contracts создаются тогда, когда соответствующая семантика достаточно устойчива и есть основания зафиксировать machine-facing форму.
