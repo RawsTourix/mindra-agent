@@ -6,7 +6,7 @@
 
 Здесь должны фиксироваться принятые семантики, invariants, границы модулей, internal contracts, архитектурные решения и будущие version plans.
 
-На текущем этапе каталог содержит только documentation foundation. Детальные subsystem design будут добавляться последовательно после отдельного исследования вариантов.
+На текущем этапе сформирован documentation foundation и подробный порядок будущих Design Updates. Детальные subsystem design будут добавляться последовательно после отдельного исследования вариантов.
 
 ---
 
@@ -32,8 +32,14 @@ Research evidence не переписывает design напрямую: про�
 
 - [`principles.md`](principles.md) — устойчивые инженерные и исследовательские принципы;
 - [`glossary.md`](glossary.md) — канонические значения терминов;
-- [`documentation-plan.md`](documentation-plan.md) — порядок дальнейшего проектирования;
-- [`current.md`](current.md) — factual status и следующий допустимый шаг.
+- [`documentation-plan.md`](documentation-plan.md) — канонический порядок `DU-00` … `DU-32`;
+- [`current.md`](current.md) — фактический статус и следующий допустимый шаг.
+
+## Карта модулей
+
+- [`modules/README.md`](modules/README.md) — предварительная карта архитектурных областей, их responsibilities, различий и зависимостей.
+
+Наличие области в карте не означает, что отдельный модуль уже принят. Соответствующий Design Update может объединить, разделить, отложить или отвергнуть кандидатную ответственность.
 
 ## Decision records
 
@@ -49,9 +55,30 @@ Research evidence не переписывает design напрямую: про�
 
 ---
 
-# 3. Canonical owner
+# 3. Design Update discipline
 
-У значимой архитектурной темы в будущем должен быть один основной canonical owner.
+`DU-xx` — идентификатор самостоятельного архитектурного documentation update, а не software version.
+
+Каждый update должен:
+
+- иметь prerequisites;
+- закрывать ограниченный набор design questions;
+- проводить targeted research там, где есть реальный выбор;
+- фиксировать responsibilities/non-goals/invariants;
+- создавать ADR при значимом выборе между вариантами;
+- обновлять canonical owner темы;
+- не протаскивать downstream decisions раньше времени;
+- завершаться consistency review и обновлением `current.md`.
+
+Канонический порядок: [`documentation-plan.md`](documentation-plan.md).
+
+Текущий следующий update: `DU-01 — System Context`.
+
+---
+
+# 4. Canonical owner
+
+У значимой архитектурной темы должен быть один основной canonical owner.
 
 Общий документ может ссылаться на тему, но не должен независимо определять вторую конкурирующую семантику.
 
@@ -65,7 +92,7 @@ Research evidence не переписывает design напрямую: про�
 
 ---
 
-# 4. Design для coding agents
+# 5. Design для coding agents
 
 Implementation-ready design должен минимизировать архитектурные догадки.
 
@@ -90,9 +117,26 @@ Implementation-ready design должен минимизировать архит
 
 ---
 
-# 5. Текущая граница
+# 6. Правило существования отдельного модуля
 
-Пока не существует accepted module design, exact module contract или version roadmap.
+Когнитивная аналогия сама по себе не является основанием для нового module boundary.
+
+Отдельный модуль должен иметь:
+
+1. самостоятельную вычислительную ответственность;
+2. явные input/output/state semantics;
+3. независимый lifecycle или значимую границу обновления;
+4. возможность отключения/подмены;
+5. собственную diagnostic/evaluation strategy;
+6. функциональную роль, не дублирующую соседний модуль.
+
+Если эти условия не выполняются, design должен рассмотреть объединение ответственности.
+
+---
+
+# 7. Текущая граница
+
+Пока не существует accepted detailed module design, exact module contract или version roadmap.
 
 Обсуждавшиеся ранее Qwen, TensorDict, PPO, Dreamer, RND, ICM, FAISS, PEFT/LoRA, Colab и другие технологии являются кандидатами для будущего анализа, но не каноническими требованиями.
 
