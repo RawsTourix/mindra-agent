@@ -8,36 +8,35 @@
 
 Этот документ определяет MINDRA как логическую систему в окружении внешней среды, runtime-инфраструктуры, обучения, оценки, хранения артефактов и вычислительных ресурсов.
 
-Документ намеренно **не** определяет:
+Последующие `DU-02` … `DU-05` уточнили dependency, temporal, state и scheduler semantics, не меняя основного решения `DU-01`: **архитектурная принадлежность определяется логической ответственностью и ownership, а не process/device/deployment topology**.
 
-- точную структуру `CognitiveState`;
-- внутренний порядок выполнения когнитивных модулей;
-- Python-интерфейсы;
-- process/thread graph;
+Документ намеренно не задаёт:
+
+- конкретную Python/package структуру;
 - конкретный framework;
-- конкретную модель Cortex;
-- конкретный GPU или compute provider;
-- конкретный алгоритм обучения;
-- точный формат checkpoint/trajectory.
+- concrete Cortex model;
+- concrete GPU/provider;
+- exact Environment API;
+- exact `CognitiveState` container;
+- exact `ModuleProtocol`;
+- concrete scheduler/DAG implementation;
+- training algorithm;
+- checkpoint/trajectory format.
 
-Эти вопросы принадлежат последующим Design Updates.
+Эти вопросы принадлежат более конкретным canonical design documents.
 
 ---
 
 # 1. Цель DU-01
 
-Основная задача `DU-01` — убрать двусмысленность слова «система» до начала проектирования зависимостей и состояния.
+Основная задача системного контекста — для любого компонента сначала ответить:
 
-После принятия этого документа должно быть однозначно понятно:
+1. **Кому он логически принадлежит?**
+2. **Какую ответственность он несёт?**
+3. **Какие данные имеет право видеть/изменять?**
+4. **Является ли его физическое размещение частью semantics или только deployment detail?**
 
-- что является **самим агентом MINDRA**;
-- что является **Environment**;
-- какие компоненты относятся к исследовательской и training-инфраструктуре;
-- где находится Cortex как логическая способность и где может находиться его физическое выполнение;
-- кому принадлежит runtime-state, persistent state, параметры и артефакты;
-- какие данные могут пересекать системные границы;
-- какие потоки данных запрещены как нарушающие исследовательскую валидность;
-- почему локальный ПК, Google Colab и будущий удалённый compute не должны менять семантику архитектуры.
+Это предотвращает смешивание cognition с infrastructure, training и evaluation только потому, что всё временно исполняется в одном notebook/process.
 
 ---
 
@@ -45,12 +44,12 @@
 
 MINDRA использует **логические границы ответственности, независимые от deployment topology**.
 
-Это означает:
+Следовательно:
 
 ```text
 логически разные компоненты
 могут физически находиться
-в одном Python-процессе / на одном GPU
+в одном process / на одном GPU
 ```
 
 и одновременно:
@@ -58,75 +57,68 @@ MINDRA использует **логические границы ответст
 ```text
 один логический компонент
 может физически исполняться
-в другом процессе / на другой машине / удалённом GPU
+в другом process / worker / machine / provider
 ```
 
-Физическое размещение не изменяет архитектурную принадлежность компонента.
+Примеры:
 
-Например:
+- `Training Runtime` может работать рядом с Agent, но остаётся внешней optimization infrastructure;
+- Cortex может исполняться удалённо, но оставаться внутренней capability Agent;
+- активная Memory может использовать внешний storage backend, но её содержимое остаётся agent-owned state;
+- `Evaluation Runtime` может находиться на том же GPU, но не получает право передавать score в cognition;
+- `Cognitive Scheduler` может физически выполняться внутри process Execution Runtime, но его scheduling semantics принадлежат Agent runtime core.
 
-- `Training Runtime` может временно работать в том же процессе, что и агент, но не становится когнитивным модулем;
-- Cortex может исполняться на удалённом GPU, но логически оставаться внутренней способностью агента;
-- Memory может использовать внешнее физическое хранилище, но хранимое активное состояние остаётся agent-owned state;
-- `Evaluation Runtime` может находиться на том же GPU, но не имеет права превращать evaluation metrics в скрытый вход Policy.
-
-Это решение дополнительно зафиксировано в `ADR-0001`.
+Решение дополнительно зафиксировано в `ADR-0001`.
 
 ---
 
-# 3. Четыре типа границ
+# 3. Типы границ
 
-Для MINDRA различаются четыре вида границ.
+## 3.1. Logical boundary
 
-## 3.1. Логическая граница
-
-Определяет, **к какой ответственности относится компонент**.
+Определяет ответственность и ownership.
 
 Пример:
 
 ```text
-Cortex capability → внутри Agent boundary
-Experiment Runner → вне Agent boundary
+Cortex capability → Agent
+Cognitive Scheduler → Agent runtime core
+Experiment Runner → Research Control Plane
+Training Runtime → внешняя training infrastructure
 ```
-
-Это главный тип границы для canonical design.
 
 ## 3.2. Execution boundary
 
-Определяет, где код фактически выполняется:
+Физическое размещение:
 
-- тот же процесс;
-- отдельный процесс;
+- тот же process/thread;
 - отдельный worker;
-- отдельная машина;
-- удалённый runtime.
+- отдельный process;
+- другая машина;
+- remote runtime.
 
-Execution boundary является implementation/deployment detail до тех пор, пока не меняет наблюдаемую семантику.
+Само по себе не определяет architecture semantics.
 
 ## 3.3. Storage boundary
 
-Определяет физическое место хранения:
+Физическое место хранения:
 
-- RAM;
-- VRAM;
-- локальный диск;
-- внешний диск;
+- RAM/VRAM;
+- local disk;
 - object storage;
-- удалённое хранилище.
+- remote storage.
 
-Физическое место хранения **не определяет владельца состояния**.
+Storage location не меняет logical owner state.
 
 ## 3.4. Trust boundary
 
-Определяет, какой компонент считается источником истины для конкретного вида данных и насколько его данные могут использоваться без дополнительной проверки.
+Определяет, какой компонент является допустимым источником конкретного класса данных для research integrity.
 
-В MINDRA trust прежде всего означает **research/integrity trust**, а не полную модель информационной безопасности.
+Это минимальная research-oriented trust model, а не полная security threat model.
 
 ---
 
-# 4. Контекст верхнего уровня
-
-Канонический system context:
+# 4. Верхнеуровневый контекст
 
 ```text
                          Исследователь / оператор
@@ -142,354 +134,334 @@ Execution boundary является implementation/deployment detail до тех
         │Execution Runtime│ │Training Runtime│ │Evaluation Runtime│
         └───────┬────────┘ └───────┬───────┘ └───────┬────────┘
                 │                  │                 │
-                │                  │                 │
-      ┌─────────▼──────────┐       │       ┌─────────▼──────────┐
-      │    MINDRA Agent    │◄──────┘       │ evaluation clone / │
-      │                    │               │ controlled subject │
-      │ Cortex             │               └────────────────────┘
-      │ cognitive modules  │
-      │ agent-owned state  │
-      └─────────┬──────────┘
-                │ observation/action
-                ▼
-        ┌─────────────────┐
-        │   Environment   │
-        └─────────────────┘
+                ▼                  │                 ▼
+      ┌───────────────────────┐    │       evaluation clone /
+      │     MINDRA Agent      │◄───┘       controlled subject
+      │                       │
+      │ Agent runtime core    │
+      │ └─ Cognitive Scheduler│
+      │ cognitive modules     │
+      │ Cortex                │
+      │ agent-owned state     │
+      └──────────┬────────────┘
+                 │ observation/action
+                 ▼
+          ┌─────────────┐
+          │ Environment │
+          └─────────────┘
 
-                  runtime/evaluation/training evidence
-                                   │
-                                   ▼
-                         ┌──────────────────┐
-                         │ Artifact Collector│
-                         └─────────┬────────┘
-                                   ▼
-                         ┌──────────────────┐
-                         │ Artifact Storage │
-                         └──────────────────┘
+runtime/training/evaluation evidence
+                 │
+                 ▼
+        Artifact Collector
+                 │
+                 ▼
+         Artifact Storage
 
-Все блоки физически размещаются на произвольном Compute Substrate.
+Все роли физически размещаются на произвольном Compute Substrate.
 ```
 
-Схема показывает **логические роли**, а не обязательные процессы.
+Схема отражает **logical responsibilities**, а не обязательные processes.
 
 ---
 
 # 5. MINDRA Agent boundary
 
-## 5.1. Что находится внутри
+## 5.1. Внутри Agent находятся
 
-Внутри логической границы агента находятся:
-
-- все принятые когнитивные модули;
+- принятые cognitive modules;
 - Cortex как логическая capability;
-- agent-owned runtime state;
+- `Agent runtime core`, обеспечивающий внутреннюю execution semantics;
+- `Cognitive Scheduler` как часть Agent runtime core;
+- canonical runtime state;
+- causally relevant module-private state;
 - agent-owned persistent state;
-- параметры обучаемых модулей;
-- активная память агента;
-- agent-owned адаптеры и representations;
+- trainable parameters модулей;
+- активная Memory;
+- agent-owned adapters/representations;
 - механизмы выбора действий;
-- внутренние сигналы, если они являются частью архитектуры.
+- внутренние сигналы и control mechanisms, если они приняты соответствующими DU.
 
-Точный состав когнитивных модулей определяется последующими `DU`.
+`Cognitive Scheduler` не является cognitive module: он не определяет цели, utility или action. Он обеспечивает исполнение принятой module/state semantics из `module-lifecycle.md`.
 
-## 5.2. Что не находится внутри
-
-В Agent boundary не входят:
+## 5.2. Вне Agent находятся
 
 - `Environment`;
+- `Execution Runtime` как внешний host/orchestrator запуска;
 - `Experiment Runner`;
-- `Training Runtime` как механизм оптимизации;
+- `Training Runtime` как optimization mechanism;
 - `Evaluation Runtime`;
 - evaluator metrics;
-- experiment registry;
 - artifact/log collector;
-- архивные checkpoint-копии;
-- CI;
-- Git repository;
-- конкретный физический GPU/CPU/VM;
+- archival checkpoints;
+- CI/Git repository;
+- конкретный CPU/GPU/VM/provider;
 - Google Colab как сервис;
-- внешние benchmark labels;
-- скрытое состояние Environment, не входящее в observation contract.
+- hidden Environment state, не входящий в observation contract.
 
-## 5.3. Agent должен быть исполним без trainer/evaluator
+## 5.3. Agent исполним без trainer/evaluator
 
 Канонический invariant:
 
-> Сформированный экземпляр MINDRA Agent должен иметь семантически корректный execution mode без подключённого `Training Runtime` и без подключённого `Evaluation Runtime`.
+> Сформированный MINDRA Agent должен иметь семантически корректный execution path без подключённых Training Runtime и Evaluation Runtime.
 
-Это не означает, что необученный агент обязан быть полезным. Это означает, что обучение и оценка не являются скрытыми обязательными частями inference/control path.
+Это не означает, что необученный Agent обязан быть полезным; это означает отсутствие скрытой training/evaluation dependency в cognition path.
 
 ---
 
-# 6. Environment boundary
+# 6. Agent runtime core и Cognitive Scheduler
 
-`Environment` — внешний по отношению к агенту источник динамики мира и наблюдаемых последствий действий.
+`DU-05` уточняет границу `DU-01`.
 
-На system-context уровне Environment владеет:
+`Agent runtime core` — некогнитивная внутренняя механика, необходимая для соблюдения архитектурной семантики Agent.
 
-- истинным состоянием мира;
-- правилами переходов;
-- скрытыми переменными мира;
-- episode termination/truncation semantics;
-- внешними task conditions;
-- объективными внешними сигналами, если они предусмотрены задачей.
+К ней относится `Cognitive Scheduler`, который:
 
-Agent получает только то, что разрешено будущим Environment contract.
+- исполняет active module plan;
+- соблюдает dependency/freshness constraints;
+- формирует execution waves;
+- координирует state/private-state commits;
+- применяет lifecycle transitions;
+- обеспечивает causal ordering.
 
-Минимальный концептуальный поток:
+Scheduler не должен:
+
+- выбирать task-level action вместо Policy;
+- вычислять utility;
+- решать goal conflicts как hidden policy;
+- использовать evaluator score;
+- выполнять optimizer learning.
+
+Физически scheduler может быть реализован внутри Execution Runtime process, но **логическая scheduling semantics принадлежит Agent**.
+
+Это важно: внешний runtime не должен менять cognition простым изменением порядка module calls.
+
+---
+
+# 7. Environment boundary
+
+`Environment` владеет:
+
+- истинным world state;
+- transition rules;
+- hidden world variables;
+- task conditions;
+- termination/truncation semantics;
+- external feedback, если он предусмотрен task contract.
+
+Agent получает только contract-defined данные.
 
 ```text
 Environment
-   │
-   ├── observation
-   ├── разрешённый external feedback
-   ├── termination / truncation information
-   └── contract-defined metadata
+  ├─ observation
+  ├─ allowed external feedback
+  ├─ termination/truncation
+  └─ public metadata
         ↓
       Agent
         │
-        └── action
+        └─ action
              ↓
-        Environment
+         Environment
 ```
 
-Environment не должен неявно передавать:
+Environment не должен скрыто передавать:
 
 - evaluator verdict;
-- test-set answer;
-- скрытое правильное действие;
-- privileged world state;
+- test answer/label;
+- privileged hidden state;
+- правильное действие;
 - будущие события;
-- внутреннюю метрику качества MINDRA,
+- internal MINDRA quality metric,
 
-если это специально не является observation/task contract конкретного эксперимента.
+если это не является специально определённым experimental/task condition.
 
-Точная семантика `reset`, `step`, `clone`, `restore`, seeds и branching относится к `DU-07`.
+Exact `reset/step/clone/restore` semantics проектируются в `DU-07`.
 
 ---
 
-# 7. Cortex: логическая и физическая граница
+# 8. Cortex: logical и physical boundary
 
-Cortex требует отдельного уточнения, потому что pretrained model может физически выполняться различными способами.
+## 8.1. Logical
 
-## 7.1. Логически
+Cortex — внутренняя capability Agent, потому что его outputs участвуют в cognition.
 
-Cortex является **внутренней capability агента**.
+## 8.2. Physical
 
-Причина: его outputs участвуют в когнитивном процессе и поведении MINDRA так же, как outputs других внутренних модулей.
+Backend может быть:
 
-## 7.2. Физически
+- local in-process;
+- local worker;
+- другой GPU;
+- remote runtime;
+- external inference service,
 
-Cortex backend может быть:
+если будущий Cortex contract это допускает.
 
-- загружен в тот же процесс;
-- размещён в отдельном local worker;
-- размещён на другом GPU;
-- размещён в удалённом runtime;
-- предоставлен через внешний inference service,
+## 8.3. Cortex Execution Provider
 
-если будущий `Cortex` contract это допускает.
+Физический внешний provider не становится отдельным cognitive module. Он исполняет backend за Cortex integration boundary.
 
-## 7.3. Cortex Execution Provider
+## 8.4. Model leakage запрещён
 
-Если физическое выполнение Cortex находится вне основного process/machine boundary, внешний сервис рассматривается как **Cortex Execution Provider**.
-
-Provider не становится самостоятельным когнитивным субъектом архитектуры MINDRA. Он предоставляет вычислительный backend через будущую Cortex integration boundary.
-
-## 7.4. Запрет model leakage
-
-Физические детали Cortex backend не должны неявно проникать в другие модули.
-
-Нельзя строить общую архитектуру вокруг предположений вида:
+Общая архитектура не должна предполагать:
 
 ```text
-«у Cortex всегда hidden_size = X»
-«Cortex всегда является Qwen»
-«Cortex всегда находится на cuda:0»
-«Cortex всегда доступен локально»
+hidden_size конкретной модели
+конкретное имя Qwen/Gemma/Llama
+cuda:0
+локальное обязательное исполнение
+provider-specific request objects
 ```
 
-Точные требования Cortex boundary относятся к `DU-10`.
+Точные требования Cortex определяются в `DU-10`.
 
 ---
 
-# 8. Execution Runtime
+# 9. Execution Runtime
 
-`Execution Runtime` — внешняя инфраструктурная роль, которая **хостит исполнение агента**, но не является частью его когнитивной семантики.
+`Execution Runtime` — внешняя infrastructure role, которая хостит Agent и соединяет его с Environment.
 
-Conceptually он отвечает за:
+Он может:
 
-- создание/загрузку экземпляра Agent;
-- соединение Agent с Environment;
-- передачу разрешённых observation/action;
-- запуск runtime lifecycle;
-- управление run-level ресурсами;
-- остановку/перезапуск исполнения;
-- подключение разрешённых observability hooks;
-- передачу данных в recorder/collector.
+- создать/загрузить Agent;
+- предоставить compute/resources;
+- передавать разрешённые observations/actions;
+- запускать Agent lifecycle entrypoints;
+- остановить/restart run;
+- подключать разрешённые observability hooks;
+- направлять evidence в Artifact Collector.
 
-`Execution Runtime` не должен самостоятельно:
+Он не должен:
 
-- выбирать action за Agent;
-- подменять internal value;
-- добавлять hidden evaluator feedback;
-- интерпретировать evaluation metrics как agent input;
-- менять когнитивную семантику в зависимости от deployment topology.
+- самостоятельно выбирать action;
+- менять internal value;
+- переставлять cognitive modules вопреки Agent scheduler semantics;
+- создавать hidden fallback;
+- добавлять evaluator feedback;
+- менять cognition из-за provider identity.
 
-Точный temporal loop относится к `DU-03`.
+Отношение:
+
+```text
+Execution Runtime hosts
+        ↓
+MINDRA Agent
+        ↓
+Agent runtime core owns scheduling semantics
+```
 
 ---
 
-# 9. Training Runtime
+# 10. Training Runtime
 
-`Training Runtime` является **внешней по отношению к логическому Agent инфраструктурой обновления обучаемого состояния**.
+`Training Runtime` находится вне Agent boundary.
 
-На этом уровне design Training Runtime conceptually может:
+Он может:
 
-- читать разрешённый опыт;
-- читать training datasets;
-- читать snapshot/checkpoint состояния;
-- вычислять losses/gradients/updates;
-- обновлять agent-owned trainable parameters через явную update boundary;
-- поддерживать optimizer-owned state;
-- записывать training metrics;
-- создавать новые checkpoint snapshots.
+- читать разрешённый experience/datasets/snapshots;
+- вычислять losses/gradients;
+- владеть optimizer state;
+- формировать Learning Updates;
+- обновлять agent-owned trainable state через явную boundary;
+- сохранять training metrics/checkpoints.
 
-Training Runtime не становится когнитивным модулем только потому, что меняет его параметры.
-
-Аналогия:
+Ownership:
 
 ```text
 Agent owns learned parameters
 Training Runtime owns optimization procedure/state
 ```
 
-Точная граница между module-owned learning logic и external optimizer/runtime будет определена в `DU-26`.
+`Cognitive Scheduler` не является trainer и не вызывает универсальный `learn()` после каждого cognitive module compute.
+
+Exact training lifecycle проектируется в `DU-26`.
 
 ---
 
-# 10. Online execution, online learning и offline training
+# 11. Online execution, online learning и offline training
 
-На system-context уровне различаются режимы, но точная временная семантика откладывается до `DU-03` и `DU-26`.
+## Online execution
 
-## 10.1. Online execution
+Environment развивается, Agent выполняет cognition/action. Runtime-state updates допустимы как часть нормальной динамики.
 
-Environment развивается, Agent получает observations и выбирает actions.
+## Online learning
 
-Допустимы runtime-state updates, являющиеся частью нормальной агентной динамики.
+Training Runtime может работать одновременно с interaction, но Learning Updates должны иметь явную causal/revision provenance. In-flight cognitive computations не должны незаметно менять `agent_revision`.
 
-## 10.2. Online learning
+## Offline training
 
-Если в будущем будет принят online learning, Training Runtime может работать во время продолжающегося взаимодействия со средой.
+Environment time не развивается; обучение использует сохранённый experience/dataset/snapshot.
 
-При этом обучение остаётся отдельной ответственностью и должно иметь явную provenance обновлений.
+## Consolidation
 
-Физическая параллельность не является обязательной.
-
-## 10.3. Offline training
-
-Environment time не развивается.
-
-Training Runtime работает с ранее полученным опытом, dataset или snapshot и обновляет параметры без текущего action loop.
-
-## 10.4. Consolidation
-
-`Consolidation` на этом этапе определяется только как отдельная state-changing maintenance phase, которая не обязана совпадать с live environment interaction.
-
-Она может использовать сохранённый опыт для изменения памяти, representations или параметров.
-
-Точное владение consolidation logic распределяется позднее между `DU-20`, `DU-25` и `DU-26`.
+Отдельная maintenance/training phase, способная изменять долговременное state/representations/parameters. Exact ownership проектируется позднее.
 
 ---
 
-# 11. Evaluation Runtime
+# 12. Evaluation Runtime
 
-`Evaluation Runtime` — внешний исследовательский компонент, который измеряет поведение Agent и выполняет разрешённые controlled experiments.
+`Evaluation Runtime` — внешний research component.
 
 Он может:
 
-- загружать snapshot агента;
+- загружать snapshot;
 - создавать evaluation clone;
-- запускать Agent в специально выбранном Environment;
-- управлять seeds/test distributions;
-- отключать или подменять модули через будущие intervention hooks;
-- выполнять controlled intervention;
-- измерять trajectories и metrics;
-- сравнивать конфигурации.
+- запускать controlled Environment;
+- управлять test seeds/distributions;
+- выполнять explicit intervention;
+- измерять trajectories/metrics;
+- сравнивать configurations.
 
-## 11.1. Evaluation isolation invariant
+Главный invariant:
 
-> Evaluation-derived information не должна становиться обычным agent-visible input.
+> Evaluation-derived information не становится normal agent-visible input.
 
-В частности, Agent не получает автоматически:
+Agent не получает автоматически:
 
 - итоговый score;
 - название experimental condition;
-- ожидаемый outcome;
-- hidden baseline result;
-- правильный ответ benchmark;
-- статистику других конфигураций.
+- expected outcome;
+- benchmark answer;
+- metrics других configurations.
 
-## 11.2. Controlled intervention — исключение, а не leakage
-
-Evaluator может намеренно изменить внутреннюю переменную **только** через явный intervention mechanism, когда само вмешательство является частью дизайна эксперимента.
-
-Такое изменение должно быть:
-
-- идентифицируемым;
-- воспроизводимым;
-- записанным в evidence;
-- отделённым от normal execution semantics.
-
-Точный intervention contract относится к `DU-06` и `DU-28`.
+Controlled intervention разрешён только через explicit, observable и reproducible boundary, проектируемую в `DU-06`.
 
 ---
 
-# 12. Experiment Runner
+# 13. Experiment Runner
 
-`Experiment Runner` — внешний control-plane компонент.
+`Experiment Runner` находится во внешнем Research Control Plane.
 
-Он отвечает за orchestration исследовательского запуска, но не участвует в cognition Agent.
-
-Conceptually он задаёт/фиксирует:
+Он задаёт/фиксирует:
 
 - experiment identity;
-- конфигурацию;
+- configuration;
 - seed;
 - dataset/environment selection;
-- agent snapshot/configuration;
-- runtime mode;
-- training/evaluation intent;
+- agent snapshot/composition;
+- runtime/training/evaluation intent;
 - artifact destinations;
 - launch/stop status.
 
-Runner не должен превращать run metadata в скрытый agent input.
-
-Например, Agent не должен знать, что текущий запуск называется `ablation_without_memory`, если это не специальная experimental treatment.
+Run metadata не должна становиться hidden cognitive input.
 
 ---
 
-# 13. Artifact Collector
+# 14. Artifact Collector и Artifact Storage
 
-`Artifact Collector` — пассивная исследовательская инфраструктура наблюдения и сохранения evidence.
-
-Он может получать:
+`Artifact Collector` пассивно получает evidence:
 
 - logs;
 - metrics;
 - trajectories;
-- state snapshots;
-- model/module checkpoints;
+- committed snapshots;
+- checkpoints;
 - profiler data;
 - configuration manifests;
-- intervention records;
-- error/crash reports.
+- intervention/failure records.
 
-Главный invariant:
-
-> Artifact Collector не является источником поведения Agent.
-
-Обычный runtime data flow должен быть однонаправленным:
+Обычный поток однонаправлен:
 
 ```text
 Agent / Environment / Runtime
@@ -499,433 +471,326 @@ Agent / Environment / Runtime
       Artifact Storage
 ```
 
-Обратный поток разрешён только для явно определённых операций вроде restore/resume/replay и не должен происходить скрыто.
+Обратный поток разрешён только explicit operations: restore/resume/replay/load.
 
----
-
-# 14. Artifact Storage
-
-`Artifact Storage` — долговечное внешнее хранилище исследовательских и training-артефактов.
-
-Conceptually здесь могут находиться:
-
-- checkpoints;
-- adapters;
-- experiment manifests;
-- trajectories;
-- replay datasets;
-- logs;
-- evaluation results;
-- plots/reports;
-- provenance metadata.
-
-Это **не** то же самое, что активная Memory агента.
-
-## 14.1. Active Memory vs Artifact Storage
+`Artifact Storage` не является активной Memory Agent.
 
 ```text
 Agent Memory
-→ часть логического Agent state
-→ используется cognition по собственному contract
+→ часть agent-owned cognition state
 
 Artifact Storage
-→ внешняя исследовательская инфраструктура
-→ хранит копии/доказательства/снимки
+→ external durable research/training storage
 ```
 
-Если физический storage backend используется для активной Memory, сами данные логически остаются agent-owned, а backend рассматривается как infrastructure resource.
+Даже если они используют один physical backend, logical ownership различается.
 
 ---
 
 # 15. Compute Substrate
 
-`Compute Substrate` — физические ресурсы, на которых размещаются логические компоненты.
+Физические ресурсы:
 
-Примеры допустимых ролей:
-
-- локальный CPU/GPU;
-- локальная рабочая станция;
-- временная notebook VM;
+- local CPU/GPU;
+- workstation;
+- notebook VM;
 - Google Colab;
-- удалённый GPU-host;
-- будущий cloud provider;
-- несколько процессов или workers.
+- remote GPU host;
+- cloud provider;
+- multiple workers/processes.
 
-Compute Substrate **не является частью когнитивной архитектуры**.
+Compute Substrate не является cognitive architecture.
 
-Канонический design не должен требовать конкретного provider, пока это не является сознательно принятым operational constraint.
+## Ephemeral compute
 
-## 15.1. Ephemeral compute
+MINDRA обязана допускать исчезающий runtime:
 
-Архитектура должна допускать временный compute runtime, который может исчезнуть между запусками.
+- durable artifacts не должны существовать только на ephemeral VM;
+- semantic restore не зависит от той же физической VM;
+- provider-specific path не становится canonical contract.
 
-Следствие:
-
-- долговечные артефакты не должны существовать только в ephemeral runtime;
-- восстановление не должно зависеть от сохранения конкретной VM;
-- provider-specific filesystem path не должен становиться частью semantic contract.
-
-Точные checkpoint/recovery требования относятся к `DU-27`.
+Exact recovery/checkpoint requirements — `DU-27`.
 
 ---
 
 # 16. Исследователь / оператор
 
-Человек находится вне runtime Agent boundary.
+Человек находится вне Agent runtime boundary.
 
-Его роли:
+Он отвечает за:
 
-- формулирование гипотез;
-- принятие architecture decisions;
-- подготовка конфигураций;
+- hypotheses;
+- architecture decisions;
+- configurations;
 - запуск исследований;
-- интерпретация evidence;
-- review изменений;
-- принятие/отклонение ADR;
-- определение допустимых claims.
+- interpretation evidence;
+- review;
+- ADR acceptance/rejection;
+- допустимые claims.
 
-Human feedback может когда-либо стать training data, но только через явный documented data/training path.
+Human feedback может стать training data только через explicit documented path.
 
-Ручное вмешательство исследователя в конкретный episode не должно маскироваться под autonomous Agent behavior.
+Ручное вмешательство в episode не должно выдаваться за autonomous Agent behavior.
 
 ---
 
-# 17. Внешние datasets и pretrained artifacts
+# 17. External datasets и pretrained artifacts
 
-Training data, pretrained weights, tokenizers, model files и другие импортируемые artifacts находятся **вне Agent boundary до загрузки через явный resource/configuration path**.
+Weights, datasets, tokenizers и model files находятся вне Agent boundary до явной загрузки.
 
 После загрузки:
 
-- instantiated Cortex остаётся внутренней capability;
-- agent-owned trainable parameters становятся частью состояния агента;
-- исходный external artifact остаётся provenance/source artifact.
+- instantiated Cortex является internal capability;
+- agent-owned trainable parameters принадлежат Agent;
+- source artifact остаётся provenance.
 
-Сторонний pretrained artifact не является каноническим источником архитектурной семантики.
-
-Поведение конкретной foundation model не должно молча определять meaning внутренних MINDRA signals.
+Поведение foundation model не определяет автоматически meaning внутренних MINDRA signals.
 
 ---
 
-# 18. Владение состоянием
-
-На system-context уровне принимается следующая семантика ownership.
+# 18. Ownership state
 
 | Категория | Логический владелец |
 |---|---|
-| внутренний runtime state Agent | MINDRA Agent |
-| активная Memory Agent | MINDRA Agent |
-| trainable parameters модулей | MINDRA Agent |
+| `CognitiveState` и internal runtime state | MINDRA Agent |
+| causally relevant module-private state | MINDRA Agent / semantic module owner |
+| active Memory | MINDRA Agent |
+| trainable parameters | MINDRA Agent |
 | Cortex integration state/adapters | MINDRA Agent |
+| Agent scheduling semantics | Agent runtime core |
 | Environment hidden/world state | Environment |
 | optimizer state | Training Runtime |
-| run configuration / seed / experiment identity | Experiment Runner |
-| evaluation metrics | Evaluation Runtime / experiment evidence |
-| logs / trajectories / snapshots | Artifact pipeline |
-| архивная копия checkpoint | Artifact Storage |
-| физический GPU/VM state | Compute Substrate |
+| run configuration/seed/experiment identity | Experiment Runner |
+| evaluation metrics | Evaluation Runtime / evidence |
+| logs/trajectories/snapshot copies | Artifact pipeline |
+| archival checkpoint copy | Artifact Storage |
+| physical GPU/VM state | Compute Substrate |
 
-Важно:
-
-> snapshot чужого состояния не меняет его логического владельца.
-
-Например, checkpoint в Artifact Storage является сохранённой копией agent-owned state, но само хранилище не становится когнитивным владельцем этих параметров.
+Snapshot/copy чужого state не меняет его semantic owner.
 
 ---
 
 # 19. Разрешённые потоки данных
 
-## 19.1. Environment → Agent
+## Environment → Agent
 
-Разрешены только contract-defined:
+Только contract-defined observations, feedback, task/termination signals и public metadata.
 
-- observations;
-- external feedback;
-- episode/task signals;
-- termination/truncation;
-- публичная metadata.
+## Agent → Environment
 
-## 19.2. Agent → Environment
+Action и contract-defined action metadata.
 
-- action;
-- при необходимости contract-defined action metadata.
+## Agent/Environment/runtime → artifact pipeline
 
-## 19.3. Agent/Environment → recorder/artifact pipeline
+Наблюдательные копии evidence.
 
-Разрешены наблюдательные копии:
+## Training Runtime → Agent
 
-- trajectory events;
-- diagnostics;
-- snapshots;
-- metrics;
-- provenance.
+Только explicit Learning Update/state update согласно future training contract.
 
-## 19.4. Training Runtime → Agent
+## Agent/experience → Training Runtime
 
-Разрешены явные state/parameter updates согласно будущему training contract.
+Разрешённые training inputs/datasets/trajectories/snapshots.
 
-## 19.5. Agent/Experience Storage → Training Runtime
+## Agent snapshot → Evaluation Runtime
 
-Разрешены training inputs, datasets, trajectories, snapshots.
+Evaluation clone/control subject.
 
-## 19.6. Agent snapshot → Evaluation Runtime
+## Evaluation Runtime → Agent
 
-Evaluator может получить frozen/copy state для controlled evaluation.
+По умолчанию normal feedback отсутствует; допускается только explicit intervention channel.
 
-## 19.7. Evaluation Runtime → Agent
+## Artifact Storage → runtime
 
-По умолчанию — **нет нормального feedback-потока**.
+Explicit restore/resume/replay/load operations с provenance/compatibility checks.
 
-Допустим только явный intervention/control channel в соответствующем experimental mode.
+## Execution Runtime → Agent runtime core
 
-## 19.8. Artifact Storage → runtime
-
-Разрешены только явные операции:
-
-- restore;
-- resume;
-- replay;
-- load pretrained artifact;
-- load configuration,
-
-с provenance и проверкой совместимости в будущих contracts.
+Запуск lifecycle и передача разрешённых external inputs. Execution Runtime не передаёт скрытые module-order decisions: active schedule определяется Agent contracts/plan.
 
 ---
 
 # 20. Запрещённые скрытые потоки
 
-Следующие потоки являются архитектурным нарушением, если не оформлены как специальное experiment condition:
-
 ```text
-Evaluation score ───────────────► Policy input
-Hidden Environment state ───────► Agent
-Test answer/label ───────────────► Agent
-Experiment name ────────────────► Agent behavior
-Artifact logger result ─────────► internal value
-GPU/provider identity ──────────► cognition
-Training-only privileged data ──► normal evaluation Agent
-Other-agent metrics ────────────► tested Agent
+Evaluation score ─────────────► Policy input
+Hidden Environment state ─────► Agent
+Test answer/label ─────────────► Agent
+Experiment name ──────────────► Agent behavior
+Artifact logger result ────────► internal value
+GPU/provider identity ─────────► cognition
+Training-only privileged data ─► clean evaluation Agent
+Other-agent metrics ───────────► tested Agent
+Execution Runtime ad-hoc order ─► hidden cognitive semantics
 ```
 
-Запрет относится к **семантическому leakage**, а не только к прямому Python-вызову.
-
-Если информация косвенно попадает в prompt, feature vector, shared object или global variable, это всё равно пересечение границы.
+Запрет относится к semantic leakage независимо от формы: prompt, global variable, shared object, tensor feature или hidden callback.
 
 ---
 
-# 21. Trust model
+# 21. Research trust model
 
-MINDRA вводит минимальную research-oriented trust model.
+## Research Control Plane
 
-## 21.1. Research Control Plane
+Researcher, accepted config, Experiment Runner, Evaluation Runtime и evidence pipeline trusted для постановки/фиксации эксперимента, но не для скрытого решения задачи за Agent.
 
-Включает:
+## Agent Plane
 
-- researcher/operator;
-- accepted configuration;
-- Experiment Runner;
-- Evaluation Runtime;
-- artifact/evidence pipeline.
-
-Эта область считается trusted для постановки эксперимента и сохранения evidence.
-
-При этом она **не должна быть агенту источником скрытого решения задачи**.
-
-## 21.2. Agent Plane
-
-Agent является объектом исследования.
-
-Его outputs не считаются доказательством собственной корректности.
-
-Например:
+Agent — объект исследования. Его самоотчёт не является evidence собственной корректности.
 
 ```text
-Agent сказал «я уверен на 95%»
+«я уверен на 95%»
 ≠
-Self Model действительно calibrated
+Self Model calibrated
 ```
 
-## 21.3. Environment Plane
+## Environment Plane
 
-Environment является источником contract-defined world dynamics.
+Environment — источник contract-defined dynamics; observations могут быть неполными, шумными или adversarial в future experiments.
 
-Agent-visible данные Environment считаются входом, который может быть:
+## Infrastructure Plane
 
-- неполным;
-- шумным;
-- неожиданным;
-- adversarial в будущих experiments.
-
-## 21.4. Infrastructure Plane
-
-Compute/storage/provider могут считаться operationally trusted для исполнения/хранения в рамках выбранного эксперимента, но не являются источником когнитивной семантики или research truth.
-
-Сторонние weights/datasets требуют provenance и будущих reproducibility checks.
-
-Полная security threat model в `DU-01` не проектируется.
+Compute/storage/provider trusted operationally в рамках experiment, но не являются источником cognitive meaning/research truth.
 
 ---
 
-# 22. Deployment patterns, которые обязана допускать архитектура
+# 22. Deployment patterns
 
-Следующие схемы считаются семантически эквивалентными, если contracts и результаты исполнения сохранены.
+Архитектура должна допускать при сохранении contracts:
 
-## 22.1. Local single-process
-
-```text
-одна машина
-└── один process
-    ├── Environment
-    ├── Agent
-    ├── Training Runtime
-    └── recorder
-```
-
-Логические границы всё равно сохраняются.
-
-## 22.2. Local multi-process
+## Local single-process
 
 ```text
-local machine
-├── environment worker
-├── agent worker
-├── training worker
-└── evaluator worker
+one process
+├─ Environment
+├─ Execution Runtime
+├─ Agent + Agent runtime core
+├─ Training Runtime
+└─ recorder
 ```
 
-## 22.3. Notebook / Colab runtime
+Логические границы сохраняются.
+
+## Local multi-process
+
+```text
+environment worker
+agent worker
+training worker
+evaluation worker
+```
+
+## Notebook / Colab
 
 ```text
 persistent repository/storage
           ↓
- temporary notebook VM
+temporary notebook VM
           ↓
-   Agent / train / eval
+Agent / training / evaluation
           ↓
- persistent artifacts
+persistent artifacts
 ```
 
-## 22.4. Hybrid local + remote compute
+## Hybrid / distributed
 
-```text
-local control plane
-        ↓
-remote compute
-├── Cortex backend
-├── training
-└── evaluation
-        ↓
-external/persistent artifact storage
-```
+Cortex, training, evaluation или environment workers могут быть распределены без изменения logical ownership.
 
-## 22.5. Future distributed execution
-
-Несколько workers/devices могут выполнять разные роли без изменения logical ownership.
-
-`DU-01` не требует поддержки всех схем в первой software version. Он запрещает архитектурные решения, которые **без необходимости делают одну из схем единственно возможной**.
+Первая software version не обязана поддерживать все patterns; canonical architecture только не должна без причины запрещать их.
 
 ---
 
-# 23. Research isolation rules
+# 23. Research isolation invariants
 
-Для сохранения валидности экспериментов принимаются следующие invariants.
-
-1. `Evaluation Runtime` не является источником обычных cognitive signals.
-2. Test-only hidden state не попадает в Agent observation.
+1. Evaluation Runtime не является normal cognitive signal source.
+2. Test-only hidden state не попадает в observation.
 3. Artifact Collector не влияет на decision path.
-4. Training-specific privileged data не используется в clean evaluation без явного условия.
-5. Любой evaluator intervention записывается как intervention, а не normal behavior.
-6. Любое состояние, изменённое Training Runtime, должно иметь version/provenance в будущем design.
-7. Deployment change не должен незаметно менять experimental semantics.
-8. Human intervention не должен выдаваться за autonomous behavior.
+4. Training privileged data не попадает в clean evaluation без explicit condition.
+5. Intervention всегда маркируется как intervention.
+6. Learning state changes имеют future version/provenance.
+7. Deployment change не должен незаметно менять semantics.
+8. Human intervention не выдаётся за autonomy.
+9. Execution Runtime не создаёт скрытый cognitive order поверх `Cognitive Scheduler`.
+10. Scheduler не получает evaluator-only data для выбора module execution.
 
 ---
 
-# 24. Research evidence, использованное при проектировании DU-01
+# 24. Evidence, использованное при системном проектировании
 
-`DU-01` не выбирает конкретный framework, но существующие реализации подтверждают практичность разделения логических ролей.
+## Environment boundary
 
-## 24.1. Environment boundary
-
-Gymnasium определяет `Env` как объект динамики среды с явными `reset()` и `step(action)` и отделяет observation/reward/termination от самого агента.
+Gymnasium предоставляет явную `Env` boundary с `reset()`/`step(action)`.
 
 Источник:
 
-- [Gymnasium — Env](https://gymnasium.farama.org/api/env/)
+- https://gymnasium.farama.org/api/env/
 
-Это не делает Gymnasium обязательной зависимостью MINDRA; используется только как evidence зрелости явной agent/environment boundary.
+## Collection/training separation
 
-## 24.2. Collection и training могут быть разнесены
-
-TorchRL collectors поддерживают direct, process и distributed execution, а асинхронный collector может собирать опыт независимо от training loop.
+TorchRL поддерживает direct/process/distributed collectors и decoupled collection/training.
 
 Источники:
 
-- [TorchRL — collectors](https://docs.pytorch.org/rl/main/reference/collectors.html)
-- [TorchRL — single node collectors](https://docs.pytorch.org/rl/main/reference/collectors_single.html)
+- https://docs.pytorch.org/rl/main/reference/collectors.html
+- https://docs.pytorch.org/rl/main/reference/collectors_single.html
 
-Это подтверждает, что semantic separation collection/training совместима как с простым, так и с распределённым execution.
+## Separate evaluation
 
-## 24.3. Evaluation может быть отдельной runtime-ролью
-
-TorchRL `Evaluator` поддерживает синхронную, асинхронную и process-separated evaluation с передачей weights.
+TorchRL поддерживает отдельную evaluation runtime role.
 
 Источник:
 
-- [TorchRL — Evaluation](https://docs.pytorch.org/rl/main/reference/collectors_eval.html)
+- https://docs.pytorch.org/rl/main/reference/collectors_eval.html
 
-MINDRA принимает более строгий research invariant: evaluation-derived metrics не становятся normal agent inputs.
+## Ephemeral compute
 
-## 24.4. Compute runtime может быть временным
-
-Google Colab выполняет код в VM, которая удаляется после периода бездействия и имеет ограниченный lifetime.
+Google Colab использует временные VM с ограниченным lifetime.
 
 Источник:
 
-- [Google Colab — FAQ](https://research.google.com/colaboratory/intl/en-GB/faq.html)
+- https://research.google.com/colaboratory/intl/en-GB/faq.html
 
-Это является практическим основанием отделять durable artifacts от ephemeral compute, но Google Colab не становится каноническим runtime MINDRA.
+Эти инструменты являются evidence реализуемости boundaries, но не обязательными dependencies MINDRA.
 
 ---
 
-# 25. Принятые invariants DU-01
-
-После этого Design Update считаются принятыми следующие положения.
+# 25. Принятые invariants системного контекста
 
 ## SC-01
 
-`MINDRA Agent` является логической когнитивной системой, а не процессом, VM или GPU.
+`MINDRA Agent` — logical cognitive system, а не process/VM/GPU.
 
 ## SC-02
 
-`Environment` находится вне Agent boundary.
+Environment находится вне Agent boundary.
 
 ## SC-03
 
-Cortex является внутренней логической capability Agent, даже если его backend физически выполняется удалённо.
+Cortex является internal logical capability даже при remote backend.
 
 ## SC-04
 
-`Execution Runtime` хостит Agent, но не является когнитивным модулем.
+Execution Runtime хостит Agent, но не является cognitive module и не владеет скрытой cognition semantics.
 
 ## SC-05
 
-`Training Runtime` находится вне Agent boundary и обновляет agent-owned trainable state только через явную update boundary.
+Training Runtime находится вне Agent и изменяет trainable state только через explicit Learning Update boundary.
 
 ## SC-06
 
-`Evaluation Runtime` находится вне Agent boundary; evaluation-derived information по умолчанию недоступна Agent.
+Evaluation Runtime находится вне Agent; evaluation-derived information по умолчанию недоступна cognition.
 
 ## SC-07
 
-`Experiment Runner` является внешним control-plane компонентом и не участвует в cognition.
+Experiment Runner — внешний control-plane component.
 
 ## SC-08
 
-`Artifact Collector/Storage` являются внешней инфраструктурой и не должны скрыто влиять на decision path.
+Artifact pipeline не влияет на decision path.
 
 ## SC-09
 
-Логическое владение state не зависит от физического storage location.
+Logical state ownership не зависит от storage location.
 
 ## SC-10
 
@@ -933,108 +798,90 @@ Deployment topology не определяет architecture semantics.
 
 ## SC-11
 
-Agent должен иметь корректный execution mode без подключённых Training/Evaluation Runtime.
+Agent имеет корректный execution mode без trainer/evaluator.
 
 ## SC-12
 
-Все state-changing cross-boundary operations должны быть явными и в будущем иметь provenance.
+State-changing cross-boundary operations должны быть explicit/provenance-aware.
 
 ## SC-13
 
-Evaluator interventions допустимы только как явно обозначенные experimental operations.
+Evaluator intervention — только explicit experimental operation.
 
 ## SC-14
 
-Compute provider не является canonical cognitive dependency.
+Compute provider не является cognitive dependency.
 
 ## SC-15
 
-Active Agent Memory и external Artifact Storage являются разными логическими сущностями даже при общем физическом backend.
+Active Agent Memory и Artifact Storage — разные logical entities.
+
+## SC-16
+
+`Cognitive Scheduler` принадлежит Agent runtime core, но не является cognitive module; Execution Runtime может физически хостить его, не получая права переопределять scheduling semantics.
 
 ---
 
-# 26. Что DU-01 намеренно не решает
+# 26. Что этот документ намеренно не решает
 
 Открытыми остаются:
 
-- import/dependency graph;
-- composition root;
-- plugin/registry semantics;
-- process model;
-- thread model;
-- sync/async runtime semantics;
-- exact step ordering;
-- `CognitiveState` representation;
-- module lifecycle;
-- scheduler;
-- observability API;
-- intervention API;
+- concrete process/thread model;
+- exact Python interfaces;
+- concrete state/scheduler framework;
+- observability/intervention API;
 - Environment API;
 - Cortex API;
 - trajectory schema;
 - optimizer/training algorithm;
 - checkpoint schema;
-- exact storage backend;
+- storage backend;
 - concrete local/Colab/cloud workflow.
 
-Эти вопросы не должны решаться implementation-ом раньше соответствующих Design Updates.
+Уже решённые downstream вопросы не считаются open:
+
+- dependency/composition semantics — `DU-02`;
+- logical temporal model — `DU-03`;
+- `CognitiveState` semantics — `DU-04`;
+- module lifecycle/DAG-wave scheduler semantics — `DU-05`.
 
 ---
 
-# 27. Последствия для следующих Design Updates
+# 27. Связь с последующими Design Updates
 
-## DU-02 — Dependency & Composition Rules
+## DU-02
 
-Должен построить dependency model на основе принятых логических границ.
+Определяет dependency/composition поверх system boundaries.
 
-Особенно:
+## DU-03
 
-- cognitive modules не должны зависеть от Experiment Runner;
-- Agent не должен импортировать evaluator logic;
-- training code не должен становиться implicit runtime dependency inference path;
-- concrete Cortex backend не должен протекать за Cortex boundary;
-- infrastructure backends не должны определять semantic ownership.
+Определяет causal temporal semantics известных ролей.
 
-## DU-03 — Runtime / Temporal Model
+## DU-04
 
-Должен определить temporal semantics уже известных ролей:
+Определяет shared `CognitiveState`, не смешивая его с Environment/evaluator/optimizer/artifact metadata.
 
-- online execution;
-- environment progression;
-- online learning;
-- offline training;
-- consolidation;
-- evaluation-only execution.
+## DU-05
 
-## DU-04 — CognitiveState
+Уточняет Agent runtime core и `Cognitive Scheduler`: execution mechanics принадлежат Agent и не становятся внешней hidden orchestration policy.
 
-Должен описать внутренний agent-owned state, не смешивая его с:
+## DU-06
 
-- Environment hidden state;
-- evaluator metadata;
-- optimizer state;
-- experiment metadata;
-- artifact metadata.
+Определяет observability/intervention boundary между Agent и Research Control Plane без leakage.
 
-## DU-06 — Observability & Intervention
+## DU-27
 
-Должен определить controlled research boundary между Agent и Evaluation Runtime без leakage.
-
-## DU-27 — Checkpoint / Reproducibility / Compute
-
-Должен конкретизировать restore/resume и provider-independent artifact persistence поверх принятых logical/storage boundaries.
+Конкретизирует restore/resume/provider-independent persistence.
 
 ---
 
 # 28. Completion gate DU-01
 
-`DU-01` считается завершённым, если для любого будущего объекта можно сначала ответить на два вопроса:
+Системный контекст считается устойчивым, если для любого будущего объекта можно определить:
 
-1. **Кому он логически принадлежит?**
-2. **Является ли его физическое размещение архитектурной семантикой или только deployment detail?**
+1. logical owner;
+2. responsibility;
+3. допустимые cross-boundary data flows;
+4. является ли physical placement semantics или deployment detail.
 
-После принятия этого документа следующий допустимый Design Update:
-
-```text
-DU-02 — Dependency & Composition Rules
-```
+Текущий следующий Design Update определяется только `current.md`.
