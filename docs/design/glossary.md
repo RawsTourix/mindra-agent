@@ -457,3 +457,43 @@ Architecture Decision Record — документ, фиксирующий сущ
 Существенный вопрос, решение по которому ещё не принято.
 
 Open question не должен превращаться в implicit implementation choice без design review.
+
+---
+
+# Composition Root
+
+Логическая bootstrap/composition boundary, в которой разрешаются symbolic implementation identifiers, создаются concrete implementations и собирается конкретная конфигурация Agent/runtime/evaluation для запуска.
+
+Composition Root знает о concrete implementations, но не является когнитивным модулем и не должен содержать decision logic Agent.
+
+---
+
+# Dependency Injection
+
+Принцип явной передачи уже разрешённой зависимости потребителю через constructor/factory/contract boundary вместо самостоятельного поиска зависимости потребителем.
+
+В MINDRA термин не означает обязательное использование конкретного DI-framework.
+
+---
+
+# Service Locator
+
+Pattern, при котором потребитель во время работы самостоятельно обращается к общему registry/container для поиска нужной зависимости, например `services.get(...)` или `container.resolve(...)`.
+
+Runtime Service Locator запрещён для cognitive/runtime code MINDRA по `DU-02`, потому что скрывает dependency graph и усложняет подмену, ablation и диагностику.
+
+---
+
+# Registry
+
+Каталог symbolic identifiers и factories/providers, который может использоваться на composition/discovery boundary для выбора concrete implementation.
+
+Registry не является Agent state и не должен использоваться cognitive modules как runtime Service Locator.
+
+---
+
+# Adapter / Provider
+
+Concrete implementation, изолирующая backend-specific library, SDK, storage, model или external service за более стабильной capability/contract boundary.
+
+Термины `Adapter` и `Provider` могут уточняться в конкретных subsystem designs; общий invariant — backend-specific детали не должны без необходимости протекать к независимым consumers.
