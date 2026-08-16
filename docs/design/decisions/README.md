@@ -68,6 +68,7 @@ Research experiment сам по себе не становится ADR: снач
 ## Accepted
 
 - [`ADR-0001 — Логические границы независимы от deployment topology`](ADR-0001-logical-boundaries-independent-of-deployment.md) — архитектурная принадлежность определяется responsibility/state ownership, а не процессом, устройством или compute provider.
+- [`ADR-0002 — Явная композиция и запрет runtime Service Locator`](ADR-0002-explicit-composition-no-runtime-service-locator.md) — concrete implementations разрешаются в Composition Root; потребители получают зависимости явно и не ищут их через глобальный runtime container/registry.
 
 ## Proposed
 
@@ -75,7 +76,12 @@ Research experiment сам по себе не становится ADR: снач
 
 ## Rejected
 
-Нет самостоятельных ADR со статусом `rejected`. Внутри `ADR-0001` рассмотрены и отклонены deployment-coupled и service-centric варианты как canonical system model.
+Нет самостоятельных ADR со статусом `rejected`.
+
+Рассмотренные и отклонённые варианты сохранены внутри соответствующих ADR:
+
+- в `ADR-0001` — deployment-coupled и service-centric system models;
+- в `ADR-0002` — direct concrete wiring и global runtime Service Locator как canonical dependency models.
 
 ## Superseded
 
