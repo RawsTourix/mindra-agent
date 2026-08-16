@@ -190,7 +190,52 @@ Artifact Storage
 
 ---
 
-# 10. Scope текущего этапа
+# 10. Temporal discipline
+
+Обязательны [`docs/design/execution-model.md`](docs/design/execution-model.md) и `ADR-0003`.
+
+Помнить:
+
+```text
+logical causal time
+≠
+wall-clock
+```
+
+```text
+Agent Session
+≠
+Environment Episode
+```
+
+```text
+Cognitive Cycle
+≠
+Environment Transition
+```
+
+```text
+runtime state update
+≠
+Learning Update
+```
+
+До явного изменения canonical design запрещается:
+
+- использовать elapsed wall-clock как неявный cognitive clock;
+- считать внутренний reasoning/retrieval cycle новым Environment step;
+- ретроактивно менять уже committed action или outcome;
+- смешивать observed, replayed, imagined и counterfactual transitions без provenance;
+- считать `Environment.reset()` полным reset Agent;
+- использовать порядок завершения async workers/batch как causal order независимых trajectories;
+- скрывать изменение trainable parameters внутри якобы frozen/normal execution;
+- считать partial physical computation committed event без logical commit boundary.
+
+Async execution допустим только при сохранении однозначного causal order и достаточного provenance Agent revision/trajectory.
+
+---
+
+# 11. Scope текущего этапа
 
 Фактический текущий scope всегда определяется `docs/design/current.md`.
 
@@ -208,11 +253,12 @@ Artifact Storage
 - training framework;
 - Colab/cloud runtime;
 - DI/config/plugin framework;
+- scheduler/async framework;
 - окончательную структуру `src/`.
 
 ---
 
-# 11. Поведение при неопределённости
+# 12. Поведение при неопределённости
 
 Если документация не определяет важное решение:
 
@@ -222,4 +268,4 @@ Artifact Storage
 - при необходимости предложить варианты и trade-offs;
 - дождаться design decision до реализации зависимой части.
 
-Мелкие локальные implementation details, не влияющие на public/internal contracts, исследовательскую валидность, dependency boundaries или будущую расширяемость, могут выбираться реализацией самостоятельно при сохранении принятых принципов.
+Мелкие локальные implementation details, не влияющие на public/internal contracts, исследовательскую валидность, dependency/temporal boundaries или будущую расширяемость, могут выбираться реализацией самостоятельно при сохранении принятых принципов.
