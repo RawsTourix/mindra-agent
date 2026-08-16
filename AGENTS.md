@@ -119,36 +119,100 @@ Research evidence
 В частности, будущая архитектура должна позволять:
 
 - включать и отключать модуль через явную composition/configuration boundary;
-- использовать baseline/no-op/dummy реализации, когда это нужно для оценки;
+- использовать baseline/no-op/dummy/control реализации, когда это нужно для оценки;
 - заменять Cortex backend без переписывания независимых подсистем;
 - проводить ablation без специальных одноразовых веток кода;
 - сохранять наблюдаемость входов, выходов и relevant internal state для экспериментов.
 
-Точные контракты будут определяться отдельно и не должны угадываться заранее.
+Точные module contracts определяются соответствующими Design Updates и не должны угадываться заранее.
 
 ---
 
-# 8. Scope текущего этапа
+# 8. Dependency и composition discipline
 
-На момент создания этого файла MINDRA находится на стадии **documentation foundation**.
+Обязательны [`docs/design/dependency-rules.md`](docs/design/dependency-rules.md) и `ADR-0002`.
 
-Пока не приняты:
+До их явного изменения запрещается:
 
-- version roadmap;
-- точная структура `src/`;
+- cognitive module → concrete peer dependency;
+- Agent/core → Training Runtime или Evaluation Runtime dependency;
+- независимый consumer → concrete Cortex/provider SDK dependency;
+- runtime Service Locator вида `registry.get(...)`/`container.resolve(...)` внутри cognitive/runtime code;
+- shared mutable globals как средство межмодульной коммуникации;
+- direct mutation чужого module-private state;
+- scattered `disable_x`/`ablation_x` branches по независимым потребителям вместо composition substitution;
+- hidden behavior-changing fallback;
+- dynamic plugin discovery внутри cognitive step.
+
+Принятый принцип:
+
+```text
+configuration
+    ↓
+Composition Root
+    ↓
+concrete factories/providers
+    ↓
+explicit assembly / dependency passing
+    ↓
+Agent + external runtimes
+```
+
+Registry допустим как composition-time каталог factories/providers, но не как runtime Service Locator.
+
+Если будущая реализация требует исключения из этих правил, сначала нужен design review и, при значимом выборе, новый/изменяющий ADR.
+
+---
+
+# 9. System boundary discipline
+
+Обязателен [`docs/design/system-context.md`](docs/design/system-context.md).
+
+Помнить:
+
+```text
+logical architecture boundary
+≠
+process / device / machine boundary
+```
+
+и:
+
+```text
+Agent Memory
+≠
+Artifact Storage
+```
+
+Нельзя считать компонент когнитивным только потому, что он находится в том же процессе или на том же GPU.
+
+Нельзя превращать evaluator/trainer/experiment metadata в normal agent input без явной experimental semantics.
+
+---
+
+# 10. Scope текущего этапа
+
+Фактический текущий scope всегда определяется `docs/design/current.md`.
+
+Не полагаться на старые prompt/chat сообщения или на этот файл для определения номера текущего `DU`.
+
+Пока не появились version roadmap и implementation sequence, наличие подробного design само по себе **не разрешает начинать реализацию**.
+
+До соответствующих Design Updates не превращать обсуждавшиеся кандидаты в обязательные implementation choices, включая:
+
 - конкретный Cortex backend;
 - размер canonical latent/state representations;
-- окончательный state bus framework;
-- точные алгоритмы RL/world model/curiosity;
-- concrete memory backend;
-- training pipeline;
-- Colab runtime contract.
-
-Не превращать обсуждавшиеся кандидаты в обязательные implementation choices без отдельного design review.
+- state bus framework;
+- RL/world-model/curiosity algorithms;
+- memory backend;
+- training framework;
+- Colab/cloud runtime;
+- DI/config/plugin framework;
+- окончательную структуру `src/`.
 
 ---
 
-# 9. Поведение при неопределённости
+# 11. Поведение при неопределённости
 
 Если документация не определяет важное решение:
 
@@ -158,4 +222,4 @@ Research evidence
 - при необходимости предложить варианты и trade-offs;
 - дождаться design decision до реализации зависимой части.
 
-Мелкие локальные implementation details, не влияющие на публичные/internal contracts, исследовательскую валидность или будущую расширяемость, могут выбираться реализацией самостоятельно при сохранении принятых принципов.
+Мелкие локальные implementation details, не влияющие на public/internal contracts, исследовательскую валидность, dependency boundaries или будущую расширяемость, могут выбираться реализацией самостоятельно при сохранении принятых принципов.
