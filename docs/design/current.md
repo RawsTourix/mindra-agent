@@ -2,38 +2,38 @@
 
 ## Назначение
 
-Краткий factual status проекта.
+Краткий фактический статус проекта.
 
-Этот файл не переопределяет canonical design. Он показывает, что фактически уже спроектировано и какой следующий шаг допустим.
+Этот файл не переопределяет канонический design. Он показывает, что фактически уже спроектировано и какой следующий шаг допустим.
 
 ---
 
 # 1. Общий статус
 
-**Documentation foundation создана. Детальный архитектурный design и implementation ещё не начаты.**
+**Фундамент документации создан. Детальный архитектурный design и реализация ещё не начаты.**
 
 На текущем этапе зафиксированы:
 
-- project concept;
-- architecture concept;
-- research methodology;
-- базовые design principles;
-- glossary;
-- documentation plan;
-- правила для coding agents;
-- пустые registry boundaries для ADR, exact contracts и versions.
+- концепция проекта;
+- архитектурная концепция;
+- исследовательская методология;
+- базовые принципы проектирования;
+- глоссарий;
+- план проектирования документации;
+- правила для агентов разработки;
+- пустые реестры для ADR, точных контрактов и будущих версий.
 
 ---
 
 # 2. Что ещё не принято
 
-Пока отсутствуют accepted решения по:
+Пока отсутствуют принятые решения по:
 
-- system context;
-- dependency rules;
-- canonical `CognitiveState`;
-- module lifecycle/scheduling;
-- Cortex contract/backend;
+- системному контексту;
+- правилам зависимостей;
+- каноническому `CognitiveState`;
+- lifecycle/scheduling модулей;
+- контракту и backend Cortex;
 - Environment/MicroWorld;
 - World Model;
 - Self Model;
@@ -43,56 +43,56 @@
 - Memory/consolidation;
 - Workspace;
 - Policy/Planner;
-- training lifecycle;
-- data/replay schema;
+- lifecycle обучения;
+- схеме data/replay;
 - checkpointing;
-- exact evaluation harness;
-- testing strategy;
-- version roadmap;
-- implementation sequence.
+- точному evaluation harness;
+- стратегии тестирования;
+- дорожной карте версий;
+- последовательностям реализации.
 
 ---
 
-# 3. Implementation status
+# 3. Статус реализации
 
 ```text
-Production/research implementation: not started
-Version roadmap: not designed
-Current version: none
-Accepted implementation HEAD: none
+Исследовательская и программная реализация: не начата
+Дорожная карта версий: не спроектирована
+Текущая версия: отсутствует
+Принятый implementation HEAD: отсутствует
 ```
 
 Наличие документации не является разрешением Codex начать писать архитектуру по собственному усмотрению.
 
 ---
 
-# 4. Следующий допустимый design step
+# 4. Следующий допустимый шаг проектирования
 
 Согласно `documentation-plan.md`:
 
 ```text
-system context
-→ dependency rules
-→ canonical cognitive state
-→ module lifecycle
+системный контекст
+→ правила зависимостей
+→ каноническое когнитивное состояние
+→ lifecycle модулей
 ```
 
-Каждый из этих этапов должен проектироваться отдельно с анализом существующих подходов и trade-offs.
+Каждый из этих этапов должен проектироваться отдельно с анализом существующих подходов и компромиссов.
 
 ---
 
-# 5. Запрещённый premature scope
+# 5. Запрещённый преждевременный scope
 
-До соответствующего design decision не фиксировать как обязательные:
+До соответствующего архитектурного решения не фиксировать как обязательные:
 
-- Qwen/Gemma/Llama или другую конкретную Cortex model;
-- TensorDict или другой state framework;
+- Qwen/Gemma/Llama или другую конкретную модель Cortex;
+- TensorDict или другой framework состояния;
 - PPO/GRPO/Dreamer или другой learning algorithm;
 - RND/ICM или конкретный curiosity mechanism;
-- FAISS/vector DB или конкретный memory backend;
+- FAISS/vector DB или конкретный backend памяти;
 - PEFT/LoRA/QLoRA как обязательный tuning mechanism;
 - Google Colab как единственный runtime;
 - конкретные latent dimensions;
 - окончательную структуру `src/`.
 
-Эти варианты могут быть кандидатами для будущего research/design comparison.
+Эти варианты могут быть кандидатами для будущего исследовательского и архитектурного сравнения.
