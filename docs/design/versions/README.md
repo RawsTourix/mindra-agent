@@ -1,12 +1,12 @@
-# Version design MINDRA
+# Проектирование версий MINDRA
 
 ## Назначение
 
-Этот каталог предназначен для будущих implementation-oriented версий MINDRA.
+Этот каталог предназначен для будущих версий MINDRA, ориентированных на реализацию.
 
-Version roadmap пока **не спроектирован**.
+Дорожная карта версий пока **не спроектирована**.
 
-Версии появятся только после формирования достаточного canonical architecture design и dependency graph.
+Версии появятся только после формирования достаточного канонического архитектурного design и графа зависимостей.
 
 ---
 
@@ -17,19 +17,19 @@ Version roadmap пока **не спроектирован**.
 Правильный порядок:
 
 ```text
-canonical design
-→ dependencies
-→ evaluation requirements
+канонический design
+→ зависимости
+→ требования к evaluation
 → roadmap
-→ version specifications
-→ implementation sequences
+→ спецификации версий
+→ последовательности реализации
 ```
 
 ---
 
-# Что должна содержать будущая version directory
+# Что должна содержать будущая директория версии
 
-Conceptually:
+Предварительно:
 
 ```text
 versions/vX.Y/
@@ -43,42 +43,42 @@ versions/vX.Y/
 - prerequisites;
 - scope;
 - non-goals;
-- canonical design references;
-- required research/engineering capabilities;
-- acceptance criteria;
-- known limitations.
+- ссылки на канонический design;
+- необходимые исследовательские и инженерные возможности;
+- критерии приёмки;
+- известные ограничения.
 
 `implementation-sequence.md` должен задавать patch-oriented порядок работ для Codex.
 
 ---
 
-# Правила implementation sequence
+# Правила последовательности реализации
 
 Каждый будущий patch должен содержать:
 
 - цель;
 - prerequisites;
-- canonical docs;
+- канонические документы;
 - точный scope;
-- forbidden scope;
-- implementation requirements;
-- required tests;
-- required evaluation, если применимо;
-- acceptance criteria;
-- documentation updates.
+- запрещённый scope;
+- требования к реализации;
+- обязательные тесты;
+- обязательную evaluation, если применимо;
+- критерии приёмки;
+- обновления документации.
 
-Поздняя версия не разрешает перепрыгнуть acceptance предыдущих dependency milestones.
+Поздняя версия не разрешает перепрыгнуть приёмку предыдущих зависимых этапов.
 
 ---
 
-# Research versions и software versions
+# Исследовательские и программные версии
 
 Нужно отдельно решить, как MINDRA будет соотносить:
 
-- software version;
-- architecture/research milestone;
-- experiment protocol version;
-- checkpoint format version.
+- программную версию;
+- архитектурный или исследовательский этап;
+- версию протокола эксперимента;
+- версию формата checkpoint.
 
 До соответствующего design/ADR эти понятия не следует автоматически объединять.
 
@@ -87,7 +87,7 @@ versions/vX.Y/
 # Состояние
 
 ```text
-Version roadmap: not designed
-Current version: none
-Implementation: not started
+Дорожная карта версий: не спроектирована
+Текущая версия: отсутствует
+Реализация: не начата
 ```
