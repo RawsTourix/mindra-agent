@@ -176,8 +176,6 @@ logical architecture boundary
 process / device / machine boundary
 ```
 
-и:
-
 ```text
 Agent Memory
 ≠
@@ -281,7 +279,67 @@ Concrete container (`TensorDict`, dataclass и т. п.) пока не выбра
 
 ---
 
-# 12. Scope текущего этапа
+# 12. Module protocol и scheduler discipline
+
+Обязательны [`docs/design/module-lifecycle.md`](docs/design/module-lifecycle.md) и `ADR-0005`.
+
+Помнить:
+
+```text
+execution order
+=
+declared dependencies + freshness + lifecycle constraints
+```
+
+а не:
+
+```text
+registration/import/completion order
+```
+
+И:
+
+```text
+instantaneous scheduler graph = DAG
+```
+
+```text
+modules одной wave
+→ читают одну base state_revision
+→ исполняются под одной agent_revision
+→ публикуют staged effects
+→ commit согласованно
+```
+
+До явного изменения canonical design запрещается:
+
+- вызывать cognitive modules специальными ad-hoc вызовами из central main loop вместо общего lifecycle;
+- строить ordering на случайном порядке списка/registry/import;
+- создавать instantaneous dependency cycle и разрывать его произвольным порядком;
+- давать module compute доступ к undeclared state fields;
+- позволять module запускать peer/scheduler recursively для получения hidden dependency;
+- делать public output одного module видимым соседу той же wave до commit;
+- использовать physical completion order как cognitive semantics;
+- применять overlapping canonical writes без отдельного owner/reducer;
+- commit causally relevant private state раньше связанного accepted wave effect;
+- оставлять private state изменённым после rejected/failed wave без explicit rollback/transactional semantics;
+- молча rebase/apply stale-base result;
+- менять trainable `agent_revision` внутри in-flight wave;
+- публиковать partial wave state после failure required module;
+- выполнять hidden optimizer update внутри обычного `compute`;
+- скрыто переключаться на fallback implementation при runtime failure;
+- считать `disabled` и `NoOp` одним и тем же состоянием;
+- совершать необратимые causally visible side effects до explicit commit/boundary без отдельного design.
+
+`Cognitive Scheduler` относится к Agent runtime core, но не является когнитивным модулем и не выбирает task-level решения.
+
+Future Executive Control может управлять допустимым количеством cycles/optional compute только внутри scheduler/contracts semantics и не имеет права bypass ownership/commit/dependency rules.
+
+Concrete DAG/async framework пока не выбран.
+
+---
+
+# 13. Scope текущего этапа
 
 Фактический текущий scope всегда определяется `docs/design/current.md`.
 
@@ -293,18 +351,18 @@ Concrete container (`TensorDict`, dataclass и т. п.) пока не выбра
 
 - конкретный Cortex backend;
 - размер canonical latent/state representations;
-- state bus framework;
+- state framework;
 - RL/world-model/curiosity algorithms;
-- memory backend;
+- Memory backend;
 - training framework;
 - Colab/cloud runtime;
 - DI/config/plugin framework;
-- scheduler/async framework;
+- scheduler/async/graph framework;
 - окончательную структуру `src/`.
 
 ---
 
-# 13. Поведение при неопределённости
+# 14. Поведение при неопределённости
 
 Если документация не определяет важное решение:
 
@@ -314,4 +372,4 @@ Concrete container (`TensorDict`, dataclass и т. п.) пока не выбра
 - при необходимости предложить варианты и trade-offs;
 - дождаться design decision до реализации зависимой части.
 
-Мелкие локальные implementation details, не влияющие на public/internal contracts, исследовательскую валидность, dependency/temporal/state boundaries или будущую расширяемость, могут выбираться реализацией самостоятельно при сохранении принятых принципов.
+Мелкие локальные implementation details, не влияющие на public/internal contracts, исследовательскую валидность, dependency/temporal/state/scheduler boundaries или будущую расширяемость, могут выбираться реализацией самостоятельно при сохранении принятых принципов.
