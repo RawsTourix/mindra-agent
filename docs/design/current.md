@@ -10,7 +10,7 @@
 
 # 1. Общий статус
 
-**Фундамент документации создан. `DU-01` и `DU-02` завершены и приняты. Реализация ещё не начата.**
+**Фундамент документации создан. `DU-01`, `DU-02` и `DU-03` завершены и приняты. Реализация ещё не начата.**
 
 На текущем этапе зафиксированы:
 
@@ -25,7 +25,8 @@
 - канонический порядок `DU-00` … `DU-32`;
 - системный контекст MINDRA;
 - dependency/composition model;
-- два accepted ADR.
+- runtime/temporal model;
+- три accepted ADR.
 
 ---
 
@@ -35,6 +36,7 @@
 DU-00 — Documentation Foundation
 DU-01 — System Context
 DU-02 — Dependency & Composition Rules
+DU-03 — Runtime / Temporal Model
 ```
 
 ## DU-01
@@ -72,53 +74,69 @@ Accepted decision:
 - shared mutable globals запрещены как межмодульный state mechanism;
 - Agent/core не зависит от Training/Evaluation Runtime;
 - concrete Cortex/provider details изолируются за capability boundary;
-- no-op/dummy/control implementations должны подключаться через ту же composition semantics;
-- behavior-changing fallback обязан быть явным и наблюдаемым;
-- будущая структура кода должна позволять автоматически проверять dependency rules.
+- no-op/dummy/control implementations подключаются через ту же composition semantics;
+- behavior-changing fallback обязан быть явным и наблюдаемым.
 
 Accepted decision:
 
 - [`ADR-0002`](decisions/ADR-0002-explicit-composition-no-runtime-service-locator.md).
+
+## DU-03
+
+Канонический документ:
+
+- [`execution-model.md`](execution-model.md).
+
+Главные результаты:
+
+- canonical time MINDRA является логическим причинным временем, а не wall-clock;
+- различаются `Run`, `Agent Session`, `Episode`, `Decision Window`, `Cognitive Cycle` и `Environment Transition`;
+- один внешний action может предваряться несколькими внутренними Cognitive Cycle;
+- `Action Commit` и `Outcome Commit` являются причинными boundaries;
+- runtime state update отделён от Learning Update;
+- Replay, Consolidation и imagined trajectories имеют собственную temporal/provenance semantics и не создают fake Environment steps;
+- physical sync/async execution допустим при сохранении однозначного causal order trajectory;
+- async collection/training требует provenance Agent revision;
+- `Environment.reset()` закрывает/создаёт Episode, но не равен полному reset Agent Session;
+- termination и truncation сохраняются раздельно;
+- clean evaluation по умолчанию запрещает trainable Learning Updates, но не выключает нормальную runtime-динамику Agent;
+- causal replay является обязательной архитектурной целью, bitwise replay — best-effort свойством конкретного runtime.
+
+Accepted decision:
+
+- [`ADR-0003`](decisions/ADR-0003-hierarchical-logical-time.md).
 
 ---
 
 # 3. Следующий допустимый Design Update
 
 ```text
-DU-03 — Runtime / Temporal Model
-```
-
-Цель `DU-03` — определить временную семантику MINDRA до проектирования `CognitiveState` и module lifecycle.
-
-Обязательные области:
-
-```text
-environment tick
-cognitive step
-module compute phase
-action dispatch
-outcome observation
-runtime state update
-online learning update
-replay step
-consolidation step
-evaluation-only execution
-```
-
-Также предстоит определить:
-
-- sync/async semantics на архитектурном уровне;
-- step/episode/session identity;
-- ordering и causal consistency;
-- сколько cognitive cycles допустимо на один Environment tick;
-- что переживает episode reset;
-- relation между fixed scheduler и будущим Executive Control;
-- требования к deterministic replay.
-
-После принятия `DU-03` допускается:
-
-```text
 DU-04 — CognitiveState Semantics
+```
+
+Цель `DU-04` — спроектировать каноническую модель внутреннего состояния поверх уже принятых system/dependency/temporal boundaries.
+
+Обязательные вопросы:
+
+```text
+state categories
+ownership
+cycle/decision/episode/session/persistent scopes
+observed/derived/predicted state
+read/write semantics
+unknown/missing/stale
+provenance
+temporal versioning
+clone/counterfactual requirements
+serialization/checkpoint compatibility
+batch/device/dtype independence
+model-specific hidden state isolation
+```
+
+После принятия `DU-04` допускается:
+
+```text
+DU-05 — Module Protocol & Scheduling
 ```
 
 ---
@@ -140,6 +158,22 @@ Cortex Execution Provider
 Composition Root
 ```
 
+И временные уровни:
+
+```text
+Run
+Agent Session
+Episode
+Decision Window
+Cognitive Cycle
+Action Commit
+Environment Transition
+Outcome Commit
+Learning Update
+Replay Step
+Consolidation Event
+```
+
 Главные relations:
 
 ```text
@@ -148,17 +182,27 @@ logical architecture boundary
 process / device / machine boundary
 ```
 
-и:
-
 ```text
 runtime feedback cycle
 ≠
 static dependency cycle
 ```
 
+```text
+logical causal time
+≠
+wall-clock
+```
+
+```text
+Cognitive Cycle
+≠
+Environment Transition
+```
+
 ---
 
-# 5. Действующие dependency invariants
+# 5. Действующие dependency/temporal invariants
 
 До их явного изменения через design/ADR запрещаются:
 
@@ -171,9 +215,13 @@ static dependency cycle
 - cross-module direct private-state mutation;
 - scattered ablation flags вместо composition substitution;
 - hidden behavior-changing fallback;
-- dynamic plugin discovery внутри cognitive step.
-
-Конкретная Python/package реализация этих правил ещё не выбрана.
+- dynamic plugin discovery внутри cognitive step;
+- использование wall-clock как неявного cognitive clock;
+- трактовка internal reasoning cycle как Environment step;
+- ретроактивное изменение уже committed action/outcome;
+- смешивание replay/imagined transition с observed Environment transition;
+- неявный полный reset Agent при `Environment.reset()`;
+- использование batch completion order как causal order независимых trajectories.
 
 ---
 
@@ -181,7 +229,6 @@ static dependency cycle
 
 Пока отсутствуют accepted решения по:
 
-- runtime/temporal model;
 - canonical `CognitiveState`;
 - module lifecycle/scheduling;
 - observability/intervention contract;
@@ -219,6 +266,9 @@ static dependency cycle
 - DI/config framework;
 - registry implementation;
 - plugin `entry points`;
+- concrete scheduler;
+- async framework;
+- state bus implementation;
 - concrete architecture-test tool.
 
 ---
@@ -249,6 +299,8 @@ static dependency cycle
 - Google Colab как единственный runtime;
 - конкретные latent dimensions;
 - окончательную структуру `src/`;
+- конкретное число Cognitive Cycle;
+- конкретный scheduler/async framework;
 - отдельный Workspace/Affect/Executive Control только на основании когнитивной аналогии.
 
 Эти варианты остаются кандидатами для targeted research/design comparison.
@@ -260,6 +312,7 @@ static dependency cycle
 - порядок Design Updates: [`documentation-plan.md`](documentation-plan.md);
 - системный контекст: [`system-context.md`](system-context.md);
 - dependency/composition rules: [`dependency-rules.md`](dependency-rules.md);
+- runtime/temporal model: [`execution-model.md`](execution-model.md);
 - ADR registry: [`decisions/README.md`](decisions/README.md);
 - карта областей: [`modules/README.md`](modules/README.md);
 - общие принципы: [`principles.md`](principles.md);
