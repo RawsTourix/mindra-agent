@@ -26,6 +26,12 @@ Agent не равен Cortex, одной neural network, process, VM или GPU.
 
 Agent boundary не обязана совпадать с process/device/network boundary.
 
+## Agent runtime core
+
+Некогнитивная внутренняя runtime-часть Agent, обеспечивающая исполнение принятых module/state semantics.
+
+В `DU-05` к ней относится `Cognitive Scheduler`: он координирует выполнение модулей и state commits, но не выбирает task-level решения за когнитивные модули.
+
 ## Environment
 
 Внешняя по отношению к Agent система динамики мира, которая принимает actions и возвращает contract-defined observations, внешние task signals и сведения о termination/truncation.
@@ -45,6 +51,8 @@ Deployment topology не определяет architecture semantics, если �
 ## Execution Runtime
 
 Внешняя инфраструктурная роль, которая хостит исполнение Agent, соединяет его с Environment и обеспечивает run-level lifecycle, не являясь когнитивным модулем.
+
+Execution Runtime может физически хостить Agent runtime core, но не владеет внутренней scheduling semantics MINDRA.
 
 ## Training Runtime
 
@@ -314,6 +322,110 @@ Agent-owned state, принадлежащее конкретному модул�
 
 ---
 
+# Module protocol и scheduling
+
+## Module
+
+Компонент с явной responsibility, входами, выходами, state/lifecycle и диагностической границей.
+
+Модуль не обязан быть нейросетью.
+
+## Semantic module identity
+
+Идентичность роли/экземпляра модуля в active Agent composition, не зависящая от конкретной implementation.
+
+## Implementation identity
+
+Идентичность concrete implementation, подключённой к semantic module role в конкретном run, например learned/NoOp/control implementation.
+
+## Module Descriptor
+
+Декларативное описание модуля, достаточное для composition/scheduling validation: identity, reads, writes, lifecycle participation, private-state traits и другие scheduler-relevant свойства.
+
+Exact Python representation пока не определена.
+
+## Declared read
+
+State dependency, которую module contract явно разрешает модулю читать.
+
+Наличие поля в container само по себе не создаёт dependency.
+
+## Declared write
+
+Canonical path/namespace, которым module contract предоставляет write authority для proposed updates.
+
+Declared write не даёт права мутировать committed snapshot напрямую.
+
+## Execution Plan
+
+Скомпилированное представление active module composition, dependency graph, lifecycle phases, execution waves и compatibility/failure constraints для конкретного режима исполнения.
+
+## Instantaneous dependency graph
+
+Граф зависимостей module computations в одном causal scheduler segment.
+
+В MINDRA он должен быть DAG. Feedback между модулями выражается через logical time/state revisions, а не instantaneous cycle.
+
+## Execution Wave
+
+Множество ready modules, которые могут вычисляться относительно одной committed base `state_revision` и `agent_revision`, не требуя current-wave outputs друг друга.
+
+Physical completion order modules внутри wave не является cognitive semantics.
+
+## Wave commit
+
+Validation и согласованная публикация staged public/private effects execution wave.
+
+Required wave не должен оставлять partial committed effects при failure одного обязательного module computation.
+
+## Staged private update
+
+Causally relevant изменение module-private state, подготовленное во время computation, но не становящееся семантически видимым до связанного successful commit.
+
+## Stale-base result
+
+Module result, вычисленный относительно base revision, которая больше не является допустимой для его применения.
+
+По умолчанию такой result не применяется и не rebased молча.
+
+## Cognitive Scheduler
+
+Некогнитивный механизм Agent runtime core, который строит/исполняет Execution Plan, формирует waves, запускает module computations, валидирует proposed effects и координирует commits/lifecycle transitions.
+
+Scheduler не определяет task-level goals/utility/action за когнитивные модули.
+
+## Fixed Scheduler
+
+Scheduler policy, в которой допустимый порядок/число обязательных computations задаются deterministic runtime rules/configuration, а не learned Executive Control.
+
+## Executive Control
+
+Будущая когнитивная ответственность, способная влиять на допустимый optional compute/cycle budget, но не имеющая права bypass scheduler contracts, ownership и commit rules.
+
+Точная семантика определяется в `DU-22`.
+
+## Disabled module
+
+Semantic capability, отсутствующая в active execution plan.
+
+Если downstream dependency требует эту capability и не допускает отсутствие, composition invalid.
+
+## NoOp implementation
+
+Активная concrete implementation semantic module contract, используемая для baseline/ablation и выдающая contract-valid нейтральное/unknown/unavailable поведение согласно design.
+
+`NoOp` не равно `disabled`.
+
+## Control implementation
+
+Concrete implementation того же semantic contract, предназначенная для research control и исключения альтернативного объяснения эффекта.
+
+## Atomic module effect
+
+Требование, согласно которому causally related public `CognitiveState` update и module-private state effect становятся committed согласованно либо не становятся committed как partial effect.
+
+---
+
 # Основные когнитивные термины
 
 ## Cortex
@@ -335,12 +447,6 @@ Cortex может быть LLM, но MINDRA не должна зависеть �
 Внешний физический runtime/provider, который исполняет Cortex backend, когда вычисление вынесено за основной deployment boundary.
 
 Provider не становится отдельным когнитивным модулем MINDRA только из-за физического размещения.
-
-## Module
-
-Компонент с явной responsibility, входами, выходами, state/lifecycle и диагностической границей.
-
-Модуль не обязан быть нейросетью.
 
 ## World Model
 
