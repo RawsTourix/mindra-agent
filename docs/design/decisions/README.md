@@ -65,6 +65,18 @@ Research experiment сам по себе не становится ADR: снач
 
 # Реестр
 
-На стадии documentation foundation accepted ADR отсутствуют.
+## Accepted
 
-Первые ADR появятся только после фактического анализа альтернатив в следующих design topics.
+- [`ADR-0001 — Логические границы независимы от deployment topology`](ADR-0001-logical-boundaries-independent-of-deployment.md) — архитектурная принадлежность определяется responsibility/state ownership, а не процессом, устройством или compute provider.
+
+## Proposed
+
+Нет.
+
+## Rejected
+
+Нет самостоятельных ADR со статусом `rejected`. Внутри `ADR-0001` рассмотрены и отклонены deployment-coupled и service-centric варианты как canonical system model.
+
+## Superseded
+
+Нет.
