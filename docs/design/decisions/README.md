@@ -4,16 +4,7 @@
 
 Этот каталог предназначен для значимых архитектурных решений MINDRA.
 
-ADR создаётся, когда существует несколько реалистичных вариантов, а выбор влияет на:
-
-- module boundaries;
-- internal contracts;
-- state ownership;
-- training semantics;
-- reproducibility;
-- evaluation validity;
-- runtime topology;
-- future version design.
+ADR создаётся, когда существует несколько реалистичных вариантов, а выбор влияет на module boundaries, internal contracts, state ownership, training semantics, reproducibility, evaluation validity, runtime topology или future version design.
 
 ADR не нужен для каждой локальной implementation detail.
 
@@ -69,6 +60,7 @@ Research experiment сам по себе не становится ADR: снач
 
 - [`ADR-0001 — Логические границы независимы от deployment topology`](ADR-0001-logical-boundaries-independent-of-deployment.md) — архитектурная принадлежность определяется responsibility/state ownership, а не процессом, устройством или compute provider.
 - [`ADR-0002 — Явная композиция и запрет runtime Service Locator`](ADR-0002-explicit-composition-no-runtime-service-locator.md) — concrete implementations разрешаются в Composition Root; потребители получают зависимости явно и не ищут их через глобальный runtime container/registry.
+- [`ADR-0003 — Иерархическое логическое время и причинные commit boundaries`](ADR-0003-hierarchical-logical-time.md) — MINDRA различает внешнее и внутреннее логическое время, допускает несколько Cognitive Cycle на одно действие и отделяет causal order от wall-clock/physical concurrency.
 
 ## Proposed
 
@@ -78,10 +70,7 @@ Research experiment сам по себе не становится ADR: снач
 
 Нет самостоятельных ADR со статусом `rejected`.
 
-Рассмотренные и отклонённые варианты сохранены внутри соответствующих ADR:
-
-- в `ADR-0001` — deployment-coupled и service-centric system models;
-- в `ADR-0002` — direct concrete wiring и global runtime Service Locator как canonical dependency models.
+Отклонённые альтернативы сохранены внутри соответствующих ADR.
 
 ## Superseded
 
