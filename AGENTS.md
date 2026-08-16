@@ -235,7 +235,53 @@ Async execution допустим только при сохранении одн
 
 ---
 
-# 11. Scope текущего этапа
+# 11. CognitiveState discipline
+
+Обязательны [`docs/design/cognitive-state.md`](docs/design/cognitive-state.md) и `ADR-0004`.
+
+Помнить:
+
+```text
+CognitiveState
+≠
+full Agent-owned state
+```
+
+```text
+committed snapshot
+≠
+mutable shared bus
+```
+
+```text
+semantic lifetime
+≠
+historical retention
+≠
+checkpoint inclusion
+```
+
+До явного изменения canonical design запрещается:
+
+- напрямую мутировать уже committed `CognitiveState`;
+- изменять canonical tensor/value inplace через retained reference;
+- использовать общий mutable dict/singleton как неформальный state bus;
+- писать в namespace/field, которым компонент семантически не владеет;
+- разрешать conflict через скрытый `last-write-wins`;
+- применять proposed update из stale base revision как будто base не изменилась;
+- начинать зависеть от произвольного state field только потому, что оно присутствует в container;
+- кодировать `unknown`/`unavailable` универсальными magic sentinel вроде `0`, `-1`, `NaN` или `None` без contract;
+- смешивать observed, predicted, retrieved и intervened значения без достаточного provenance;
+- протаскивать model-specific hidden state, provider clients или live infrastructure objects в canonical shared state;
+- считать clone одного `CognitiveState` полным Agent clone, если существует другое causally relevant private state.
+
+Каждый future canonical field должен иметь declared semantic owner, scope/lifetime, availability/freshness semantics и provenance requirements.
+
+Concrete container (`TensorDict`, dataclass и т. п.) пока не выбран и не должен фиксироваться implementation раньше соответствующего version design.
+
+---
+
+# 12. Scope текущего этапа
 
 Фактический текущий scope всегда определяется `docs/design/current.md`.
 
@@ -258,7 +304,7 @@ Async execution допустим только при сохранении одн
 
 ---
 
-# 12. Поведение при неопределённости
+# 13. Поведение при неопределённости
 
 Если документация не определяет важное решение:
 
@@ -268,4 +314,4 @@ Async execution допустим только при сохранении одн
 - при необходимости предложить варианты и trade-offs;
 - дождаться design decision до реализации зависимой части.
 
-Мелкие локальные implementation details, не влияющие на public/internal contracts, исследовательскую валидность, dependency/temporal boundaries или будущую расширяемость, могут выбираться реализацией самостоятельно при сохранении принятых принципов.
+Мелкие локальные implementation details, не влияющие на public/internal contracts, исследовательскую валидность, dependency/temporal/state boundaries или будущую расширяемость, могут выбираться реализацией самостоятельно при сохранении принятых принципов.
