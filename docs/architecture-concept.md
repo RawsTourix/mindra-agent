@@ -36,7 +36,7 @@ Environment
     ↓
 Observation / Perception
     ↓
-Canonical internal state / state exchange boundary
+Canonical CognitiveState / state exchange boundary
     ├── Cortex
     ├── World Model
     ├── Self Model
@@ -68,13 +68,18 @@ Canonical internal state / state exchange boundary
 
 Компоненты не должны образовывать неуправляемую сеть скрытых прямых зависимостей.
 
-Проекту требуется каноническая граница обмена внутренним состоянием, через которую модули смогут читать и публиковать определённые данные по явным контрактам.
+Канонической shared-state границей является `CognitiveState`, детальная семантика которого определена в `docs/design/cognitive-state.md`.
 
-Рабочее concept-название — `CognitiveState` / state bus.
+На concept-уровне важно:
 
-Точное представление пока не выбрано.
+- `CognitiveState` содержит опубликованное межмодульное runtime state, а не всё `Agent-owned state`;
+- committed state revision не должна изменяться задним числом;
+- будущие модули читают и публикуют данные через явные semantic contracts;
+- model/backend-specific private state не должен без необходимости протекать через общую границу.
 
-Важно зафиксировать только invariant:
+Точное container/API representation пока не выбрано.
+
+Важно сохранить invariant:
 
 > Независимый модуль не должен знать внутреннюю реализацию другого модуля, если взаимодействие может быть выражено через стабильный контракт состояния.
 
@@ -194,6 +199,8 @@ working state
 
 Фактические типы памяти и storage backend будут выбраны позднее.
 
+Полный Memory store не обязан входить в `CognitiveState`; shared state должен публиковать только contract-defined результаты/representations, необходимые другим подсистемам.
+
 ---
 
 # 11. Workspace / integration
@@ -280,7 +287,8 @@ optional Cortex adaptation
 
 На concept-уровне намеренно не определены:
 
-- framework canonical state bus;
+- concrete `CognitiveState` container/framework;
+- exact shared-state API;
 - latent dimensions;
 - scheduling graph;
 - concrete module protocols;
