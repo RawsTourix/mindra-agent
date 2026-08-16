@@ -6,7 +6,7 @@
 
 Здесь фиксируются принятые семантики, invariants, границы модулей, internal contracts, архитектурные решения и будущие version plans.
 
-На текущем этапе сформирован documentation foundation и приняты `DU-01` … `DU-04`. Детальные subsystem design добавляются последовательно после отдельного исследования вариантов.
+На текущем этапе сформирован documentation foundation и приняты `DU-01` … `DU-05`. Детальные subsystem design добавляются последовательно после отдельного исследования вариантов.
 
 ---
 
@@ -40,7 +40,8 @@ Research evidence не переписывает design напрямую: про�
 - [`system-context.md`](system-context.md) — `DU-01`: логические границы Agent, Environment, training/evaluation infrastructure, artifact/storage/compute и разрешённые потоки данных;
 - [`dependency-rules.md`](dependency-rules.md) — `DU-02`: dependency directions, Composition Root, dependency inversion, backend isolation и запрет runtime Service Locator/shared mutable globals;
 - [`execution-model.md`](execution-model.md) — `DU-03`: иерархическое логическое время, Agent Session/Episode/Decision Window/Cognitive Cycle, causal commit boundaries, async semantics и replay requirements;
-- [`cognitive-state.md`](cognitive-state.md) — `DU-04`: committed state snapshots, namespaces/ownership, availability/freshness, temporal scopes, provenance, private-state boundary и clone/counterfactual requirements.
+- [`cognitive-state.md`](cognitive-state.md) — `DU-04`: committed state snapshots, namespaces/ownership, availability/freshness, temporal scopes, provenance, private-state boundary и clone/counterfactual requirements;
+- [`module-lifecycle.md`](module-lifecycle.md) — `DU-05`: module descriptors, declared reads/writes, DAG/wave scheduling, transactional public/private effects, lifecycle/failure semantics и граница будущего Executive Control.
 
 ## Карта модулей
 
@@ -54,13 +55,14 @@ Research evidence не переписывает design напрямую: про�
 - [`ADR-0001`](decisions/ADR-0001-logical-boundaries-independent-of-deployment.md) — logical responsibility boundary independent of deployment topology;
 - [`ADR-0002`](decisions/ADR-0002-explicit-composition-no-runtime-service-locator.md) — explicit Composition Root и запрет runtime Service Locator;
 - [`ADR-0003`](decisions/ADR-0003-hierarchical-logical-time.md) — hierarchical logical time и causal commit boundaries;
-- [`ADR-0004`](decisions/ADR-0004-versioned-committed-cognitive-state.md) — versioned committed CognitiveState, staged owner-scoped updates и запрет hidden mutable bus semantics.
+- [`ADR-0004`](decisions/ADR-0004-versioned-committed-cognitive-state.md) — versioned committed CognitiveState, staged owner-scoped updates и запрет hidden mutable bus semantics;
+- [`ADR-0005`](decisions/ADR-0005-wave-scheduled-module-protocol.md) — declared DAG scheduling, execution waves и atomic public/private module commit.
 
 ## Exact internal contracts
 
 - [`contracts/README.md`](contracts/README.md).
 
-Exact machine-facing `CognitiveState`/`ModuleProtocol` contracts пока не приняты: `DU-05` должен сначала определить lifecycle, scheduler и commit interaction.
+Semantic `CognitiveState` и module lifecycle уже определены, но exact machine-facing Python contracts намеренно не фиксируются до появления module-specific design pressure и дальнейшего contract freeze.
 
 ## Versions
 
@@ -85,7 +87,7 @@ Exact machine-facing `CognitiveState`/`ModuleProtocol` contracts пока не �
 
 Канонический порядок: [`documentation-plan.md`](documentation-plan.md).
 
-Текущий следующий update: `DU-05 — Module Protocol & Scheduling`.
+Текущий следующий update: `DU-06 — Observability & Intervention`.
 
 ---
 
@@ -149,7 +151,7 @@ Implementation-ready design должен минимизировать архит
 
 # 7. Текущая граница
 
-Приняты `DU-01` … `DU-04`, но пока не существует accepted detailed cognitive module design, exact module contract или version roadmap.
+Приняты `DU-01` … `DU-05`, но пока не существует accepted detailed cognitive module design, exact module contract или version roadmap.
 
 Канонически уже зафиксированы:
 
@@ -165,7 +167,13 @@ Implementation-ready design должен минимизировать архит
 - committed state revision семантически неизменяема;
 - canonical writes имеют однозначного semantic owner;
 - state availability/freshness и provenance являются частью семантики;
-- private causally relevant state не должно скрываться от будущих snapshot/reproducibility requirements.
+- private causally relevant state не должно скрываться от будущих snapshot/reproducibility requirements;
+- module execution order выводится из declared dependencies/freshness/phase constraints;
+- instantaneous scheduler graph является DAG;
+- independent ready modules исполняются через snapshot-consistent execution waves;
+- public и causally relevant private effects согласуются через atomic commit semantics;
+- scheduler mechanics принадлежат Agent runtime core, но не являются когнитивным модулем;
+- future Executive Control не сможет обходить scheduler/contracts/commit boundaries.
 
 Обсуждавшиеся ранее Qwen, TensorDict, PPO, Dreamer, RND, ICM, FAISS, PEFT/LoRA, Colab и другие технологии являются кандидатами для будущего анализа, но не каноническими требованиями.
 
