@@ -6,7 +6,7 @@
 
 Здесь должны фиксироваться принятые семантики, invariants, границы модулей, internal contracts, архитектурные решения и будущие version plans.
 
-На текущем этапе сформирован documentation foundation, принят системный контекст `DU-01` и определён подробный порядок последующих Design Updates. Детальные subsystem design добавляются последовательно после отдельного исследования вариантов.
+На текущем этапе сформирован documentation foundation, приняты `DU-01 — System Context` и `DU-02 — Dependency & Composition Rules`. Детальные subsystem design добавляются последовательно после отдельного исследования вариантов.
 
 ---
 
@@ -37,7 +37,8 @@ Research evidence не переписывает design напрямую: про�
 
 ## Canonical system design
 
-- [`system-context.md`](system-context.md) — `DU-01`: логическая граница Agent, Environment, training/evaluation infrastructure, artifact/storage/compute boundaries и разрешённые потоки данных.
+- [`system-context.md`](system-context.md) — `DU-01`: логическая граница Agent, Environment, training/evaluation infrastructure, artifact/storage/compute boundaries и разрешённые потоки данных;
+- [`dependency-rules.md`](dependency-rules.md) — `DU-02`: dependency directions, Composition Root, dependency inversion, backend isolation, no-op/control composition и запрет runtime Service Locator/shared mutable globals.
 
 ## Карта модулей
 
@@ -48,7 +49,8 @@ Research evidence не переписывает design напрямую: про�
 ## Decision records
 
 - [`decisions/README.md`](decisions/README.md);
-- [`ADR-0001`](decisions/ADR-0001-logical-boundaries-independent-of-deployment.md) — logical responsibility boundary independent of deployment topology.
+- [`ADR-0001`](decisions/ADR-0001-logical-boundaries-independent-of-deployment.md) — logical responsibility boundary independent of deployment topology;
+- [`ADR-0002`](decisions/ADR-0002-explicit-composition-no-runtime-service-locator.md) — explicit Composition Root и запрет runtime Service Locator.
 
 ## Exact internal contracts
 
@@ -77,7 +79,7 @@ Research evidence не переписывает design напрямую: про�
 
 Канонический порядок: [`documentation-plan.md`](documentation-plan.md).
 
-Текущий следующий update: `DU-02 — Dependency & Composition Rules`.
+Текущий следующий update: `DU-03 — Runtime / Temporal Model`.
 
 ---
 
@@ -141,7 +143,15 @@ Implementation-ready design должен минимизировать архит
 
 # 7. Текущая граница
 
-Принят `DU-01 — System Context`, но пока не существует accepted detailed cognitive module design, exact module contract или version roadmap.
+Приняты `DU-01` и `DU-02`, но пока не существует accepted detailed cognitive module design, exact module contract или version roadmap.
+
+Уже канонически запрещены:
+
+- hidden concrete peer dependencies;
+- runtime Service Locator внутри cognitive/runtime code;
+- shared mutable globals как неформальный state bus;
+- Agent → Training/Evaluation Runtime dependency;
+- concrete Cortex/provider leakage в независимые потребители.
 
 Обсуждавшиеся ранее Qwen, TensorDict, PPO, Dreamer, RND, ICM, FAISS, PEFT/LoRA, Colab и другие технологии являются кандидатами для будущего анализа, но не каноническими требованиями.
 
