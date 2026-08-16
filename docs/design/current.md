@@ -10,7 +10,7 @@
 
 # 1. Общий статус
 
-**Фундамент документации создан. `DU-01`, `DU-02` и `DU-03` завершены и приняты. Реализация ещё не начата.**
+**Фундамент документации создан. `DU-01` … `DU-04` завершены и приняты. Реализация ещё не начата.**
 
 На текущем этапе зафиксированы:
 
@@ -26,7 +26,8 @@
 - системный контекст MINDRA;
 - dependency/composition model;
 - runtime/temporal model;
-- три accepted ADR.
+- canonical `CognitiveState` semantics;
+- четыре accepted ADR.
 
 ---
 
@@ -37,6 +38,7 @@ DU-00 — Documentation Foundation
 DU-01 — System Context
 DU-02 — Dependency & Composition Rules
 DU-03 — Runtime / Temporal Model
+DU-04 — CognitiveState Semantics
 ```
 
 ## DU-01
@@ -100,43 +102,91 @@ Accepted decision:
 - `Environment.reset()` закрывает/создаёт Episode, но не равен полному reset Agent Session;
 - termination и truncation сохраняются раздельно;
 - clean evaluation по умолчанию запрещает trainable Learning Updates, но не выключает нормальную runtime-динамику Agent;
-- causal replay является обязательной архитектурной целью, bitwise replay — best-effort свойством конкретного runtime.
+- causal replay является обязательной архитектурной целью, bitwise replay — best-effort свойством concrete runtime.
 
 Accepted decision:
 
 - [`ADR-0003`](decisions/ADR-0003-hierarchical-logical-time.md).
+
+## DU-04
+
+Канонический документ:
+
+- [`cognitive-state.md`](cognitive-state.md).
+
+Главные результаты:
+
+- `CognitiveState` определён как canonical published shared runtime state, а не полный `Agent-owned state`;
+- committed state snapshot семантически неизменяем;
+- изменения публикуются через owner-scoped proposed updates и новую state revision;
+- partial staged writes не являются видимым committed state;
+- canonical path имеет однозначного semantic write owner;
+- `last-write-wins` запрещён как default conflict semantics;
+- read dependencies должны быть declared, наличие поля в state не создаёт implicit dependency;
+- различаются `available`, `unknown`, `stale`, `unavailable` и structural `missing`;
+- magic sentinel (`0`, `NaN`, `None` и т. п.) не заменяет availability semantics;
+- published values должны иметь temporal/provenance context;
+- observed/predicted/retrieved/intervened information не должна становиться неразличимой;
+- введены scopes `cycle`, `decision`, `episode`, `session`, `agent-long-lived`;
+- semantic lifetime отделён от artifact retention и checkpoint policy;
+- causally relevant module-private state допускается, но не может быть скрыто от будущих snapshot/reproducibility requirements;
+- Cortex/model-specific hidden state и полный Memory storage не обязаны входить в `CognitiveState`;
+- batching/device placement не определяют semantic identity;
+- `CognitiveState` должен быть conceptually serializable без live infrastructure objects;
+- counterfactual fork начинается из identifiable committed revision и сохраняет lineage;
+- clone `CognitiveState` не равен full Agent clone.
+
+Accepted decision:
+
+- [`ADR-0004`](decisions/ADR-0004-versioned-committed-cognitive-state.md).
 
 ---
 
 # 3. Следующий допустимый Design Update
 
 ```text
-DU-04 — CognitiveState Semantics
-```
-
-Цель `DU-04` — спроектировать каноническую модель внутреннего состояния поверх уже принятых system/dependency/temporal boundaries.
-
-Обязательные вопросы:
-
-```text
-state categories
-ownership
-cycle/decision/episode/session/persistent scopes
-observed/derived/predicted state
-read/write semantics
-unknown/missing/stale
-provenance
-temporal versioning
-clone/counterfactual requirements
-serialization/checkpoint compatibility
-batch/device/dtype independence
-model-specific hidden state isolation
-```
-
-После принятия `DU-04` допускается:
-
-```text
 DU-05 — Module Protocol & Scheduling
+```
+
+Цель `DU-05` — определить единый lifecycle cognitive modules и способ причинно корректного scheduling поверх committed `CognitiveState`.
+
+Обязательные области:
+
+```text
+module identity / capability
+initialize
+reset
+read committed state
+compute
+propose update
+commit coordination
+observe outcome
+runtime-state update
+train/eval mode
+learn/update hooks
+checkpoint/restore hooks
+shutdown
+```
+
+Также предстоит определить:
+
+- как модуль объявляет read/write dependencies;
+- какие lifecycle hooks обязательны/опциональны;
+- кто формирует state projections;
+- как scheduler строит порядок вычислений;
+- где допустимо parallel compute;
+- commit granularity;
+- stale-base/conflict handling;
+- cycle prevention;
+- semantics disabled/NoOp/Control implementations;
+- error/degradation behavior;
+- отношение fixed scheduler к будущему Executive Control;
+- batch/vectorized execution.
+
+После принятия `DU-05` допускается:
+
+```text
+DU-06 — Observability & Intervention
 ```
 
 ---
@@ -174,6 +224,17 @@ Replay Step
 Consolidation Event
 ```
 
+Для state дополнительно различаются:
+
+```text
+CognitiveState
+module-private state
+trainable parameters
+active Memory storage
+Cortex-private/backend state
+stochastic state
+```
+
 Главные relations:
 
 ```text
@@ -200,15 +261,35 @@ Cognitive Cycle
 Environment Transition
 ```
 
+```text
+CognitiveState
+≠
+full Agent-owned state
+```
+
+```text
+semantic lifetime
+≠
+historical retention
+≠
+checkpoint inclusion
+```
+
 ---
 
-# 5. Действующие dependency/temporal invariants
+# 5. Действующие state/dependency/temporal invariants
 
 До их явного изменения через design/ADR запрещаются:
 
 - module → concrete peer imports;
 - cognitive/runtime code → global Service Locator;
 - shared mutable global state для cognition;
+- direct mutation committed CognitiveState;
+- inplace mutation canonical value через retained reference;
+- implicit `last-write-wins` для конфликтующих canonical paths;
+- неявная зависимость модуля от произвольного присутствующего state field;
+- использование magic sentinel вместо declared availability semantics;
+- смешивание observation/prediction/retrieval/intervention без provenance;
 - Agent/core → trainer/evaluator imports;
 - independent module → concrete Cortex backend/provider SDK;
 - runtime core → backend-specific behavior branches;
@@ -218,7 +299,7 @@ Environment Transition
 - dynamic plugin discovery внутри cognitive step;
 - использование wall-clock как неявного cognitive clock;
 - трактовка internal reasoning cycle как Environment step;
-- ретроактивное изменение уже committed action/outcome;
+- ретроактивное изменение committed action/outcome/state revision;
 - смешивание replay/imagined transition с observed Environment transition;
 - неявный полный reset Agent при `Environment.reset()`;
 - использование batch completion order как causal order независимых trajectories.
@@ -229,7 +310,7 @@ Environment Transition
 
 Пока отсутствуют accepted решения по:
 
-- canonical `CognitiveState`;
+- exact `CognitiveState` container/API;
 - module lifecycle/scheduling;
 - observability/intervention contract;
 - Environment/MicroWorld;
@@ -268,7 +349,8 @@ Environment Transition
 - plugin `entry points`;
 - concrete scheduler;
 - async framework;
-- state bus implementation;
+- TensorDict/dataclass/Pydantic/другой state framework;
+- concrete copy-on-write/immutability implementation;
 - concrete architecture-test tool.
 
 ---
@@ -301,6 +383,7 @@ Environment Transition
 - окончательную структуру `src/`;
 - конкретное число Cognitive Cycle;
 - конкретный scheduler/async framework;
+- exact `CognitiveState` Python type;
 - отдельный Workspace/Affect/Executive Control только на основании когнитивной аналогии.
 
 Эти варианты остаются кандидатами для targeted research/design comparison.
@@ -313,6 +396,7 @@ Environment Transition
 - системный контекст: [`system-context.md`](system-context.md);
 - dependency/composition rules: [`dependency-rules.md`](dependency-rules.md);
 - runtime/temporal model: [`execution-model.md`](execution-model.md);
+- CognitiveState semantics: [`cognitive-state.md`](cognitive-state.md);
 - ADR registry: [`decisions/README.md`](decisions/README.md);
 - карта областей: [`modules/README.md`](modules/README.md);
 - общие принципы: [`principles.md`](principles.md);
