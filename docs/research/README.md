@@ -26,7 +26,8 @@ research/
 │   ├── DU-19-salience-attention-landscape-2026-08.md
 │   ├── DU-20-memory-regulation-consolidation-landscape-2026-08.md
 │   ├── DU-21-workspace-landscape-2026-08.md
-│   └── DU-22-executive-control-landscape-2026-08.md
+│   ├── DU-22-executive-control-landscape-2026-08.md
+│   └── DU-23-policy-planner-landscape-2026-08.md
 ├── hypotheses.md          # появится позже
 ├── experiments/           # появится позже
 ├── results/               # появится позже
@@ -37,13 +38,13 @@ research/
 
 # Literature research pass
 
-Текущие pass `DU-10 … DU-22` находятся в [`literature/`](literature/).
+Текущие pass `DU-10 … DU-23` находятся в [`literature/`](literature/).
 
 Последние:
 
-- [`literature/DU-20-memory-regulation-consolidation-landscape-2026-08.md`](literature/DU-20-memory-regulation-consolidation-landscape-2026-08.md) — retention/forgetting/replay/consolidation;
 - [`literature/DU-21-workspace-landscape-2026-08.md`](literature/DU-21-workspace-landscape-2026-08.md) — bounded workspace/broadcast и ограничения consciousness claims;
-- [`literature/DU-22-executive-control-landscape-2026-08.md`](literature/DU-22-executive-control-landscape-2026-08.md) — adaptive computation, metareasoning, competence-aware control, tool-use triggers, budget allocation и stopping.
+- [`literature/DU-22-executive-control-landscape-2026-08.md`](literature/DU-22-executive-control-landscape-2026-08.md) — adaptive computation, metareasoning, budget allocation и stopping;
+- [`literature/DU-23-policy-planner-landscape-2026-08.md`](literature/DU-23-policy-planner-landscape-2026-08.md) — reactive/direct Policy, learned world-model policies, online planning/search, belief-space planning, LLM-assisted planning и action-grounding boundaries.
 
 Эти документы **не выбирают** canonical implementation framework/algorithm.
 
@@ -64,32 +65,31 @@ research evidence / experiment result
 
 Для будущих экспериментов заранее фиксировать hypothesis, independent variables, baselines/controls, seeds, environment/data versions, metrics, success/falsification criterion и analysis policy.
 
-Для Executive Control особенно важны:
+Для Policy / Planner особенно важны:
 
 ```text
-Adaptive Executive
-vs NoExecutive / fixed schedule
-vs FixedBudget
-vs Random allocation
-vs SimpleThreshold
-vs SalienceOnly / uncertainty-only
-vs CostUnaware
-vs Matched learned router
+Policy + Planner
+vs ReactivePolicy / NoPlanner
+vs Depth1 / fixed-lookahead planner
+vs Random/Shuffled plan
+vs Matched search/recurrent control
 ```
 
-Сравнение обязательно вести по:
+Нужно отдельно измерять:
 
-```text
-task performance
-vs
-actual cognitive resource consumption
-```
+- actual planning compute;
+- long-horizon/compositional success;
+- contingent planning при partial observability;
+- candidate quality/diversity;
+- plan validity/replanning;
+- robustness к World Model error;
+- constraint/risk behavior;
+- generalization;
+- planning overhead.
 
-а не только по accuracy.
+Положительный Planner result не считается доказанным, если configuration просто использовала больше compute/state capacity или World Model oracle information.
 
-Нужны budget sweeps, competence/uncertainty/cost interventions, capability degradation tests, operation-selection/stopping distributions и controller-overhead accounting.
-
-Positive result не считается доказанным, если adaptive system просто использовал больше Cortex calls/rollout steps/total compute.
+Для Policy отдельно проверять causal sensitivity selection к `ComparisonPolicy`, risk/constraint evidence и stochastic RNG, не смешивая quality Valuation и quality final selector.
 
 ---
 
