@@ -33,6 +33,7 @@ Research result не меняет design автоматически: снача�
 - [`ADR-0017`](ADR-0017-typed-persistent-affect-state.md) — typed persistent Affect с explicit history-dependent dynamics.
 - [`ADR-0018`](ADR-0018-typed-multi-objective-valuation.md) — typed multi-objective Valuation с explicit comparison/scalarization boundary.
 - [`ADR-0019`](ADR-0019-budgeted-contextual-salience-allocation.md) — contextual Salience Profiles + explicit budgeted Attention Allocation; relevance/value/profile/allocation/Workspace/Executive decisions разделены.
+- [`ADR-0020`](ADR-0020-source-preserving-budget-aware-memory-regulation.md) — source-preserving budget-aware Memory Regulation с purpose-specific policies и gated consolidation; Memory Core остаётся единственным owner canonical Store.
 
 ## Proposed
 
