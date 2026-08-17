@@ -10,7 +10,7 @@
 
 # 1. Общий статус
 
-**Фундамент документации создан. `DU-01` … `DU-14` завершены и приняты. Реализация ещё не начата.**
+**Фундамент документации создан. `DU-01` … `DU-15` завершены и приняты. Реализация ещё не начата.**
 
 На текущем этапе зафиксированы:
 
@@ -24,8 +24,9 @@
 - World Model;
 - Self Model;
 - Intrinsic Signal Layer;
-- candidate contracts Environment, Perception, Goals, Cortex, Memory, World Model, Self Model и Intrinsic Signals;
-- четырнадцать accepted ADR.
+- Drive System;
+- candidate contracts Environment, Perception, Goals, Cortex, Memory, World Model, Self Model, Intrinsic Signals и Drives;
+- пятнадцать accepted ADR.
 
 ---
 
@@ -47,93 +48,95 @@ DU-11 — Memory Core
 DU-12 — World Model
 DU-13 — Self Model
 DU-14 — Intrinsic Signals
+DU-15 — Drives
 ```
 
-## DU-14
+## DU-15
 
 Канонический документ:
 
-- [`modules/intrinsic-signals.md`](modules/intrinsic-signals.md).
+- [`modules/drives.md`](modules/drives.md).
 
 Candidate contract:
 
-- [`contracts/intrinsic-signals.md`](contracts/intrinsic-signals.md).
+- [`contracts/drives.md`](contracts/drives.md).
 
 Research pass:
 
-- [`../research/literature/DU-14-intrinsic-signals-landscape-2026-08.md`](../research/literature/DU-14-intrinsic-signals-landscape-2026-08.md).
+- [`../research/literature/DU-15-drives-landscape-2026-08.md`](../research/literature/DU-15-drives-landscape-2026-08.md).
 
 Accepted decision:
 
-- [`ADR-0014`](decisions/ADR-0014-multi-provider-intrinsic-signal-layer.md).
+- [`ADR-0015`](decisions/ADR-0015-typed-stateful-drive-system.md).
 
 Главные результаты:
 
-- Intrinsic Signal является измеряемым свойством опыта, а не reward/Drive/Utility;
-- принят multi-provider layer вместо одного `IntrinsicRewardModule`;
-- provider outputs остаются typed и не обязаны scalarize в одно число;
-- prediction discrepancy отделён от probabilistic predictive surprisal;
-- novelty отделена от prediction error и visitation rarity;
-- persistent prediction error не трактуется автоматически как learnable opportunity;
-- information gain допустим только при meaningful before/after knowledge semantics;
-- uncertainty change имеет explicit signed convention и compatible estimator revisions;
-- competence change основан на temporal Self Model evidence и сохраняет знак improvement/degradation;
-- novelty/rarity имеют reference history/scope и representation identity;
-- representation drift/normalization/provider revisions входят в signal provenance;
-- raw и normalized measure различаются;
-- online normalization обязана быть causal и versioned;
-- actual/replayed/imagined/intervened/offline signal provenance различается;
-- replay sample не считается новым посещением normal runtime способом;
-- evaluator-only ground truth не используется natural providers;
-- stateful provider history/count/baseline/normalizer/RNG входит в exact Agent snapshot;
-- `NoIntrinsicSignals`, Dummy, Constant, Random, Shuffled и Control providers различаются.
+- Drive является persistent internal regulatory state, а не Intrinsic Signal/reward/value;
+- принят единый ownership boundary `Drive System` с несколькими typed drive components;
+- обязательного global motivation scalar нет;
+- `Drive State`, `Drive Pressure` и `Utility/Value` являются разными сущностями;
+- homeostatic drives имеют meaningful regulated variable + target/range semantics;
+- не-homeostatic adaptive motivational drives не обязаны иметь фиктивный set-point;
+- Intrinsic Signal является input/evidence для drive dynamics, а не готовым pressure;
+- drive dynamics использует logical time и может включать accumulation/decay/recovery/satiation;
+- отсутствие нового Environment observation не обязано замораживать Drive State;
+- wall-clock/compute latency не является implicit drive time;
+- cross-drive interaction читает предыдущую committed `DriveStateSet` revision и не создаёт hidden instantaneous cycle;
+- Drive System не выбирает `winning drive` и не scalarize конфликт;
+- Drive может участвовать в создании `Goal Proposal`, но не получает Goal Graph write authority;
+- future Valuation получает Drive State как input, но Drive не вычисляет action utility;
+- initial conditions/reset/persistence имеют explicit semantics;
+- natural regulation отделена от research intervention;
+- causally relevant dynamics/coupling/RNG state входит в exact Agent Snapshot;
+- `NoDrives`, Dummy, Constant, Clamped, Random, Shuffled и matched controls различаются.
 
 ---
 
 # 3. Следующий допустимый Design Update
 
 ```text
-DU-15 — Drives
+DU-16 — Appraisal
 ```
 
-Цель `DU-15` — определить **долгоживущие внутренние регуляторные переменные**, которые превращают нейтральные properties опыта в контекстно зависимое внутреннее давление, не смешивая Drive с Goal, signal, utility или action policy.
+Цель `DU-16` — определить **контекстную многомерную оценку значения конкретного события/ситуации для текущего Agent**, не смешивая её с persistent Drive/Affect state или общей decision value.
 
 Обязательные области:
 
 ```text
-Drive responsibility / ownership
-Drive state vs Intrinsic Signal boundary
-homeostatic / set-point semantics
-need / deficit / pressure representation
-state dynamics over time
-sources of update
-saturation / decay / recovery
-cross-drive interaction
-Drive scope / persistence
-Drive → Goal Proposal boundary
-Drive → Valuation boundary
-external manipulation vs natural regulation
-NoDrive / Dummy / Control variants
+Appraisal responsibility / ownership
+appraisal event boundary
+input context
+Goal / Drive / World / Self / Memory integration
+actual vs predicted / imagined appraisal
+multidimensional output semantics
+goal congruence
+controllability / coping potential
+novelty / expectedness boundary with Intrinsic Signals
+urgency / relevance semantics
+valence semantics
+rule-derived vs learned appraisal
+calibration / evidence
+Appraisal vs Drive vs Affect vs Valuation
+NoAppraisal / Dummy / Control
 snapshot / observability / intervention
 failure / degradation
 ```
 
 Нужно определить:
 
-- нужен ли общий `Drive System` или независимые typed drives;
-- какие drives имеют true homeostatic target, а какие лучше моделировать как adaptive motivational state;
-- может ли novelty-seeking быть Drive, если novelty уже signal;
-- как Drive state меняется при отсутствии нового внешнего события;
-- как не превратить Drive в скрытый scalar reward;
-- как несколько drives конфликтуют/насыщаются;
-- должен ли Drive напрямую создавать Goal или только `Goal Proposal`;
-- как causal intervention одного drive проверяет specificity downstream эффекта;
-- какие controls отличают meaningful drive dynamics от дополнительного state/noise.
+- что считается appraisal event, а что просто raw signal/state;
+- должен ли Appraisal оценивать только actual events или также predicted/imagined outcomes с отдельной provenance;
+- какие dimensions имеют самостоятельный смысл и какие нельзя вводить только ради эмоциональной аналогии;
+- чем appraisal novelty/expectedness отличается от neutral Intrinsic Signal novelty/surprisal;
+- как Drive State и Goal state меняют meaning одного и того же события;
+- где проходит граница между event-level valence и будущей общей `Valuation`;
+- как не превратить Appraisal в scalar reward model;
+- какие interventions позволяют независимо менять отдельную appraisal dimension.
 
-После принятия `DU-15` допускается:
+После принятия `DU-16` допускается:
 
 ```text
-DU-16 — Appraisal
+DU-17 — Affect Dynamics
 ```
 
 ---
@@ -165,6 +168,13 @@ prediction discrepancy ≠ predictive surprisal ≠ novelty
 novelty ≠ visitation rarity
 information gain ≠ arbitrary uncertainty reduction
 higher intrinsic signal ≠ greater desirability
+Intrinsic Signal ≠ Drive State
+Drive State ≠ Drive Pressure ≠ Utility/Value
+Drive ≠ Goal ≠ Policy
+higher Drive Pressure ≠ universally greater desirability
+homeostatic drive ≠ mandatory form of every drive
+Environment reset ≠ Drive reset
+wall-clock ≠ implicit Drive time
 ```
 
 ---
@@ -173,7 +183,6 @@ higher intrinsic signal ≠ greater desirability
 
 Пока отсутствуют accepted решения по:
 
-- Drives;
 - Appraisal;
 - Affect Dynamics;
 - Valuation;
@@ -192,7 +201,7 @@ higher intrinsic signal ≠ greater desirability
 - version roadmap;
 - implementation sequences.
 
-Также пока не выбраны exact Python/package/framework решения, concrete Cortex backend, Memory backend/index, World Model architecture, Self Model estimator/calibration method, Intrinsic Signal estimators или common normalization/scalarization policy.
+Также пока не выбраны exact Python/package/framework решения, concrete Cortex backend, Memory backend/index, World Model architecture, Self Model estimator/calibration method, Intrinsic Signal estimators, concrete Drive list/dynamics или common normalization/scalarization policy.
 
 ---
 
