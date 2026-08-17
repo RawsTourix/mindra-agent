@@ -34,7 +34,7 @@
 
 ## Перед будущей реализацией
 
-После `DU-32` и появления concrete version design дополнительно обязательны exact contracts, version specification, `implementation-sequence.md`, testing/evaluation requirements и acceptance criteria.
+После `DU-32` и появления concrete version design дополнительно обязательны semantic-frozen/exact contracts, version specification, `implementation-sequence.md`, testing/evaluation requirements и acceptance criteria.
 
 До этого implementation choices не угадываются заранее.
 
@@ -51,13 +51,18 @@ Concept
 → Implementation sequence
 → Implementation
 → Engineering / Research evidence
+→ Versioned Research Claims
 ```
 
 ```text
-Design ≠ Implementation ≠ Engineering Testing ≠ Research Evidence
+Design
+≠ Implementation
+≠ Engineering Testing
+≠ Research Evidence
+≠ Research Claim
 ```
 
-Research/engineering evidence инициирует review/ADR при необходимости, но не переписывает architecture автоматически.
+Research/engineering evidence инициирует claim/design review при необходимости, но не переписывает architecture автоматически.
 
 ---
 
@@ -69,7 +74,7 @@ Research/engineering evidence инициирует review/ADR при необх�
 
 # Исследовательский журнал
 
-Датированные literature/research/tool pass хранятся в [`research/`](research/). Future hypotheses/experiments/results хранятся отдельно от canonical design.
+Датированные literature/research/tool pass хранятся в [`research/`](research/). Future hypotheses/experiments/results/claim evidence хранятся отдельно от canonical design.
 
 ---
 
@@ -91,18 +96,25 @@ Research/engineering evidence инициирует review/ADR при необх�
 
 # Engineering Verification Plane
 
-После `DU-29` implementation correctness проверяется через versioned `VerificationObligation/VerificationMatrix`, layered conformance/property/state-machine/fault/persistence tests и CI verification gates:
+- [`design/engineering-testing.md`](design/engineering-testing.md) — `DU-29`.
 
-- [`design/engineering-testing.md`](design/engineering-testing.md);
-- [`design/contracts/engineering-testing.md`](design/contracts/engineering-testing.md);
-- [`design/decisions/ADR-0029-layered-invariant-driven-engineering-verification.md`](design/decisions/ADR-0029-layered-invariant-driven-engineering-verification.md).
+Engineering correctness не заменяет research evidence функциональной полезности.
 
-Ключевое различие:
+# Research Claims / Limitations Plane
+
+После `DU-30` scientific/reporting claims имеют explicit scope/evidence/limitations/known-unknowns и lifecycle:
+
+- [`design/research-claims-limitations.md`](design/research-claims-limitations.md);
+- [`design/contracts/research-claims-limitations.md`](design/contracts/research-claims-limitations.md);
+- [`design/decisions/ADR-0030-versioned-evidence-bounded-research-claims.md`](design/decisions/ADR-0030-versioned-evidence-bounded-research-claims.md).
+
+Ключевые различия:
 
 ```text
-Engineering Testing
-≠
-MINDRA-Eval
+Observation ≠ Interpretation ≠ ResearchClaim
+association ≠ causation
+claim scope ≠ universal scope
+functional similarity ≠ phenomenological equivalence
 ```
 
 ---
@@ -111,6 +123,8 @@ MINDRA-Eval
 
 Проект находится на стадии **последовательного канонического архитектурного проектирования**.
 
-`DU-01 … DU-29` приняты. Следующий допустимый этап определяется только [`design/current.md`](design/current.md); полный порядок задан в [`design/documentation-plan.md`](design/documentation-plan.md).
+`DU-01 … DU-30` приняты. Следующий допустимый этап определяется только [`design/current.md`](design/current.md); полный порядок задан в [`design/documentation-plan.md`](design/documentation-plan.md).
 
-Production/research implementation, exact contract freeze, version roadmap и implementation sequences ещё не начаты.
+Следующий этап — общий `DU-31 — Contract + ADR Consistency Freeze`, а не новая cognitive subsystem.
+
+Production/research implementation, общий contract freeze, version roadmap и implementation sequences ещё не начаты.
