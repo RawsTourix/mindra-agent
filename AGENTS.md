@@ -4,107 +4,72 @@
 
 Этот файл — **карта обязательного контекста** для Codex, ChatGPT и других coding agents.
 
-Он не дублирует всю архитектурную документацию. Канонические знания проекта находятся в `docs/`.
-
-Краткий task prompt не заменяет repository design context.
+Он не дублирует canonical design. Source of truth находится в `docs/`.
 
 ---
 
 # 1. Язык
 
-Обязательное правило проекта:
-
-- документация пишется на русском языке;
-- комментарии в исходном коде пишутся на русском языке;
-- пользовательские и исследовательские пояснения в репозитории пишутся на русском языке;
-- technical identifiers остаются на английском: variable/class/function/method/protocol/type/module/package/API names;
-- общепринятый технический термин допустимо оставить на английском, если перевод ухудшает точность.
+- документация и комментарии в коде — на русском;
+- technical identifiers, API/package/class/function/type names — на английском;
+- общепринятый технический термин можно оставить на английском, если перевод ухудшает точность.
 
 ---
 
 # 2. Перед любой работой
 
-Перед изменением production/research-кода или canonical design обязательно:
+Обязательно:
 
-1. проверить фактический HEAD/status/diff;
+1. проверить фактический repository status/HEAD;
 2. прочитать [`docs/README.md`](docs/README.md);
 3. прочитать [`docs/design/current.md`](docs/design/current.md);
-4. определить тип задачи: documentation, design, implementation или research;
+4. определить scope: documentation/design/implementation/research;
 5. прочитать релевантный canonical design owner;
-6. прочитать все релевантные accepted/non-superseded ADR;
-7. прочитать релевантные candidate/exact contracts;
-8. проверить границы текущего разрешённого scope;
-9. только после этого вносить изменение.
+6. прочитать действующие ADR;
+7. прочитать candidate/exact contracts;
+8. не выходить за разрешённый DU/version scope.
 
-Если документация не определяет значимое решение, не превращать удобный implementation choice в implicit architecture contract.
+Краткий task prompt не заменяет repository context.
 
 ---
 
 # 3. Source of truth
 
 ```text
-accepted non-superseded ADR
-+
-canonical design semantics
-        ↓
-candidate/exact contracts
-        ↓
-future version specification
-        ↓
-implementation sequence
-        ↓
-implementation
-        ↓
-engineering/research evidence
+accepted non-superseded ADR + canonical design
+→ candidate/exact contracts
+→ version specification
+→ implementation sequence
+→ implementation
+→ engineering/research evidence
 ```
 
-Research result не меняет architecture напрямую:
-
-```text
-result
-→ interpretation/design review
-→ ADR/design update
-→ implementation change
-```
+Research result меняет architecture только через interpretation/design review/ADR.
 
 ---
 
-# 4. Три разных слоя истины
+# 4. Фундамент
 
-```text
-Design
-≠
-Implementation
-≠
-Research evidence
-```
+Перед subsystem changes обязательны:
 
-Наличие механизма или поведенческого эффекта не является доказательством сознания, субъективного опыта или феноменальной эмоции.
+- `docs/design/system-context.md`;
+- `docs/design/dependency-rules.md`;
+- `docs/design/execution-model.md`;
+- `docs/design/cognitive-state.md`;
+- `docs/design/module-lifecycle.md`;
+- `docs/design/observability-and-intervention.md`.
 
----
-
-# 5. Фундаментальные документы
-
-Перед изменением соответствующей области обязательны:
-
-- [`docs/design/system-context.md`](docs/design/system-context.md);
-- [`docs/design/dependency-rules.md`](docs/design/dependency-rules.md);
-- [`docs/design/execution-model.md`](docs/design/execution-model.md);
-- [`docs/design/cognitive-state.md`](docs/design/cognitive-state.md);
-- [`docs/design/module-lifecycle.md`](docs/design/module-lifecycle.md);
-- [`docs/design/observability-and-intervention.md`](docs/design/observability-and-intervention.md).
-
-Accepted foundation decisions: `ADR-0001` … `ADR-0006`.
+Foundation ADR: `ADR-0001 … ADR-0006`.
 
 ---
 
-# 6. Принятые subsystem boundaries
+# 5. Принятые subsystem boundaries
 
 | Область | Design | Contract | ADR |
 |---|---|---|---|
 | Environment | `docs/design/modules/environment.md` | `docs/design/contracts/environment.md` | `ADR-0007` |
 | Perception | `docs/design/modules/perception.md` | `docs/design/contracts/perception.md` | `ADR-0008` |
-| Goal System | `docs/design/modules/goals.md` | `docs/design/contracts/goals.md` | `ADR-0009` |
+| Goals | `docs/design/modules/goals.md` | `docs/design/contracts/goals.md` | `ADR-0009` |
 | Cortex | `docs/design/modules/cortex.md` | `docs/design/contracts/cortex.md` | `ADR-0010` |
 | Memory Core | `docs/design/modules/memory.md` | `docs/design/contracts/memory.md` | `ADR-0011` |
 | World Model | `docs/design/modules/world-model.md` | `docs/design/contracts/world-model.md` | `ADR-0012` |
@@ -114,265 +79,219 @@ Accepted foundation decisions: `ADR-0001` … `ADR-0006`.
 | Appraisal | `docs/design/modules/appraisal.md` | `docs/design/contracts/appraisal.md` | `ADR-0016` |
 | Affect | `docs/design/modules/affect.md` | `docs/design/contracts/affect.md` | `ADR-0017` |
 | Valuation | `docs/design/modules/valuation.md` | `docs/design/contracts/valuation.md` | `ADR-0018` |
+| Salience | `docs/design/modules/salience.md` | `docs/design/contracts/salience.md` | `ADR-0019` |
 
-Номер текущего разрешённого Design Update всегда брать из `docs/design/current.md`.
+Текущий разрешённый следующий DU всегда брать только из `docs/design/current.md`.
 
 ---
 
-# 7. Общие архитектурные запреты
+# 6. Общие архитектурные запреты
 
 Без explicit design change запрещается:
 
 - concrete peer dependency между независимыми cognitive modules;
-- runtime Service Locator внутри cognition;
-- shared mutable globals как межмодульный state bus;
-- hidden direct mutation чужого state;
-- зависимость Agent от Training/Evaluation Runtime;
+- runtime Service Locator;
+- shared mutable global state bus;
+- hidden mutation чужого state;
+- dependency Agent → Training/Evaluation Runtime;
 - hidden evaluator/oracle input;
-- скрытый behavior-changing fallback;
-- ad-hoc module ordering вместо declared scheduler semantics;
-- partial commit causally relevant public/private state;
+- hidden behavior-changing fallback;
+- ad-hoc module ordering вместо declared scheduler;
+- partial commit causally relevant state;
 - silent stale-result rebase;
-- смешивание natural/replayed/imagined/intervened/counterfactual provenance;
-- реализация downstream-функциональности до соответствующего DU.
+- смешение actual/replayed/imagined/intervened/counterfactual provenance;
+- реализация downstream responsibility до соответствующего DU.
 
 ---
 
-# 8. Ключевые действующие отношения
+# 7. Действующие semantic distinctions
 
 ```text
-logical architecture boundary ≠ deployment topology
 Cognitive Cycle ≠ Environment Transition
-CognitiveState ≠ full Agent-owned state
-committed state ≠ mutable shared bus
+CognitiveState ≠ full Agent Snapshot
 Observability ≠ Intervention
 Raw Observation ≠ Canonical Percept
 Goal Proposal ≠ Committed Goal
-Goal ≠ Reward ≠ Drive ≠ Utility/Value ≠ Policy
+Goal ≠ Reward ≠ Drive ≠ Value ≠ Policy
 MINDRA Agent ≠ Cortex ≠ concrete LLM
-MemoryRecord ≠ embedding/index entry
-Memory ≠ trajectory/replay
+MemoryRecord ≠ embedding/index
+Memory ≠ trajectory/training replay
 Canonical Percept ≠ World Belief ≠ World Prediction
 World Prediction ≠ observed fact
-Imagined Transition ≠ Environment Transition
-Intrinsic Signal ≠ Reward ≠ Drive ≠ Utility/Value
-Drive State ≠ Drive Pressure ≠ Utility/Value
+Intrinsic Signal ≠ Reward/Drive/Value
+Drive State ≠ Drive Pressure ≠ Value
 Appraisal ≠ Affect ≠ Valuation
-relevance ≠ Salience ≠ novelty ≠ utility
-controllability ≠ coping potential
-Appraisal Record ≠ Affect State
-Affect State ≠ Drive State
-Affect State ≠ Utility/Value/Reward
-Affect_t → Appraisal_t → Affect_(t+1)
-imagined Affect ≠ real committed Affect
-ValueProfile ≠ ScalarizedValue
-ValueProfile ≠ Training Reward
-ValueProfile ≠ Critic Value
-ValueProfile ≠ Policy Decision
-predictive uncertainty ≠ RiskProfile
-P(success) ≠ Utility/Value
-External Task Feedback ≠ internal utility
-Intrinsic Signal ≠ decision value
-incomparable valuation ≠ technical failure
+Appraisal relevance ≠ Salience
+Affect State ≠ Drive State ≠ Value
+ValueProfile ≠ ScalarizedValue ≠ Training Reward ≠ Critic Value ≠ Policy Decision
+predictive uncertainty ≠ risk
+SalienceProfile ≠ AttentionAllocation
+AttentionAllocation ≠ Workspace admission
+AttentionAllocation ≠ Executive compute decision
+AttentionAllocation ≠ Policy decision
+Cortex attention weight ≠ MINDRA Salience
+Memory retrieval score ≠ Salience
 ```
 
 ---
 
-# 9. State/scheduler discipline
+# 8. State / scheduler discipline
 
 Запрещается:
 
-- мутировать committed `CognitiveState` inplace;
-- писать в namespace без semantic ownership;
-- использовать hidden `last-write-wins`;
-- публиковать peer output до commit wave;
-- строить instantaneous dependency cycle;
-- использовать physical completion order как causal semantics;
-- оставлять causally relevant private state изменённым после rejected commit;
-- менять `agent_revision` внутри in-flight wave;
-- использовать wall-clock как неявное cognitive time.
+- inplace mutation committed state;
+- write без semantic ownership;
+- hidden `last-write-wins`;
+- publication до wave commit;
+- instantaneous dependency cycles;
+- physical completion order как causal order;
+- private-state advancement после rejected commit;
+- `agent_revision` change внутри in-flight wave;
+- wall-clock как implicit cognitive time.
 
 ---
 
-# 10. Observability/intervention discipline
+# 9. Observability / intervention
 
 Запрещается:
 
-- давать passive observer mutation authority;
-- превращать research probe в runtime dependency;
-- выполнять intervention без target/base/provenance;
+- observer mutation authority;
+- research probe как runtime dependency;
+- intervention без target/base/provenance;
 - скрывать intervention как natural output;
 - выдавать partial restore за exact counterfactual;
-- смешивать intervened experience с natural experience без provenance.
+- смешивать intervention data с natural experience без provenance.
 
 ---
 
-# 11. Environment / Perception / Goal / Cortex safeguards
+# 10. Subsystem safeguards
+
+## Environment / Perception / Goals / Cortex
 
 Запрещается:
 
-- передавать Environment Research Ground Truth Agent как normal input;
-- использовать evaluator metric как task feedback;
-- передавать raw Environment-specific schema независимым modules;
-- делать один learned latent единственным canonical percept;
-- давать Cortex/Planner/Drives direct write authority Goal Graph;
-- превращать Goal в scalar reward/value;
-- делать model-specific prompt/tokenizer/provider API частью cognitive consumer;
-- давать Cortex Gateway ambient access ко всему Agent state;
-- превращать Cortex output автоматически в Goal/Memory/Action/observed fact;
-- делать конкретную LLM частью canonical architecture.
+- Ground Truth → Agent normal input;
+- evaluator metric как feedback;
+- raw Environment-specific schema → independent cognitive modules;
+- один latent как universal Canonical Percept;
+- direct Goal Graph mutation от Cortex/Planner/Drives;
+- model-specific tokenizer/prompt/provider logic в cognitive consumers;
+- ambient Agent-state access Cortex;
+- concrete LLM как canonical architecture.
 
----
-
-# 12. Memory / World / Self safeguards
+## Memory / World / Self
 
 Запрещается:
 
-- считать vector database или embedding канонической Memory;
-- использовать hidden Memory retrieval внутри Cortex/consumer;
-- смешивать Agent Memory с trajectory/replay;
-- записывать imagined World Model rollout как observed trajectory;
-- позволять World Model выбирать action вместо Policy/Planner;
-- считать prediction error reward автоматически;
-- считать Cortex self-report canonical Self Model;
-- смешивать capability availability и competence;
-- давать Self Model authority выбирать action/goal/compute policy.
+- vector DB/embedding как canonical Memory;
+- hidden Memory retrieval;
+- Memory = trajectory/replay;
+- imagined rollout как observed trajectory;
+- World Model action selection;
+- prediction error как automatic reward;
+- Cortex self-report как canonical Self Model;
+- Self Model action/goal/compute authority.
 
----
-
-# 13. Intrinsic Signals / Drives safeguards
+## Intrinsic Signals / Drives
 
 Запрещается:
 
-- превращать typed Intrinsic Signals в mandatory `intrinsic_reward`;
-- считать высокий signal автоматически желательным;
-- смешивать novelty, surprisal, prediction discrepancy и visitation rarity;
-- считать replay новым natural visitation;
-- превращать `DriveStateSet` в global motivation scalar;
-- считать Drive Pressure готовой Utility/action score;
-- требовать homeostatic set-point от каждого drive;
-- давать Drive direct Goal/Policy authority;
-- обновлять Drive по wall-clock/GPU/network latency.
+- mandatory `intrinsic_reward`;
+- высокий signal = автоматически desirable;
+- novelty/surprisal/error/rarity как синонимы;
+- replay = natural visitation;
+- `DriveStateSet` = global motivation scalar;
+- Drive Pressure = Utility;
+- mandatory homeostatic set-point для каждого Drive;
+- direct Drive → Goal/Policy mutation.
 
----
-
-# 14. Appraisal safeguards
+## Appraisal / Affect
 
 Запрещается:
 
-- превращать Appraisal в mandatory emotion label/global valence/reward;
-- считать Appraisal persistent Affect state;
-- создавать Appraisal без target/context/revision provenance;
-- смешивать actual/predicted/imagined/retrospective/intervened targets;
-- смешивать relevance с Salience;
-- scalarize Goal conflicts внутри Appraisal;
-- мутировать Goal/Drive state из Appraisal;
-- смешивать controllability и coping potential;
-- позволять Appraisal выбирать coping strategy/action;
-- использовать evaluator-only Ground Truth как natural appraisal evidence;
-- выполнять hidden Memory/Cortex operation;
-- переписывать historical `AppraisalRecord` при reappraisal.
+- Appraisal как emotion classifier/global utility;
+- relevance = Salience;
+- Appraisal action selection;
+- Affect как mandatory human emotion labels/VA/PAD;
+- same-wave recursive Appraisal ↔ Affect;
+- real Affect update из imagination по умолчанию;
+- Affect = Utility/Reward;
+- объявлять Affect доказательством subjective experience.
 
----
-
-# 15. Affect safeguards
+## Valuation
 
 Запрещается:
 
-- превращать canonical Affect в human emotion labels;
-- требовать mandatory valence/arousal/PAD geometry;
-- смешивать Affect State с Drive State или Utility/Reward;
-- вычислять action/goal choice внутри Affect System;
-- давать Affect direct mutation authority Goals/Drives;
-- создавать same-wave recursive cycle Appraisal ↔ Affect;
-- обновлять real committed Affect из imagined appraisal по умолчанию;
-- терять source provenance;
-- сбрасывать Affect автоматически на `Environment.reset()`;
-- обновлять Affect по wall-clock/latency;
-- объявлять Affect доказательством субъективного чувства;
-- считать отдельный Affect доказанным без matched temporal/recurrent controls.
+- mandatory universal scalar;
+- hidden fixed weighted sum;
+- потеря per-Goal/per-Drive conflicts до explicit comparison;
+- hard constraint → arbitrary huge reward penalty без policy;
+- novelty/feedback/Appraisal/Affect/Drive/Self confidence как automatic utility;
+- uncertainty = risk;
+- imagined value = experienced value;
+- RL critic/reward = canonical Valuation автоматически;
+- Valuation → final Action Commit;
+- `incomparable` как technical error.
+
+## Salience
+
+До explicit пересмотра `DU-19` запрещается:
+
+- global timeless `target.salience` как universal property;
+- ambient scan всего Agent state/Memory;
+- mandatory scalar salience;
+- hidden weighted sum evidence без versioned policy;
+- считать novelty/relevance/value/risk готовой Salience автоматически;
+- сравнивать scores между разными purpose/policy revisions как одну валюту;
+- Salience-owned global compute budget;
+- hidden Memory retrieval/retention;
+- Workspace admission внутри Salience;
+- Cortex invocation/planning-depth/Cognitive-Cycle decisions внутри Salience;
+- scheduler graph mutation из Salience;
+- action selection через salience score;
+- Transformer/Cortex attention weights как canonical Salience;
+- failure/unavailable заменять `salience=0`;
+- imagined allocation автоматически применять к real processing;
+- считать логируемый score функциональной Salience без downstream allocation effect.
 
 ---
 
-# 16. Valuation safeguards
+# 11. Research discipline
 
-До explicit пересмотра `DU-18` запрещается:
+Для causal claims применять, где возможно:
 
-- превращать canonical `ValueProfile` в обязательный один scalar;
-- скрыто использовать fixed weighted sum как определение ценностей Agent;
-- считать `ScalarizedValue` universal currency между разными `ComparisonPolicy`/revisions;
-- терять per-Goal/per-Drive conflict до explicit comparison;
-- превращать hard constraint в arbitrary huge negative reward без explicit policy;
-- считать high novelty/information signal автоматически high value;
-- считать External Task Feedback автоматически internal utility;
-- использовать evaluator-only `Objective Task Metric`/preference natural способом;
-- считать Appraisal local polarity готовой Utility;
-- считать Affect sign готовой Utility;
-- считать Drive Pressure готовой Utility;
-- считать Self `P(success)`/effort готовой Utility;
-- смешивать predictive uncertainty и risk/downside;
-- публиковать RiskProfile без adverse semantics/risk-measure provenance;
-- скрывать normalization/units/component revisions;
-- считать imagined/predicted valuation experienced outcome/value;
-- commit branch-local simulated Drives/Affect в real Agent;
-- считать RL critic scalar canonical Valuation автоматически;
-- считать Training Reward и `ValueProfile` одной сущностью;
-- позволять Valuation выполнять final Action Commit;
-- скрыто fallback'иться на другой ComparisonPolicy;
-- считать `incomparable` технической ошибкой;
-- делать Pareto/Tchebycheff/lexicographic/CVaR/weighted sum обязательными только из research evidence.
-
----
-
-# 17. Research discipline
-
-Обязателен [`docs/research-methodology.md`](docs/research-methodology.md).
-
-Для утверждений о функциональном вкладе использовать, где применимо:
-
-- baseline;
-- `No*` configuration;
-- Dummy/Control implementation;
-- shuffled/random control;
-- parameter/compute-matched control;
+- baseline / `No*`;
+- Dummy/control;
+- random/shuffled/constant;
+- parameter/compute/state-matched controls;
 - ablation;
 - controlled intervention;
-- несколько seeds;
-- held-out world distributions;
-- заранее определённый criterion.
+- multiple seeds;
+- held-out distributions;
+- заранее определённый success/falsification criterion.
 
-Для Valuation отдельно сравнивать structured approach с weighted-scalar и matched/shuffled controls, а также проверять behavioral sensitivity к controlled preference changes.
+Для Salience обязательно проверять:
 
----
+```text
+correct allocation
+vs uniform/random/shuffled/source-only/matched control
+```
 
-# 18. Scope implementation
+и цепочку:
 
-Пока `docs/design/current.md` не разрешает implementation/version work, detailed design **не является разрешением писать production architecture**.
-
-До соответствующих DU нельзя превращать candidates в обязательные choices, включая:
-
-- concrete Cortex backend/model;
-- concrete Memory backend/index;
-- RSSM/Dreamer/Transformer world model;
-- concrete Self Model estimator;
-- RND/ICM/VIME и common intrinsic formula;
-- concrete Drive list/equation;
-- concrete Appraisal taxonomy;
-- concrete Affect channels/VA/PAD/recurrent model;
-- concrete Valuation component set, weights, comparison/risk policy, critic или reward mapping;
-- TensorDict/DI/config/scheduler framework;
-- PPO и другие learning algorithms;
-- Colab/cloud runtime;
-- конкретную структуру `src/`.
+```text
+intervention
+→ changed allocation
+→ changed actual processing
+→ measurable effect
+```
 
 ---
 
-# 19. Поведение при неопределённости
+# 12. Scope implementation
 
-Если документация не определяет существенное решение:
+Пока `docs/design/current.md` не разрешает version/implementation work, detailed design **не является разрешением писать production architecture**.
 
-- не скрывать неопределённость;
-- не создавать implicit contract;
-- зафиксировать вопрос как design blocker/open question;
-- предложить варианты/trade-offs, если это часть задачи;
-- не реализовывать зависимую архитектуру до design decision.
+Не превращать research candidates в mandatory choices: concrete models, frameworks, neural routers, memory indexes, world-model families, intrinsic algorithms, drive equations, appraisal/affect taxonomies, valuation scalarization/risk policy, salience formula/top-K/router и т. п.
+
+Если значимое решение не определено — зафиксировать uncertainty/design blocker, а не создавать implicit contract.
