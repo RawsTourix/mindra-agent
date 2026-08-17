@@ -4,13 +4,13 @@
 
 Этот документ фиксирует общие правила постановки, проведения и интерпретации исследований MINDRA.
 
-Он не задаёт конкретные benchmark, dataset, environment, statistical test или threshold для будущих версий. Эти детали должны появляться в соответствующих design/experiment documents.
+Он не задаёт concrete benchmark/library/statistical implementation. После `DU-28` точная evaluation semantics определяется [`design/mindra-eval.md`](design/mindra-eval.md), а checkpoint/reproducibility semantics — [`design/checkpoint-reproducibility-compute.md`](design/checkpoint-reproducibility-compute.md).
 
 ---
 
 # 1. Главный принцип
 
-MINDRA развивается не по схеме «добавили модуль — стало сложнее — значит стало лучше», а по схеме:
+MINDRA развивается не по схеме «добавили модуль — стало сложнее — значит стало лучше», а:
 
 ```text
 гипотеза
@@ -18,346 +18,343 @@ MINDRA развивается не по схеме «добавили модул
 → реализация
 → experiment
 → evidence
-→ вывод
+→ interpretation
+→ design review
 ```
 
-Любой заявляемый вклад механизма должен быть по возможности отделён от:
+Любой заявляемый вклад по возможности отделяется от:
 
-- увеличения общего числа параметров;
-- дополнительного compute;
-- дополнительного контекста;
-- случайного seed;
-- особенностей конкретного Cortex;
-- изменения environment/dataset;
-- скрытого изменения training procedure.
+- увеличения параметров/state capacity;
+- дополнительного compute/context/data;
+- tuning budget;
+- lucky seed;
+- конкретного Cortex;
+- изменения Environment distribution;
+- скрытого изменения training/action-gate procedure.
 
 ---
 
-# 2. Engineering correctness и research validity
+# 2. Engineering correctness ≠ research validity
 
-Это независимые требования.
+Корректно реализованный модуль может не подтверждать research hypothesis.
 
-```text
-Engineering correctness
-≠
-Research validity
-```
+Интересный единичный результат не является достаточным evidence, если implementation/protocol/reproducibility нарушены.
 
-Модуль может быть корректно реализован по design и не подтверждать исследовательскую гипотезу.
-
-И наоборот, интересный единичный результат не считается достаточным, если experiment pipeline не воспроизводим или реализация нарушает контракт.
+`DU-29` отдельно проектирует Engineering Testing; `DU-28` — research/functional Evaluation.
 
 ---
 
-# 3. Гипотезы
+# 3. Гипотеза должна быть falsifiable
 
-Перед подтверждающим экспериментом гипотеза должна быть сформулирована так, чтобы существовал наблюдаемый результат, способный её опровергнуть или существенно ослабить.
+Перед confirmatory experiment формулируется наблюдаемый outcome, способный ослабить/опровергнуть гипотезу.
 
-Плохая формулировка:
+Плохо:
 
-> Appraisal делает агента более похожим на человека.
+> Appraisal делает агента более человечным.
 
 Лучше:
 
-> При фиксированном внешнем observation контролируемое изменение appraisal state статистически значимо меняет целевую часть action distribution, при этом off-target effects остаются ограниченными.
+> При aligned external state controlled intervention в appraisal dimension систематически меняет заранее указанный downstream outcome при ограниченных off-target effects.
 
-Точные формы гипотез будут зависеть от исследуемого механизма.
-
----
-
-# 4. Baseline
-
-Для каждого существенного исследования должен существовать понятный baseline, когда это практически возможно.
-
-Кандидаты:
-
-- минимальный agent без исследуемого модуля;
-- Cortex-only;
-- no-Cortex;
-- предыдущая accepted architecture;
-- стандартный RL/model-based agent;
-- rule-based control;
-- no-op module.
-
-Baseline должен отвечать на конкретный исследовательский вопрос, а не добавляться формально.
+Exact `HypothesisSpec`/module gates задаются `MINDRA-Eval`.
 
 ---
 
-# 5. Ablation
+# 4. Baseline / ablation / control
 
-Если утверждается, что конкретный модуль полезен, основной контроль — его удаление или замена при максимально неизменных остальных условиях.
+Baseline отвечает на конкретный вопрос.
 
-Conceptually:
+Ablation:
 
 ```text
-Full architecture
+Full
 vs
-Full architecture - Module X
+Full - X
 ```
 
-Ablation должен быть предусмотрен архитектурой заранее, а не реализовываться отдельным одноразовым fork.
+важна, но может менять capacity/compute.
+
+Поэтому, где требуется claim о **semantic contribution**, используются controls:
+
+- `No*`;
+- constant/random/shuffled;
+- rule-based;
+- parameter/state-capacity matched;
+- context/compute/data matched;
+- oracle research controls.
+
+Matching factors и deviations описываются `EvaluationCondition/ResourceMatchProfile`.
 
 ---
 
-# 6. Control implementations
+# 5. Causal intervention
 
-Для отличия семантического эффекта от простой дополнительной capacity могут использоваться:
-
-- `NoOp` control;
-- constant output control;
-- random output control;
-- shuffled memory/retrieval;
-- parameter-matched generic network;
-- compute-matched control.
-
-Если learned module показывает примерно тот же результат, что random или generic control, нельзя приписывать выигрыш предполагаемой семантике модуля без дополнительного evidence.
-
----
-
-# 7. Causal intervention
-
-Корреляция внутреннего state с поведением недостаточна для сильного утверждения о функциональной роли.
-
-Где возможно, нужно проводить intervention:
-
-```text
-clone/fix external state
-→ изменить одну internal variable / representation
-→ оставить остальные условия неизменными
-→ измерить изменение поведения
-```
-
-Нужно различать:
-
-- target effect;
-- off-target effect;
-- intervention specificity.
-
----
-
-# 8. Counterfactual experiments
-
-В искусственной среде MINDRA может иметь преимущество, недоступное при исследованиях человека: состояние можно сохранять, клонировать и воспроизводить.
+Корреляция internal state и behavior недостаточна для сильного causal claim.
 
 Желательный pattern:
 
 ```text
-один checkpoint + один environment state
-→ branch A
-→ branch B с контролируемым изменением
-→ сравнение trajectories
+verified common base state
+→ branch/control
+→ branch/treatment with Intervention X
+→ compare target + off-target effects
 ```
 
-Такой подход особенно важен для drives, appraisal, memory и self-model.
+Paired counterfactual требует достаточного `DU-27` restore level и explicit `DU-28` intervention/analysis protocol.
 
 ---
 
-# 9. Factorial interactions
+# 6. Factorial interactions
 
-Модули могут быть полезны не отдельно, а только во взаимодействии.
-
-Поэтому при достаточном compute следует исследовать не только одиночные ablation, но и взаимодействия:
+Если механизм полезен только совместно с другим, допускается:
 
 ```text
+none
 A
 B
-A + B
-none
+A+B
 ```
 
-Это позволяет отличить независимый вклад от системной синергии.
+Full factorial всей MINDRA практически не требуется; используется hypothesis-driven subset.
 
 ---
 
-# 10. Multiple seeds
+# 7. Replicates и stochasticity
 
-Серьёзный вывод не должен опираться на один удачный training seed.
+Серьёзный stochastic claim не опирается на один удачный run.
 
-Количество seeds и способ статистического анализа будут определяться experiment protocol с учётом compute budget.
+Нужно различать:
 
-Минимально необходимо сохранять:
+```text
+training replicate
+checkpoint replicate
+world replicate
+episode replicate
+policy stochastic replicate
+counterfactual branch
+```
 
-- seed;
-- config;
-- code commit;
-- environment/data version;
-- checkpoint identity.
+Много episodes одного checkpoint не являются independent training replicates.
+
+Количество replicates и statistical method задаются `ReplicateStructure + StatisticalAnalysisPlan` конкретного study, а не глобальным магическим числом seeds.
 
 ---
 
-# 11. Train / validation / test separation
+# 8. Train / validation / test separation
 
-Если environment или dataset используется для обучения, evaluation должна включать unseen conditions.
+Если world/data использованы для training/model selection, confirmatory generalization evaluation включает held-out conditions.
 
-Важно различать:
+Различаются:
 
 - memorization;
 - adaptation;
-- generalization;
-- transfer.
+- in-distribution generalization;
+- compositional/generalization shift;
+- transfer/OOD.
 
-Например, поведение «красный объект опасен» не доказывает learned risk assessment, если во всех train worlds красный цвет всегда означал опасность.
-
----
-
-# 12. Cortex transfer
-
-Поскольку Cortex является заменяемым backend, одним из ключевых классов будущих экспериментов должен быть transfer между различными Cortex configurations.
-
-Исследовательские вопросы могут включать:
-
-- сохраняется ли architecture gain при другой base model;
-- насколько сильно остальные модули привязаны к model-specific representation;
-- что происходит при уменьшении/увеличении Cortex capacity;
-- остаются ли функциональные свойства без Cortex.
-
-Конкретные модели не фиксируются этим документом.
+Использование test outcome для ручной настройки превращает этот test в development evidence.
 
 ---
 
-# 13. Parameter/compute controls
+# 9. Cortex transfer
 
-Если новый модуль увеличивает количество trainable parameters или compute, improvement нельзя автоматически считать доказательством правильности его функциональной семантики.
-
-Где возможно, необходимо сравнение с control, имеющим близкие:
-
-- parameter count;
-- input information;
-- training budget;
-- runtime compute.
-
----
-
-# 14. Отдельные module metrics
-
-End-task success недостаточен для диагностики.
-
-Каждый модуль должен получить собственные метрики, соответствующие его responsibility.
-
-Примеры классов метрик:
-
-- prediction quality для World Model;
-- calibration для Self Model;
-- retrieval utility для Memory;
-- future utility prediction для Salience;
-- intervention response для Drives/Appraisal;
-- information routing для Workspace.
-
-Точные метрики будут владельцами соответствующих design documents.
-
----
-
-# 15. Exploratory и confirmatory experiments
-
-Допускаются exploratory runs для поиска гипотез, debugging и выбора разумных диапазонов параметров.
-
-Но exploratory result не должен задним числом оформляться как заранее предсказанный confirmatory result.
-
-Для confirmatory experiment до запуска желательно зафиксировать:
-
-- hypothesis;
-- independent variables;
-- controls;
-- metrics;
-- primary success/falsification criterion;
-- seed policy;
-- environment/data split;
-- analysis method.
-
----
-
-# 16. Воспроизводимость
-
-Каждый значимый experiment должен быть максимально воспроизводим из сохранённых артефактов.
-
-Минимальный future experiment record должен позволять восстановить:
+Поскольку Cortex сменный, важный класс evidence:
 
 ```text
-repository commit
-configuration
-random seeds
-runtime/software environment
-training/evaluation data or environment version
-Cortex identity/configuration
-module composition
-checkpoint
-metrics
-raw result artifacts
+NoCortex
+small Cortex
+alternative family/backend
+stronger Cortex
 ```
 
-Точный contract будет определён позднее.
+где feasible.
+
+Architecture gain, существующий только с одним Cortex, формулируется узко и не объявляется universal.
+
+---
+
+# 10. Parameter/compute/data/tuning controls
+
+Improvement нельзя автоматически приписывать architecture, если treatment имеет больше:
+
+- parameters;
+- state capacity;
+- context;
+- Memory/Workspace capacity;
+- Cortex calls;
+- training data/steps;
+- runtime rollout/search;
+- tuning budget;
+- actual compute.
+
+Если perfect matching невозможно, показывается trade-off/frontier и generic matched control.
+
+Compute provenance определяется `DU-27`, comparison semantics — `DU-28`.
+
+---
+
+# 11. Module-specific metrics
+
+End-task success недостаточен.
+
+Каждый substantial boundary получает metrics своей responsibility, например:
+
+- World Model — prediction/belief/uncertainty;
+- Self Model — calibration/competence;
+- Memory — retrieval utility/provenance;
+- Drives/Appraisal/Affect — intervention response;
+- Valuation — preference/constraint behavior;
+- Salience/Workspace — resource routing;
+- Executive — performance/compute frontier;
+- Planner — long-horizon contribution;
+- Action Gate — correction/false-rejection attribution.
+
+Каноническая metric architecture — `DU-28`.
+
+---
+
+# 12. Calibration
+
+Accuracy и confidence calibration являются разными axes.
+
+Если subsystem заявляет meaningful probability, evaluation использует metric family, соответствующую probability semantics, где practically possible — proper scoring.
+
+ECE-like summaries могут быть diagnostics, но не считаются universal proof truthful probability.
+
+---
+
+# 13. Exploratory vs confirmatory
+
+Exploratory runs разрешены для debugging/hypothesis generation/range selection.
+
+Confirmatory study заранее фиксирует:
+
+- hypothesis;
+- independent variables/controls;
+- primary contrasts/metrics;
+- replicate/sample policy;
+- statistical analysis;
+- exclusions/censoring;
+- stopping;
+- success/falsification criterion.
+
+Post-hoc change создаёт новую revision и не masquerade как preregistered result.
+
+---
+
+# 14. Reproducibility
+
+Каждый значимый result связывается минимум с:
+
+```text
+repository/code revision
+configuration
+Agent/component revision
+checkpoint + RestoreProfile
+Environment/world distribution
+Cortex condition
+RNG/seed semantics
+Dataset/TrainingPlan refs where relevant
+software/hardware manifests
+actual compute provenance
+EvaluationManifest/metrics/analysis
+raw Evidence/Experience artifacts
+```
+
+`same seed` недостаточно. Scoped restore/reproducibility claims определены `DU-27`.
+
+---
+
+# 15. Privileged Ground Truth
+
+Evaluator может иметь доступ к hidden Environment state/ResearchAnnotation.
+
+Но:
+
+```text
+Evaluator Ground Truth
+≠ Agent input
+```
+
+Использование privileged data в training разрешено только explicit privileged-supervision condition.
+
+---
+
+# 16. Policy vs Action Gate attribution
+
+Final system success не равен Policy quality.
+
+Отдельно анализируются:
+
+```text
+SelectedActionIntent
+Action Gate rejection/normalization/override
+committed/executed action
+final outcome
+```
+
+Сильный shield не должен скрывать слабую Policy.
 
 ---
 
 # 17. Отрицательные результаты
 
-Отрицательный результат не является неудачей проекта.
+Отрицательный result — полноценный evidence.
 
-Если качественно реализованный модуль не улучшает целевую способность или его эффект полностью объясняется control, это важный research evidence.
+Если module effect объясняется matched control или negative gate выполняется, это основание для interpretation/design review, а не повод скрывать result.
 
-Не удалять такую информацию из истории исследования ради более красивой narrative.
+Architecture меняется только через ADR.
 
 ---
 
 # 18. Антропоморфные ограничения
 
-MINDRA использует термины из cognitive science как функциональные рабочие понятия, но не должен автоматически переносить человеческую феноменологию на искусственную систему.
-
-Запрещён логический переход вида:
+Запрещены переходы:
 
 ```text
-есть переменная valence
-→ агент чувствует удовольствие/страдание
+valence → доказано чувство
+Self Model → доказано самосознание
+Workspace → доказано сознание
 ```
 
-или:
-
-```text
-есть Self Model
-→ агент обладает самосознанием
-```
-
-или:
-
-```text
-есть Workspace
-→ доказано сознание
-```
-
-Допустимы только выводы, поддерживаемые конкретным experiment design.
+MINDRA использует functional cognitive terms; phenomenological claims требуют отдельного evidence, которого architecture сама по себе не предоставляет.
 
 ---
 
-# 19. Изменение design по результатам эксперимента
+# 19. Сила claim ограничена силой evidence
 
-Research evidence не меняет canonical design автоматически.
-
-Правильный flow:
+Conceptually:
 
 ```text
-result
-→ interpretation
-→ design review
-→ ADR при существенном выборе
-→ canonical design update
-→ next implementation
+descriptive correlation
+< predictive evidence
+< ablation/control
+< matched intervention
+< replicated/generalized causal evidence
 ```
 
-Это сохраняет понятную историю того, почему архитектура менялась.
+Exact levels/assumptions определяет конкретный study. Не заявлять causal/general claim сильнее, чем позволяет design.
 
 ---
 
 # 20. Текущая граница
 
-На стадии documentation foundation ещё не фиксируются:
+После `DU-28` уже приняты semantic requirements для:
 
-- конкретный benchmark suite;
-- composite score;
-- statistical thresholds;
-- minimum seeds;
-- конкретные MicroWorld rules;
-- training dataset;
-- experiment storage format;
-- plotting/reporting stack.
+- evaluation conditions/suites/runs/units;
+- controls/matched controls;
+- causal interventions;
+- module gates;
+- metric/statistical protocol;
+- reproducibility/compute attribution.
 
-Они должны быть спроектированы после определения соответствующих subsystem contracts и compute constraints.
+По-прежнему **не фиксируются до version design**:
+
+- конкретный benchmark suite/task catalog;
+- exact number of seeds;
+- universal statistical test/threshold;
+- universal composite score;
+- plotting/tracking framework;
+- implementation storage format.
+
+Следующий design scope — `DU-29 — Engineering Testing`.
