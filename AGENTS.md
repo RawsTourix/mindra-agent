@@ -119,6 +119,7 @@ Accepted foundation decisions: `ADR-0001` … `ADR-0006`.
 | Self Model | `docs/design/modules/self-model.md` | `contracts/self-model.md` | `ADR-0013` |
 | Intrinsic Signals | `docs/design/modules/intrinsic-signals.md` | `contracts/intrinsic-signals.md` | `ADR-0014` |
 | Drives | `docs/design/modules/drives.md` | `contracts/drives.md` | `ADR-0015` |
+| Appraisal | `docs/design/modules/appraisal.md` | `contracts/appraisal.md` | `ADR-0016` |
 
 Номер текущего разрешённого Design Update всегда брать из `docs/design/current.md`, а не из старых chat/prompt сообщений.
 
@@ -179,6 +180,16 @@ homeostatic drive ≠ mandatory form of every drive
 Drive System ≠ global motivation scalar
 Environment reset ≠ Drive reset
 wall-clock ≠ implicit Drive time
+Appraisal ≠ Intrinsic Signal ≠ Drive ≠ Affect ≠ Valuation
+Appraisal Target ≠ Appraisal Context
+relevance ≠ Salience ≠ novelty ≠ utility
+goal congruence ≠ global Goal priority/value
+drive conduciveness ≠ committed Drive update
+expectedness ≠ novelty ≠ prediction discrepancy ≠ predictive surprisal
+controllability ≠ coping potential
+urgency ≠ Salience ≠ action priority
+Appraisal local polarity ≠ Utility/Value/Reward
+reappraisal ≠ mutation of historical AppraisalRecord
 ```
 
 ---
@@ -345,7 +356,34 @@ wall-clock ≠ implicit Drive time
 
 ---
 
-# 18. Research discipline
+# 18. Appraisal discipline
+
+До изменения `DU-16/17/18/19/23` запрещается:
+
+- превращать Appraisal в один mandatory `valence`, `emotion_score` или reward scalar;
+- использовать human emotion label как единственный canonical Appraisal output;
+- считать Appraisal persistent Affect/mood state;
+- создавать Appraisal без explicit target/context/revision provenance;
+- смешивать actual, predicted, imagined, retrospective и intervened targets;
+- считать novelty/surprisal/prediction error автоматически Appraisal expectedness/value;
+- смешивать relevance и Salience/attention allocation;
+- scalarize conflicts нескольких Goals внутри goal congruence;
+- мутировать Goal Graph из Appraisal;
+- мутировать Drive State из drive conduciveness;
+- смешивать controllability и coping potential;
+- позволять Appraisal выбирать coping strategy/action;
+- использовать evaluator-only Ground Truth как natural appraisal evidence;
+- выполнять hidden Memory retrieval/Cortex invocation без declared causal operation;
+- считать Cortex emotion/self-report canonical Appraisal;
+- подменять unknown/unavailable/failed dimension значением `0`;
+- переписывать historical AppraisalRecord при reappraisal;
+- вводить normative compatibility без explicit agent-owned norm semantics;
+- считать optional local polarity Utility/Value/Reward;
+- делать конкретную human appraisal taxonomy или LLM appraisal framework обязательной implementation из-за research evidence.
+
+---
+
+# 19. Research discipline
 
 Обязателен [`docs/research-methodology.md`](docs/research-methodology.md).
 
@@ -366,7 +404,7 @@ wall-clock ≠ implicit Drive time
 
 ---
 
-# 19. Scope implementation
+# 20. Scope implementation
 
 Пока `docs/design/current.md` не разрешает implementation/version work, подробный design **не является разрешением писать production architecture**.
 
@@ -378,6 +416,7 @@ wall-clock ≠ implicit Drive time
 - конкретный Self Model/calibration estimator;
 - RND/ICM/VIME/RIDE/NGU/Plan2Explore или common intrinsic-reward formula;
 - конкретный Drive list/homeostatic equation/coupling model;
+- конкретную human appraisal taxonomy/emotion labels/Appraisal LLM framework;
 - TensorDict/DI/config/scheduler framework;
 - PPO и другие learning algorithms;
 - Colab/cloud runtime;
@@ -385,7 +424,7 @@ wall-clock ≠ implicit Drive time
 
 ---
 
-# 20. Поведение при неопределённости
+# 21. Поведение при неопределённости
 
 Если документация не определяет существенное решение:
 
