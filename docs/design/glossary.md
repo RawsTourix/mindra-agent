@@ -2,7 +2,31 @@
 
 ## Назначение
 
-Короткие рабочие определения устойчивых терминов MINDRA. При конфликте приоритет имеют accepted ADR и специализированный canonical design.
+Короткие рабочие определения устойчивых терминов MINDRA после `DU-31`.
+
+При конфликте приоритет имеют accepted ADR, специализированный canonical design и [`contract-adr-consistency-freeze.md`](contract-adr-consistency-freeze.md).
+
+Exact Python/API names могут отличаться в version specification; здесь фиксируется смысл.
+
+---
+
+# Semantic Freeze / governance
+
+## Semantic Freeze Baseline F31
+
+Согласованный semantic baseline `DU-01 … DU-30`, принятый `DU-31`. Замораживает ownership/lifecycle/source/provenance/causal meaning, но не exact Python API или algorithms.
+
+## Semantic-frozen contract
+
+Machine-facing contract, смысл которого нельзя менять в version implementation без нового ADR. Concrete representation остаётся version choice.
+
+## Breaking Semantic Change
+
+Изменение owner, source-of-truth, visibility, causal ordering, lifecycle или другой frozen semantics. После F31 требует нового ADR и обновления freeze baseline.
+
+## Deferred Implementation Choice
+
+Concrete framework/API/algorithm/storage/default, который может быть выбран version specification без изменения F31 semantics.
 
 ---
 
@@ -20,13 +44,25 @@ Committed versioned shared-state surface между модулями. Не по�
 
 Логический causally relevant снимок Agent для clone/restore. Не persistent Checkpoint.
 
-## Agent revision
+## Checkpoint
+
+Persistent manifest-driven набор verified artifacts относительно explicit causal capture boundary/scope.
+
+## AgentRevision
 
 Версия behavior-relevant composition/parameters Agent.
 
+## CandidateRevisionBundle
+
+Staged набор новых component/Agent revisions после training, но до activation.
+
+## RevisionActivationRecord
+
+Causal запись перевода compatible revision bundle в active Agent revision.
+
 ## Cognitive Scheduler
 
-Механизм declared scheduling/waves/commits. Не cognitive module, Executive Control или Policy.
+Runtime-core механизм DAG/waves/read-write validation/atomic commits. Не cognitive module, Executive Control или Policy.
 
 ## Decision Window
 
@@ -35,6 +71,42 @@ Committed versioned shared-state surface между модулями. Не по�
 ## Cognitive Cycle
 
 Одна причинно различимая внутренняя итерация cognition.
+
+## Runtime State Update
+
+Изменение ordinary agent runtime/adaptive state без optimizer semantics.
+
+## Learning Update
+
+Явное parameter/model-fitting изменение через внешний Training Runtime.
+
+---
+
+# Availability / status semantics
+
+## available
+
+Применимое актуальное значение существует.
+
+## unknown
+
+Значение применимо, но Agent/система его не знает или не оценила. Не ошибка и не `false`.
+
+## stale
+
+Значение существует, но его validity horizon не покрывает текущий causal context.
+
+## unavailable
+
+Capability/value намеренно недоступны или неприменимы в текущей composition/phase.
+
+## missing
+
+Required structural contract element отсутствует. Обычно contract/configuration error.
+
+## execution_unknown
+
+Неизвестно, был ли dispatched external action применён. Не синоним epistemic `unknown` и не эквивалент `not_executed`.
 
 ---
 
@@ -76,6 +148,14 @@ Versioned identity/configuration world instance/family сверх одного s
 
 Заменяемая semantic/language/reasoning capability; не вся MINDRA и не central orchestrator.
 
+## Memory Core
+
+Owner canonical Memory Store/record identity/structural validation/retrieval/representation/index/commit. Не owner importance/admission policy после DU-20.
+
+## Memory Regulation
+
+Policy responsibility admission/retention/forgetting/eviction/replay/consolidation поверх Memory Core. Не второй owner Store.
+
 ## MemoryRecord
 
 Каноническое agent-owned воспоминание со stable identity/provenance; не embedding/index slot.
@@ -83,6 +163,14 @@ Versioned identity/configuration world instance/family сверх одного s
 ## RetrievalResult
 
 Результат явного query-driven Memory retrieval event.
+
+## Memory Replay / Reactivation
+
+Agent-owned повторная активация существующего `MemoryRecord`. Не Training Replay и не новый natural experience.
+
+## Consolidation Event
+
+Causal memory derivation/maintenance event. Не optimizer `Learning Update`.
 
 ---
 
@@ -110,7 +198,7 @@ Committed context-conditioned модель собственной competence/lim
 
 ---
 
-# Intrinsic / Motivation / Appraisal
+# Intrinsic / Motivation / Appraisal / Value
 
 ## Intrinsic Signal
 
@@ -118,7 +206,7 @@ Typed нейтральное измерение свойства опыта. Н�
 
 ## Drive State
 
-Persistent regulatory состояние конкретного Drive.
+Persistent regulatory/motivational состояние конкретного Drive.
 
 ## AppraisalRecord
 
@@ -130,31 +218,27 @@ Persistent history-dependent modulation state. Не emotion label, Drive State �
 
 ## ValueProfile
 
-Structured multi-objective representation decision-relevant ценности target до обязательной scalarization.
+Structured multi-objective representation decision-relevant ценности target до optional scalarization/comparison policy.
 
 ## SalienceProfile
 
 Structured representation причин processing priority target. Не AttentionAllocation.
 
+## AttentionAllocation
+
+Результат allocation конкретного AttentionBudget между explicit candidates. Не фактическое исполнение consumer operation.
+
 ---
 
-# Memory Regulation / Workspace / Executive
-
-## Memory Regulation
-
-Policy responsibility поверх Memory Core для admission/retention/forgetting/eviction/replay/consolidation. Не второй owner Store.
-
-## Memory Replay / Reactivation
-
-Agent-owned re-presentation `MemoryRecord`. Не Training Replay и не новый natural experience.
-
-## Consolidation Event
-
-Causal событие memory derivation/maintenance. Не Learning Update.
+# Workspace / Executive
 
 ## Workspace
 
 Bounded temporary shared-access/broadcast capability для dynamically admitted subset информации. Не `CognitiveState`, Memory или Cortex context.
+
+## WorkspaceItem
+
+Admitted source-preserving item Workspace. Admission не повышает factual authority источника.
 
 ## Executive Control
 
@@ -164,17 +248,21 @@ Agent-owned control optional internal operations/resources и continue/yield cog
 
 Решение разрешить/инициировать внутреннюю cognitive operation. Не Environment Action.
 
+## CognitiveResourceEnvelope
+
+Предоставленный Executive hard/soft envelope agent-visible cognitive resources. Не infrastructure ComputeManifest.
+
 ---
 
 # Policy / Action
 
-## Policy System
-
-Обязательный owner финального behavioral selection до Action Boundary.
-
 ## Planner
 
 Optional/falsifiable provider multi-step/contingent plans и action candidates. Не final selection owner.
+
+## Policy System
+
+Owner final behavioral selection до Action Boundary.
 
 ## ActionCandidate
 
@@ -186,19 +274,19 @@ Optional/falsifiable provider multi-step/contingent plans и action candidates. 
 
 ## AuthorizedAction
 
-Final semantic action после успешной authorization, до `Action Commit`.
+Final semantic action после authorization, до `Action Commit`.
 
 ## Action Commit
 
 Необратимая causal boundary final authorized Environment action после authorization и до dispatch.
 
+## ActionCommitRecord
+
+Immutable evidence committed action с intent/authorization/revision/dispatch lineage.
+
 ## DispatchAttempt
 
 Одна transport/adapter попытка отправить уже committed action. Retry того же logical dispatch не создаёт новый Action Commit.
-
-## execution_unknown
-
-Неизвестно, был ли dispatched action применён. Не эквивалентно `not_executed`.
 
 ---
 
@@ -240,10 +328,6 @@ Derived training data product со source refs и transformation lineage. Не h
 
 Повторное использование training data внешним Training Runtime. Не Agent Memory Replay.
 
-## ReplaySelectionRecord
-
-Evidence конкретного training replay selection.
-
 ## Privileged supervision
 
 Training condition, явно разрешающая evaluator/research-only data.
@@ -255,14 +339,6 @@ Training condition, явно разрешающая evaluator/research-only data
 ## Training Runtime
 
 Внешняя optimization responsibility, создающая candidate trainable revisions. Не cognitive module.
-
-## Runtime State Update
-
-Изменение ordinary agent runtime/adaptive state без optimizer semantics.
-
-## Learning Update
-
-Явное parameter/model-fitting изменение через Training Runtime.
 
 ## TrainingPlan
 
@@ -276,17 +352,13 @@ Versioned training condition: targets, pinned base revisions, data, objectives, 
 
 Versioned правила trainable groups, cross-component gradient edges и stop-gradient boundaries.
 
-## CandidateRevisionBundle
+## BaseRevisionBundle
 
-Staged набор новых revisions после optimization, но до activation.
+Pinned revisions, от которых начинается TrainingAttempt.
 
 ## LearningUpdateRecord
 
 Immutable evidence training update; не automatic activation.
-
-## RevisionActivationRecord
-
-Causal запись перевода compatible revision bundle в active Agent revision.
 
 ## Behavior revision
 
@@ -304,10 +376,6 @@ Revision, относительно которой Trainer вычисляет upd
 
 # Checkpoint / Reproducibility / Compute
 
-## Checkpoint
-
-Persistent manifest-driven набор verified artifacts относительно explicit causal capture boundary и scope.
-
 ## CheckpointScope
 
 Intended use и required/optional state classes checkpoint.
@@ -315,14 +383,6 @@ Intended use и required/optional state classes checkpoint.
 ## CheckpointManifest
 
 Committed descriptor checkpoint после verification обязательных artifacts.
-
-## TrainingResumeCheckpoint
-
-Checkpoint scope с training state для заявленного continuation.
-
-## FullSystemCheckpoint
-
-Checkpoint scope с causally aligned Agent + Environment/runtime state.
 
 ## CaptureBoundary
 
@@ -338,7 +398,7 @@ Versioned requested restore semantics: exact/compatible/portable/approximate.
 
 ## ReproducibilityClaim
 
-Scoped evidence-backed утверждение о reproducibility/restore guarantee. Не boolean и не ResearchClaim о функциональном effect.
+Scoped evidence-backed утверждение о воспроизводимости. Не boolean.
 
 ## DeterminismPolicy
 
@@ -364,17 +424,9 @@ Versioned reproducible run condition, связывающий code/config/checkpo
 
 Внешний Evaluation Plane для task/diagnostic/causal/calibration/resource/reproducibility evidence. Не engineering test suite.
 
-## EvaluationStudyPlan
-
-Versioned план исследования: hypotheses, conditions, controls, metrics, replicates/statistics и success/falsification criteria.
-
 ## EvaluationCondition
 
 Полностью определённое условие evaluation.
-
-## EvaluationRun
-
-Один причинно идентифицируемый запуск конкретной condition.
 
 ## EvaluationUnit
 
@@ -384,41 +436,21 @@ Versioned план исследования: hypotheses, conditions, controls, m
 
 Структура training/checkpoint/world/episode/counterfactual replicates и nesting assumptions.
 
-## MetricSpec
-
-Versioned semantics evaluator metric.
-
 ## StatisticalAnalysisPlan
 
 Versioned analysis semantics: unit, contrast, estimator/interval family, nesting, missing/censoring и stopping policy.
 
-## ControlDescriptor
+## Matched control
 
-Описание baseline/ablation/No*/Dummy/random/shuffled/matched/oracle condition.
-
-## ResourceMatchProfile
-
-Описание confounders/resources, которые должны быть matched между conditions.
+Control с сопоставимыми заявленными confounders, но иной целевой semantics.
 
 ## PairedCounterfactualPlan
 
 План control/treatment branching из общего verified base state.
 
-## CausalContrastRecord
-
-Evidence control/treatment effect с assumptions/limitations.
-
 ## ModuleGateSpec
 
 Support/weakening/falsification criteria условно принятой module boundary.
-
-## EvaluationValidityRecord
-
-Статус protocol/leakage/checkpoint/condition validity. Invalid run не равен failed task.
-
-## EvaluationReport
-
-Derived report с lineage до raw evidence. Не source of truth research claim.
 
 ---
 
@@ -430,43 +462,23 @@ Derived report с lineage до raw evidence. Не source of truth research claim
 
 ## VerificationObligation
 
-Versioned обязанность проверить конкретный accepted engineering invariant.
+Versioned обязанность проверить конкретный frozen engineering invariant.
 
 ## VerificationMatrix
 
-Связь accepted design/ADR/contracts с obligations, test specs, CI tiers и latest evidence.
+Связь design/ADR/contracts с obligations, test specs, CI tiers и latest evidence.
 
 ## ContractConformanceProfile
 
-Capability-aware профиль conformance конкретной real/Dummy/control implementation semantic contract.
+Capability-aware профиль conformance concrete real/Dummy/control implementation semantic contract.
 
 ## FaultInjectionSpec
 
 Declared fault, injection point и ожидаемые failure/recovery semantics.
 
-## StatefulModelSpec
-
-Упрощённая reference-state model для generated sequence testing.
-
-## TestOracleSpec
-
-Test-only expected/invariant source. Privileged oracle не становится Agent-visible input.
-
-## VerificationEvidenceRecord
-
-Evidence того, какие obligations проверены в каком environment/capability scope.
-
 ## VerificationGate
 
-Набор required obligations/evidence для change/merge scope. Skip/not-run не становятся pass.
-
-## CoverageProfile
-
-Раздельное описание code, contract, invariant, failure-mode, schema/migration и backend-capability coverage.
-
-## FlakyTestRecord
-
-Evidence nondeterministic pass/fail behavior. Quarantine не равна verification pass.
+Required obligations/evidence для change/merge scope. Skip/not-run не становятся pass.
 
 ---
 
@@ -474,63 +486,35 @@ Evidence nondeterministic pass/fail behavior. Quarantine не равна verific
 
 ## ObservationRecord
 
-Версионируемая запись непосредственно измеренного/полученного evidence без более сильного теоретического вывода.
+Фиксация непосредственно полученного valid research evidence без усиленной интерпретации.
 
 ## InterpretationRecord
 
-Derived объяснение смысла observations с competing explanations, assumptions, confounders и scope.
+Versioned объяснение/смысл evidence с assumptions, competing explanations и scope.
 
 ## ResearchClaim
 
-Versioned утверждение, которое проект готов защищать в явном `ClaimScope`, с supporting/challenging evidence, limitations и known unknowns.
+Versioned scoped утверждение, которое проект готов защищать на основании evidence.
 
 ## ClaimScope
 
-Явные границы применимости claim: revisions, Cortex, data/training, worlds/tasks, composition/interventions, compute/tuning, software/hardware и replicate/analysis scope где material.
-
-## ClaimKind
-
-Semantic class claim: descriptive/associational/predictive/causal/generalization/architecture/efficiency и т.п. Exact enum не frozen.
-
-## ClaimStatus
-
-Lifecycle state claim: proposed/supported/challenged/weakened/inconclusive/unsupported/superseded и т.п. Historical revisions сохраняются.
+Явная область применимости ResearchClaim. Отсутствующий dimension не означает universal scope.
 
 ## LimitationRecord
 
-First-class versioned ограничение claim/study/module/version/project scope, measurement, causal inference, generalization, implementation, compute/data/Cortex или verification.
+Versioned first-class ограничение claim/study/version/project.
 
 ## KnownUnknownRecord
 
-First-class важный вопрос, по которому текущего evidence недостаточно. `unknown` не равно `false`.
-
-## NegativeResultRecord
-
-Record отрицательного/null/inconclusive evidence с validity и uncertainty. Invalid/not-measured — отдельные classes.
-
-## ModuleGateOutcome
-
-Evidence outcome support/negative criteria условной module boundary. Сам не меняет ADR автоматически.
-
-## ClaimReviewRecord
-
-Версионируемое решение сохранить/сузить/ослабить/supersede/withdraw claim после нового evidence.
+Явно зарегистрированный нерешённый вопрос. `unknown ≠ false`.
 
 ## UnsupportedClaimPattern
 
-Явно запрещённый или необоснованный inference leap, например `Workspace → consciousness proof`.
+Явно запрещённый/необоснованный inference leap, например `Workspace → consciousness proof`.
 
 ## ClaimRegistry
 
 Versioned registry active/challenged/superseded/unsupported claims и review lineage.
-
-## LimitationsRegistry
-
-Versioned registry project-wide/version/study/claim limitations.
-
-## PublicationStatementRecord
-
-Derived public/report statement, привязанный к canonical claim revision. Publication prose не source of truth.
 
 ## Functional similarity
 
@@ -538,7 +522,7 @@ Derived public/report statement, привязанный к canonical claim revis
 
 ## Phenomenological claim
 
-Утверждение о subjective experience/conscious feeling. Текущая MINDRA architecture сама по себе не предоставляет достаточного direct bridge evidence для такого claim.
+Утверждение о subjective experience/conscious feeling. Текущая MINDRA architecture сама по себе не предоставляет достаточного bridge evidence для такого claim.
 
 ---
 
@@ -556,10 +540,6 @@ Derived public/report statement, привязанный к canonical claim revis
 
 Конфигурация для исключения альтернативного объяснения эффекта.
 
-## Matched control
-
-Control с сопоставимыми заявленными confounders, но иной целевой semantics.
-
 ## Research evidence
 
 Воспроизводимый результат с conditions/limitations; не automatic design change.
@@ -570,6 +550,14 @@ Control с сопоставимыми заявленными confounders, но �
 
 ---
 
-# Следующий design scope
+# Текущий design scope
 
-`DU-31 — Contract + ADR Consistency Freeze`: общий consistency/freeze pass по `DU-01 … DU-30`, а не новая cognitive subsystem.
+`DU-31` завершён. Semantic baseline `F31` принят.
+
+Следующий допустимый этап:
+
+```text
+DU-32 — Version Roadmap
+```
+
+Version roadmap конкретизирует implementation milestones, но не переопределяет frozen semantics без нового ADR.
