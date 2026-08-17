@@ -98,6 +98,112 @@ Compute Substrate не является когнитивной архитект�
 
 ---
 
+# Environment и MicroWorld
+
+## Agent Interaction Plane
+
+Agent-facing поверхность Environment, через которую Agent получает только contract-defined `Raw Observation`, `External Task Specification`, разрешённый `External Task Feedback` и termination/truncation semantics, а Environment получает committed action.
+
+Эта boundary не включает research-only hidden state, oracle data или evaluator metrics.
+
+## Environment Research Plane
+
+Привилегированная research-facing поверхность Environment для hidden ground truth, authoritative transition evidence, snapshot/restore/clone/fork, generation metadata, solver/validity information и controlled Environment interventions.
+
+Research Plane не является normal Agent input.
+
+## Hidden World State
+
+Authoritative полное состояние Environment, включающее скрытые entities/properties/rules, task state, world-side embodiment state, stochastic state и другие переменные, определяющие будущую динамику мира.
+
+Hidden World State принадлежит Environment и не равен `Raw Observation`.
+
+## Raw Observation
+
+Agent-visible проекция Environment state до обработки будущим Perception/Representation layer.
+
+`Raw Observation` не является canonical internal representation MINDRA.
+
+## Research Ground Truth
+
+Privileged данные Environment, доступные evaluator/diagnostics для измерения и causal analysis: полный world state, true hidden rules, oracle/solver information, authoritative outcome reason и другие данные, не предназначенные Agent.
+
+## External Task Specification
+
+Внешнее описание задачи, предъявляемое Environment Agent в соответствии с task contract.
+
+Не является внутренним `Goal` state MINDRA; преобразование во внутренние цели проектируется отдельно.
+
+## External Task Feedback
+
+Contract-defined сигнал от Environment/task, который намеренно доступен Agent после действия или события.
+
+Может быть scalar, vector, sparse event или structured value и не является автоматически `Internal Utility`.
+
+## Objective Task Metric
+
+Research-only объективная метрика выполнения задачи, используемая evaluator для оценки поведения.
+
+Не становится Agent-visible feedback автоматически.
+
+## World Instance
+
+Конкретный сгенерированный или загруженный экземпляр мира с определёнными geometry/content/rules/task configuration.
+
+Один seed без version/generator identity недостаточен для однозначного определения World Instance.
+
+## World Manifest
+
+Версионируемый research artifact, описывающий конкретно сгенерированный world instance и его generation provenance настолько полно, насколько требуется воспроизводимость/аудит.
+
+Может содержать hidden information и поэтому не передаётся Agent автоматически.
+
+## World Distribution
+
+Версионируемое распределение generation factors, из которого выбираются world/task instances для train/validation/test или специальных evaluation conditions.
+
+Distribution identity не является normal Agent observation.
+
+## Environment Snapshot
+
+Семантически целостный снимок causally relevant Environment state, достаточный для восстановления будущей world dynamics при совместимых версиях.
+
+Exact snapshot включает не только видимую карту, но также hidden/task/pending state и все Environment RNG states, влияющие на будущее.
+
+## Environment clone
+
+Независимый Environment instance, созданный из snapshot. Изменение clone не должно менять исходный instance.
+
+## Environment fork
+
+Новая research lineage Environment, созданная от конкретного snapshot с явной parent relation для control/treatment или другого counterfactual branching.
+
+## Environment intervention
+
+Привилегированное controlled изменение Environment state/rule/task/dynamics через research boundary с explicit target, base snapshot/revision, treatment и provenance.
+
+Не является Agent action и не маскируется под natural world transition.
+
+## MicroWorld
+
+Первая reference Environment family MINDRA: минималистичный 2D symbolic world с partial observability, compositional entities, hidden causal rules, procedural generation и snapshot/fork support.
+
+MicroWorld не является универсальным определением любого будущего Environment MINDRA.
+
+## Procedural generation
+
+Программное создание world/task instances из versioned configuration, factors и controlled RNG.
+
+В MINDRA generator должен позволять отделять geometry, observable appearance, causal rules, task structure, stochasticity и другие relevant factors настолько, насколько это требуется исследовательскому design.
+
+## Solvability / task validity
+
+Свойство generated task instance, показывающее, соответствует ли он правилам family и существует ли решение там, где benchmark предполагает решаемую задачу.
+
+Research oracle/validator может проверять solvability, но его данные не передаются Agent.
+
+---
+
 # Композиция и зависимости
 
 ## Composition Root
