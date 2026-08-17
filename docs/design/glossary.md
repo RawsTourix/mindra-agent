@@ -18,7 +18,7 @@ Committed versioned shared-state surface между модулями. Не по�
 
 ## Agent Snapshot
 
-Полный causally relevant снимок Agent для clone/restore: shared/private state, Memory, Workspace, Executive/Policy/Planner/Action state, parameters, RNG и другие stateful mechanisms.
+Логический causally relevant снимок самого Agent для clone/restore. Не persistent Checkpoint и не ExperimentManifest.
 
 ## Agent revision
 
@@ -322,11 +322,83 @@ Revision, относительно которой Training Runtime вычисл�
 
 ---
 
+# Checkpoint / Reproducibility / Compute
+
+## Checkpoint
+
+Persistent manifest-driven набор verified artifacts, относящийся к explicit causal capture boundary и объявленному scope. Не синоним одного tensor file.
+
+## CheckpointScope
+
+Явное описание intended use и required/optional state classes checkpoint: например inference, exact agent state, training resume или full-system resume.
+
+## CheckpointManifest
+
+Committed descriptor checkpoint: capture boundary, revisions, artifacts, integrity, Environment/Training refs, compatibility и reproducibility metadata. Коммитится после verification обязательных artifacts.
+
+## TrainingResumeCheckpoint
+
+Checkpoint scope с causally relevant optimizer/scheduler/scaler/trainer/replay/data-cursor/RNG state для заявленного продолжения Training Lifecycle.
+
+## FullSystemCheckpoint
+
+Checkpoint scope, включающий согласованный Agent + Environment/runtime state для заявленного continuation/counterfactual restore.
+
+## CaptureBoundary
+
+Explicit committed causal cut, относительно которого pin'ятся revisions/state при создании checkpoint.
+
+## ArtifactRef
+
+Stable logical/content/integrity identity checkpoint artifact, отделённая от physical path/storage location.
+
+## RestoreProfile
+
+Versioned semantics requested restore: exact/compatible/portable/approximate и соответствующие compatibility/state requirements.
+
+## RestoreRecord
+
+Evidence конкретной попытки restore: requested/actual profile, migrations, integrity/compatibility/invariant checks и результат.
+
+## ReproducibilityClaim
+
+Scoped утверждение о воспроизводимости с required environment constraints, comparison criterion, limitations и validation evidence. Не boolean `reproducible=true`.
+
+## DeterminismPolicy
+
+Versioned набор framework/runtime/precision/autotuning/parallelism условий, под которыми заявляется deterministic behavior.
+
+## SoftwareEnvironmentManifest
+
+Versioned identity code/runtime/framework/library/model/backend окружения experiment/restore.
+
+## HardwareTopologyManifest
+
+Versioned identity CPU/GPU/accelerator/topology ресурсов, релевантных reproducibility claim. Не agent-visible Self state автоматически.
+
+## ComputeManifest
+
+Research/infrastructure описание allocated compute context и способов измерения resource usage. Не `CognitiveResourceEnvelope`.
+
+## ComputeUsageRecord
+
+Evidence фактически/оценочно/provider-reported использованного compute с method/provenance.
+
+## ExperimentManifest
+
+Versioned reproducible run condition, связывающий code/config/checkpoints/Environment/data/software/hardware/compute/determinism/results. Не Agent state.
+
+## Checkpoint migration
+
+Explicit source→migration policy→new artifact/checkpoint lineage. Не silent rewrite старого checkpoint.
+
+---
+
 # Будущие области
 
-## Checkpoint / Reproducibility / Compute
+## MINDRA-Eval
 
-Persistent checkpoint, exact/approximate restore, environment/framework/compute manifests и reproducibility levels. `DU-27`.
+Будущая Evaluation Runtime/benchmark/causal metrics/statistical protocol boundary. `DU-28`.
 
 ---
 
