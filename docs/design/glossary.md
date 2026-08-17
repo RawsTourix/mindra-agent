@@ -2,944 +2,1101 @@
 
 ## Назначение
 
-Этот документ фиксирует рабочие значения основных терминов проекта.
+Этот документ фиксирует **короткие рабочие значения устойчивых терминов MINDRA**.
 
-Термины могут уточняться вместе с canonical design, но одно слово не должно одновременно использоваться для нескольких существенно разных механизмов без явного пояснения.
+Глоссарий не заменяет канонические subsystem design.
 
-Если короткое определение здесь расходится с более конкретным accepted design/ADR, приоритет имеет специализированный канонический документ.
+При конфликте приоритет имеет:
+
+```text
+accepted ADR
++
+специализированный canonical design owner
+→ candidate/exact contract
+→ glossary
+```
+
+Термин не должен использоваться в двух существенно разных смыслах без явного уточнения.
 
 ---
 
-# Система и инфраструктура
+# 1. Система и инфраструктура
 
-## Agent
+## MINDRA Agent
 
-Логическая когнитивная система MINDRA, которая владеет внутренним состоянием, использует cognitive capabilities и выбирает действия при взаимодействии с Environment.
+Логическая когнитивная система MINDRA, владеющая agent-owned state и взаимодействующая с Environment.
 
-Agent не равен Cortex, одной neural network, process, VM или GPU.
-
-Каноническая system boundary определена в `system-context.md`.
+Agent не равен Cortex, одной neural network, process, VM, GPU или notebook runtime.
 
 ## Agent boundary
 
-Логическая граница ответственности, отделяющая когнитивную систему MINDRA и agent-owned state от Environment, training/evaluation infrastructure, experiment control plane и compute/storage infrastructure.
+Логическая граница ответственности Agent.
 
-Agent boundary не обязана совпадать с process/device/network boundary.
-
-## Agent runtime core
-
-Некогнитивная внутренняя runtime-часть Agent, обеспечивающая исполнение принятых module/state semantics.
-
-В `DU-05` к ней относится `Cognitive Scheduler`: он координирует выполнение модулей и state commits, но не выбирает task-level решения за когнитивные модули.
-
-## Environment
-
-Внешняя по отношению к Agent система динамики мира, которая принимает actions и возвращает contract-defined observations, внешние task signals и сведения о termination/truncation.
-
-Hidden Environment state не является автоматически доступным Agent.
-
-## Logical boundary
-
-Граница, определяемая responsibility и state ownership, а не физическим размещением кода.
-
-## Deployment topology
-
-Физическая схема размещения компонентов по process/thread/worker/device/machine/provider boundaries.
-
-Deployment topology не определяет architecture semantics, если это отдельно не зафиксировано canonical design.
-
-## Execution Runtime
-
-Внешняя инфраструктурная роль, которая хостит исполнение Agent, соединяет его с Environment и обеспечивает run-level lifecycle, не являясь когнитивным модулем.
-
-Execution Runtime может физически хостить Agent runtime core, но не владеет внутренней scheduling semantics MINDRA.
-
-## Training Runtime
-
-Внешняя по отношению к Agent инфраструктура обучения, которая работает с опытом, datasets, losses, optimizer state и обновляет agent-owned trainable state через явную update boundary.
-
-Training Runtime не становится частью cognition только потому, что меняет параметры Agent.
-
-## Evaluation Runtime
-
-Внешняя исследовательская инфраструктура, которая запускает controlled evaluation, interventions и измерения поведения Agent.
-
-Evaluation-derived information по умолчанию не является agent-visible input.
-
-## Experiment Runner
-
-Внешний control-plane компонент, задающий идентичность и конфигурацию исследовательского запуска, seed, режим выполнения и orchestration runtime components.
-
-Experiment metadata не должна скрыто влиять на cognition Agent.
-
-## Artifact Collector
-
-Пассивная исследовательская инфраструктура, собирающая logs, trajectories, metrics, snapshots, checkpoints и другие evidence/artifacts.
-
-Artifact Collector не должен быть источником normal decision signals Agent.
-
-## Artifact Storage
-
-Внешнее долговечное хранилище checkpoints, trajectories, logs, experiment manifests и других research/training artifacts.
-
-Artifact Storage не является синонимом активной Memory Agent.
-
-## Compute Substrate
-
-Физические вычислительные ресурсы, на которых размещаются логические компоненты: CPU/GPU, process, VM, local machine, notebook runtime, remote host или future distributed infrastructure.
-
-Compute Substrate не является когнитивной архитектурой.
-
-## Research Control Plane
-
-Внешняя область orchestration и experiment integrity, включающая researcher/operator, Experiment Runner, Evaluation Runtime и evidence pipeline.
-
-Она управляет постановкой эксперимента, но не должна скрыто решать задачи за Agent.
-
----
-
-# Environment и MicroWorld
-
-## Agent Interaction Plane
-
-Agent-facing поверхность Environment, через которую Agent получает только contract-defined `Raw Observation`, `External Task Specification`, разрешённый `External Task Feedback` и termination/truncation semantics, а Environment получает committed action.
-
-Эта boundary не включает research-only hidden state, oracle data или evaluator metrics.
-
-## Environment Research Plane
-
-Привилегированная research-facing поверхность Environment для hidden ground truth, authoritative transition evidence, snapshot/restore/clone/fork, generation metadata, solver/validity information и controlled Environment interventions.
-
-Research Plane не является normal Agent input.
-
-## Hidden World State
-
-Authoritative полное состояние Environment, включающее скрытые entities/properties/rules, task state, world-side embodiment state, stochastic state и другие переменные, определяющие будущую динамику мира.
-
-Hidden World State принадлежит Environment и не равен `Raw Observation`.
-
-## Raw Observation
-
-Agent-visible проекция Environment state до обработки Perception/Representation layer.
-
-`Raw Observation` не является canonical internal representation MINDRA.
-
-## Research Ground Truth
-
-Privileged данные Environment, доступные evaluator/diagnostics для измерения и causal analysis: полный world state, true hidden rules, oracle/solver information, authoritative outcome reason и другие данные, не предназначенные Agent.
-
-## External Task Specification
-
-Внешнее описание задачи, предъявляемое Environment Agent в соответствии с task contract.
-
-Не является внутренним `Goal` state MINDRA; преобразование во внутренние цели проектируется отдельно.
-
-## External Task Feedback
-
-Contract-defined сигнал от Environment/task, который намеренно доступен Agent после действия или события.
-
-Может быть scalar, vector, sparse event или structured value и не является автоматически `Internal Utility`.
-
-## Objective Task Metric
-
-Research-only объективная метрика выполнения задачи, используемая evaluator для оценки поведения.
-
-Не становится Agent-visible feedback автоматически.
-
-## World Instance
-
-Конкретный сгенерированный или загруженный экземпляр мира с определёнными geometry/content/rules/task configuration.
-
-Один seed без version/generator identity недостаточен для однозначного определения World Instance.
-
-## World Manifest
-
-Версионируемый research artifact, описывающий конкретно сгенерированный world instance и его generation provenance настолько полно, насколько требуется воспроизводимость/аудит.
-
-Может содержать hidden information и поэтому не передаётся Agent автоматически.
-
-## World Distribution
-
-Версионируемое распределение generation factors, из которого выбираются world/task instances для train/validation/test или специальных evaluation conditions.
-
-Distribution identity не является normal Agent observation.
-
-## Environment Snapshot
-
-Семантически целостный снимок causally relevant Environment state, достаточный для восстановления будущей world dynamics при совместимых версиях.
-
-Exact snapshot включает не только видимую карту, но также hidden/task/pending state и все Environment RNG states, влияющие на будущее.
-
-## Environment clone
-
-Независимый Environment instance, созданный из snapshot. Изменение clone не должно менять исходный instance.
-
-## Environment fork
-
-Новая research lineage Environment, созданная от конкретного snapshot с явной parent relation для control/treatment или другого counterfactual branching.
-
-## Environment intervention
-
-Привилегированное controlled изменение Environment state/rule/task/dynamics через research boundary с explicit target, base snapshot/revision, treatment и provenance.
-
-Не является Agent action и не маскируется под natural world transition.
-
-## MicroWorld
-
-Первая reference Environment family MINDRA: минималистичный 2D symbolic world с partial observability, compositional entities, hidden causal rules, procedural generation и snapshot/fork support.
-
-MicroWorld не является универсальным определением любого будущего Environment MINDRA.
-
-## Procedural generation
-
-Программное создание world/task instances из versioned configuration, factors и controlled RNG.
-
-В MINDRA generator должен позволять отделять geometry, observable appearance, causal rules, task structure, stochasticity и другие relevant factors настолько, насколько это требуется исследовательскому design.
-
-## Solvability / task validity
-
-Свойство generated task instance, показывающее, соответствует ли он правилам family и существует ли решение там, где benchmark предполагает решаемую задачу.
-
-Research oracle/validator может проверять solvability, но его данные не передаются Agent.
-
----
-
-# Perception и representation
-
-## Perception
-
-Agent-owned capability, преобразующая текущую agent-visible `Raw Observation` в `Canonical Percept`, сохраняя provenance, missingness и representation identity.
-
-Perception не является Memory, World Model или Goal System.
-
-## Canonical Percept
-
-Каноническое внутреннее представление текущего observation context после Perception processing.
-
-Состоит conceptually из `Percept Envelope`, structured `Semantic Core`, modality status и optional `Feature Views`.
-
-`Canonical Percept` не равен одному latent vector и не равен Cortex hidden state.
-
-## Percept Envelope
-
-Control/provenance metadata Canonical Percept: source observation identity, causal context, representation/schema revisions, pipeline identity и intervention provenance, если применимо.
-
-Envelope не является автоматически cognitive input всех modules.
-
-## Semantic Core
-
-Структурированная semantic surface Canonical Percept, описывающая то, что Perception утверждает о **текущем agent-visible observation**: наблюдаемый self/world-side state, entities, relations, events и relevant modality state.
-
-Semantic Core не является hidden-world belief и не включает Memory/World Model prediction без отдельной provenance/boundary.
-
-## Feature View
-
-Optional вычислительное представление Semantic Core и/или разрешённой Raw Observation в конкретном feature space.
-
-Может быть learned latent, entity embedding set, spatial map или другой representation. Feature View не заменяет Semantic Core как единственный canonical source of meaning.
-
-## Percept Entity Identity
-
-Identity элемента entity collection внутри конкретного percept.
-
-По умолчанию является observation-local и не гарантирует persistent identity одного объекта между Environment Transitions.
-
-## Perceptual inference
-
-Inference о свойствах текущего observation, полученный learned/algorithmic Perception из текущей разрешённой sensory modality.
-
-Отличается от direct observation, deterministic normalization, Memory retrieval и World Model prediction и должен иметь соответствующую provenance.
-
-## Modality Status
-
-Explicit representation доступности/качества sensory modality в конкретном percept.
-
-Отсутствующая/unavailable modality не должна кодироваться только «нулевым tensor» без contract semantics.
-
-## Feature Space
-
-Семантически идентифицируемое пространство признаков конкретного `Feature View`.
-
-Совместимость определяется identity/revision/contract, а не только dimensionality tensor.
-
-## Feature Space Revision
-
-Версия semantic/geometry feature space, необходимая для определения совместимости stored/current embeddings.
-
-Одинаковая размерность двух revisions не делает их автоматически совместимыми.
-
-## Encoder Revision
-
-Идентичность версии trainable/algorithmic encoder, которая влияет на получаемый Feature View или perceptual inference.
-
-Update encoder, меняющий behavior/representations, должен быть воспроизводимо versioned.
-
-## Representation Drift
-
-Изменение representation одного и того же входа после изменения learned encoder/pipeline.
-
-Drift не является автоматически ошибкой, но должен быть измеримым и не позволяет молча смешивать несовместимые embeddings.
-
-## Sensor / Input Intervention
-
-Controlled research treatment, изменяющий agent-visible Raw Observation после Environment projection, но не изменяющий Hidden World State.
-
-Отличается от Environment world-state intervention и от semantic/feature intervention после Perception.
-
----
-
-# Композиция и зависимости
-
-## Composition Root
-
-Логическая bootstrap/composition boundary, в которой разрешаются symbolic implementation identifiers, создаются concrete implementations и собирается конкретная конфигурация Agent/runtime/evaluation для запуска.
-
-Composition Root знает о concrete implementations, но не является когнитивным модулем и не должен содержать decision logic Agent.
-
-## Dependency Injection
-
-Принцип явной передачи уже разрешённой зависимости потребителю через constructor/factory/contract boundary вместо самостоятельного поиска зависимости потребителем.
-
-В MINDRA термин не означает обязательное использование конкретного DI-framework.
-
-## Service Locator
-
-Pattern, при котором потребитель во время работы самостоятельно обращается к общему registry/container для поиска нужной зависимости, например `services.get(...)` или `container.resolve(...)`.
-
-Runtime Service Locator запрещён для cognitive/runtime code MINDRA по `DU-02`.
-
-## Registry
-
-Каталог symbolic identifiers и factories/providers, который может использоваться на composition/discovery boundary для выбора concrete implementation.
-
-Registry не является Agent state и не должен использоваться cognitive modules как runtime Service Locator.
-
-## Adapter / Provider
-
-Concrete implementation, изолирующая backend-specific library, SDK, storage, model или external service за более стабильной capability/contract boundary.
-
----
-
-# Временная модель
-
-## Run
-
-Один orchestrated запуск MINDRA в рамках определённой experiment/configuration identity.
-
-Run может содержать одну или несколько Agent Sessions, training/evaluation phases и связанные artifacts.
-
-## Agent Session
-
-Непрерывная логическая жизнь одного экземпляра Agent в рамках runtime, способная включать несколько Environment Episodes.
-
-Agent Session не равна Episode и не обязана завершаться при `Environment.reset()`.
-
-## Episode
-
-Один ограниченный отрезок взаимодействия с Environment между reset/start и termination/truncation.
-
-## Decision Window
-
-Логический интервал между ingest текущего наблюдения и `Action Commit`, внутри которого может происходить один или несколько Cognitive Cycle.
-
-## Cognitive Cycle
-
-Один внутренний цикл когнитивного вычисления Agent внутри Decision Window.
-
-Cognitive Cycle не является Environment Transition и сам по себе не продвигает внешний мир.
-
-## Action Commit
-
-Причинная boundary, после которой выбранное действие считается окончательно зафиксированным для соответствующего Environment Transition.
-
-До commit action candidate может изменяться; после commit его нельзя ретроактивно переписать.
-
-## Environment Transition
-
-Фактический переход Environment в ответ на committed action.
-
-## Outcome Commit
-
-Причинная boundary, на которой результат Environment Transition становится зафиксированным observed outcome для последующей обработки.
-
-## Learning Update
-
-Отдельное causally identifiable изменение trainable/learned state Agent.
-
-Learning Update не является обычным runtime state update и не должен скрываться внутри якобы frozen execution.
-
-## Replay Step
-
-Отдельный шаг повторного использования ранее сохранённого опыта.
-
-Replay Step не создаёт новый observed Environment Transition.
-
-## Consolidation Event
-
-Отдельная maintenance/training phase, в которой накопленный опыт может изменять более долговременное состояние/representations/weights.
-
-## Agent revision
-
-Идентичность causally relevant набора trainable/behavioral параметров Agent, под которым выполнялось конкретное cognition/action.
-
-Agent revision необходима для provenance при online/async learning.
-
----
-
-# Состояние Agent
+Определяется ownership/responsibility, а не deployment topology.
 
 ## Agent-owned state
 
-Всё состояние, которое семантически принадлежит Agent независимо от физического места хранения.
+Всё causally relevant состояние, принадлежащее Agent, включая при необходимости:
 
-Оно шире `CognitiveState` и conceptually может включать:
-
-- canonical shared runtime state;
+- `CognitiveState`;
 - module-private state;
+- Memory;
+- World/Self/Drive private state;
 - trainable parameters;
-- active Memory storage;
-- Cortex-private/backend state;
-- RNG/stochastic state;
-- другое causally relevant state.
+- Cortex-private state;
+- RNG;
+- другое состояние, влияющее на поведение.
+
+`Agent-owned state` шире `CognitiveState`.
+
+## Agent runtime core
+
+Некогнитивная внутренняя runtime-часть Agent, реализующая принятые state/scheduler/lifecycle semantics.
+
+`Cognitive Scheduler` относится к Agent runtime core.
+
+## Environment
+
+Внешняя по отношению к Agent система динамики мира, принимающая actions и формирующая agent-visible observations/task signals/outcomes.
+
+## Execution Runtime
+
+Внешняя инфраструктура, хостящая исполнение Agent и связь с Environment.
+
+Не владеет когнитивной scheduling semantics.
+
+## Training Runtime
+
+Внешняя инфраструктура parameter learning, optimizer state, replay/datasets и Learning Updates.
+
+Не является когнитивным модулем Agent.
+
+## Evaluation Runtime
+
+Внешняя исследовательская инфраструктура controlled evaluation/interventions/measurement.
+
+Evaluator-only данные не становятся normal Agent input.
+
+## Experiment Runner
+
+Control-plane компонент, задающий run configuration, seeds, conditions и orchestration.
+
+## Artifact Collector
+
+Пассивный сборщик traces/metrics/snapshots/artifacts.
+
+Не является источником normal decision signals.
+
+## Artifact Storage
+
+Долговечное внешнее хранилище experiment/checkpoint/log artifacts.
+
+Не является активной Memory Agent.
+
+## Compute Substrate
+
+Физические CPU/GPU/process/VM/machine/provider ресурсы.
+
+Compute topology не определяет cognitive semantics.
+
+## Research Control Plane
+
+Внешняя область experiment orchestration, Evaluation Runtime, researcher/operator и evidence pipeline.
+
+---
+
+# 2. Время и причинность
+
+## Run
+
+Один orchestrated запуск конкретной experiment/configuration identity.
+
+## Agent Session
+
+Непрерывная логическая жизнь одного Agent instance, способная содержать несколько Episodes.
+
+## Episode
+
+Один ограниченный цикл взаимодействия с Environment/task.
+
+`Environment.reset()` не означает полный reset Agent.
+
+## Decision Window
+
+Интервал внутренней обработки между доступным observation/context и `Action Commit`.
+
+Может содержать несколько Cognitive Cycles.
+
+## Cognitive Cycle
+
+Один внутренний логический цикл cognition.
+
+Не равен Environment Transition.
+
+## Environment Transition
+
+Фактическое изменение Environment после committed action.
+
+## Action Commit
+
+Причинная граница, после которой выбранное действие считается committed частью trajectory.
+
+## Outcome Commit
+
+Граница, после которой фактический Environment outcome становится authoritative observed evidence Agent.
+
+## Learning Update
+
+Изменение trainable agent-owned parameters/adapters.
+
+Не равно обычному runtime state update.
+
+## Agent revision
+
+Версия behavior-relevant trainable/configurable состояния Agent, необходимая для attribution действий/прогнозов.
+
+## Logical time
+
+Каноническое причинное время MINDRA.
+
+Не равно wall-clock latency.
+
+## Causal replay
+
+Воспроизведение совместимой causal history/order/revisions/RNG условий.
+
+Не означает гарантированную bitwise идентичность на любой платформе.
+
+---
+
+# 3. CognitiveState
 
 ## CognitiveState
 
-Каноническое **опубликованное shared runtime state** MINDRA, через которое будущие когнитивные компоненты обмениваются contract-defined значениями.
+Каноническое опубликованное shared runtime state MINDRA для межмодульного обмена contract-defined значениями.
 
-`CognitiveState` представлен семантически неизменяемыми committed revisions и **не равен** полному `Agent-owned state`.
+`CognitiveState` не является всем состоянием Agent.
 
-Каноническая семантика определена в `cognitive-state.md`.
+## Committed State
 
-## Committed state snapshot
-
-Логически целостная revision `CognitiveState`, опубликованная на commit boundary и недоступная для задним числом видимой mutation.
-
-Concrete implementation может использовать structural sharing/copy-on-write, если semantic immutability сохраняется.
+Семантически неизменяемая опубликованная revision `CognitiveState`.
 
 ## State revision
 
 Логическая версия committed `CognitiveState` внутри causal lineage.
 
-State revision не обязана совпадать с `cognitive_cycle_id`, `environment_transition_id` или wall-clock временем.
-
-## State schema / schema revision
-
-Каноническое описание допустимых state paths, semantic owners, scopes, availability/type/shape requirements и версия этого описания.
-
-Новый произвольный runtime key не становится частью canonical schema автоматически.
-
 ## State lineage
 
-Причинная история committed state revisions, включая parent relation и forks при counterfactual branching.
+Причинная история state revisions и forks.
+
+## State schema
+
+Описание canonical state paths, owners, scopes, availability/type/shape requirements.
 
 ## State envelope
 
-Control/provenance metadata, необходимая для интерпретации snapshot: temporal identities, state/schema/agent revision, lineage и другие служебные сведения.
+Control/provenance metadata committed snapshot.
 
-Envelope не является автоматически cognitive input.
-
-## Cognitive payload
-
-Contract-defined значения `CognitiveState`, которые могут быть доступны когнитивным компонентам через declared read dependencies.
+Не является автоматически cognitive payload.
 
 ## Proposed update
 
-Неприменённое изменение canonical state, вычисленное относительно конкретной base revision и ожидающее validation/commit.
-
-Proposed update не является committed state.
+Staged owner-scoped изменение относительно конкретной base revision до commit.
 
 ## State scope
 
-Semantic lifetime опубликованного значения.
+Semantic lifetime значения:
 
-На уровне `DU-04` различаются:
+```text
+cycle-scoped
+decision-scoped
+episode-scoped
+session-scoped
+agent-long-lived
+```
 
-- `cycle-scoped`;
-- `decision-scoped`;
-- `episode-scoped`;
-- `session-scoped`;
-- `agent-long-lived`.
-
-Scope не равен historical retention или checkpoint policy.
+Scope не равен historical retention/checkpoint policy.
 
 ## Module-private state
 
-Agent-owned state, принадлежащее конкретному модулю и не опубликованное как canonical shared `CognitiveState`.
+Agent-owned состояние конкретного subsystem, не опубликованное как shared CognitiveState.
 
-Если оно causally влияет на поведение, его lifecycle/snapshot/restore semantics не могут оставаться скрытыми.
+Если causally relevant, обязано иметь lifecycle/snapshot semantics.
 
 ## Agent Snapshot
 
-Будущий полный снимок causally relevant Agent state, достаточный для restore/counterfactual настолько, насколько это определит checkpoint design.
+Полный снимок causally relevant Agent state, достаточный для restore/counterfactual в пределах соответствующего contract.
 
-`Agent Snapshot` шире сериализованного `CognitiveState`.
+Шире `CognitiveState` snapshot.
 
 ---
 
-# Availability и свежесть
-
-## Availability
-
-Семантика того, существует ли применимое и пригодное для использования значение canonical field в текущем causal context.
+# 4. Availability
 
 ## `available`
 
-Поле имеет допустимое актуальное значение.
+Значение применимо и пригодно в текущем causal context.
 
 ## `unknown`
 
-Поле семантически применимо, но Agent не знает или ещё не оценил его значение.
-
-`unknown` является валидным epistemic состоянием, а не ошибкой.
+Значение применимо, но Agent его не знает/не оценил.
 
 ## `stale`
 
-Существует ранее вычисленное значение, но его temporal validity/freshness уже не покрывает текущий causal context.
+Ранее существовавшее значение больше не удовлетворяет freshness/current-context requirements.
 
 ## `unavailable`
 
-Поле/способность намеренно недоступны в текущей composition/phase, например потому что модуль отключён или значение сейчас неприменимо.
+Capability/значение намеренно недоступно или неприменимо.
 
 ## `missing`
 
-Структурная ситуация, когда required contract ожидает path/value, но его нет.
+Required contract value отсутствует структурно.
 
-По умолчанию `missing` является contract/initialization error, а не синонимом `unknown`.
+Обычно contract/initialization error, а не epistemic unknown.
 
 ## Freshness
 
-Свойство, показывающее, относится ли значение к текущему допустимому causal context согласно field contract.
+Соответствие значения текущему допустимому temporal/causal context.
 
 ---
 
-# Module protocol и scheduling
+# 5. Композиция и scheduling
+
+## Composition Root
+
+Bootstrap boundary, где concrete implementations выбираются и явно собираются в конфигурацию.
+
+Не является когнитивным orchestrator.
+
+## Dependency Injection
+
+Явная передача зависимости потребителю вместо runtime-поиска.
+
+Не означает обязательный DI-framework.
+
+## Service Locator
+
+Runtime pattern, при котором потребитель ищет dependency через глобальный container/registry.
+
+Запрещён внутри cognition/runtime MINDRA.
+
+## Registry
+
+Каталог identifiers/factories на composition/discovery boundary.
+
+Не является runtime state bus.
+
+## Adapter / Provider
+
+Concrete implementation, изолирующая backend-specific model/library/service/storage за стабильной semantic capability boundary.
 
 ## Module
 
-Компонент с явной responsibility, входами, выходами, state/lifecycle и диагностической границей.
+Компонент с самостоятельной responsibility, state/lifecycle и diagnostic boundary.
 
-Модуль не обязан быть нейросетью.
-
-## Semantic module identity
-
-Идентичность роли/экземпляра модуля в active Agent composition, не зависящая от конкретной implementation.
-
-## Implementation identity
-
-Идентичность concrete implementation, подключённой к semantic module role в конкретном run, например learned/NoOp/control implementation.
+Не обязан быть neural network.
 
 ## Module Descriptor
 
-Декларативное описание модуля, достаточное для composition/scheduling validation: identity, reads, writes, lifecycle participation, private-state traits и другие scheduler-relevant свойства.
-
-Exact Python representation пока не определена.
-
-## Declared read
-
-State dependency, которую module contract явно разрешает модулю читать.
-
-Наличие поля в container само по себе не создаёт dependency.
-
-## Declared write
-
-Canonical path/namespace, которым module contract предоставляет write authority для proposed updates.
-
-Declared write не даёт права мутировать committed snapshot напрямую.
+Декларативное описание identity, reads/writes, lifecycle и scheduler-relevant properties.
 
 ## Execution Plan
 
-Скомпилированное представление active module composition, dependency graph, lifecycle phases, execution waves и compatibility/failure constraints для конкретного режима исполнения.
-
-## Instantaneous dependency graph
-
-Граф зависимостей module computations в одном causal scheduler segment.
-
-В MINDRA он должен быть DAG. Feedback между модулями выражается через logical time/state revisions, а не instantaneous cycle.
+Скомпилированный active module/dependency/lifecycle plan.
 
 ## Execution Wave
 
-Множество ready modules, которые могут вычисляться относительно одной committed base `state_revision` и `agent_revision`, не требуя current-wave outputs друг друга.
-
-Physical completion order modules внутри wave не является cognitive semantics.
+Множество ready computations, читающих одну committed base revision и не требующих current-wave outputs друг друга.
 
 ## Wave commit
 
-Validation и согласованная публикация staged public/private effects execution wave.
-
-Required wave не должен оставлять partial committed effects при failure одного обязательного module computation.
+Atomic validation/publication staged public/private effects текущей wave.
 
 ## Staged private update
 
-Causally relevant изменение module-private state, подготовленное во время computation, но не становящееся семантически видимым до связанного successful commit.
+Causally relevant private-state effect, который становится видимым только при связанном successful commit.
 
 ## Stale-base result
 
-Module result, вычисленный относительно base revision, которая больше не является допустимой для его применения.
+Result, вычисленный относительно уже недопустимой base revision.
 
-По умолчанию такой result не применяется и не rebased молча.
+Не rebased молча.
 
 ## Cognitive Scheduler
 
-Некогнитивный механизм Agent runtime core, который строит/исполняет Execution Plan, формирует waves, запускает module computations, валидирует proposed effects и координирует commits/lifecycle transitions.
+Некогнитивный Agent runtime mechanism, исполняющий Execution Plan и commits.
 
-Scheduler не определяет task-level goals/utility/action за когнитивные модули.
+Не выбирает goals/value/actions.
 
-## Fixed Scheduler
+## Disabled capability
 
-Scheduler policy, в которой допустимый порядок/число обязательных computations задаются deterministic runtime rules/configuration, а не learned Executive Control.
+Capability отсутствует в active composition.
 
-## Executive Control
+## NoOp / `No*` configuration
 
-Будущая когнитивная ответственность, способная влиять на допустимый optional compute/cycle budget, но не имеющая права bypass scheduler contracts, ownership и commit rules.
+Специальная baseline semantics отсутствующей/нейтральной capability согласно конкретному contract.
 
-Точная семантика определяется в `DU-22`.
+Не должна имитировать fake success.
 
-## Disabled module
+## Dummy implementation
 
-Semantic capability, отсутствующая в active execution plan.
-
-Если downstream dependency требует эту capability и не допускает отсутствие, composition invalid.
-
-## NoOp implementation
-
-Активная concrete implementation semantic module contract, используемая для baseline/ablation и выдающая contract-valid нейтральное/unknown/unavailable поведение согласно design.
-
-`NoOp` не равно `disabled`.
+Deterministic engineering implementation для integration/lifecycle tests.
 
 ## Control implementation
 
-Concrete implementation того же semantic contract, предназначенная для research control и исключения альтернативного объяснения эффекта.
-
-## Atomic module effect
-
-Требование, согласно которому causally related public `CognitiveState` update и module-private state effect становятся committed согласованно либо не становятся committed как partial effect.
+Research implementation того же semantic contract для исключения альтернативных объяснений эффекта.
 
 ---
 
-# Observability и intervention
+# 6. Observability и intervention
 
 ## Evidence Plane
 
-Логическая однонаправленная поверхность, через которую Agent/runtime публикуют passive research evidence во внешнюю artifact/evaluation infrastructure.
+Однонаправленная passive research boundary для traces/metrics/probes/artifacts.
 
-Evidence Plane не является когнитивным module/state bus и не предоставляет observer write authority.
+Не даёт observer mutation authority.
 
 ## Trace Event
 
-Структурированное событие исполнения, связанное с causal identities/revisions и позволяющее реконструировать, что произошло в конкретном Run/Session/Episode/Decision/Cycle/Wave/Module Attempt.
-
-Trace event не является автоматически cognitive input.
+Структурированное causal execution event с идентичностями/revisions.
 
 ## Module Attempt
 
-Факт выполнения конкретного module computation относительно определённых base `state_revision`/`agent_revision`, независимо от того, стал ли результат committed.
-
-Attempt и commit являются разными research facts.
+Факт computation модуля независимо от того, стал ли его effect committed.
 
 ## Research Probe
 
-Declared read-only research boundary, через которую evaluator/collector может получить semantic projection causally relevant private state без arbitrary mutable object access.
+Declared read-only semantic projection private state для исследования.
 
-Research Probe не создаёт runtime dependency других cognitive modules и не даёт write authority.
-
-## Observability Depth
-
-Рабочее понятие глубины собираемых evidence: от structural tracing и public semantic state до private semantic probes и backend/raw tensors.
-
-Конкретные уровни/названия могут меняться implementation, но raw/backend access не является обязательным для общего contract.
-
-## Evidence-critical telemetry
-
-Evidence, потеря которого делает невозможным проверку конкретной primary hypothesis или causal reconstruction.
-
-Если такое evidence потеряно и не может быть восстановлено, соответствующий research claim считается incomplete/invalid, даже если Agent продолжил execution.
+Не становится runtime dependency.
 
 ## Intervention Gateway
 
-Привилегированная external research boundary, через которую Evaluation Runtime выполняет active controlled intervention с explicit target, base causal revision, treatment и provenance.
-
-Intervention Gateway отделён от passive Evidence Plane.
+Привилегированная external boundary controlled interventions.
 
 ## Intervention Target
 
-Явно идентифицируемое состояние/результат/representation, в которое разрешено вмешательство соответствующим research capability.
-
-Target может быть canonical state field, module public result, declared private semantic state или opt-in backend/raw representation.
+Явно определённое состояние/result/representation, допускающее treatment.
 
 ## Treatment
 
-Конкретное controlled изменение, применённое через Intervention Gateway в рамках experiment condition.
-
-Treatment не маскируется под natural output semantic owner.
+Конкретное controlled изменение в experimental condition.
 
 ## Intervened lineage
 
-Продолжение causal history после controlled intervention, явно помеченное intervention provenance.
-
-По умолчанию confirmatory causal experiment предпочитает отдельную treatment branch от identifiable committed base вместо переписывания natural lineage.
+Causal branch/history после intervention с explicit provenance.
 
 ## Approximate counterfactual
 
-Контролируемое повторное выполнение/ветвление, в котором восстановлена только часть causally relevant Agent/Environment state.
+Controlled re-execution, где восстановлено не всё causally relevant state.
 
-Такой experiment не называется exact counterfactual clone.
+Не называется exact counterfactual.
 
 ## Intervention validity
 
-Степень, в которой treatment является осмысленным для causal interpretation и не создаёт неконтролируемое OOD/divergent state или крупные off-target effects.
-
-Особенно важна для raw/latent interventions.
+Степень, в которой treatment допускает содержательную causal interpretation без неконтролируемого OOD/off-target corruption.
 
 ---
 
-# Основные когнитивные термины
+# 7. Environment и MicroWorld
+
+## Agent Interaction Plane
+
+Agent-facing surface Environment.
+
+Содержит только contract-defined observations/tasks/feedback/action outcomes.
+
+## Environment Research Plane
+
+Research-only hidden state/oracle/snapshot/fork/intervention surface.
+
+## Hidden World State
+
+Authoritative полное состояние Environment.
+
+Не является normal Agent input.
+
+## Raw Observation
+
+Agent-visible проекция Environment до Perception.
+
+## Research Ground Truth
+
+Privileged evaluator-only truth.
+
+## External Task Specification
+
+Внешнее описание задачи.
+
+Не является committed Goal.
+
+## External Task Feedback
+
+Task/environment signal, намеренно доступный Agent.
+
+Не равен Objective Task Metric или Internal Utility.
+
+## Objective Task Metric
+
+Research-only метрика качества выполнения.
+
+## World Instance
+
+Конкретный экземпляр мира.
+
+Seed без version/generator identity недостаточен для полной identity.
+
+## World Manifest
+
+Версионируемое описание generation provenance конкретного world instance.
+
+## World Distribution
+
+Версионированное распределение генерации train/validation/test worlds.
+
+## Environment Snapshot
+
+Полный causally relevant снимок Environment, включая hidden/task/pending/RNG state.
+
+## Environment clone
+
+Независимая копия из snapshot.
+
+## Environment fork
+
+Новая causal lineage Environment от конкретного snapshot.
+
+## Environment intervention
+
+Controlled research-only изменение мира/правил/task dynamics.
+
+## MicroWorld
+
+Первая reference 2D symbolic Environment family MINDRA с partial observability, hidden rules, procedural generation и snapshot/fork support.
+
+---
+
+# 8. Perception
+
+## Perception
+
+Agent-owned преобразование Raw Observation в `Canonical Percept`.
+
+## Canonical Percept
+
+Каноническое представление **текущего наблюдения** после Perception.
+
+Не равно Memory или World Belief.
+
+## Semantic Core
+
+Structured semantic surface Canonical Percept.
+
+## Feature View
+
+Optional learned/algorithmic representation в конкретном versioned feature space.
+
+Не заменяет Semantic Core как единственный источник значения.
+
+## Percept Entity Identity
+
+Identity entity внутри percept.
+
+По умолчанию не гарантирует persistent physical-object identity между transitions.
+
+## Perceptual inference
+
+Вывод о текущем observation из разрешённой sensory modality.
+
+Не равен Memory retrieval или World Model prediction.
+
+## Modality Status
+
+Explicit availability/quality semantics входной modality.
+
+## Feature Space
+
+Семантически идентифицируемое пространство признаков.
+
+## Feature Space Revision
+
+Версия feature-space semantics/geometry.
+
+Одинаковая размерность не гарантирует совместимость.
+
+## Encoder Revision
+
+Версия encoder/pipeline, влияющая на representations.
+
+## Representation Drift
+
+Изменение representation одного входа после изменения encoder/pipeline.
+
+---
+
+# 9. Goal System
+
+## Goal Proposal
+
+Кандидат на цель, предложенный внешним/internal/planner/drive/research source.
+
+Ещё не является committed целью Agent.
+
+## Committed Goal
+
+Goal, принятая Goal System и существующая в canonical Goal Graph.
+
+## Goal Graph
+
+Committed graph целей, subgoals, dependencies/conflicts и lifecycle state.
+
+## Goal System
+
+Semantic owner Goal Graph и adoption/lifecycle boundary.
+
+## Goal focus
+
+Текущий предмет приоритетной обработки среди существующих Goals.
+
+Не означает удаления остальных целей.
+
+## Goal priority
+
+Structural/declarative приоритет Goal.
+
+Не равен dynamic value.
+
+## Goal commitment
+
+Persistence принятой Goal несмотря на локальные изменения context.
+
+Не равен priority/value.
+
+## Goal progress
+
+Состояние продвижения к Goal.
+
+Может быть structured/unknown; не обязан быть scalar `[0,1]`.
+
+---
+
+# 10. Cortex
 
 ## Cortex
 
-Заменяемая pretrained capability внутри логической границы Agent, предоставляющая богатые языковые, семантические и/или reasoning capabilities.
+Заменяемая pretrained semantic/language/reasoning capability внутри Agent boundary.
 
-Cortex может быть LLM, но MINDRA не должна зависеть от конкретной модели.
+Не является самой архитектурой MINDRA.
 
-Физический backend может исполняться вне основного process/machine boundary.
+## Cortex Gateway
+
+Backend-neutral semantic request/result boundary Cortex.
 
 ## Cortex backend
 
-Конкретная реализация Cortex capability.
+Concrete model/runtime implementation Cortex capability.
 
-Примеры конкретных моделей пока не являются частью canonical design.
+## Cortex Adapter
 
-## Cortex Execution Provider
+Слой, преобразующий semantic request в backend-specific prompt/tokenization/API и нормализующий result.
 
-Внешний физический runtime/provider, который исполняет Cortex backend, когда вычисление вынесено за основной deployment boundary.
+## Cortex capability
 
-Provider не становится отдельным когнитивным модулем MINDRA только из-за физического размещения.
+Явно объявленная возможность backend, например structured output, embeddings, hidden states или gradients.
 
-## World Model
+Optional research capabilities не обязательны для любого Cortex.
 
-Механизм, прогнозирующий динамику среды и/или последствия действий.
+## NoCortex
 
-## Self Model
+Конфигурация отсутствующей Cortex capability.
 
-Механизм, прогнозирующий или представляющий релевантные свойства самого агента: способности, uncertainty, competence, ограничения, cost и другие self-related variables, если они будут приняты design.
+Не fake empty-string backend.
 
-Self Model не означает автоматически self-awareness.
+---
 
-## Drive
+# 11. Memory
 
-Внутренняя динамическая переменная или механизм, который способен менять относительную ценность состояний/действий для агента.
+## Memory Core
 
-Drive не является синонимом reward.
+Agent-owned subsystem сохранения и explicit retrieval прошлого опыта.
 
-## Appraisal
+## MemoryRecord
 
-Функциональный механизм оценки значения события/состояния относительно текущего контекста агента: целей, drives, памяти, прогнозов и других relevant variables.
+Каноническая stable identity воспоминания с source content/provenance.
 
-Appraisal не является доказательством эмоции как субъективного переживания.
+Не равен embedding/index slot.
 
-## Affect
+## MemoryRepresentation
 
-Рабочий зонтичный термин для внутреннего функционального состояния, возникающего из appraisal и влияющего на другие процессы системы, если такой механизм будет принят.
+Derived representation MemoryRecord для retrieval/indexing.
 
-Не использовать `affect` как автоматический синоним человеческого чувства.
+Может быть перестроено без создания нового воспоминания.
 
-## Salience
+## RetrievalIndex
 
-Оценка относительной значимости информации для последующего внимания, Memory, replay, Workspace или learning.
+Поисковая структура над derived representations/metadata.
 
-Полезность Salience должна проверяться эмпирически.
+Не является source of truth Memory.
 
-## Memory
+## RetrievalRequest
 
-Подсистема сохранения и восстановления информации из предыдущего опыта.
+Явный запрос к Memory из declared consumer context.
 
-Если Memory является активной частью cognition, её содержимое относится к agent-owned state независимо от физического storage backend.
+## RetrievalResult
 
-Полный Memory store не обязан входить в `CognitiveState`.
+Результат конкретного retrieval event с memory IDs, scores и provenance.
 
-## Working memory / working state
+## Retrieval relevance
 
-Краткоживущее состояние, доступное в текущем цикле обработки.
+Мера соответствия query конкретному retrieval estimator.
 
-Не фиксируется как отдельный модуль до соответствующего design.
+Не равна salience/utility/truth.
 
-## Episodic memory
+## Episodic Memory
 
-Память о конкретных эпизодах/переходах/событиях опыта с достаточным контекстом для последующего retrieval или replay.
+MemoryRecords, связанные с конкретными событиями/эпизодами опыта.
 
 ## Consolidation
 
-Процесс, при котором накопленный опыт используется для более долгосрочного изменения representations/weights/knowledge системы.
+Будущий процесс преобразования/переиспользования опыта для более устойчивых structures/parameters.
 
-## Replay
-
-Повторное использование ранее сохранённого опыта для обучения, оценки или consolidation.
-
-## Workspace
-
-Рабочее concept-название ограниченного интеграционного механизма, через который selected information может становиться доступной нескольким подсистемам.
-
-Использование термина вдохновлено cognitive architectures, но не означает утверждение о сознании.
-
-## Policy
-
-Механизм выбора action из доступного состояния и контекста.
-
-Policy может включать learned и algorithmic части в зависимости от будущего design.
-
-## Planner
-
-Механизм явного сравнения/построения последовательностей возможных действий, если он будет выделен отдельно от Policy/Cortex.
-
-## Goal
-
-Представление желаемого будущего состояния, результата или ограничения поведения, которое влияет на выбор действий.
-
-Точный lifecycle целей пока не определён.
+Точная semantics — `DU-20/26`.
 
 ---
 
-# Сигналы и оценки
+# 12. World Model
 
-## Reward
+## World Model
 
-Внешний или внутренний scalar/vector training signal, используемый конкретным learning algorithm.
+Agent-owned subsystem belief-state estimation и prediction dynamics внешнего мира.
 
-Не использовать `reward` как универсальное название любого внутреннего значения.
+## World Belief
 
-## Extrinsic signal
+Текущая интегрированная оценка состояния мира при partial observability.
 
-Сигнал ценности/успеха, задаваемый внешней средой или задачей.
+Не равна Hidden World State или текущему Canonical Percept.
 
-Если сигнал существует только как evaluation metric и не входит в Environment/task contract, он не является автоматически agent-visible feedback.
+## Assimilation
 
-## Intrinsic signal
+Обновление World Belief на основании фактически полученного Agent evidence.
 
-Сигнал, вычисляемый из внутренней динамики агента или его взаимодействия со средой, например из novelty/prediction error, если соответствующий механизм принят.
+## World Prediction
 
-Intrinsic signal не обязательно является scalar reward.
+Action/context-conditioned prediction будущего без нового actual observation.
 
-## Utility
+Не является observed fact.
 
-Общее рабочее понятие для функциональной ценности состояния/действия относительно текущей системы целей и внутренних факторов.
+## Imagination
 
-Точная математическая форма пока не зафиксирована.
+Multi-step predicted/counterfactual rollout World Model.
 
-## Novelty
+Не является Environment trajectory.
 
-Степень новизны состояния/наблюдения относительно опыта или learned representation агента.
+## Prediction Error Evidence
 
-Способ вычисления определяется конкретным design.
+Явное сравнение prediction с фактическим committed outcome.
 
-## Surprise / prediction error
+Не является reward автоматически.
 
-Расхождение между предсказанием модели и фактическим observation/outcome.
+## Predictive uncertainty
 
-Не считать surprise и novelty автоматически одним и тем же.
+Оценка неопределённости World Model prediction.
 
-## Uncertainty
+Не равна risk/value.
 
-Оценка недостатка уверенности/информации в prediction, state estimate или decision.
+---
 
-Нужно отличать uncertainty от raw model entropy, если design вводит более точную семантику.
+# 13. Self Model
+
+## Agent Capability Manifest
+
+Versioned self-observable факты о намеренно доступных Agent capabilities/configuration.
+
+Не dump всей host/runtime telemetry.
+
+## Self Evidence
+
+Causal evidence о фактических возможностях/результатах самого Agent.
+
+Evaluator-only truth не является natural Self Evidence.
+
+## Self Belief
+
+Committed context-conditioned модель собственной competence/limitations.
 
 ## Competence
 
-Оценка способности агента успешно решать класс задач или выполнять действие.
+Оценка функциональной способности Agent в определённом domain/context.
 
-Если используется, должна иметь измеримую связь с фактическими outcomes.
+Не один global confidence scalar.
+
+## Self Prediction
+
+Прогноз собственного outcome/cost/state относительно explicit target/context/horizon.
+
+## `P(success)`
+
+Вероятность определённого success event при заданном context/horizon.
+
+Не равна uncertainty/support самой оценки.
+
+## Estimate uncertainty / support
+
+Насколько Self Model имеет основания доверять своей собственной оценке.
+
+## SelfPredictionResolution
+
+Связь ранее сделанного Self Prediction с фактическим outcome для calibration evidence.
+
+## Calibration
+
+Соответствие вероятностных self-predictions фактическим частотам outcomes в определённом domain.
+
+## Cortex self-report
+
+Текстовая/semantic self-assessment Cortex.
+
+Может быть derived evidence, но не authoritative Self Belief.
 
 ---
 
-# Сознание и функциональные аналогии
+# 14. Intrinsic Signals
+
+## Intrinsic Signal
+
+Typed нейтральное измерение свойства собственного опыта Agent.
+
+Не является reward/Drive/Utility автоматически.
+
+## Intrinsic Signal Provider
+
+Независимый agent-owned estimator конкретного signal family.
+
+## IntrinsicSignalBundle
+
+Коллекция typed outputs providers без mandatory scalarization.
+
+## Prediction discrepancy
+
+Измерение расхождения prediction и actual outcome.
+
+Не равно probabilistic surprisal или novelty.
+
+## Predictive surprisal
+
+Информационная неожиданность outcome относительно meaningful predictive probability, conceptually `-log p(outcome | context)`.
+
+Недоступна без соответствующей probabilistic semantics.
+
+## Novelty
+
+Новизна относительно явно заданной history/representation/reference scope.
+
+Не равна visitation rarity.
+
+## Visitation rarity
+
+Редкость посещения state/event относительно versioned count/density/reference model.
+
+## Information gain
+
+Изменение knowledge/belief state, требующее meaningful before/after semantics.
+
+Не равен любой uncertainty reduction.
+
+## Uncertainty change
+
+Signed изменение совместимой uncertainty estimate между двумя состояниями знания.
+
+## Competence change
+
+Signed изменение competence estimate Self Model относительно определённого domain/window.
+
+Improvement и degradation не смешиваются автоматически через `abs()`.
+
+---
+
+# 15. Drives
+
+## Drive System
+
+Agent-owned subsystem, владеющий committed набором persistent typed regulatory states — `DriveStateSet`.
+
+Не является global motivation scalar или Policy.
+
+## Drive
+
+Отдельный typed persistent regulatory component внутри Drive System с собственной state/dynamics semantics.
+
+Drive не является Intrinsic Signal или reward weight.
+
+## DriveDescriptor
+
+Versioned описание semantic identity, dynamics kind, update sources, persistence, target/range/coupling capabilities конкретного drive.
+
+## Drive State
+
+Текущее persistent внутреннее состояние конкретного drive.
+
+Может быть structured и не обязано быть одним scalar.
+
+## DriveStateSet
+
+Committed набор states всех активных drives с собственной revision.
+
+Не scalarize их автоматически.
+
+## Drive Pressure
+
+Производная текущая интенсивность regulatory deviation/activation **в собственной семантике конкретного drive**.
+
+Не является общей валютой между drives и не равна Utility.
+
+## Homeostatic Drive
+
+Drive с реально определённой регулируемой переменной и meaningful target/range semantics.
+
+## Regulated variable
+
+Внутренняя величина, которую homeostatic drive стремится удерживать в определённом диапазоне на уровне его dynamics semantics.
+
+## Homeostatic target / range
+
+Versioned желательный диапазон регулируемой переменной homeostatic drive.
+
+Не является универсальным требованием ко всем drives.
+
+## Regulatory deviation / deficit
+
+Отклонение регулируемой переменной от target/range согласно конкретной drive semantics.
+
+Не является RL reward автоматически.
+
+## Adaptive Motivational Drive
+
+Persistent drive без обязательного физиологически/homeostatically осмысленного set-point.
+
+Может иметь accumulation/satiation/recovery/habituation dynamics.
+
+## Drive dynamics
+
+Versioned правило изменения Drive State из предыдущего committed state, explicit inputs и logical time/lifecycle events.
+
+## Drive coupling
+
+Явно определённое влияние одного drive state на dynamics другого.
+
+Не реализуется hidden direct peer mutation.
+
+## Drive Goal Proposal
+
+Goal Proposal, сформированный на основании Drive State через явную proposal boundary.
+
+Drive не commit Goal напрямую.
+
+## Natural Drive update
+
+Обычное causal изменение Drive State через объявленную dynamics.
+
+## Drive intervention
+
+Research treatment Drive State/target/dynamics/coupling через Intervention Gateway.
+
+Не маскируется под natural regulation.
+
+## NoDrives
+
+Конфигурация отсутствующей Drive capability.
+
+Не набор fake zero-pressure states.
+
+---
+
+# 16. Будущие когнитивные термины
+
+Следующие определения **предварительные** до соответствующих DU.
+
+## Appraisal
+
+Будущая event-level контекстная оценка значения события/ситуации относительно Goal, Drives, моделей и другого доступного context.
+
+Точная semantics определяется `DU-16`.
+
+## Affect
+
+Кандидат на persistent внутреннее функциональное состояние, интегрирующее результаты Appraisal во времени.
+
+Не является автоматически человеческим чувством.
+
+Точная semantics/gate — `DU-17`.
+
+## Valuation
+
+Будущая decision-relevant система ценности, объединяющая несколько типов evidence без преждевременного предположения одного reward scalar.
+
+Точная semantics — `DU-18`.
+
+## Salience
+
+Будущая относительная приоритетность информации для ограниченного cognitive processing/memory/replay/workspace.
+
+Точная semantics — `DU-19`.
+
+## Workspace
+
+Кандидат на ограниченную temporary global-access surface.
+
+Не равен CognitiveState по умолчанию.
+
+Точная semantics/gate — `DU-21`.
+
+## Executive Control
+
+Будущая cognitive regulation strategy/compute/retrieval/planning decisions.
+
+Не равна Cognitive Scheduler.
+
+Точная semantics — `DU-22`.
+
+## Policy
+
+Будущий механизм выбора candidate action из state/context/value/predictions.
+
+## Planner
+
+Будущий механизм явного построения/сравнения action/plan sequences.
+
+## Action Gate / Executor
+
+Будущая boundary между selected action, фактическим dispatch/execution и observed outcome.
+
+---
+
+# 17. Сигналы и ценность
+
+## Reward
+
+Training signal конкретного learning algorithm.
+
+Не использовать как универсальное название любого внутреннего значения.
+
+## Extrinsic signal
+
+Внешний task/environment signal.
+
+Нужно различать agent-visible feedback и evaluator-only metric.
+
+## Utility / Value
+
+Рабочий термин decision-relevant ценности.
+
+Точная vector/scalar semantics ещё не принята до `DU-18`.
+
+## Risk
+
+Будущий decision-relevant downside/uncertainty-sensitive construct.
+
+Не равен predictive uncertainty автоматически.
+
+---
+
+# 18. Исследовательские термины
+
+## Baseline
+
+Сравнительная конфигурация, относительно которой оценивается механизм.
+
+## Ablation
+
+Удаление/отключение/замена subsystem для измерения его вклада.
+
+## Control
+
+Конфигурация для исключения альтернативного объяснения эффекта.
+
+Примеры: constant, random, shuffled, parameter/compute-matched implementation.
+
+## Counterfactual experiment
+
+Сравнение causal branches от общего base state с контролируемым различием условий.
+
+## Architecture gain
+
+Рабочее понятие улучшения измеряемой способности относительно baseline.
+
+Точная метрика определяется MINDRA-Eval.
+
+## Provenance
+
+Информация о происхождении state/data/artifact/update/intervention/result.
+
+## Research evidence
+
+Фактический результат воспроизводимого эксперимента с conditions/limitations.
+
+Не равен interpretation и не переписывает design автоматически.
+
+---
+
+# 19. Сознание и функциональные аналогии
 
 ## Functional subjectivity
 
-Рабочий термин MINDRA для свойства, при котором внутренняя оценка и поведение зависят не только от внешней ситуации, но и от собственного состояния/истории конкретного агента.
+Рабочий термин MINDRA для зависимости внутренних оценок/поведения от собственного состояния и истории конкретного Agent при одинаковом внешнем контексте.
 
 Не означает phenomenal consciousness.
 
 ## Consciousness
 
-Широкий научно-философский термин, который не используется в MINDRA как автоматически достигнутое свойство архитектуры.
-
-Любое более конкретное использование должно указывать, о каком аспекте сознания идёт речь.
+Широкий научно-философский термин, который MINDRA не объявляет автоматически достигнутым свойством.
 
 ## Phenomenal consciousness
 
 Наличие субъективного опыта — условного «как это ощущается изнутри».
 
-MINDRA не предполагает, что функциональные механизмы сами по себе доказывают phenomenal consciousness.
+Функциональная архитектура сама по себе этого не доказывает.
 
 ## Self-reference
 
-Способность системы ссылаться на себя в representation или языке.
+Способность ссылаться на себя в representation/language.
 
-Не равна Self Model и не равна self-awareness.
+Не равна Self Model или self-awareness.
 
 ## Self-awareness / самосознание
 
-Термин не должен использоваться как техническая характеристика MINDRA без отдельного операционального определения и evidence.
+Не используется как техническая характеристика MINDRA без отдельного operational definition и evidence.
 
 ---
 
-# Исследовательские термины
-
-## Ablation
-
-Эксперимент, в котором компонент удаляется, отключается или заменяется control-реализацией для оценки его вклада.
-
-## Intervention
-
-Контролируемое изменение internal variable/representation с последующим измерением причинного эффекта при максимально фиксированных остальных условиях.
-
-Evaluator intervention является специальной experimental operation и не должно смешиваться с normal Agent input.
-
-## Counterfactual experiment
-
-Эксперимент со сравнимыми ветвями, полученными из одного сохранённого causal state, где меняется ограниченный набор факторов.
-
-## Baseline
-
-Сравнительная система/конфигурация, относительно которой оценивается новый механизм.
-
-## Control
-
-Конфигурация, предназначенная для исключения альтернативного объяснения эффекта: например, random/no-op/parameter-matched implementation.
-
-## Architecture gain
-
-Рабочее понятие для улучшения измеряемой способности при добавлении MINDRA architecture относительно выбранного baseline.
-
-Точная метрика будет определена позже.
-
-## Provenance
-
-Информация о происхождении данных, state update, artifact, checkpoint, intervention или experiment result, достаточная для понимания того, откуда объект появился и при каких условиях.
-
-## Research evidence
-
-Фактические результаты воспроизводимого эксперимента вместе с его условиями и ограничениями.
-
-Research evidence не равно interpretation и не меняет design автоматически.
-
----
-
-# Документационные термины
+# 20. Документационные термины
 
 ## Canonical design
 
-Актуальная принятая архитектурная семантика, являющаяся source of truth для реализации.
+Актуальная принятая архитектурная semantics — source of truth реализации.
 
 ## ADR
 
-Architecture Decision Record — документ, фиксирующий существенный выбор между несколькими реалистичными вариантами, его причины и trade-offs.
+Architecture Decision Record — запись существенного выбора, альтернатив и trade-offs.
+
+## Candidate contract
+
+Machine-facing semantic contract после принятого design, который ещё может уточняться downstream DU.
 
 ## Exact internal contract
 
-Точная machine-facing спецификация взаимодействия внутри MINDRA после того, как semantic design уже принят.
+Frozen machine-facing specification перед implementation/version freeze.
 
-## Open question
+## Design Update (`DU-xx`)
 
-Существенный вопрос, решение по которому ещё не принято.
+Самостоятельный архитектурный documentation update.
 
-Open question не должен превращаться в implicit implementation choice без design review.
+Не является software version.
+
+## Version specification
+
+Будущий документ, фиксирующий scope конкретной software version после `DU-32`.
+
+## Implementation sequence
+
+Patch-oriented последовательность работ Codex для конкретной software version.
