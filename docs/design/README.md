@@ -6,7 +6,7 @@
 
 Здесь фиксируются принятые семантики, invariants, subsystem boundaries, contracts, ADR и будущие version plans.
 
-На текущем этапе приняты `DU-01 … DU-21`. Реализация ещё не начата.
+На текущем этапе приняты `DU-01 … DU-22`. Реализация ещё не начата.
 
 ---
 
@@ -44,18 +44,19 @@
 - [`modules/valuation.md`](modules/valuation.md) — `DU-18`
 - [`modules/salience.md`](modules/salience.md) — `DU-19`
 - [`modules/memory-regulation.md`](modules/memory-regulation.md) — `DU-20`
-- [`modules/workspace.md`](modules/workspace.md) — `DU-21`: bounded temporary shared broadcast Workspace с explicit admission/budget и falsifiable module gate.
+- [`modules/workspace.md`](modules/workspace.md) — `DU-21`
+- [`modules/executive-control.md`](modules/executive-control.md) — `DU-22`: proposal-driven budget-aware adaptive control optional cognition поверх invariant Scheduler.
 
 Карта областей: [`modules/README.md`](modules/README.md).
 
 ## Decisions
 
 - [`decisions/README.md`](decisions/README.md)
-- `ADR-0001 … ADR-0021` — accepted.
+- `ADR-0001 … ADR-0022` — accepted.
 
 Последнее решение:
 
-- [`ADR-0021`](decisions/ADR-0021-bounded-broadcast-workspace-overlay.md) — bounded broadcast Workspace overlay с first-class `NoWorkspace`, matched controls и negative gate.
+- [`ADR-0022`](decisions/ADR-0022-proposal-driven-budget-aware-executive-control.md) — proposal-driven budget-aware Executive Control с explicit resource envelope, MetaAction proposals и Scheduler validation.
 
 ## Candidate contracts
 
@@ -63,7 +64,7 @@
 
 Последний добавленный contract:
 
-- [`contracts/workspace.md`](contracts/workspace.md).
+- [`contracts/executive-control.md`](contracts/executive-control.md).
 
 Exact Python API ещё не frozen.
 
@@ -80,38 +81,35 @@ Exact Python API ещё не frozen.
 Текущий следующий update:
 
 ```text
-DU-22 — Metacognitive / Executive Control
+DU-23 — Policy / Planner
 ```
 
 ---
 
-# Ключевые инварианты после DU-21
+# Ключевые инварианты после DU-22
 
 ```text
-CognitiveState ≠ Workspace
-published state ≠ Workspace admission
-SalienceProfile ≠ Workspace admission
-WorkspaceBudget ≠ AttentionBudget ≠ MemoryBudget ≠ Executive budget
-WorkspaceItem ≠ source truth
-Workspace ≠ Memory
-Workspace eviction ≠ Memory forgetting
-Memory retrieval ≠ Workspace admission
-Workspace ≠ Cortex context
-broadcast ≠ callback/module execution
-imagined Workspace ≠ real Workspace
-Workspace ≠ Policy
-Workspace ≠ proof of consciousness
+Executive Control ≠ Cognitive Scheduler
+Executive Control ≠ Policy / Planner
+Internal MetaAction ≠ Environment Action
+MetaActionProposal ≠ executed operation
+ExecutiveDecision ≠ direct service call
+CognitiveResourceEnvelope ≠ raw runtime telemetry
+resource estimate ≠ reservation ≠ actual consumption
+Salience / Self Model ≠ controller
+Executive stop / yield ≠ Action Commit
 ```
 
-- Workspace работает только с explicit proposals/candidates;
-- capacity/bandwidth должны быть реальными и наблюдаемыми;
-- Salience даёт evidence/hint, но не владеет admission;
-- admitted content сохраняет source revision/provenance/authority;
-- global availability означает доступ declared consumers, а не unrestricted ambient input;
-- Workspace может переживать несколько Cognitive Cycles, но не становится долговременной Memory;
-- Cortex context packing остаётся отдельной explicit operation;
-- branch/imagination используют branch-local Workspace;
-- `NoWorkspace`, DirectReads и matched buffer controls обязательны;
-- отрицательный результат может привести к удалению отдельной Workspace boundary.
+- optional cognitive work поступает через explicit proposals/catalog;
+- Executive не получает runtime Service Locator;
+- Scheduler остаётся owner dependency safety/waves/commit;
+- hard resource envelope задаётся явной boundary и не увеличивается Executive самостоятельно;
+- budget может быть multi-dimensional;
+- stop/continue принимается только на explicit control point относительно committed state;
+- Cortex/retrieval/rollout/consolidation не вызываются ambient способом;
+- Goal focus не меняет Goal Graph;
+- real compute imagination учитывается в real ledger, simulated future budget остаётся branch-local;
+- `NoExecutive`, fixed/equal-budget и matched controls обязательны;
+- adaptive control должен доказывать пользу на performance/resource frontier, а не за счёт большего compute.
 
 Фактический статус: [`current.md`](current.md).
