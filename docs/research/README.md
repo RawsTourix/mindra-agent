@@ -16,9 +16,9 @@ research/
 ├── literature/
 │   ├── DU-10-cortex-landscape-2026-08.md
 │   ├── ...
-│   ├── DU-26-training-lifecycle-landscape-2026-08.md
 │   ├── DU-27-checkpoint-reproducibility-compute-landscape-2026-08.md
-│   └── DU-28-mindra-eval-landscape-2026-08.md
+│   ├── DU-28-mindra-eval-landscape-2026-08.md
+│   └── DU-29-engineering-testing-landscape-2026-08.md
 ├── hypotheses.md          # появится позже
 ├── experiments/           # появится позже
 ├── results/               # появится позже
@@ -27,17 +27,17 @@ research/
 
 ---
 
-# Literature research pass
+# Literature / tool research pass
 
-Текущие pass `DU-10 … DU-28` находятся в [`literature/`](literature/).
+Текущие pass `DU-10 … DU-29` находятся в [`literature/`](literature/).
 
 Последние:
 
-- [`literature/DU-26-training-lifecycle-landscape-2026-08.md`](literature/DU-26-training-lifecycle-landscape-2026-08.md) — optimizer/training state ownership, PEFT, actor/learner policy lag, continual forgetting и candidate-revision activation;
-- [`literature/DU-27-checkpoint-reproducibility-compute-landscape-2026-08.md`](literature/DU-27-checkpoint-reproducibility-compute-landscape-2026-08.md) — reproducibility constraints, training-resume state, RNG, distributed/sharded checkpointing, artifact manifests и compute provenance;
-- [`literature/DU-28-mindra-eval-landscape-2026-08.md`](literature/DU-28-mindra-eval-landscape-2026-08.md) — reliable RL statistics, replicate/task-distribution semantics, calibration/proper scoring, matched-compute agent evaluation, robustness и causal intervention principles.
+- [`literature/DU-27-checkpoint-reproducibility-compute-landscape-2026-08.md`](literature/DU-27-checkpoint-reproducibility-compute-landscape-2026-08.md) — reproducibility/checkpoint/compute evidence;
+- [`literature/DU-28-mindra-eval-landscape-2026-08.md`](literature/DU-28-mindra-eval-landscape-2026-08.md) — reliable evaluation/statistics/calibration/matched-control evidence;
+- [`literature/DU-29-engineering-testing-landscape-2026-08.md`](literature/DU-29-engineering-testing-landscape-2026-08.md) — property/state-machine testing, architecture dependency checks, flaky/determinism guidance и engineering-verification implications.
 
-Эти документы **не выбирают** canonical implementation framework/algorithm.
+Эти документы **не выбирают** canonical implementation framework/algorithm/tool.
 
 ---
 
@@ -54,53 +54,42 @@ research evidence / experiment result
 → implementation/version update
 ```
 
-Для будущих экспериментов заранее фиксировать hypothesis, independent variables, baselines/controls, replicate axes, environment/data versions, metrics, success/falsification criterion и analysis policy.
+Для будущих confirmatory experiments действуют requirements `DU-28`.
 
-После `DU-28` confirmatory study должен, где применимо, ссылаться на:
+Engineering evidence `DU-29` хранится отдельно от research evidence:
 
 ```text
-EvaluationStudyPlan / EvaluationManifest
-EvaluationCondition(s)
-checkpoint + RestoreProfile
-world/task distributions
-controls/interventions
-ReplicateStructure
-MetricSpec(s)
-StatisticalAnalysisPlan
-software/hardware/RNG/compute provenance
+contract/invariant test passed
+≠
+mechanism functionally useful
 ```
 
-Обязательные evaluation-validity проверки:
+и наоборот research result не отменяет необходимость machine-checkable correctness.
 
-- evaluator Ground Truth leakage;
-- experimental/statistical unit correctness;
-- nested replicate/pseudo-replication risk;
-- matched/unmatched parameters/state/context/data/compute;
-- baseline tuning fairness;
-- checkpoint/base-state alignment;
-- paired intervention restore validity;
-- Policy vs Action Gate attribution;
-- stochastic uncertainty/interval evidence;
-- invalid/censored/`execution_unknown` handling;
-- primary vs exploratory metrics;
-- module negative gates;
-- actual compute attribution;
-- report lineage до raw Evidence/Experience.
+После реализации Verification Plane должен позволять трассировать:
 
-Training/evaluation improvement не считается чистым результатом algorithm/module, если condition получила больший фактический compute, другой restore state, другую data/tuning condition, privileged labels или более сильный Action Gate без отдельной attribution.
+```text
+accepted design/ADR invariant
+→ VerificationObligation
+→ EngineeringTestSpec
+→ EngineeringTestRun
+→ VerificationEvidence
+```
+
+При этом research result продолжает трассироваться через `EvaluationStudyPlan / EvaluationCondition / MetricSpec / StatisticalAnalysisPlan`.
 
 ---
 
 # Результаты
 
-Любой result должен быть связан с конкретными commit/config/checkpoint/restore profile/agent revision/environment distribution/evaluation condition/raw artifacts/data/training refs/software/hardware/compute manifests/metric+analysis revisions/limitations.
+Любой research result должен быть связан с конкретными commit/config/checkpoint/restore profile/agent revision/environment distribution/evaluation condition/raw artifacts/data/training refs/software/hardware/compute manifests/metric+analysis revisions/limitations.
 
-Отрицательные результаты сохраняются наравне с положительными.
+Любой engineering verification result должен быть связан минимум с repository revision, test spec, relevant environment profile и obligation refs.
 
-Conditionally accepted module boundary может быть пересмотрена после отрицательного module-gate evidence только через design review/ADR.
+Отрицательные research results и engineering failures сохраняются; ни одни из них не переписывают design автоматически.
 
 ---
 
 # Текущий статус
 
-Experiment/hypothesis registry ещё не создан. Сейчас журнал используется в основном для датированных literature pass и не должен смешиваться с canonical design.
+Experiment/hypothesis registry ещё не создан. Сейчас журнал используется в основном для датированных research/tool pass и не должен смешиваться с canonical design.
