@@ -17,7 +17,7 @@
 - документация пишется на русском языке;
 - комментарии в исходном коде пишутся на русском языке;
 - пользовательские и исследовательские пояснения в репозитории пишутся на русском языке;
-- технические идентификаторы остаются на английском: имена переменных, классов, функций, методов, протоколов, типов, модулей, package/API names и другие machine-facing identifiers;
+- technical identifiers остаются на английском: variable/class/function/method/protocol/type/module/package/API names;
 - общепринятый технический термин допустимо оставить на английском, если перевод ухудшает точность.
 
 ---
@@ -40,7 +40,7 @@
 
 ---
 
-# 3. Иерархия source of truth
+# 3. Source of truth
 
 ```text
 accepted non-superseded ADR
@@ -113,6 +113,7 @@ Accepted foundation decisions: `ADR-0001` … `ADR-0006`.
 | Drives | `docs/design/modules/drives.md` | `docs/design/contracts/drives.md` | `ADR-0015` |
 | Appraisal | `docs/design/modules/appraisal.md` | `docs/design/contracts/appraisal.md` | `ADR-0016` |
 | Affect | `docs/design/modules/affect.md` | `docs/design/contracts/affect.md` | `ADR-0017` |
+| Valuation | `docs/design/modules/valuation.md` | `docs/design/contracts/valuation.md` | `ADR-0018` |
 
 Номер текущего разрешённого Design Update всегда брать из `docs/design/current.md`.
 
@@ -145,9 +146,8 @@ Cognitive Cycle ≠ Environment Transition
 CognitiveState ≠ full Agent-owned state
 committed state ≠ mutable shared bus
 Observability ≠ Intervention
-Agent Interaction Plane ≠ Environment Research Plane
 Raw Observation ≠ Canonical Percept
-External Task Specification ≠ Goal Proposal ≠ Committed Goal
+Goal Proposal ≠ Committed Goal
 Goal ≠ Reward ≠ Drive ≠ Utility/Value ≠ Policy
 MINDRA Agent ≠ Cortex ≠ concrete LLM
 MemoryRecord ≠ embedding/index entry
@@ -155,24 +155,25 @@ Memory ≠ trajectory/replay
 Canonical Percept ≠ World Belief ≠ World Prediction
 World Prediction ≠ observed fact
 Imagined Transition ≠ Environment Transition
-prediction error ≠ reward / intrinsic utility
-Agent Capability Fact ≠ Learned Competence Estimate ≠ Self Prediction
-Self Model ≠ Cortex self-report ≠ Executive Control
 Intrinsic Signal ≠ Reward ≠ Drive ≠ Utility/Value
 Drive State ≠ Drive Pressure ≠ Utility/Value
 Appraisal ≠ Affect ≠ Valuation
-Appraisal Target ≠ Appraisal Context
 relevance ≠ Salience ≠ novelty ≠ utility
 controllability ≠ coping potential
 Appraisal Record ≠ Affect State
 Affect State ≠ Drive State
 Affect State ≠ Utility/Value/Reward
-Affect State ≠ emotion label
-Affect history integration ≠ Memory Store
 Affect_t → Appraisal_t → Affect_(t+1)
 imagined Affect ≠ real committed Affect
-Environment reset ≠ Drive reset
-Environment reset ≠ Affect reset
+ValueProfile ≠ ScalarizedValue
+ValueProfile ≠ Training Reward
+ValueProfile ≠ Critic Value
+ValueProfile ≠ Policy Decision
+predictive uncertainty ≠ RiskProfile
+P(success) ≠ Utility/Value
+External Task Feedback ≠ internal utility
+Intrinsic Signal ≠ decision value
+incomparable valuation ≠ technical failure
 ```
 
 ---
@@ -223,7 +224,7 @@ Environment reset ≠ Affect reset
 
 ---
 
-# 12. Memory / World Model / Self Model safeguards
+# 12. Memory / World / Self safeguards
 
 Запрещается:
 
@@ -276,7 +277,7 @@ Environment reset ≠ Affect reset
 
 # 15. Affect safeguards
 
-До explicit пересмотра `DU-17` запрещается:
+Запрещается:
 
 - превращать canonical Affect в human emotion labels;
 - требовать mandatory valence/arousal/PAD geometry;
@@ -284,19 +285,46 @@ Environment reset ≠ Affect reset
 - вычислять action/goal choice внутри Affect System;
 - давать Affect direct mutation authority Goals/Drives;
 - создавать same-wave recursive cycle Appraisal ↔ Affect;
-- позволять Appraisal читать partially updated Affect;
-- обновлять real committed Affect из любого imagined appraisal по умолчанию;
-- терять provenance actual/predicted/imagined/retrospective/intervened source;
+- обновлять real committed Affect из imagined appraisal по умолчанию;
+- терять source provenance;
 - сбрасывать Affect автоматически на `Environment.reset()`;
-- обновлять Affect по wall-clock/latency скрытым background process;
-- считать `0`/neutral fake state успешной заменой unavailable/failed;
-- продвигать private recurrent Affect state после rejected commit;
+- обновлять Affect по wall-clock/latency;
 - объявлять Affect доказательством субъективного чувства;
-- считать separate Affect доказанным без `NoAffect`, temporal-history и matched recurrent controls.
+- считать отдельный Affect доказанным без matched temporal/recurrent controls.
 
 ---
 
-# 16. Research discipline
+# 16. Valuation safeguards
+
+До explicit пересмотра `DU-18` запрещается:
+
+- превращать canonical `ValueProfile` в обязательный один scalar;
+- скрыто использовать fixed weighted sum как определение ценностей Agent;
+- считать `ScalarizedValue` universal currency между разными `ComparisonPolicy`/revisions;
+- терять per-Goal/per-Drive conflict до explicit comparison;
+- превращать hard constraint в arbitrary huge negative reward без explicit policy;
+- считать high novelty/information signal автоматически high value;
+- считать External Task Feedback автоматически internal utility;
+- использовать evaluator-only `Objective Task Metric`/preference natural способом;
+- считать Appraisal local polarity готовой Utility;
+- считать Affect sign готовой Utility;
+- считать Drive Pressure готовой Utility;
+- считать Self `P(success)`/effort готовой Utility;
+- смешивать predictive uncertainty и risk/downside;
+- публиковать RiskProfile без adverse semantics/risk-measure provenance;
+- скрывать normalization/units/component revisions;
+- считать imagined/predicted valuation experienced outcome/value;
+- commit branch-local simulated Drives/Affect в real Agent;
+- считать RL critic scalar canonical Valuation автоматически;
+- считать Training Reward и `ValueProfile` одной сущностью;
+- позволять Valuation выполнять final Action Commit;
+- скрыто fallback'иться на другой ComparisonPolicy;
+- считать `incomparable` технической ошибкой;
+- делать Pareto/Tchebycheff/lexicographic/CVaR/weighted sum обязательными только из research evidence.
+
+---
+
+# 17. Research discipline
 
 Обязателен [`docs/research-methodology.md`](docs/research-methodology.md).
 
@@ -313,11 +341,11 @@ Environment reset ≠ Affect reset
 - held-out world distributions;
 - заранее определённый criterion.
 
-Отрицательный результат сохраняется и может инициировать design review/ADR.
+Для Valuation отдельно сравнивать structured approach с weighted-scalar и matched/shuffled controls, а также проверять behavioral sensitivity к controlled preference changes.
 
 ---
 
-# 17. Scope implementation
+# 18. Scope implementation
 
 Пока `docs/design/current.md` не разрешает implementation/version work, detailed design **не является разрешением писать production architecture**.
 
@@ -329,8 +357,9 @@ Environment reset ≠ Affect reset
 - concrete Self Model estimator;
 - RND/ICM/VIME и common intrinsic formula;
 - concrete Drive list/equation;
-- concrete Appraisal taxonomy/LLM framework;
-- concrete Affect channels, valence-arousal/PAD, recurrent model или decay equation;
+- concrete Appraisal taxonomy;
+- concrete Affect channels/VA/PAD/recurrent model;
+- concrete Valuation component set, weights, comparison/risk policy, critic или reward mapping;
 - TensorDict/DI/config/scheduler framework;
 - PPO и другие learning algorithms;
 - Colab/cloud runtime;
@@ -338,7 +367,7 @@ Environment reset ≠ Affect reset
 
 ---
 
-# 18. Поведение при неопределённости
+# 19. Поведение при неопределённости
 
 Если документация не определяет существенное решение:
 
