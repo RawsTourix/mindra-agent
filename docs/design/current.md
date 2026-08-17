@@ -10,19 +10,19 @@
 
 # 1. Общий статус
 
-**Фундамент документации создан. `DU-01` … `DU-10` завершены и приняты. Реализация ещё не начата.**
+**Фундамент документации создан. `DU-01` … `DU-11` завершены и приняты. Реализация ещё не начата.**
 
 На текущем этапе зафиксированы:
 
-- концепция проекта и исследовательская методология;
 - системные/dependency/runtime/state/scheduler boundaries;
 - observability/intervention discipline;
-- Environment/MicroWorld contract;
+- Environment/MicroWorld;
 - Perception/Canonical Percept;
 - Goal System/Goal Graph;
 - Cortex semantic capability boundary;
-- candidate contracts Environment, Perception, Goals и Cortex;
-- десять accepted ADR.
+- Memory Core;
+- candidate contracts Environment, Perception, Goals, Cortex и Memory;
+- одиннадцать accepted ADR.
 
 ---
 
@@ -40,156 +40,106 @@ DU-07 — Environment / MicroWorld Contract
 DU-08 — Perception / Canonical Representation
 DU-09 — Goal System
 DU-10 — Cortex Boundary
+DU-11 — Memory Core
 ```
 
-## DU-01 … DU-06
-
-Канонические документы:
-
-- [`system-context.md`](system-context.md);
-- [`dependency-rules.md`](dependency-rules.md);
-- [`execution-model.md`](execution-model.md);
-- [`cognitive-state.md`](cognitive-state.md);
-- [`module-lifecycle.md`](module-lifecycle.md);
-- [`observability-and-intervention.md`](observability-and-intervention.md).
-
-Accepted decisions:
-
-- `ADR-0001` … `ADR-0006`.
-
-## DU-07
+## DU-11
 
 Канонический документ:
 
-- [`modules/environment.md`](modules/environment.md).
+- [`modules/memory.md`](modules/memory.md).
 
 Candidate contract:
 
-- [`contracts/environment.md`](contracts/environment.md).
-
-Accepted decision:
-
-- [`ADR-0007`](decisions/ADR-0007-two-plane-environment-boundary.md).
-
-## DU-08
-
-Канонический документ:
-
-- [`modules/perception.md`](modules/perception.md).
-
-Candidate contract:
-
-- [`contracts/perception.md`](contracts/perception.md).
-
-Accepted decision:
-
-- [`ADR-0008`](decisions/ADR-0008-hybrid-canonical-percept.md).
-
-## DU-09
-
-Канонический документ:
-
-- [`modules/goals.md`](modules/goals.md).
-
-Candidate contract:
-
-- [`contracts/goals.md`](contracts/goals.md).
-
-Accepted decision:
-
-- [`ADR-0009`](decisions/ADR-0009-committed-goal-graph.md).
-
-## DU-10
-
-Канонический документ:
-
-- [`modules/cortex.md`](modules/cortex.md).
-
-Candidate contract:
-
-- [`contracts/cortex.md`](contracts/cortex.md).
+- [`contracts/memory.md`](contracts/memory.md).
 
 Research pass:
 
-- [`../research/literature/DU-10-cortex-landscape-2026-08.md`](../research/literature/DU-10-cortex-landscape-2026-08.md).
-
-Главные результаты:
-
-- Cortex является заменяемой agent-owned pretrained capability, а не всей MINDRA;
-- принят backend-neutral `Cortex Gateway`;
-- semantic `Cortex Request/Context/Result` отделены от model-specific prompt/messages/tokens;
-- tokenizer/processor/chat template/provider mapping принадлежат backend adapter;
-- local и remote providers допустимы за одной logical boundary;
-- Cortex не получает ambient access ко всему `CognitiveState`/Memory/private state;
-- Cortex может быть shared injected capability, а не обязательный отдельный scheduler module;
-- Cortex invocation является traceable sub-operation cognitive consumer;
-- canonical effects публикует semantic owner, а не Cortex backend;
-- core semantic inference отделена от optional capabilities;
-- hidden states, attentions, logits, embeddings, multimodal/latent input, gradients и adapter management являются optional;
-- chain-of-thought не является required Cortex output;
-- Cortex Result не становится Goal/Memory/Action/observed fact автоматически;
-- Goal grounding через Cortex заканчивается `Goal Proposal` boundary;
-- Cortex representation становится Perception Feature View только через explicit versioned adapter;
-- `NoCortex`, `DummyCortex` и research `ControlCortex` различаются;
-- hidden fallback/model substitution запрещены;
-- context overflow/truncation/degradation должны быть observable;
-- base model/adaptation/template/provider identity входят в provenance настолько, насколько влияют на поведение;
-- language capability должна быть explicit и проверяемой;
-- при language-based experiments baseline проверяется минимум для русского и английского согласно будущему evaluation/version design.
+- [`../research/literature/DU-11-memory-landscape-2026-08.md`](../research/literature/DU-11-memory-landscape-2026-08.md).
 
 Accepted decision:
 
-- [`ADR-0010`](decisions/ADR-0010-capability-negotiated-cortex-gateway.md).
+- [`ADR-0011`](decisions/ADR-0011-canonical-memory-records-derived-indexes.md).
+
+Главные результаты:
+
+- Memory Core является agent-owned stateful subsystem;
+- `Memory Store` отделён от `CognitiveState` и Artifact Storage;
+- stable `MemoryRecord` является canonical semantic memory item;
+- record identity не зависит от database row/vector slot/index ordinal;
+- source payload/provenance сохраняются отдельно от derived retrieval representations;
+- `MemoryRepresentation` имеет feature-space/encoder revision;
+- `RetrievalIndex` является derived/rebuildable search structure;
+- vector database не является canonical source of truth памяти;
+- representation drift требует explicit compatibility/re-encoding/separate-index semantics;
+- write идёт через `MemoryWriteProposal`, а не direct mutation;
+- DU-11 использует neutral admission/capacity semantics без Salience/Valuation;
+- hidden importance-based eviction/forgetting пока запрещены;
+- retrieval выполняется через explicit `RetrievalRequest → RetrievalResult`;
+- Memory не читает весь `CognitiveState` для самостоятельного построения query;
+- Cortex Gateway не делает hidden Memory lookup;
+- retrieval relevance отделена от utility/salience/importance/truth;
+- Memory отличается от trajectory/evidence и training replay;
+- episodic/semantic record kinds допускаются, но automatic semantic consolidation отложена;
+- procedural skill в weights не является `MemoryRecord` автоматически;
+- canonical record history не переписывается задним числом; corrections/supersession имеют provenance;
+- episode/session/agent-persistent retention scopes допустимы;
+- `Environment.reset()` не означает reset Memory;
+- exact Agent counterfactual требует causally relevant Memory snapshot/index/config state;
+- `NoMemory`, `DummyMemory`, `ControlMemory` различаются;
+- correct-vs-shuffled-vs-NoMemory является обязательным будущим causal evaluation pattern.
 
 ---
 
 # 3. Следующий допустимый Design Update
 
 ```text
-DU-11 — Memory Core
+DU-12 — World Model
 ```
 
-Цель `DU-11` — спроектировать **нейтральную базовую Memory subsystem** до появления Salience/Consolidation: что считается memory item, как хранится provenance/identity, как происходит retrieval и как Memory отделяется от текущего `CognitiveState`, Cortex context и будущего replay/training pipeline.
+Цель `DU-12` — определить, как MINDRA представляет и обучает **предсказательную модель динамики внешнего мира**, не смешивая prediction с observation, Memory, Utility или Policy.
 
 Обязательные области:
 
 ```text
-Memory ownership
-memory item / record identity
-content vs representation
-observed / derived / Cortex-produced provenance
-write / store boundary
-retrieval request / result
-query semantics
-structured vs vector indexing
-representation revisions
-capacity
-forgetting/eviction baseline semantics
-session vs persistent Memory
-snapshot/restore
-Memory consistency across Agent revisions
-Cortex context integration
-NoMemory / Dummy / Control Memory
+World Model responsibility / ownership
+current-state / belief input boundary
+action-conditioned transition prediction
+one-step vs multi-step rollout
+observed vs imagined transition provenance
+prediction target representation
+partial observability
+history / Memory use
+stochastic dynamics
+uncertainty semantics
+prediction error
+model revision / training state
+rollout horizon
+counterfactual action queries
+Cortex optional assistance
+NoWorldModel / Dummy / Control
 observability / intervention
 failure / degradation
 ```
 
 Нужно определить:
 
-- является ли Memory одним модулем или storage+retrieval capability с отдельным owner;
-- что именно можно записывать в Memory и кто имеет право предложить запись;
-- чем Memory record отличается от trajectory/replay item;
-- хранится ли original semantic source отдельно от embedding/index representation;
-- как пережить representation drift после Perception/Cortex adaptation;
-- как retrieval не превращается в скрытый ambient context Cortex;
-- как Memory не получает Salience/"эмоциональное забывание" раньше `DU-19/20`;
-- как сделать честные `NoMemory`, shuffled/random retrieval controls;
-- как snapshot/restore Memory участвует в exact counterfactual Agent clone.
+- что World Model предсказывает: следующий percept, latent state, structured outcome или несколько представлений;
+- как модель работает при partial observability;
+- где заканчивается Memory и начинается world belief/model state;
+- должен ли World Model иметь собственное recurrent/private belief state;
+- как prediction не становится observed fact;
+- как real/replayed/imagined transitions остаются различимыми;
+- как отделить epistemic uncertainty от aleatoric там, где это действительно возможно;
+- как prediction error позже может питать Intrinsic Signals, не становясь reward автоматически;
+- как использовать action candidates для counterfactual prediction без Policy ownership;
+- какие архитектуры RSSM/Dreamer/recurrent/Transformer являются кандидатами, но не canonical requirement;
+- как сравнивать World Model against No/Control variants.
 
-После принятия `DU-11` допускается:
+После принятия `DU-12` допускается:
 
 ```text
-DU-12 — World Model
+DU-13 — Self Model
 ```
 
 ---
@@ -208,7 +158,10 @@ Goal ≠ Reward ≠ Drive ≠ Utility/Value ≠ Policy
 MINDRA Agent ≠ Cortex ≠ concrete LLM
 semantic Cortex context ≠ model-specific prompt/tokens
 Cortex Result ≠ canonical truth/state effect
-NoCortex ≠ DummyCortex ≠ ControlCortex
+MemoryRecord ≠ embedding/index entry
+Memory ≠ trajectory/replay
+Memory retrieval ≠ ambient Cortex context
+retrieval relevance ≠ salience/value/importance
 ```
 
 ---
@@ -217,7 +170,6 @@ NoCortex ≠ DummyCortex ≠ ControlCortex
 
 Пока отсутствуют accepted решения по:
 
-- Memory Core;
 - World Model;
 - Self Model;
 - intrinsic signals;
@@ -240,7 +192,7 @@ NoCortex ≠ DummyCortex ≠ ControlCortex
 - version roadmap;
 - implementation sequences.
 
-Также пока не выбраны exact Python/package/framework решения и concrete Cortex backend.
+Также пока не выбраны exact Python/package/framework решения, concrete Cortex backend, Memory database/index или embedding model.
 
 ---
 
