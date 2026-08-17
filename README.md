@@ -10,11 +10,21 @@ MINDRA не объявляет целью создание сознания ил
 
 ## Статус
 
-Проект находится на стадии **канонического архитектурного и исследовательского проектирования**.
+Проект находится на стадии **канонического архитектурного проектирования перед Version Roadmap**.
 
-Documentation foundation и `DU-01 … DU-30` приняты. Следующий допустимый Design Update всегда указан в [`docs/design/current.md`](docs/design/current.md).
+Documentation foundation и `DU-01 … DU-31` приняты.
 
-Production/research implementation, software versions, общий contract freeze, конкретные algorithms/frameworks, storage/evaluation/testing backends и Cortex backend ещё не зафиксированы.
+После `DU-31` архитектура `DU-01 … DU-30` получила semantic freeze baseline:
+
+```text
+F31 — ready for version planning
+```
+
+Contracts `DU-07 … DU-30` frozen по смыслу, но exact Python/API representation, algorithms/frameworks/models/storage/testing backends ещё не выбраны.
+
+Следующий допустимый Design Update всегда указан в [`docs/design/current.md`](docs/design/current.md). Сейчас это `DU-32 — Version Roadmap`.
+
+Production/research implementation ещё не начата.
 
 ## Основные принципы
 
@@ -32,6 +42,8 @@ Production/research implementation, software versions, общий contract freez
 - negative/null/inconclusive evidence не скрывается;
 - ablation/control/matched-control/intervention для существенных механизмов;
 - compute/data/context/tuning attribution;
+- semantic freeze до version planning;
+- breaking semantic change после F31 — только через новый ADR;
 - разделение Design / Implementation / Engineering Testing / Research Evidence / Research Claims;
 - причинная проверка функционального вклада;
 - отсутствие антропоморфных и phenomenological выводов без достаточных оснований.
@@ -40,7 +52,7 @@ Production/research implementation, software versions, общий contract freez
 
 Входная точка: [`docs/README.md`](docs/README.md).
 
-Перед изменением design/implementation coding agent обязан прочитать [`AGENTS.md`](AGENTS.md) и актуальный [`docs/design/current.md`](docs/design/current.md).
+Перед изменением design/implementation coding agent обязан прочитать [`AGENTS.md`](AGENTS.md), [`docs/design/current.md`](docs/design/current.md) и после DU-31 [`docs/design/contract-adr-consistency-freeze.md`](docs/design/contract-adr-consistency-freeze.md).
 
 ## Язык проекта
 
