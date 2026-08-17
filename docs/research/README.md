@@ -15,7 +15,8 @@ research/
 ├── README.md
 ├── literature/
 │   ├── DU-10-cortex-landscape-2026-08.md
-│   └── DU-11-memory-landscape-2026-08.md
+│   ├── DU-11-memory-landscape-2026-08.md
+│   └── DU-12-world-model-landscape-2026-08.md
 ├── hypotheses.md          # появится позже
 ├── experiments/           # появится позже
 ├── results/               # появится позже
@@ -67,9 +68,10 @@ research evidence / experiment result
 Текущие research pass:
 
 - [`literature/DU-10-cortex-landscape-2026-08.md`](literature/DU-10-cortex-landscape-2026-08.md) — small/open-weight Cortex candidates и tooling evidence для `DU-10`;
-- [`literature/DU-11-memory-landscape-2026-08.md`](literature/DU-11-memory-landscape-2026-08.md) — external/neural/hybrid Memory approaches, representation drift и retrieval-index evidence для `DU-11`.
+- [`literature/DU-11-memory-landscape-2026-08.md`](literature/DU-11-memory-landscape-2026-08.md) — external/neural/hybrid Memory approaches, representation drift и retrieval-index evidence для `DU-11`;
+- [`literature/DU-12-world-model-landscape-2026-08.md`](literature/DU-12-world-model-landscape-2026-08.md) — RSSM/Dreamer, decoder-free, Transformer world models, uncertainty и TorchRL tooling evidence для `DU-12`.
 
-Эти документы **не выбирают** canonical model/backend/database/index.
+Эти документы **не выбирают** canonical model/backend/database/index/framework.
 
 ---
 
