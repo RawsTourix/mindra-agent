@@ -10,7 +10,7 @@ MINDRA не объявляет целью создание сознания ил
 
 Проект находится на стадии **канонического архитектурного и исследовательского проектирования**.
 
-Documentation foundation и последовательная линия `DU-01 … DU-15` уже приняты; проект продолжает идти по dependency-aware design plan. Текущий допустимый Design Update всегда указан в [`docs/design/current.md`](docs/design/current.md).
+Documentation foundation и последовательная линия `DU-01 … DU-18` уже приняты; проект продолжает идти по dependency-aware design plan. Текущий допустимый Design Update всегда указан в [`docs/design/current.md`](docs/design/current.md).
 
 Production/research implementation, software version `v0.1`, exact contract freeze, окончательный набор конкретных алгоритмов и конкретный Cortex backend ещё не зафиксированы.
 
