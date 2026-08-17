@@ -4,9 +4,9 @@
 
 `docs/design/` — каноническое место архитектурной документации MINDRA.
 
-Здесь фиксируются принятые семантики, invariants, subsystem/data boundaries, contracts, ADR и будущие version plans.
+Здесь фиксируются принятые семантики, invariants, subsystem/data/training boundaries, contracts, ADR и будущие version plans.
 
-На текущем этапе приняты `DU-01 … DU-25`. Реализация ещё не начата.
+На текущем этапе приняты `DU-01 … DU-26`. Реализация ещё не начата.
 
 ---
 
@@ -28,7 +28,7 @@
 - [`module-lifecycle.md`](module-lifecycle.md) — `DU-05`
 - [`observability-and-intervention.md`](observability-and-intervention.md) — `DU-06`
 
-## Принятые subsystem boundaries
+## Принятые cognitive/runtime subsystem boundaries
 
 - [`modules/environment.md`](modules/environment.md) — `DU-07`
 - [`modules/perception.md`](modules/perception.md) — `DU-08`
@@ -47,22 +47,26 @@
 - [`modules/workspace.md`](modules/workspace.md) — `DU-21`
 - [`modules/executive-control.md`](modules/executive-control.md) — `DU-22`
 - [`modules/policy-planner.md`](modules/policy-planner.md) — `DU-23`
-- [`modules/action-boundary.md`](modules/action-boundary.md) — `DU-24`.
+- [`modules/action-boundary.md`](modules/action-boundary.md) — `DU-24`
 
 Карта областей: [`modules/README.md`](modules/README.md).
 
 ## Experience / Data Plane
 
-- [`experience-data-replay.md`](experience-data-replay.md) — `DU-25`: append-only causal `Experience Journal`, derived trajectory/dataset/sample projections и отдельная Training Replay semantics.
+- [`experience-data-replay.md`](experience-data-replay.md) — `DU-25`: append-only causal `Experience Journal`, derived projections/samples и Training Replay provenance.
+
+## Training Plane
+
+- [`training-lifecycle.md`](training-lifecycle.md) — `DU-26`: external Training Runtime, pinned base revisions, explicit objectives/gradient flow, candidate revisions, validation и atomic activation.
 
 ## Decisions
 
 - [`decisions/README.md`](decisions/README.md)
-- `ADR-0001 … ADR-0025` — accepted.
+- `ADR-0001 … ADR-0026` — accepted.
 
 Последнее решение:
 
-- [`ADR-0025`](decisions/ADR-0025-causal-experience-journal-derived-projections.md) — causal Experience Journal как source of truth записанного опыта + versioned derived projections/samples.
+- [`ADR-0026`](decisions/ADR-0026-candidate-revision-validated-activation-training-lifecycle.md) — Training Runtime обучает pinned base revision в candidate state; validation предшествует atomic activation новой Agent revision.
 
 ## Candidate contracts
 
@@ -70,7 +74,7 @@
 
 Последний добавленный contract:
 
-- [`contracts/experience-data-replay.md`](contracts/experience-data-replay.md).
+- [`contracts/training-lifecycle.md`](contracts/training-lifecycle.md).
 
 Exact Python API ещё не frozen.
 
@@ -80,42 +84,45 @@ Exact Python API ещё не frozen.
 
 `DU-xx` — самостоятельный архитектурный documentation update, а не software version.
 
-Каждый DU должен закрывать ограниченный scope, исследовать реальные альтернативы, фиксировать responsibilities/invariants, создавать ADR при существенном выборе, синхронизировать contracts/status и завершаться consistency review.
+Каждый DU закрывает ограниченный scope, исследует альтернативы, фиксирует responsibilities/invariants, создаёт ADR при существенном выборе и заканчивается consistency review.
 
 Канонический порядок: [`documentation-plan.md`](documentation-plan.md).
 
 Текущий следующий update:
 
 ```text
-DU-26 — Training Lifecycle
+DU-27 — Checkpoint / Reproducibility / Compute
 ```
 
 ---
 
-# Ключевые инварианты после DU-25
+# Ключевые инварианты после DU-26
 
 ```text
 TraceEvent ≠ ExperienceEvent
 Experience Journal ≠ Agent runtime state
-Experience Journal ≠ Replay Buffer ≠ Agent Memory
 Source Experience ≠ TrainingSample
-ResearchAnnotation ≠ agent-visible payload
-Agent Memory Replay ≠ Training Replay
+Training Runtime ≠ cognitive module
+Runtime State Update ≠ Learning Update
+Consolidation Event ≠ Learning Update
+Replay Selection ≠ Learning Update
+Training Objective ≠ Agent Goal ≠ ValueProfile
+runtime dependency graph ≠ gradient graph
+optimizer state ≠ CognitiveState
+CandidateRevisionBundle ≠ Active AgentRevision
+behavior revision ≠ learner revision допускается явно
 ```
 
-- source events immutable по смыслу и append-only;
-- physical append order не является causal order;
-- stable IDs/logical scopes/causal parents/revisions сохраняют history;
-- Episode/Decision/Transition/Sequence — derived projections;
-- `Action Commit` может существовать без Environment transition;
-- `execution_unknown` не fabricatе next state;
-- Research Ground Truth хранится отдельными annotations;
-- privileged dataset inclusion только explicit policy;
-- hindsight/relabeling/re-encoding создают derived lineage;
-- mixed `agent_revision` не скрывается;
-- DatasetManifest фиксирует source selection/schema/transforms/splits/quality;
-- Training Replay работает поверх source/derived samples и не создаёт natural experience;
-- heavy artifacts могут храниться отдельно от core journal;
-- storage/replay backend намеренно не выбран.
+- TrainingPlan pin'ит base revisions/data/visibility/objectives/gradient policies;
+- source sample provenance доходит до LearningUpdateRecord;
+- candidate update не становится live Agent автоматически;
+- activation происходит только на explicit safe boundary;
+- in-flight cognition не меняет revision задним числом;
+- joint coupled revisions активируются атомарно;
+- privileged supervision всегда explicit;
+- representation-breaking update требует compatibility/migration semantics;
+- failed candidate не мутирует live Agent;
+- rollback не стирает историю update/activation;
+- concrete optimizer/framework/algorithm/PEFT method не выбран.
 
 Фактический статус: [`current.md`](current.md).
