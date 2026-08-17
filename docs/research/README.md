@@ -20,7 +20,8 @@ research/
 │   ├── DU-13-self-model-landscape-2026-08.md
 │   ├── DU-14-intrinsic-signals-landscape-2026-08.md
 │   ├── DU-15-drives-landscape-2026-08.md
-│   └── DU-16-appraisal-landscape-2026-08.md
+│   ├── DU-16-appraisal-landscape-2026-08.md
+│   └── DU-17-affect-dynamics-landscape-2026-08.md
 ├── hypotheses.md          # появится позже
 ├── experiments/           # появится позже
 ├── results/               # появится позже
@@ -58,34 +59,45 @@ research evidence / experiment result
 
 # Literature research pass
 
-Для быстро меняющихся технологий допускаются отдельные датированные документы в `literature/`.
+Для быстро меняющихся технологий и исследовательских областей допускаются отдельные датированные документы в `literature/`.
 
 Они должны явно указывать:
 
 - дату среза;
 - назначение;
 - первичные/официальные источники;
-- какие выводы относятся только к текущему technology landscape;
+- какие выводы относятся только к текущему landscape;
 - какие canonical design conclusions поддержаны evidence;
 - что нужно перепроверить перед implementation/version selection.
 
 Текущие research pass:
 
-- [`literature/DU-10-cortex-landscape-2026-08.md`](literature/DU-10-cortex-landscape-2026-08.md) — small/open-weight Cortex candidates и tooling evidence для `DU-10`;
-- [`literature/DU-11-memory-landscape-2026-08.md`](literature/DU-11-memory-landscape-2026-08.md) — external/neural/hybrid Memory approaches, representation drift и retrieval-index evidence для `DU-11`;
-- [`literature/DU-12-world-model-landscape-2026-08.md`](literature/DU-12-world-model-landscape-2026-08.md) — RSSM/Dreamer, decoder-free, Transformer world models, uncertainty и TorchRL tooling evidence для `DU-12`;
-- [`literature/DU-13-self-model-landscape-2026-08.md`](literature/DU-13-self-model-landscape-2026-08.md) — confidence calibration, competence awareness, metacognition и functional self-modeling evidence для `DU-13`;
-- [`literature/DU-14-intrinsic-signals-landscape-2026-08.md`](literature/DU-14-intrinsic-signals-landscape-2026-08.md) — prediction-error, novelty, count/density, information-gain, learning-progress и modern intrinsic-exploration evidence для `DU-14`;
-- [`literature/DU-15-drives-landscape-2026-08.md`](literature/DU-15-drives-landscape-2026-08.md) — Homeostatic RL, continuous internal-state dynamics, curiosity/homeostasis interaction, multi-drive semantics и Active Inference comparison для `DU-15`;
-- [`literature/DU-16-appraisal-landscape-2026-08.md`](literature/DU-16-appraisal-landscape-2026-08.md) — Component Process/appraisal dimensions, EMA dynamics, appraisal+RL formalization, LLM appraisal reasoning, intervention и trajectory evidence для `DU-16`.
+- [`literature/DU-10-cortex-landscape-2026-08.md`](literature/DU-10-cortex-landscape-2026-08.md) — small/open-weight Cortex candidates и tooling evidence;
+- [`literature/DU-11-memory-landscape-2026-08.md`](literature/DU-11-memory-landscape-2026-08.md) — external/neural/hybrid Memory, representation drift и retrieval indexes;
+- [`literature/DU-12-world-model-landscape-2026-08.md`](literature/DU-12-world-model-landscape-2026-08.md) — RSSM/Dreamer, decoder-free, Transformer world models, uncertainty и tooling;
+- [`literature/DU-13-self-model-landscape-2026-08.md`](literature/DU-13-self-model-landscape-2026-08.md) — confidence calibration, competence awareness и functional self-modeling;
+- [`literature/DU-14-intrinsic-signals-landscape-2026-08.md`](literature/DU-14-intrinsic-signals-landscape-2026-08.md) — prediction-error, novelty, density/count, information-gain и learning-progress;
+- [`literature/DU-15-drives-landscape-2026-08.md`](literature/DU-15-drives-landscape-2026-08.md) — Homeostatic RL, continuous drive dynamics и alternative motivational frameworks;
+- [`literature/DU-16-appraisal-landscape-2026-08.md`](literature/DU-16-appraisal-landscape-2026-08.md) — multidimensional appraisal, EMA, appraisal+RL, LLM appraisal reasoning и trajectories;
+- [`literature/DU-17-affect-dynamics-landscape-2026-08.md`](literature/DU-17-affect-dynamics-landscape-2026-08.md) — persistent affect/mood dynamics, valence-arousal/PAD candidates, appraisal-history integration и modern dynamic agent approaches.
 
-Эти документы **не выбирают** canonical model/backend/database/index/framework/estimator/dynamics/appraisal taxonomy.
+Эти документы **не выбирают** canonical implementation model/framework/taxonomy/estimator/dynamics.
 
 ---
 
 # Будущая гипотеза
 
 Каждая существенная гипотеза должна иметь стабильный идентификатор, однозначную формулировку и статус.
+
+Особенно для falsifiable boundaries вроде Affect будущий experiment registry должен уметь отличать:
+
+```text
+architectural hypothesis
+implementation
+control configuration
+experimental evidence
+interpretation
+```
 
 Конкретная схема идентификаторов и статусов будет определена позже.
 
@@ -105,7 +117,7 @@ research evidence / experiment result
 - версию среды/данных;
 - способ анализа.
 
-Точная форма будет определена отдельным контрактом.
+Для Affect особенно важны matched recurrent/history controls, чтобы не спутать temporal semantics с дополнительной memory/parameter capacity.
 
 ---
 
