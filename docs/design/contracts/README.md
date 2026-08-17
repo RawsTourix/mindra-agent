@@ -14,13 +14,14 @@
 - [`perception.md`](perception.md) — `Canonical Percept`, Semantic Core и Feature Views после `DU-08`;
 - [`goals.md`](goals.md) — Goal Proposal/Committed Goal/Goal Graph после `DU-09`;
 - [`cortex.md`](cortex.md) — Cortex Gateway/capabilities/request/result после `DU-10`;
-- [`memory.md`](memory.md) — MemoryWriteProposal, MemoryRecord, MemoryRepresentation, RetrievalIndex/Request/Result и snapshot semantics после `DU-11`;
-- [`world-model.md`](world-model.md) — WorldBelief, assimilation, WorldPrediction, imagination, uncertainty, prediction error и snapshot semantics после `DU-12`;
-- [`self-model.md`](self-model.md) — AgentCapabilityManifest, SelfEvidence, SelfBelief, competence profile, SelfPrediction/Resolution и calibration/staleness semantics после `DU-13`;
-- [`intrinsic-signals.md`](intrinsic-signals.md) — typed Signal Providers, IntrinsicSignal/Bundle, novelty/rarity/information/competence/normalization semantics после `DU-14`;
-- [`drives.md`](drives.md) — DriveSystem/DriveDescriptor/DriveStateSet, typed homeostatic/adaptive dynamics, coupling, Goal Proposal и snapshot semantics после `DU-15`;
-- [`appraisal.md`](appraisal.md) — AppraisalTarget/Context/Profile/Record, multidimensional event assessment, reappraisal и intervention semantics после `DU-16`;
-- [`affect.md`](affect.md) — typed persistent AffectStateSet, source-mode/temporal dynamics, branch-local imagined Affect и falsification/control semantics после `DU-17`.
+- [`memory.md`](memory.md) — MemoryWriteProposal, MemoryRecord, MemoryRepresentation, RetrievalIndex/Request/Result после `DU-11`;
+- [`world-model.md`](world-model.md) — WorldBelief, assimilation, prediction/imagination/uncertainty после `DU-12`;
+- [`self-model.md`](self-model.md) — capabilities, competence, SelfPrediction/calibration после `DU-13`;
+- [`intrinsic-signals.md`](intrinsic-signals.md) — typed Signal Providers/Bundle после `DU-14`;
+- [`drives.md`](drives.md) — typed Drive System/dynamics после `DU-15`;
+- [`appraisal.md`](appraisal.md) — multidimensional Appraisal после `DU-16`;
+- [`affect.md`](affect.md) — persistent typed Affect dynamics после `DU-17`;
+- [`valuation.md`](valuation.md) — ValuationTarget, ValueProfile, Risk/Constraint/Feasibility profiles, ComparisonPolicy/Result и optional scalarization после `DU-18`.
 
 Эти документы **не являются frozen Python API** и могут уточняться последующими DU до общего contract freeze.
 
@@ -47,20 +48,22 @@ Exact contract должен фиксировать, где применимо:
 
 Contract не должен протаскивать private implementation detail одного backend во всю систему без design justification.
 
-Дополнительные действующие ограничения:
+---
 
-- research observability не даёт runtime consumers private-state access;
+# Действующие subsystem safeguards
+
 - Environment Research Plane не становится agent-facing;
-- Perception не превращает конкретный encoder/Cortex hidden state в universal representation;
-- Goal contract не даёт proposal sources direct mutation authority Goal Graph;
-- Cortex contract не фиксирует model/provider и не даёт Gateway ambient Agent-state access;
-- Memory contract не превращает vector index/embedding в canonical memory identity, не даёт Cortex ambient retrieval и не смешивает Memory с training replay;
-- World Model contract не превращает prediction/imagination в observed fact, не делает backend latent universal state и не смешивает prediction error с reward/value;
-- Self Model contract не превращает Cortex verbal confidence в canonical self-knowledge, не смешивает capability availability с competence и не даёт Self Model decision authority Executive Control/Policy;
-- Intrinsic Signals contract не превращает typed measures в universal reward/value, не смешивает signal families и требует provider/source/reference/normalization provenance;
-- Drive contract не превращает persistent state в global motivation/reward, не требует set-point для каждого drive и не даёт Drive direct Goal/Policy authority;
-- Appraisal contract не превращает event assessment в emotion label/global utility, не смешивает controllability с coping potential и не хранит hidden persistent Affect;
-- Affect contract не превращает history-dependent state в emotion label/global valence/reward, не дублирует Drive state и не обновляет real Affect из imagination по умолчанию.
+- Perception не превращает concrete encoder/Cortex hidden state в universal representation;
+- Goal proposal sources не получают direct mutation authority Goal Graph;
+- Cortex не получает ambient Agent-state access;
+- MemoryRecord не равен embedding/index и Memory не смешивается с training replay;
+- World Model prediction/imagination не становится observed fact;
+- Self Model не равен Cortex self-report и не получает decision authority;
+- Intrinsic Signals не являются universal reward/value;
+- Drive State не является global motivation/Utility;
+- Appraisal не является emotion label/global utility/persistent Affect;
+- Affect не является emotion label/global valence/reward/Drive state;
+- Valuation не превращает `ValueProfile` в mandatory scalar/reward/Policy decision, не смешивает uncertainty с risk и не использует evaluator-only preference/metric natural способом.
 
 ---
 
@@ -79,44 +82,22 @@ Exact contract уточняет форму принятой семантики, 
 
 # Текущий статус
 
-После `DU-04` … `DU-17` приняты semantic requirements для state/scheduler/observability и subsystem boundaries Environment, Perception, Goals, Cortex, Memory, World Model, Self Model, Intrinsic Signals, Drives, Appraisal и Affect.
+После `DU-04` … `DU-18` приняты semantic requirements для state/scheduler/observability и subsystem boundaries Environment, Perception, Goals, Cortex, Memory, World Model, Self Model, Intrinsic Signals, Drives, Appraisal, Affect и Valuation.
 
-Для Affect теперь зафиксированы:
+Для Valuation зафиксированы:
 
-- единый `Affect System` ownership boundary;
-- typed `AffectChannelDescriptor`/`AffectChannelState`/`AffectStateSet`;
-- explicit `AffectUpdateContext`/`AffectUpdateProposal`;
-- source modes actual/predicted/imagined/retrospective/intervened/replayed;
-- temporal lineage и previous committed Affect feedback;
-- branch-local `SimulatedAffectState` для imagination;
-- optional versioned `AffectView`;
-- explicit baseline/persistence/reset semantics;
-- intervention/failure/degradation/snapshot requirements;
-- `NoAffect`, ResetEveryEvent, shuffled-history и matched recurrent controls;
-- отсутствие обязательного emotion label/valence-arousal/PAD/global utility output.
+- `ValuationTarget` для state/outcome/action/trajectory/counterfactual families;
+- typed `ValueComponent`/`ValueProfile`;
+- отдельные `FeasibilityProfile`, `ConstraintProfile`, `RiskProfile`;
+- explicit `ComparisonPolicyDescriptor`/`ComparisonRequest`/`ComparisonResult`;
+- optional `ScalarizedValue` только как derived result;
+- immediate/prospective/trajectory semantics;
+- actual/predicted/imagined/counterfactual provenance;
+- intervention/control/snapshot/failure/versioning requirements;
+- `NoValuation`, weighted scalar, random/shuffled/matched, lexicographic и oracle controls.
 
 Однако **общий exact Python contract set пока намеренно не зафиксирован**.
 
-`environment.md` остаётся candidate до Action/Data/Checkpoint/Evaluation DU.
+`valuation.md` остаётся candidate, поскольку `DU-19`, `DU-22/23`, `DU-25` … `DU-28` ещё уточнят Salience/Executive/Policy/data/training/checkpoint/evaluation integration.
 
-`perception.md` остаётся candidate до Data/Training/Evaluation DU.
-
-`goals.md` остаётся candidate до Valuation/Executive/Policy/Data/Evaluation integration freeze.
-
-`cortex.md` остаётся candidate до Workspace/Executive/Policy/Training/Checkpoint/Evaluation DU.
-
-`memory.md` остаётся candidate до Salience/Consolidation/Workspace/Data/Checkpoint/Evaluation DU.
-
-`world-model.md` остаётся candidate до Valuation/Executive/Policy/Data/Training/Checkpoint/Evaluation DU.
-
-`self-model.md` остаётся candidate до Valuation/Executive/Policy/Data/Training/Checkpoint/Evaluation DU.
-
-`intrinsic-signals.md` остаётся candidate до Valuation/Salience/Policy/Data/Training/Checkpoint/Evaluation DU.
-
-`drives.md` остаётся candidate до Valuation/Salience/Executive/Policy/Data/Training/Checkpoint/Evaluation integration freeze.
-
-`appraisal.md` остаётся candidate до Valuation/Salience/Executive/Policy/Data/Training/Checkpoint/Evaluation integration freeze.
-
-`affect.md` остаётся candidate, поскольку `DU-18…23`, `DU-25` … `DU-28` ещё уточнят Valuation/Salience/Memory Regulation/Workspace/Executive/Policy/data/training/checkpoint/evaluation integration.
-
-До contract freeze запрещено считать конкретные `Protocol`, ABC, TensorDict, dataclass/Pydantic schemas, emotion taxonomy, mandatory valence/arousal/PAD geometry, decay equation, recurrent architecture или global affect scalar каноническими.
+До contract freeze запрещено считать конкретные `Protocol`, ABC, TensorDict, dataclass/Pydantic schemas, weighted sum, Pareto/Tchebycheff/lexicographic ordering, CVaR, discount factor, critic architecture или RL reward mapping каноническими.
