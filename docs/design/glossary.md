@@ -6,11 +6,11 @@
 
 ---
 
-# Система
+# Система и execution
 
 ## MINDRA Agent
 
-Логическая agent-owned когнитивная система. Не равна процессу, GPU, VM или Cortex.
+Логическая agent-owned когнитивная система. Не равна process/GPU/VM/Cortex.
 
 ## CognitiveState
 
@@ -18,15 +18,31 @@ Committed versioned shared-state surface между модулями. Не по�
 
 ## Agent Snapshot
 
-Полный causally relevant снимок Agent: shared/private state, Memory, Workspace, Executive/Policy/Planner state, pending Action Boundary state, parameters, RNG и другие stateful mechanisms.
-
-## Cognitive Scheduler
-
-Agent-owned механизм declared scheduling/waves/commits. Не cognitive module и не Executive Control.
+Полный causally relevant снимок Agent: shared/private state, Memory, Workspace, Executive/Policy/Planner/Action state, parameters, RNG и другие stateful mechanisms.
 
 ## Agent revision
 
 Версия behavior-relevant composition/parameters Agent.
+
+## Cognitive Scheduler
+
+Agent-owned механизм declared scheduling/waves/commits. Не cognitive module, Executive Control или Policy.
+
+## Decision Window
+
+Логический интервал от agent-visible observation/outcome до следующего `Action Commit`.
+
+## Cognitive Cycle
+
+Одна причинно различимая внутренняя итерация cognition внутри Decision Window.
+
+## Action Commit
+
+Необратимая граница final authorized Environment action данного Decision Window. После `DU-24` находится после authorization и до dispatch.
+
+## Outcome Commit
+
+Момент, когда фактический outcome Environment transition становится записанным observed fact trajectory.
 
 ---
 
@@ -46,7 +62,11 @@ Optional derived representation с explicit feature-space/encoder revision.
 
 ## Hidden World State
 
-Privileged internal state Environment, недоступный Agent без explicit boundary.
+Privileged internal state Environment, недоступный Agent normal runtime способом.
+
+## World Manifest
+
+Versioned identity/configuration конкретного generated world instance/family сверх одного seed.
 
 ---
 
@@ -62,11 +82,11 @@ Privileged internal state Environment, недоступный Agent без expli
 
 ## Cortex
 
-Заменяемая semantic/language/reasoning capability; не вся MINDRA.
+Заменяемая semantic/language/reasoning capability; не вся MINDRA и не central orchestrator.
 
 ## MemoryRecord
 
-Каноническое воспоминание со stable identity/provenance; не embedding/index slot.
+Каноническое agent-owned воспоминание со stable identity/provenance; не embedding/index slot и не research trajectory.
 
 ## RetrievalResult
 
@@ -82,7 +102,7 @@ Privileged internal state Environment, недоступный Agent без expli
 
 ## World Prediction
 
-Prediction будущего без нового actual observation; не факт.
+Prediction будущего без нового actual observation; не observed fact.
 
 ## Imagination
 
@@ -174,7 +194,7 @@ Derived scalar под конкретной `ComparisonPolicy`. Не universal cu
 
 ## Incomparable
 
-Валидный result, когда explicit policy не даёт полного ordering.
+Валидный result, когда explicit comparison policy не даёт полного ordering.
 
 ---
 
@@ -182,7 +202,7 @@ Derived scalar под конкретной `ComparisonPolicy`. Не universal cu
 
 ## Salience System
 
-Agent-owned subsystem purpose-dependent priority ограниченного processing для explicit candidates.
+Agent-owned responsibility purpose-dependent priority ограниченного processing для explicit candidates.
 
 ## SalienceProfile
 
@@ -214,7 +234,7 @@ Explicit resource constraints Memory subsystem. Не global Executive compute bu
 
 ## Memory Replay / Reactivation
 
-Explicit agent-owned re-presentation существующего `MemoryRecord` для consolidation/maintenance. Не Training Replay и не новый natural experience.
+Agent-owned re-presentation существующего `MemoryRecord` для memory dynamics/consolidation. Не Training Replay и не новый natural experience.
 
 ## Consolidation Event
 
@@ -222,7 +242,7 @@ Explicit agent-owned re-presentation существующего `MemoryRecord` �
 
 ## Derived MemoryRecord
 
-Новый canonical record из source records с `derived_from`/support/conflict/provenance. Не переписанный source episode.
+Новый canonical record из source records с source/support/conflict/provenance. Не переписанный source episode.
 
 ## Representation maintenance
 
@@ -234,7 +254,7 @@ Re-encoding/reindexing существующего MemoryRecord. Не semantic co
 
 ## Workspace
 
-Bounded temporary shared-access/broadcast capability MINDRA для dynamically admitted subset информации. Не `CognitiveState`, Memory, Cortex context или доказательство сознания.
+Bounded temporary shared-access/broadcast capability для dynamically admitted subset информации. Не `CognitiveState`, Memory, Cortex context или доказательство сознания.
 
 ## WorkspaceProposal
 
@@ -242,7 +262,7 @@ Bounded temporary shared-access/broadcast capability MINDRA для dynamically a
 
 ## WorkspaceCandidateSet
 
-Explicit набор Workspace proposals для admission на конкретной base revision. Workspace не сканирует Agent state ambient способом.
+Explicit набор Workspace proposals для admission на конкретной base revision.
 
 ## WorkspaceBudget
 
@@ -250,11 +270,11 @@ Explicit capacity/bandwidth constraint Workspace. Не `AttentionBudget`, `Memor
 
 ## Workspace AdmissionPolicy
 
-Versioned policy admission/retain/replace/expire при текущем budget/context. Salience может быть evidence, но не является самой policy.
+Versioned policy admission/retain/replace/expire. Salience может быть evidence, но не является admission decision.
 
 ## WorkspaceItem
 
-Admitted temporary shared item со stable workspace identity, source ref/revision/provenance, semantic payload/projection и lifetime. Не новый factual authority.
+Admitted temporary shared item со stable identity/source/provenance. Не новый factual authority.
 
 ## WorkspaceSnapshot
 
@@ -262,15 +282,15 @@ Committed immutable по смыслу состояние Workspace на конк
 
 ## Broadcast
 
-Доступность admitted Workspace content всем declared eligible consumers при их обычном scheduled compute. Не callback, interrupt или automatic module execution.
+Доступность admitted content declared eligible consumers при обычном scheduled compute. Не callback/interrupt/module execution.
 
 ## Branch-local Workspace
 
-Клон Workspace внутри imagination/counterfactual branch. Его updates не мутируют real Workspace автоматически.
+Workspace clone imagination/counterfactual branch, не мутирующий real Workspace автоматически.
 
 ## NoWorkspace
 
-Конфигурация отсутствующей Workspace capability; consumers используют ordinary declared inputs/direct reads.
+First-class configuration без Workspace capability.
 
 ---
 
@@ -278,11 +298,11 @@ Committed immutable по смыслу состояние Workspace на конк
 
 ## Executive Control
 
-Agent-owned control responsibility, выбирающая допустимые optional internal operations, распределяющая предоставленный cognitive resource envelope и решающая continue/yield cognition. Не Cognitive Scheduler и не Policy/Planner.
+Agent-owned control responsibility, выбирающая optional internal operations, распределяющая предоставленный cognitive resource envelope и решающая continue/yield cognition. Не Scheduler и не Policy/Planner.
 
 ## Metacognitive monitoring
 
-Declared evidence о состоянии собственного cognition — competence, uncertainty, progress, failures, resource state и т.п. Monitoring само по себе не является control decision.
+Declared evidence о состоянии собственного cognition. Monitoring само по себе не control decision.
 
 ## Internal MetaAction
 
@@ -290,19 +310,19 @@ Declared evidence о состоянии собственного cognition — c
 
 ## MetaActionProposal
 
-Explicit предложение выполнить optional internal operation с semantic payload ref, prerequisites, cost/evidence и provenance. Ещё не reservation и не execution.
+Explicit предложение выполнить optional internal operation с payload ref/cost/evidence/provenance. Ещё не execution.
 
 ## InternalOperationCatalog
 
-Versioned declarative описание доступных Executive semantic operations и constraints. Не runtime Service Locator и не набор live service handles.
+Versioned declarative описание доступных Executive semantic operations. Не Service Locator/live handles.
 
 ## CognitiveResourceEnvelope
 
-Явно предоставленный Executive набор hard/soft cognitive resource limits. Не raw runtime/GPU telemetry и не ресурс, который Executive может увеличить самостоятельно.
+Hard/soft cognitive resource limits, предоставленные Executive. Executive не увеличивает их самостоятельно.
 
 ## ExecutiveBudgetLedger
 
-Agent-owned учёт granted/reserved/consumed/remaining cognitive resources внутри `CognitiveResourceEnvelope`.
+Учёт granted/reserved/consumed/remaining cognitive resources.
 
 ## ResourceCostProfile
 
@@ -310,31 +330,27 @@ Versioned estimate стоимости proposed internal operation. Не actual c
 
 ## ActualResourceCost
 
-Фактически зарегистрированное resource consumption выполненной internal operation.
+Фактически зарегистрированное resource consumption выполненной operation.
 
 ## ExecutiveObservation
 
-Declared read-only projection monitoring evidence для Executive. Не ambient dump всего `CognitiveState`.
+Declared read-only projection monitoring evidence. Не ambient dump `CognitiveState`.
 
 ## Executive Control Point
 
-Явная causal boundary относительно committed state, на которой Executive принимает следующее control decision.
+Causal boundary относительно committed state, где Executive принимает control decision.
 
 ## ExecutiveDecision
 
-Versioned решение Executive: выбранные `MetaActionRequest`, budget reservations, optional Goal focus и deliberation disposition. Само по себе не исполняет operation.
-
-## Deliberation disposition
-
-Semantic результат control point: продолжать optional cognition, yield to Policy, budget exhausted/degraded/blocked и т.п. `yield_to_policy` не является `Action Commit`.
+Versioned выбор MetaActionRequests/budget reservations/focus/disposition. Сам по себе operation не исполняет.
 
 ## GoalFocusDirective
 
-Temporary Executive-owned focus refs на уже committed Goals. Не изменяет Goal objective/lifecycle/commitment и не заменяет `Goal Proposal`.
+Temporary focus refs на committed Goals. Не изменяет Goal Graph.
 
 ## NoExecutive
 
-First-class конфигурация без adaptive agent-owned meta-control: optional cognition определяется fixed version/runtime schedule.
+Configuration без adaptive meta-control; optional cognition определяется fixed schedule.
 
 ---
 
@@ -342,19 +358,19 @@ First-class конфигурация без adaptive agent-owned meta-control: o
 
 ## Policy System
 
-Обязательный agent-owned semantic owner финального behavioral selection до Action Gate. Не Planner, Executive Control или Action Executor.
+Обязательный agent-owned semantic owner финального behavioral selection до Action Boundary.
 
 ## Planner
 
-Optional/falsifiable provider explicit multi-step/contingent plans и action candidates. Не World Model и не final selection owner.
+Optional/falsifiable provider multi-step/contingent plans и action candidates. Не World Model и не final selection owner.
 
 ## BehavioralContext
 
-Declared read projection контекста, разрешённого Policy/Planner в конкретном Decision Window. Не ambient dump `CognitiveState`.
+Declared read projection контекста Policy/Planner. Не ambient dump `CognitiveState`.
 
 ## ActionCandidate
 
-Предложение возможного behavior с explicit source/provenance. Ещё не выбрано Policy и не разрешено Action Gate.
+Предложение возможного behavior с source/provenance. Ещё не выбрано Policy.
 
 ## PolicyCandidateSet
 
@@ -362,27 +378,27 @@ Versioned explicit набор `ActionCandidate` конкретного selection
 
 ## Plan
 
-Agent-owned prescriptive/conditional структура возможного поведения с steps/branches/conditions/assumptions/validity. Не `ImaginedTrajectory`.
+Prescriptive/conditional структура behavior с steps/branches/assumptions/validity. Не `ImaginedTrajectory`.
 
 ## PlanState
 
-Persistent state активного plan, включая progress, validity/staleness и replanning context.
+Persistent state active plan, включая progress/validity/staleness/replanning context.
 
 ## DecisionDeferral
 
-Явный результат Policy selection attempt, когда selected intention ещё не сформировано и требуется дополнительное cognition или explicit fallback.
+Результат Policy attempt без selected intention, требующий additional cognition/explicit fallback.
 
 ## SelectedActionIntent
 
-Выбранное Policy behavioral intention до Action Boundary. Не `AuthorizedAction`, `Action Commit`, dispatch, executed action или observed outcome.
+Выбранное Policy behavioral intention до Action Boundary. Не authorized/committed/dispatched/executed action.
 
 ## ReactivePolicy
 
-Policy configuration без отдельного Planner/search, выбирающая behavior непосредственно из разрешённого context/evidence.
+Policy configuration без отдельного Planner/search.
 
 ## NoPlanner
 
-First-class configuration без Planner capability; Policy продолжает normal behavioral selection reactive/direct способом.
+First-class configuration без Planner capability.
 
 ---
 
@@ -390,63 +406,131 @@ First-class configuration без Planner capability; Policy продолжает
 
 ## Action Boundary
 
-Обязательная граница между Policy-selected intent и внешним Environment effect: authorization → `Action Commit` → dispatch/execution correlation.
+Граница между Policy-selected intent и Environment effect: authorization → `Action Commit` → dispatch/execution correlation.
 
 ## Action Gate
 
-Agent-runtime authorization responsibility, проверяющая schema/freshness/capability/preconditions/explicit constraints. Не hidden Policy и не Environment oracle.
-
-## ActionAuthorizationResult
-
-Versioned результат Gate/authorization chain: authorized, rejected/stale/blocked/failed с stage provenance.
+Agent-runtime authorization responsibility для schema/freshness/capability/preconditions/explicit constraints. Не hidden Policy/Environment oracle.
 
 ## AuthorizedAction
 
-Успешно проверенное final semantic action до `Action Commit`. Может включать semantics-preserving normalization или explicit override lineage.
+Final semantic action после успешной authorization, до `Action Commit`.
 
 ## ActionOverrideRecord
 
-Явная запись behavior-changing replacement `Policy intent A → external action B` с owner/revision/reason/provenance. Без неё скрытая substitution запрещена.
-
-## Action Commit
-
-Необратимая causal boundary после final authorization и до dispatch. Фиксирует external action для данного Decision Window, но не гарантирует успешное исполнение.
+Явная запись behavior-changing replacement `Policy intent A → external action B`.
 
 ## ActionCommitRecord
 
-Immutable evidence committed action, связывающая intent/authorization/revisions с stable dispatch identity.
+Immutable evidence committed external action, связывающая intent/authorization/revisions/dispatch identity.
 
 ## DispatchAttempt
 
-Одна transport/execution-adapter попытка отправить уже committed action. Retry того же logical dispatch не создаёт новый Action Commit.
+Одна transport/adapter попытка отправить уже committed action. Retry того же logical dispatch не создаёт новый Action Commit.
 
 ## EnvironmentActionReceipt
 
-Environment/adapter acknowledgement принятия команды. `accepted` не означает `succeeded`.
+Acknowledgement принятия команды. `accepted` не означает `succeeded`.
 
 ## ActionExecutionRecord
 
-Causal evidence фактического lifecycle action: accepted/executing/completed/no-effect/partial/aborted/cancelled/rejected/unknown согласно capabilities среды.
+Evidence фактического lifecycle action: completed/no-effect/partial/aborted/cancelled/rejected/unknown согласно среде.
 
 ## execution_unknown
 
-Состояние, при котором неизвестно, был ли уже применён dispatched action. Не эквивалентно `not_executed` и не разрешает blind retry без idempotency/dedup/reconciliation guarantee.
+Неизвестно, был ли уже применён dispatched action. Не эквивалентно `not_executed`.
 
 ## Semantics-preserving normalization
 
-Преобразование representation/units/encoding без изменения behavioral meaning action. Не новый Policy choice.
+Изменение encoding/units без изменения behavioral meaning.
 
 ## Runtime-assurance override
 
-Explicit external/deployment safety correction action. Не приписывается Policy и сохраняет отдельную provenance.
+Explicit external/deployment safety correction, не приписываемая Policy.
+
+---
+
+# Experience / Data / Replay
+
+## Experience Data Plane
+
+Внешняя относительно cognition responsibility записи causal experience, построения datasets и replay inputs. Может физически жить рядом с Artifact Collector.
+
+## ExperienceEvent
+
+Immutable по смыслу typed causal data event со stable identity, logical scope, parent refs, revisions, visibility и provenance. Не любой `TraceEvent`.
+
+## Experience Journal
+
+Append-only logical collection `ExperienceEvent`, являющаяся source of truth записанного опыта. Не Agent runtime state, Memory или Replay Buffer.
+
+## ExperienceJournalManifest
+
+Versioned manifest конкретного состояния/selection журнала, нужный для reproducible projections.
+
+## CausalRevisionSet
+
+Reference bundle behavior-relevant Agent/module/environment/representation revisions конкретного causal event.
+
+## ResearchAnnotationRecord
+
+Отдельная evaluator/research-only annotation, ссылающаяся на source events/samples. Не обычный agent-visible payload.
+
+## DataVisibilityPolicy
+
+Versioned правила, какие visibility/trust classes допускаются в derived dataset/training condition.
+
+## EpisodeTrajectory
+
+Derived projection causal events одного Episode.
+
+## DecisionTrajectory
+
+Derived projection событий одного Decision Window от input до intent/commit/outcome или deferral/failure.
+
+## InteractionTransitionView
+
+Derived interaction view, допускающий action commit без Environment transition и explicit execution status.
+
+## DatasetManifest
+
+Immutable/versioned описание source journals, projections, schemas, transforms, splits, revisions, quality и determinism конкретного data product.
+
+## SampleTransformationRecord
+
+Явная lineage-запись derived transformation: windowing, relabeling, target recomputation, re-encoding, masking и т.п.
+
+## TrainingSample
+
+Derived training data product со source refs и transformation lineage. Не historical source experience.
+
+## Training Replay
+
+Повторное использование source/derived training data внешним Training Runtime. Не Agent Memory Replay и не новое Environment experience.
+
+## ReplayItem
+
+Derived item replay buffer/table, ссылающийся на source sample/projection. Его eviction не удаляет source experience.
+
+## ReplaySelectionRecord
+
+Evidence конкретного Training Replay selection: sampler/table revision, selected sample refs, priority/probability/RNG metadata где применимо.
+
+## Privileged supervision
+
+Training condition, явно разрешающая evaluator-only/research annotations. Не normal agent-visible learning по умолчанию.
+
+## Data completeness
+
+Structured статус пригодности causal/data evidence: complete/partial/unresolved/missing/corrupt и т.п. Отдельный optional artifact loss не равен потере core causal event.
 
 ---
 
 # Будущие области
 
-## Experience / Data / Replay
+## Training Lifecycle
 
-Будущая causal experience/data schema для trajectories и Training Replay. `DU-25`.
+Будущая boundary external optimization, Learning Update и activation новых agent/component revisions. `DU-26`.
 
 ---
 
