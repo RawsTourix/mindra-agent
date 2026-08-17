@@ -452,7 +452,71 @@ complete world identity
 
 ---
 
-# 15. Scope текущего этапа
+# 15. Perception и representation discipline
+
+Обязательны [`docs/design/modules/perception.md`](docs/design/modules/perception.md), [`docs/design/contracts/perception.md`](docs/design/contracts/perception.md) и `ADR-0008`.
+
+Помнить:
+
+```text
+Raw Observation
+≠
+Canonical Percept
+```
+
+```text
+Canonical Percept
+=
+structured Semantic Core + optional Feature Views
+```
+
+```text
+Canonical Percept
+≠
+Cortex hidden state
+```
+
+```text
+current percept
+≠
+Memory / hidden-world belief / World Model prediction
+```
+
+```text
+feature dimension equality
+≠
+feature-space compatibility
+```
+
+До явного изменения canonical design запрещается:
+
+- передавать raw Environment-specific observation schema напрямую независимым cognitive modules вместо Perception boundary;
+- использовать Environment Research Ground Truth как normal Perception input;
+- добавлять unseen hidden entity в Semantic Core только потому, что evaluator знает о его существовании;
+- использовать hidden persistent Environment object ID как percept entity identity, если ID не agent-visible;
+- приписывать semantic meaning произвольному порядку entity array или padding;
+- смешивать direct, deterministic-derived и perceptually inferred fields без provenance;
+- маскировать learned perceptual inference как Environment ground truth;
+- кодировать missing modality/property универсальным zero/NaN/None без contract;
+- поглощать External Task Specification или External Task Feedback в Perception только потому, что они представлены текстом/структурой;
+- делать один learned latent vector единственным canonical inter-module representation;
+- протаскивать model-specific Cortex embedding/hidden state как обязательный Semantic Core или universal Feature View;
+- делать Cortex обязательным условием работы Perception;
+- считать одинаковые shape/dimension двух feature tensors доказательством compatibility;
+- молча сравнивать, смешивать или reuse embeddings несовместимых `feature_space_revision`;
+- переписывать уже committed percept после encoder update;
+- выполнять скрытый fallback на Cortex/другой encoder/privileged data при Perception failure;
+- использовать device id, Python object identity или memory address как semantic representation identity;
+- смешивать sensor/input intervention с Environment world-state intervention;
+- называть сильный latent intervention причинно специфичным без проверки OOD/off-target effects.
+
+`NoCortex` configuration обязана оставаться архитектурно допустимой. Learned Feature Views являются optional capabilities, а structured Semantic Core остаётся отдельной semantic surface.
+
+Slot Attention, Set Transformer, GNN/Graph Networks, Perceiver и другие representation architectures пока являются только candidate implementations/research evidence.
+
+---
+
+# 16. Scope текущего этапа
 
 Фактический текущий scope всегда определяется `docs/design/current.md`.
 
@@ -473,11 +537,12 @@ complete world identity
 - scheduler/async/graph framework;
 - telemetry/intervention framework;
 - Gymnasium/другой Environment framework;
+- конкретный Perception/feature encoder;
 - окончательную структуру `src/`.
 
 ---
 
-# 16. Поведение при неопределённости
+# 17. Поведение при неопределённости
 
 Если документация не определяет важное решение:
 
@@ -487,4 +552,4 @@ complete world identity
 - при необходимости предложить варианты и trade-offs;
 - дождаться design decision до реализации зависимой части.
 
-Мелкие локальные implementation details, не влияющие на public/internal contracts, исследовательскую валидность, dependency/temporal/state/scheduler/observability/Environment boundaries или будущую расширяемость, могут выбираться реализацией самостоятельно при сохранении принятых принципов.
+Мелкие локальные implementation details, не влияющие на public/internal contracts, исследовательскую валидность, dependency/temporal/state/scheduler/observability/Environment/Perception boundaries или будущую расширяемость, могут выбираться реализацией самостоятельно при сохранении принятых принципов.
