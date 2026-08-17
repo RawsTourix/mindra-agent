@@ -4,9 +4,9 @@
 
 `docs/design/` — каноническое место архитектурной документации MINDRA.
 
-Здесь фиксируются принятые семантики, invariants, subsystem boundaries, contracts, ADR и будущие version plans.
+Здесь фиксируются принятые семантики, invariants, subsystem/data boundaries, contracts, ADR и будущие version plans.
 
-На текущем этапе приняты `DU-01 … DU-24`. Реализация ещё не начата.
+На текущем этапе приняты `DU-01 … DU-25`. Реализация ещё не начата.
 
 ---
 
@@ -47,18 +47,22 @@
 - [`modules/workspace.md`](modules/workspace.md) — `DU-21`
 - [`modules/executive-control.md`](modules/executive-control.md) — `DU-22`
 - [`modules/policy-planner.md`](modules/policy-planner.md) — `DU-23`
-- [`modules/action-boundary.md`](modules/action-boundary.md) — `DU-24`: authorization, post-authorization/pre-dispatch `Action Commit`, dispatch/execution correlation и retry/idempotency semantics.
+- [`modules/action-boundary.md`](modules/action-boundary.md) — `DU-24`.
 
 Карта областей: [`modules/README.md`](modules/README.md).
+
+## Experience / Data Plane
+
+- [`experience-data-replay.md`](experience-data-replay.md) — `DU-25`: append-only causal `Experience Journal`, derived trajectory/dataset/sample projections и отдельная Training Replay semantics.
 
 ## Decisions
 
 - [`decisions/README.md`](decisions/README.md)
-- `ADR-0001 … ADR-0024` — accepted.
+- `ADR-0001 … ADR-0025` — accepted.
 
 Последнее решение:
 
-- [`ADR-0024`](decisions/ADR-0024-post-authorization-pre-dispatch-action-commit.md) — `Action Commit` после authorization и до dispatch, explicit override provenance и stable dispatch/idempotency semantics.
+- [`ADR-0025`](decisions/ADR-0025-causal-experience-journal-derived-projections.md) — causal Experience Journal как source of truth записанного опыта + versioned derived projections/samples.
 
 ## Candidate contracts
 
@@ -66,7 +70,7 @@
 
 Последний добавленный contract:
 
-- [`contracts/action-boundary.md`](contracts/action-boundary.md).
+- [`contracts/experience-data-replay.md`](contracts/experience-data-replay.md).
 
 Exact Python API ещё не frozen.
 
@@ -83,34 +87,35 @@ Exact Python API ещё не frozen.
 Текущий следующий update:
 
 ```text
-DU-25 — Experience / Data / Replay
+DU-26 — Training Lifecycle
 ```
 
 ---
 
-# Ключевые инварианты после DU-24
+# Ключевые инварианты после DU-25
 
 ```text
-SelectedActionIntent ≠ AuthorizedAction
-AuthorizedAction ≠ Action Commit
-Action Commit ≠ Dispatch
-Dispatch ≠ Environment Transition
-Environment receipt accepted ≠ execution success
-Policy choice ≠ external override
-transport failure ≠ Environment no-effect
-execution_unknown ≠ definitely_not_sent
+TraceEvent ≠ ExperienceEvent
+Experience Journal ≠ Agent runtime state
+Experience Journal ≠ Replay Buffer ≠ Agent Memory
+Source Experience ≠ TrainingSample
+ResearchAnnotation ≠ agent-visible payload
+Agent Memory Replay ≠ Training Replay
 ```
 
-- stale/malformed/unauthorized intent не commit'ится;
-- normal Gate не является второй Policy;
-- behavior-changing substitution требует explicit override provenance;
-- `Action Commit` находится после финальной authorization и до dispatch;
-- post-commit failure не удаляет committed behavioral history;
-- retry не создаёт новый Action Commit;
-- blind retry запрещён при unknown non-idempotent execution;
-- universal physical exactly-once не обещается;
-- Dispatcher является execution infrastructure, Environment владеет transition/outcome;
-- terminal outcome фиксируется до reset;
-- causal evidence связывает Policy candidate до Outcome Commit.
+- source events immutable по смыслу и append-only;
+- physical append order не является causal order;
+- stable IDs/logical scopes/causal parents/revisions сохраняют history;
+- Episode/Decision/Transition/Sequence — derived projections;
+- `Action Commit` может существовать без Environment transition;
+- `execution_unknown` не fabricatе next state;
+- Research Ground Truth хранится отдельными annotations;
+- privileged dataset inclusion только explicit policy;
+- hindsight/relabeling/re-encoding создают derived lineage;
+- mixed `agent_revision` не скрывается;
+- DatasetManifest фиксирует source selection/schema/transforms/splits/quality;
+- Training Replay работает поверх source/derived samples и не создаёт natural experience;
+- heavy artifacts могут храниться отдельно от core journal;
+- storage/replay backend намеренно не выбран.
 
 Фактический статус: [`current.md`](current.md).
