@@ -426,6 +426,82 @@ Concrete implementation того же semantic contract, предназначе�
 
 ---
 
+# Observability и intervention
+
+## Evidence Plane
+
+Логическая однонаправленная поверхность, через которую Agent/runtime публикуют passive research evidence во внешнюю artifact/evaluation infrastructure.
+
+Evidence Plane не является когнитивным module/state bus и не предоставляет observer write authority.
+
+## Trace Event
+
+Структурированное событие исполнения, связанное с causal identities/revisions и позволяющее реконструировать, что произошло в конкретном Run/Session/Episode/Decision/Cycle/Wave/Module Attempt.
+
+Trace event не является автоматически cognitive input.
+
+## Module Attempt
+
+Факт выполнения конкретного module computation относительно определённых base `state_revision`/`agent_revision`, независимо от того, стал ли результат committed.
+
+Attempt и commit являются разными research facts.
+
+## Research Probe
+
+Declared read-only research boundary, через которую evaluator/collector может получить semantic projection causally relevant private state без arbitrary mutable object access.
+
+Research Probe не создаёт runtime dependency других cognitive modules и не даёт write authority.
+
+## Observability Depth
+
+Рабочее понятие глубины собираемых evidence: от structural tracing и public semantic state до private semantic probes и backend/raw tensors.
+
+Конкретные уровни/названия могут меняться implementation, но raw/backend access не является обязательным для общего contract.
+
+## Evidence-critical telemetry
+
+Evidence, потеря которого делает невозможным проверку конкретной primary hypothesis или causal reconstruction.
+
+Если такое evidence потеряно и не может быть восстановлено, соответствующий research claim считается incomplete/invalid, даже если Agent продолжил execution.
+
+## Intervention Gateway
+
+Привилегированная external research boundary, через которую Evaluation Runtime выполняет active controlled intervention с explicit target, base causal revision, treatment и provenance.
+
+Intervention Gateway отделён от passive Evidence Plane.
+
+## Intervention Target
+
+Явно идентифицируемое состояние/результат/representation, в которое разрешено вмешательство соответствующим research capability.
+
+Target может быть canonical state field, module public result, declared private semantic state или opt-in backend/raw representation.
+
+## Treatment
+
+Конкретное controlled изменение, применённое через Intervention Gateway в рамках experiment condition.
+
+Treatment не маскируется под natural output semantic owner.
+
+## Intervened lineage
+
+Продолжение causal history после controlled intervention, явно помеченное intervention provenance.
+
+По умолчанию confirmatory causal experiment предпочитает отдельную treatment branch от identifiable committed base вместо переписывания natural lineage.
+
+## Approximate counterfactual
+
+Контролируемое повторное выполнение/ветвление, в котором восстановлена только часть causally relevant Agent/Environment state.
+
+Такой experiment не называется exact counterfactual clone.
+
+## Intervention validity
+
+Степень, в которой treatment является осмысленным для causal interpretation и не создаёт неконтролируемое OOD/divergent state или крупные off-target effects.
+
+Особенно важна для raw/latent interventions.
+
+---
+
 # Основные когнитивные термины
 
 ## Cortex
