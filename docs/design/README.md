@@ -6,7 +6,7 @@
 
 Здесь фиксируются принятые семантики, invariants, subsystem boundaries, contracts, ADR и будущие version plans.
 
-На текущем этапе приняты `DU-01 … DU-23`. Реализация ещё не начата.
+На текущем этапе приняты `DU-01 … DU-24`. Реализация ещё не начата.
 
 ---
 
@@ -46,18 +46,19 @@
 - [`modules/memory-regulation.md`](modules/memory-regulation.md) — `DU-20`
 - [`modules/workspace.md`](modules/workspace.md) — `DU-21`
 - [`modules/executive-control.md`](modules/executive-control.md) — `DU-22`
-- [`modules/policy-planner.md`](modules/policy-planner.md) — `DU-23`: Policy-owned final behavioral selection с optional/falsifiable Planner provider.
+- [`modules/policy-planner.md`](modules/policy-planner.md) — `DU-23`
+- [`modules/action-boundary.md`](modules/action-boundary.md) — `DU-24`: authorization, post-authorization/pre-dispatch `Action Commit`, dispatch/execution correlation и retry/idempotency semantics.
 
 Карта областей: [`modules/README.md`](modules/README.md).
 
 ## Decisions
 
 - [`decisions/README.md`](decisions/README.md)
-- `ADR-0001 … ADR-0023` — accepted.
+- `ADR-0001 … ADR-0024` — accepted.
 
 Последнее решение:
 
-- [`ADR-0023`](decisions/ADR-0023-policy-owned-selection-optional-planner.md) — обязательный Policy owner selected-action intention и optional Planner как provider планов/action candidates.
+- [`ADR-0024`](decisions/ADR-0024-post-authorization-pre-dispatch-action-commit.md) — `Action Commit` после authorization и до dispatch, explicit override provenance и stable dispatch/idempotency semantics.
 
 ## Candidate contracts
 
@@ -65,7 +66,7 @@
 
 Последний добавленный contract:
 
-- [`contracts/policy-planner.md`](contracts/policy-planner.md).
+- [`contracts/action-boundary.md`](contracts/action-boundary.md).
 
 Exact Python API ещё не frozen.
 
@@ -82,38 +83,34 @@ Exact Python API ещё не frozen.
 Текущий следующий update:
 
 ```text
-DU-24 — Action Boundary / Gate / Executor
+DU-25 — Experience / Data / Replay
 ```
 
 ---
 
-# Ключевые инварианты после DU-23
+# Ключевые инварианты после DU-24
 
 ```text
-Policy ≠ Planner
-Planner ≠ World Model
-Plan ≠ ImaginedTrajectory
-Valuation ≠ Policy Decision
-Executive Control ≠ Policy
-ActionCandidate ≠ SelectedActionIntent
-SelectedActionIntent ≠ Action Commit ≠ Executed Action
+SelectedActionIntent ≠ AuthorizedAction
+AuthorizedAction ≠ Action Commit
+Action Commit ≠ Dispatch
+Dispatch ≠ Environment Transition
+Environment receipt accepted ≠ execution success
+Policy choice ≠ external override
+transport failure ≠ Environment no-effect
+execution_unknown ≠ definitely_not_sent
 ```
 
-- Policy является единственным semantic owner selected behavioral intention normal runtime способом;
-- Planner остаётся optional/falsifiable capability/provider;
-- reactive/no-Planner configuration first-class;
-- Policy работает с explicit `PolicyCandidateSet`;
-- Planner строит plans/candidates относительно World Belief и agent-visible context;
-- hidden Environment state недоступен Planner normal runtime способом;
-- Plan может быть contingent/persistent, но имеет assumptions/revision/stale/invalidation semantics;
-- Valuation предоставляет comparison evidence, а не final selection;
-- `incomparable` не требует fake scalarization;
-- Policy может вернуть `DecisionDeferral` и proposals дополнительного cognition;
-- Planner subgoal проходит Goal Proposal boundary;
-- planning compute регулируется Executive Control;
-- Cortex может помогать generation/planning, но не становится Policy owner;
-- stochastic selection сохраняет RNG/provenance;
-- Planner contribution должен проверяться против reactive и matched controls при сопоставимом compute;
-- `SelectedActionIntent` ещё не разрешено и не исполнено — это boundary `DU-24`.
+- stale/malformed/unauthorized intent не commit'ится;
+- normal Gate не является второй Policy;
+- behavior-changing substitution требует explicit override provenance;
+- `Action Commit` находится после финальной authorization и до dispatch;
+- post-commit failure не удаляет committed behavioral history;
+- retry не создаёт новый Action Commit;
+- blind retry запрещён при unknown non-idempotent execution;
+- universal physical exactly-once не обещается;
+- Dispatcher является execution infrastructure, Environment владеет transition/outcome;
+- terminal outcome фиксируется до reset;
+- causal evidence связывает Policy candidate до Outcome Commit.
 
 Фактический статус: [`current.md`](current.md).
