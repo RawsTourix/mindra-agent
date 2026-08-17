@@ -41,6 +41,7 @@ Research result не меняет design автоматически: снача�
 - [`ADR-0025`](ADR-0025-causal-experience-journal-derived-projections.md) — append-only causal `Experience Journal` как source of truth записанного опыта + versioned derived trajectory/dataset/training projections.
 - [`ADR-0026`](ADR-0026-candidate-revision-validated-activation-training-lifecycle.md) — external Training Runtime обучает pinned base revisions в candidate state; validation предшествует атомарной activation совместимого Agent revision bundle.
 - [`ADR-0027`](ADR-0027-manifest-driven-causal-checkpoint-restore.md) — manifest-driven causal checkpoint: explicit capture boundary, content/integrity artifacts, restore profiles и scoped reproducibility guarantees.
+- [`ADR-0028`](ADR-0028-multi-layer-causal-evaluation-harness.md) — multi-layer causal Evaluation Harness с fully specified conditions, matched controls, paired interventions, typed metrics и explicit statistical plan вместо universal leaderboard score.
 
 ## Proposed
 
