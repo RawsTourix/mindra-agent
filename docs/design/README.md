@@ -6,7 +6,7 @@
 
 Здесь фиксируются принятые семантики, invariants, границы модулей, internal contracts, архитектурные решения и будущие version plans.
 
-На текущем этапе сформирован documentation foundation и приняты `DU-01` … `DU-10`. Детальные subsystem design добавляются последовательно после отдельного исследования вариантов.
+На текущем этапе сформирован documentation foundation и приняты `DU-01` … `DU-11`. Детальные subsystem design добавляются последовательно после отдельного исследования вариантов.
 
 ---
 
@@ -30,56 +30,51 @@ Research evidence не переписывает design напрямую: про�
 
 ## Foundation
 
-- [`principles.md`](principles.md) — устойчивые инженерные и исследовательские принципы;
-- [`glossary.md`](glossary.md) — канонические значения терминов;
-- [`documentation-plan.md`](documentation-plan.md) — канонический порядок `DU-00` … `DU-32`;
-- [`current.md`](current.md) — фактический статус и следующий допустимый шаг.
+- [`principles.md`](principles.md);
+- [`glossary.md`](glossary.md);
+- [`documentation-plan.md`](documentation-plan.md);
+- [`current.md`](current.md).
 
 ## Canonical system design
 
-- [`system-context.md`](system-context.md) — `DU-01`: логические границы Agent, Environment, training/evaluation infrastructure, artifact/storage/compute и разрешённые потоки данных;
-- [`dependency-rules.md`](dependency-rules.md) — `DU-02`: dependency directions, Composition Root, dependency inversion, backend isolation и запрет runtime Service Locator/shared mutable globals;
-- [`execution-model.md`](execution-model.md) — `DU-03`: иерархическое логическое время, Agent Session/Episode/Decision Window/Cognitive Cycle, causal commit boundaries, async semantics и replay requirements;
-- [`cognitive-state.md`](cognitive-state.md) — `DU-04`: committed state snapshots, namespaces/ownership, availability/freshness, temporal scopes, provenance, private-state boundary и clone/counterfactual requirements;
-- [`module-lifecycle.md`](module-lifecycle.md) — `DU-05`: module descriptors, declared reads/writes, DAG/wave scheduling, transactional public/private effects, lifecycle/failure semantics и граница будущего Executive Control;
-- [`observability-and-intervention.md`](observability-and-intervention.md) — `DU-06`: passive Evidence Plane, causal tracing, private-state probes, observability depth, explicit Intervention Gateway, branch/provenance semantics и counterfactual requirements.
+- [`system-context.md`](system-context.md) — `DU-01`;
+- [`dependency-rules.md`](dependency-rules.md) — `DU-02`;
+- [`execution-model.md`](execution-model.md) — `DU-03`;
+- [`cognitive-state.md`](cognitive-state.md) — `DU-04`;
+- [`module-lifecycle.md`](module-lifecycle.md) — `DU-05`;
+- [`observability-and-intervention.md`](observability-and-intervention.md) — `DU-06`.
 
 ## Спроектированные subsystem boundaries
 
-- [`modules/environment.md`](modules/environment.md) — `DU-07`: общий Environment contract, Agent Interaction Plane/Research Plane, hidden/raw/task/feedback boundaries, snapshot/clone/fork, procedural generation, distributions и reference `MicroWorld`;
-- [`modules/perception.md`](modules/perception.md) — `DU-08`: Perception boundary, `Canonical Percept`, structured Semantic Core, optional Feature Views, entity/missingness semantics, representation versioning/drift и Cortex/no-Cortex independence;
-- [`modules/goals.md`](modules/goals.md) — `DU-09`: Goal Proposal, Committed Goal, Goal Graph, lifecycle/scope, subgoal/dependency/conflict semantics, priority/commitment/progress и goal ownership;
-- [`modules/cortex.md`](modules/cortex.md) — `DU-10`: заменяемая pretrained Cortex capability, semantic `Cortex Gateway`, backend adapter/provider boundary, capability negotiation, context/result/provenance, local/remote и `NoCortex` semantics.
+- [`modules/environment.md`](modules/environment.md) — `DU-07`: Environment/MicroWorld;
+- [`modules/perception.md`](modules/perception.md) — `DU-08`: Perception/Canonical Percept;
+- [`modules/goals.md`](modules/goals.md) — `DU-09`: Goal System/Goal Graph;
+- [`modules/cortex.md`](modules/cortex.md) — `DU-10`: Cortex Gateway и backend-neutral capability boundary;
+- [`modules/memory.md`](modules/memory.md) — `DU-11`: canonical Memory Store, MemoryRecord, derived representations/indexes и explicit retrieval boundary.
 
 ## Карта модулей
 
-- [`modules/README.md`](modules/README.md) — предварительная карта архитектурных областей, их responsibilities, различий и зависимостей.
+- [`modules/README.md`](modules/README.md) — предварительная карта архитектурных областей.
 
-Наличие области в карте не означает, что отдельный модуль уже принят. Соответствующий Design Update может объединить, разделить, отложить или отвергнуть кандидатную ответственность.
-
-`Environment`, `Perception / Representation`, `Goal System` и `Cortex` уже имеют accepted semantic design в отдельных документах; остальные области карты проектируются последовательно.
+`Environment`, `Perception`, `Goal System`, `Cortex` и `Memory Core` уже имеют accepted semantic design. Остальные области проектируются последовательно.
 
 ## Decision records
 
 - [`decisions/README.md`](decisions/README.md);
-- [`ADR-0001`](decisions/ADR-0001-logical-boundaries-independent-of-deployment.md) — logical responsibility boundary independent of deployment topology;
-- [`ADR-0002`](decisions/ADR-0002-explicit-composition-no-runtime-service-locator.md) — explicit Composition Root и запрет runtime Service Locator;
-- [`ADR-0003`](decisions/ADR-0003-hierarchical-logical-time.md) — hierarchical logical time и causal commit boundaries;
-- [`ADR-0004`](decisions/ADR-0004-versioned-committed-cognitive-state.md) — versioned committed CognitiveState, staged owner-scoped updates и запрет hidden mutable bus semantics;
-- [`ADR-0005`](decisions/ADR-0005-wave-scheduled-module-protocol.md) — declared DAG scheduling, execution waves и atomic public/private module commit;
-- [`ADR-0006`](decisions/ADR-0006-separated-evidence-plane-and-intervention-gateway.md) — passive Evidence Plane отдельно от privileged Intervention Gateway;
-- [`ADR-0007`](decisions/ADR-0007-two-plane-environment-boundary.md) — agent-visible Environment interaction отдельно от research-only world control/snapshot/intervention;
-- [`ADR-0008`](decisions/ADR-0008-hybrid-canonical-percept.md) — structured Semantic Core + optional revisioned Feature Views вместо одного universal latent/Cortex hidden space;
-- [`ADR-0009`](decisions/ADR-0009-committed-goal-graph.md) — Goal Proposal → Goal System → Committed Goal Graph; source capability не получает direct ownership Goal state;
-- [`ADR-0010`](decisions/ADR-0010-capability-negotiated-cortex-gateway.md) — semantic Cortex Gateway + backend adapter/provider вместо конкретной LLM или text-only prompt API.
+- `ADR-0001` … `ADR-0011` — accepted.
+
+Последнее решение:
+
+- [`ADR-0011`](decisions/ADR-0011-canonical-memory-records-derived-indexes.md) — canonical Memory Records отдельно от derived representations/indexes.
 
 ## Candidate / exact internal contracts
 
 - [`contracts/README.md`](contracts/README.md);
-- [`contracts/environment.md`](contracts/environment.md) — candidate Environment capability/data contract после `DU-07`;
-- [`contracts/perception.md`](contracts/perception.md) — candidate Perception/Canonical Percept contract после `DU-08`;
-- [`contracts/goals.md`](contracts/goals.md) — candidate Goal System/Goal Graph contract после `DU-09`;
-- [`contracts/cortex.md`](contracts/cortex.md) — candidate Cortex descriptor/request/context/result/capability contract после `DU-10`.
+- [`contracts/environment.md`](contracts/environment.md);
+- [`contracts/perception.md`](contracts/perception.md);
+- [`contracts/goals.md`](contracts/goals.md);
+- [`contracts/cortex.md`](contracts/cortex.md);
+- [`contracts/memory.md`](contracts/memory.md).
 
 Candidate contracts определяют semantic machine-facing requirements, но exact Python API ещё не frozen.
 
@@ -106,93 +101,49 @@ Candidate contracts определяют semantic machine-facing requirements, �
 
 Канонический порядок: [`documentation-plan.md`](documentation-plan.md).
 
-Текущий следующий update: `DU-11 — Memory Core`.
+Текущий следующий update: `DU-12 — World Model`.
 
 ---
 
-# 4. Canonical owner
+# 4. Правило существования отдельного модуля
 
-У значимой архитектурной темы должен быть один основной canonical owner.
+Когнитивная аналогия сама по себе не является основанием для module boundary.
 
-Общий документ может ссылаться на тему, но не должен независимо определять вторую конкурирующую семантику.
+Отдельная ответственность должна иметь:
 
-Если ADR меняет принятое решение:
-
-1. обновляется ADR registry;
-2. обновляется canonical design owner;
-3. обновляются exact/candidate contracts;
-4. обновляются затронутые version plans/status;
-5. только затем implementation следует новому решению.
-
----
-
-# 5. Design для coding agents
-
-Implementation-ready design должен минимизировать архитектурные догадки.
-
-Для каждой будущей подсистемы желательно определить:
-
-- назначение;
-- responsibilities;
-- non-goals;
-- inputs/outputs;
-- owned state;
-- dependencies;
-- lifecycle/update semantics;
-- training signals;
-- persistence/checkpoint semantics;
-- observability;
-- failure/degradation behavior;
-- ablation/control strategy;
-- evaluation metrics;
-- open questions.
-
-Если существенное решение ещё не принято, оно должно быть обозначено как open question/blocker, а не оставлено на усмотрение Codex.
-
----
-
-# 6. Правило существования отдельного модуля
-
-Когнитивная аналогия сама по себе не является основанием для нового module boundary.
-
-Отдельный модуль должен иметь:
-
-1. самостоятельную вычислительную ответственность;
+1. самостоятельную вычислительную роль;
 2. явные input/output/state semantics;
-3. независимый lifecycle или значимую границу обновления;
+3. независимый lifecycle или значимую update boundary;
 4. возможность отключения/подмены;
-5. собственную diagnostic/evaluation strategy;
-6. функциональную роль, не дублирующую соседний модуль.
+5. diagnostic/evaluation strategy;
+6. функциональную роль, не дублирующую соседнюю.
 
-Если эти условия не выполняются, design должен рассмотреть объединение ответственности.
-
-`Cortex` в `DU-10` принят не как semantic owner общего cognitive state и не обязательно как самостоятельный scheduler module, а как shared capability boundary внутри Agent.
+`Cortex` принят как shared capability boundary, а `Memory Core` — как agent-owned stateful subsystem с canonical store и explicit read/write boundaries.
 
 ---
 
-# 7. Текущая граница
+# 5. Текущие ключевые инварианты
 
-Приняты `DU-01` … `DU-10`, но пока не существует frozen exact module contract или version roadmap.
+В дополнение к предыдущим DU теперь зафиксировано:
 
-Канонически уже зафиксированы, в дополнение к предыдущим DU:
+```text
+MemoryRecord ≠ CognitiveState ≠ trajectory/replay item
+MemoryRecord ≠ embedding/index entry
+Memory retrieval ≠ ambient Cortex context
+retrieval relevance ≠ utility/salience/importance
+```
 
-- Cortex является agent-owned pretrained capability, а не всей MINDRA;
-- конкретная model family/provider не является architecture contract;
-- consumer зависит от semantic Cortex Gateway, а не tokenizer/provider SDK;
-- Cortex получает explicit semantic request/context и не читает ambient Agent state;
-- model-specific prompt/chat template/tokenization изолированы в backend adapter;
-- local и remote providers допускаются при явной capability/provenance semantics;
-- hidden states, logits, embeddings, gradients, multimodal/latent input и adapter management являются optional capabilities;
-- chain-of-thought не является обязательным Cortex output;
-- Cortex Result не становится observed fact/Goal/Memory/Action автоматически;
-- Goal grounding через Cortex заканчивается Goal Proposal boundary, а не direct Goal write;
-- Cortex-derived representation становится Feature View только через versioned compatibility adapter;
-- context truncation/fallback/failure не должны быть скрытыми;
-- `NoCortex`, `DummyCortex` и research control Cortex различаются;
-- behavior-affecting model/adapter/template changes должны попадать в provenance/revision identity;
-- natural-language experiments должны отдельно валидировать required languages;
-- `NoCortex` остаётся first-class baseline для architecture-gain measurements.
+- Memory Store является agent-owned state;
+- canonical MemoryRecord сохраняет source/provenance и stable identity;
+- learned representations/indexes являются derived и versioned;
+- representation drift не должен уничтожать semantic memory;
+- retrieval выполняется через explicit `RetrievalRequest → RetrievalResult`;
+- Cortex Gateway не имеет hidden Memory lookup;
+- Memory Core до `DU-19/20` не использует emotional/salience-driven forgetting;
+- Memory отличается от внешнего trajectory log и training replay;
+- exact Agent snapshot обязан учитывать causally relevant Memory state;
+- `NoMemory`, Dummy и Control configurations различаются.
 
-Обсуждавшиеся ранее Qwen, Gemma, Llama, TensorDict, PPO, Dreamer, RND, ICM, FAISS, PEFT/LoRA, Colab, OpenTelemetry, pyvene, Gymnasium, Slot Attention, GNN/Set Transformer/Perceiver и другие технологии являются кандидатами/evidence для будущего анализа, но не каноническими implementation requirements.
+Обсуждавшиеся FAISS, HNSW, SQLite/vector databases, embedding models и neural memory architectures являются candidate implementations/evidence, но не canonical requirements.
 
 Фактический статус: [`current.md`](current.md).
