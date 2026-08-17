@@ -64,6 +64,7 @@ Research experiment сам по себе не становится ADR: снач
 - [`ADR-0004 — Версионированный committed CognitiveState вместо общего mutable bus`](ADR-0004-versioned-committed-cognitive-state.md) — canonical shared state представлен committed snapshots; изменения публикуются через owner-scoped staged updates и новую state revision, а hidden inplace mutation/`last-write-wins` запрещены.
 - [`ADR-0005 — DAG scheduling с execution waves и атомарным module commit`](ADR-0005-wave-scheduled-module-protocol.md) — module dependencies компилируются в DAG/waves; modules одной wave читают одну committed revision, а public/private effects становятся видимыми только через согласованный atomic commit.
 - [`ADR-0006 — Разделить passive Evidence Plane и explicit Intervention Gateway`](ADR-0006-separated-evidence-plane-and-intervention-gateway.md) — observability остаётся однонаправленной passive evidence boundary, а active research mutation проходит только через отдельный explicit Intervention Gateway с target/base/provenance и experimental lineage.
+- [`ADR-0007 — Разделить agent-visible Environment interaction и research-only world control`](ADR-0007-two-plane-environment-boundary.md) — общий Environment contract имеет отдельные Agent Interaction Plane и Research Plane; `MicroWorld` является reference family, а privileged world state/snapshot/intervention не становятся обычным Agent input.
 
 ## Proposed
 
