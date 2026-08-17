@@ -34,13 +34,7 @@
 
 ## Перед будущей реализацией
 
-После `DU-32` и появления concrete version design дополнительно обязательны:
-
-- exact contracts;
-- version specification;
-- `implementation-sequence.md`;
-- testing/evaluation requirements;
-- acceptance criteria.
+После `DU-32` и появления concrete version design дополнительно обязательны exact contracts, version specification, `implementation-sequence.md`, testing/evaluation requirements и acceptance criteria.
 
 До этого implementation choices не угадываются заранее.
 
@@ -59,8 +53,6 @@ Concept
 → Research / engineering evidence
 ```
 
-MINDRA строго различает:
-
 ```text
 Design ≠ Implementation ≠ Research Evidence
 ```
@@ -73,8 +65,6 @@ Research result, противоречащий design, инициирует revie
 
 Документация и комментарии в коде — на русском языке. Technical identifiers/API/package/class/function/type names остаются на английском.
 
-Подробные правила: [`../AGENTS.md`](../AGENTS.md).
-
 ---
 
 # Исследовательский журнал
@@ -85,13 +75,19 @@ Research result, противоречащий design, инициирует revie
 
 # Experience / Data Plane
 
-Каноническая data semantics после `DU-25`:
+После `DU-25` source experience, Agent Memory, Training Samples и Training Replay являются разными слоями:
 
 - [`design/experience-data-replay.md`](design/experience-data-replay.md);
 - [`design/contracts/experience-data-replay.md`](design/contracts/experience-data-replay.md);
 - [`design/decisions/ADR-0025-causal-experience-journal-derived-projections.md`](design/decisions/ADR-0025-causal-experience-journal-derived-projections.md).
 
-Source experience, Agent Memory, Training Samples и Training Replay считаются разными слоями.
+# Training Plane
+
+После `DU-26` Training Runtime отделён от cognition и работает через pinned base revision → candidate → validation → activation:
+
+- [`design/training-lifecycle.md`](design/training-lifecycle.md);
+- [`design/contracts/training-lifecycle.md`](design/contracts/training-lifecycle.md);
+- [`design/decisions/ADR-0026-candidate-revision-validated-activation-training-lifecycle.md`](design/decisions/ADR-0026-candidate-revision-validated-activation-training-lifecycle.md).
 
 ---
 
@@ -99,6 +95,6 @@ Source experience, Agent Memory, Training Samples и Training Replay счита�
 
 Проект находится на стадии **последовательного канонического архитектурного проектирования**.
 
-`DU-01 … DU-25` приняты. Следующий допустимый этап определяется только [`design/current.md`](design/current.md); полный порядок задан в [`design/documentation-plan.md`](design/documentation-plan.md).
+`DU-01 … DU-26` приняты. Следующий допустимый этап определяется только [`design/current.md`](design/current.md); полный порядок задан в [`design/documentation-plan.md`](design/documentation-plan.md).
 
 Production/research implementation, exact contract freeze, version roadmap и implementation sequences ещё не начаты.
