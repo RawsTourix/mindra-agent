@@ -70,7 +70,7 @@ Privileged internal state Environment, недоступный Agent без expli
 
 ## MemoryRecord
 
-Каноническое воспоминание со stable identity и provenance; не embedding/index slot.
+Каноническое воспоминание со stable identity/provenance; не embedding/index slot.
 
 ## RetrievalResult
 
@@ -154,11 +154,11 @@ Event-level subsystem оценки значения causally identifiable target
 
 ## Appraisal Target
 
-Событие, outcome, prediction, imagined/retrieved event или другой причинно идентифицируемый объект оценки.
+Событие/outcome/prediction/imagined/retrieved event или другой причинно идентифицируемый объект оценки.
 
 ## Appraisal Context
 
-Versioned declared context оценки: Goals, Drives, World/Self evidence, explicit Memory retrieval, Intrinsic Signals и, при необходимости, previous committed Affect.
+Versioned declared context оценки: Goals, Drives, World/Self evidence, explicit Memory retrieval, Intrinsic Signals и при необходимости previous committed Affect.
 
 ## AppraisalRecord
 
@@ -246,15 +246,15 @@ Branch-local Affect в imagination/counterfactual path; не real committed Affe
 
 ## Valuation System
 
-Decision-relevant subsystem, строящий typed `ValueProfile` и выполняющий explicit comparison разнородных concerns. Не Policy и не training reward generator по умолчанию.
+Decision-relevant subsystem, строящий typed `ValueProfile` и explicit comparison разнородных concerns. Не Policy и не Training Reward generator по умолчанию.
 
 ## Valuation Target
 
-State/outcome/action candidate/trajectory/counterfactual branch, относительно которого строится valuation с explicit causal provenance и horizon.
+State/outcome/action candidate/trajectory/counterfactual branch, относительно которого строится valuation с explicit causal provenance/horizon.
 
 ## ValueComponent
 
-Typed decision-relevant contribution определённой semantics, например impact конкретного Goal/Drive, cost или external/intrinsic mapping. Не обязана иметь общие units с другими components.
+Typed decision-relevant contribution конкретной semantics. Не обязана иметь общие units с другими components.
 
 ## ValueProfile
 
@@ -262,15 +262,15 @@ Structured multi-objective representation ценности target до обяз�
 
 ## FeasibilityProfile
 
-Self-related evidence о возможности/стоимости выполнения target. `P(success)` и effort не являются Utility автоматически.
+Self-related evidence о возможности/стоимости выполнения target. `P(success)`/effort не являются Utility автоматически.
 
 ## ConstraintProfile
 
-Explicit representation constraints/thresholds/violation evidence. Hard constraint не обязан быть большим negative reward.
+Explicit representation constraints/thresholds/violation evidence.
 
 ## RiskProfile
 
-Decision-relevant оценка downside, построенная из outcome distribution/adverse semantics/explicit risk measure. Не равна predictive uncertainty.
+Decision-relevant downside profile на основе outcome distribution/adverse semantics/explicit risk measure. Не predictive uncertainty.
 
 ## ComparisonPolicy
 
@@ -278,27 +278,79 @@ Versioned rule сравнения `ValueProfile`: scalar, dominance/Pareto, lexi
 
 ## ComparisonResult
 
-Результат сравнения profiles: preference/order/dominance/tie/incomparability/constraint status и optional scalarized views.
+Результат сравнения profiles: preference/order/dominance/tie/incomparability/constraint status и optional scalarized view.
 
 ## ScalarizedValue
 
-Derived scalar из `ValueProfile` под конкретной `ComparisonPolicy`. Не canonical universal currency и не training reward автоматически.
-
-## Prospective Valuation
-
-Horizon-conditioned оценка predicted/imagined future consequences. Не observed utility.
+Derived scalar из `ValueProfile` под конкретной `ComparisonPolicy`. Не universal currency и не Training Reward автоматически.
 
 ## Incomparable
 
-Нормальный multi-objective result, когда explicit comparison policy не даёт полного ordering. Не техническая ошибка.
+Валидный multi-objective result, когда explicit policy не даёт полного ordering. Не technical failure.
+
+---
+
+# Salience / Attention
+
+## Salience System
+
+Agent-owned subsystem, строящий purpose-dependent priority profiles для explicit candidates и распределяющий заданный consumer/context budget через versioned `AllocationPolicy`.
+
+## Salience Target
+
+Causally identifiable semantic object, которому может назначаться processing priority: percept/event, Goal, Memory candidate, World hypothesis, ValueProfile, plan/action candidate и т. п.
+
+## SalienceCandidateSet
+
+Explicit набор targets для конкретного purpose/base revision. Salience не сканирует весь Agent state ambient способом.
+
+## Salience Purpose
+
+Контекст того, **для какого вида processing** строится priority, например Workspace admission hint, Memory regulation hint или planning inspection. Exact enum не frozen.
+
+## Salience Evidence
+
+Typed evidence, влияющее на processing priority: novelty, relevance, urgency, risk, value, uncertainty, Drive/Affect context и другие разрешённые sources. Не общая числовая валюта автоматически.
+
+## SalienceProfile
+
+Structured purpose-dependent representation причин priority target. Не обязан быть одним scalar.
+
+## AttentionBudget
+
+Explicit ограничение ресурса, предоставляемое consumer/context. Salience не владеет global compute budget.
+
+## AllocationPolicy
+
+Versioned policy преобразования `SalienceProfile[] + AttentionBudget` в конкретный ranking/gating/allocation.
+
+## AttentionAllocation
+
+Результат распределения budget между candidates. Сам по себе не выполняет Workspace admission, Cortex invocation, retrieval или Action Commit.
+
+## Ranking
+
+Относительный порядок candidates.
+
+## Gating
+
+Решение, проходит ли candidate дальше в рамках allocation policy.
+
+## Inhibition of return
+
+Optional stateful mechanism временного снижения priority недавно выбранного target; candidate для Salience dynamics, не обязательная реализация.
+
+## NoSalience
+
+Конфигурация отсутствующей Salience capability. Не fake `salience=0` для всех targets.
 
 ---
 
 # Будущие области
 
-## Salience
+## Memory Regulation / Consolidation
 
-Будущая priority ограниченного cognitive processing. `DU-19`.
+Будущая admission/retention/forgetting/replay/consolidation semantics поверх Memory Core. `DU-20`.
 
 ## Workspace
 
