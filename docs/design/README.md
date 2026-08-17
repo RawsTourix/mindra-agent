@@ -6,7 +6,7 @@
 
 Здесь фиксируются принятые семантики, invariants, границы модулей, internal contracts, архитектурные решения и будущие version plans.
 
-На текущем этапе сформирован documentation foundation и приняты `DU-01` … `DU-07`. Детальные subsystem design добавляются последовательно после отдельного исследования вариантов.
+На текущем этапе сформирован documentation foundation и приняты `DU-01` … `DU-08`. Детальные subsystem design добавляются последовательно после отдельного исследования вариантов.
 
 ---
 
@@ -46,7 +46,8 @@ Research evidence не переписывает design напрямую: про�
 
 ## Спроектированные subsystem boundaries
 
-- [`modules/environment.md`](modules/environment.md) — `DU-07`: общий Environment contract, Agent Interaction Plane/Research Plane, hidden/raw/task/feedback boundaries, snapshot/clone/fork, procedural generation, distributions и reference `MicroWorld`.
+- [`modules/environment.md`](modules/environment.md) — `DU-07`: общий Environment contract, Agent Interaction Plane/Research Plane, hidden/raw/task/feedback boundaries, snapshot/clone/fork, procedural generation, distributions и reference `MicroWorld`;
+- [`modules/perception.md`](modules/perception.md) — `DU-08`: Perception boundary, `Canonical Percept`, structured Semantic Core, optional Feature Views, entity/missingness semantics, representation versioning/drift и Cortex/no-Cortex independence.
 
 ## Карта модулей
 
@@ -54,7 +55,7 @@ Research evidence не переписывает design напрямую: про�
 
 Наличие области в карте не означает, что отдельный модуль уже принят. Соответствующий Design Update может объединить, разделить, отложить или отвергнуть кандидатную ответственность.
 
-`Environment` уже имеет accepted semantic design в [`modules/environment.md`](modules/environment.md); остальные области карты проектируются последовательно.
+`Environment` и `Perception / Representation` уже имеют accepted semantic design в отдельных документах; остальные области карты проектируются последовательно.
 
 ## Decision records
 
@@ -65,14 +66,16 @@ Research evidence не переписывает design напрямую: про�
 - [`ADR-0004`](decisions/ADR-0004-versioned-committed-cognitive-state.md) — versioned committed CognitiveState, staged owner-scoped updates и запрет hidden mutable bus semantics;
 - [`ADR-0005`](decisions/ADR-0005-wave-scheduled-module-protocol.md) — declared DAG scheduling, execution waves и atomic public/private module commit;
 - [`ADR-0006`](decisions/ADR-0006-separated-evidence-plane-and-intervention-gateway.md) — passive Evidence Plane отдельно от privileged Intervention Gateway;
-- [`ADR-0007`](decisions/ADR-0007-two-plane-environment-boundary.md) — agent-visible Environment interaction отдельно от research-only world control/snapshot/intervention.
+- [`ADR-0007`](decisions/ADR-0007-two-plane-environment-boundary.md) — agent-visible Environment interaction отдельно от research-only world control/snapshot/intervention;
+- [`ADR-0008`](decisions/ADR-0008-hybrid-canonical-percept.md) — structured Semantic Core + optional revisioned Feature Views вместо одного universal latent/Cortex hidden space.
 
 ## Candidate / exact internal contracts
 
 - [`contracts/README.md`](contracts/README.md);
-- [`contracts/environment.md`](contracts/environment.md) — candidate Environment capability/data contract после `DU-07`; exact Python API ещё не frozen.
+- [`contracts/environment.md`](contracts/environment.md) — candidate Environment capability/data contract после `DU-07`;
+- [`contracts/perception.md`](contracts/perception.md) — candidate Perception/Canonical Percept contract после `DU-08`.
 
-Semantic `CognitiveState`, module lifecycle, research observability/intervention и Environment boundaries уже определены, но общий exact machine-facing Python contract set намеренно не фиксируется до дальнейшего design pressure и contract freeze.
+Оба candidate contract определяют semantic machine-facing requirements, но exact Python API ещё не frozen.
 
 ## Versions
 
@@ -97,7 +100,7 @@ Semantic `CognitiveState`, module lifecycle, research observability/intervention
 
 Канонический порядок: [`documentation-plan.md`](documentation-plan.md).
 
-Текущий следующий update: `DU-08 — Perception / Canonical Representation`.
+Текущий следующий update: `DU-09 — Goal System`.
 
 ---
 
@@ -161,7 +164,7 @@ Implementation-ready design должен минимизировать архит
 
 # 7. Текущая граница
 
-Приняты `DU-01` … `DU-07`, но пока не существует accepted detailed cognitive module design, frozen exact module contract или version roadmap.
+Приняты `DU-01` … `DU-08`, но пока не существует frozen exact module contract или version roadmap.
 
 Канонически уже зафиксированы:
 
@@ -177,29 +180,28 @@ Implementation-ready design должен минимизировать архит
 - committed state revision семантически неизменяема;
 - canonical writes имеют однозначного semantic owner;
 - state availability/freshness и provenance являются частью семантики;
-- private causally relevant state не должно скрываться от будущих snapshot/reproducibility requirements;
 - module execution order выводится из declared dependencies/freshness/phase constraints;
 - instantaneous scheduler graph является DAG;
 - independent ready modules исполняются через snapshot-consistent execution waves;
 - public и causally relevant private effects согласуются через atomic commit semantics;
-- scheduler mechanics принадлежат Agent runtime core, но не являются когнитивным модулем;
-- future Executive Control не сможет обходить scheduler/contracts/commit boundaries;
 - passive observability отделена от active intervention;
-- trace обязан различать computation attempt и committed effect;
-- private-state inspection проходит через declared research probe, а не mutable object access;
-- intervention имеет отдельные target/base/provenance semantics и не меняет semantic owner;
-- confirmatory causal experiments по умолчанию предпочитают fork от committed base;
-- raw/backend activation access является opt-in research capability, а не универсальным контрактом;
-- intervened data не смешивается с natural experience без явного design;
+- private-state inspection проходит через declared research probe;
 - Environment Agent Interaction Plane отделён от research-only ground truth/control plane;
-- Raw Observation не равен canonical internal representation;
+- `Raw Observation` не равен canonical internal representation;
 - External Task Specification не равен internal Goal state;
 - External Task Feedback, Objective Task Metric и Internal Utility различаются;
 - Environment exact snapshot включает causally relevant hidden state и RNG;
-- seed сам по себе не является достаточной world identity;
-- procedural generation должна быть factorized/versioned и поддерживать held-out distributions;
-- `MicroWorld` принят как reference 2D symbolic Environment family, но не как универсальное определение Environment.
+- `MicroWorld` является reference Environment, а не внутренним schema MINDRA;
+- `Canonical Percept` состоит из structured Semantic Core и optional Feature Views;
+- один universal learned latent не является canonical inter-module representation;
+- Semantic Core описывает current observation, а не Memory/World Model belief;
+- entity order не несёт смысла по умолчанию, persistent object identity не выдаётся бесплатно;
+- direct/normalized/perceptually inferred perceptual facts различаются provenance;
+- missingness/modality availability являются explicit semantics;
+- learned feature spaces имеют identity/revision и могут drift;
+- Cortex hidden space не определяет Perception contract;
+- no-Cortex configuration остаётся архитектурно полноценной.
 
-Обсуждавшиеся ранее Qwen, TensorDict, PPO, Dreamer, RND, ICM, FAISS, PEFT/LoRA, Colab, OpenTelemetry, pyvene, Gymnasium и другие технологии являются кандидатами для будущего анализа/adapter implementation, но не каноническими требованиями.
+Обсуждавшиеся ранее Qwen, TensorDict, PPO, Dreamer, RND, ICM, FAISS, PEFT/LoRA, Colab, OpenTelemetry, pyvene, Gymnasium, Slot Attention, GNN/Set Transformer/Perceiver и другие технологии являются кандидатами/evidence для будущего анализа, но не каноническими implementation requirements.
 
 Фактический статус: [`current.md`](current.md).
