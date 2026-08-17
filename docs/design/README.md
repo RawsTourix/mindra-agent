@@ -6,7 +6,7 @@
 
 Здесь фиксируются принятые семантики, invariants, границы модулей, internal contracts, архитектурные решения и будущие version plans.
 
-На текущем этапе сформирован documentation foundation и приняты `DU-01` … `DU-13`. Детальные subsystem design добавляются последовательно после отдельного исследования вариантов.
+На текущем этапе сформирован documentation foundation и приняты `DU-01` … `DU-14`. Детальные subsystem design добавляются последовательно после отдельного исследования вариантов.
 
 ---
 
@@ -52,22 +52,23 @@ Research evidence не переписывает design напрямую: про�
 - [`modules/cortex.md`](modules/cortex.md) — `DU-10`: Cortex Gateway и backend-neutral capability boundary;
 - [`modules/memory.md`](modules/memory.md) — `DU-11`: canonical Memory Store, MemoryRecord, derived representations/indexes и explicit retrieval boundary;
 - [`modules/world-model.md`](modules/world-model.md) — `DU-12`: World Belief, assimilation, action-conditioned prediction, imagination, uncertainty и prediction-error boundary;
-- [`modules/self-model.md`](modules/self-model.md) — `DU-13`: capability facts, context-conditioned competence, calibrated Self Prediction и self-change semantics.
+- [`modules/self-model.md`](modules/self-model.md) — `DU-13`: capability facts, context-conditioned competence, calibrated Self Prediction и self-change semantics;
+- [`modules/intrinsic-signals.md`](modules/intrinsic-signals.md) — `DU-14`: typed multi-provider Intrinsic Signal Layer без обязательного intrinsic reward/scalarization.
 
 ## Карта модулей
 
 - [`modules/README.md`](modules/README.md) — предварительная карта архитектурных областей.
 
-`Environment`, `Perception`, `Goal System`, `Cortex`, `Memory Core`, `World Model` и `Self Model` уже имеют accepted semantic design. Остальные области проектируются последовательно.
+`Environment`, `Perception`, `Goal System`, `Cortex`, `Memory Core`, `World Model`, `Self Model` и `Intrinsic Signals` уже имеют accepted semantic design. Остальные области проектируются последовательно.
 
 ## Decision records
 
 - [`decisions/README.md`](decisions/README.md);
-- `ADR-0001` … `ADR-0013` — accepted.
+- `ADR-0001` … `ADR-0014` — accepted.
 
 Последнее решение:
 
-- [`ADR-0013`](decisions/ADR-0013-hybrid-functional-self-model.md) — hybrid functional Self Model: self-observable capability facts отдельно от learned competence и calibrated predictions.
+- [`ADR-0014`](decisions/ADR-0014-multi-provider-intrinsic-signal-layer.md) — independent typed Intrinsic Signal Providers без обязательной scalarization.
 
 ## Candidate / exact internal contracts
 
@@ -78,7 +79,8 @@ Research evidence не переписывает design напрямую: про�
 - [`contracts/cortex.md`](contracts/cortex.md);
 - [`contracts/memory.md`](contracts/memory.md);
 - [`contracts/world-model.md`](contracts/world-model.md);
-- [`contracts/self-model.md`](contracts/self-model.md).
+- [`contracts/self-model.md`](contracts/self-model.md);
+- [`contracts/intrinsic-signals.md`](contracts/intrinsic-signals.md).
 
 Candidate contracts определяют semantic machine-facing requirements, но exact Python API ещё не frozen.
 
@@ -105,7 +107,7 @@ Candidate contracts определяют semantic machine-facing requirements, �
 
 Канонический порядок: [`documentation-plan.md`](documentation-plan.md).
 
-Текущий следующий update: `DU-14 — Intrinsic Signals`.
+Текущий следующий update: `DU-15 — Drives`.
 
 ---
 
@@ -122,7 +124,7 @@ Candidate contracts определяют semantic machine-facing requirements, �
 5. diagnostic/evaluation strategy;
 6. функциональную роль, не дублирующую соседнюю.
 
-`Cortex` принят как shared capability boundary. `Memory Core`, `World Model` и `Self Model` являются отдельными agent-owned responsibilities с независимо проверяемыми ролями.
+`Cortex` принят как shared capability boundary. `Intrinsic Signals` приняты как семейство независимо конфигурируемых providers, а не как один обязательный монолитный cognitive module.
 
 ---
 
@@ -131,29 +133,25 @@ Candidate contracts определяют semantic machine-facing requirements, �
 В дополнение к предыдущим DU теперь зафиксировано:
 
 ```text
-MemoryRecord ≠ embedding/index entry
-Canonical Percept ≠ World Belief ≠ World Prediction
-World Prediction ≠ observed fact
-Imagined Transition ≠ Environment Transition
-prediction error ≠ reward / intrinsic utility
-predictive uncertainty ≠ risk / value
-Agent Capability Fact ≠ Learned Competence Estimate ≠ Self Prediction
-P(success) ≠ uncertainty/support самой self-estimate
-Self Model ≠ Cortex self-report ≠ Executive Control
+Intrinsic Signal ≠ Reward ≠ Drive ≠ Utility/Value
+prediction discrepancy ≠ predictive surprisal ≠ novelty
+novelty ≠ visitation rarity
+information gain ≠ arbitrary uncertainty reduction
+higher signal magnitude ≠ greater desirability
 ```
 
-- Self Model использует versioned self-observable capability facts и causal Self Evidence;
-- capability availability не означает competence;
-- competence context/domain-conditioned, а не один global scalar;
-- вероятность успеха требует explicit target/horizon/context;
-- calibration является отдельным проверяемым свойством;
-- evaluator-only truth не становится natural self-evidence;
-- behavior-relevant Agent revision может сделать старые competence estimates stale;
-- Self Model оценивает, но не принимает metacognitive/behavior decisions;
-- Cortex self-report остаётся optional derived evidence;
-- exact Agent snapshot обязан учитывать causally relevant Self Model state;
-- `NoSelfModel`, Dummy и Control configurations различаются.
+- Intrinsic Signals выводятся только из explicit causal sources;
+- разные signal families сохраняют отдельные semantics/provider identity;
+- общего mandatory `intrinsic_reward` нет;
+- prediction error не становится curiosity/value автоматически;
+- information gain допускается только при meaningful before/after knowledge semantics;
+- competence change сохраняет signed meaning до downstream interpretation;
+- novelty/rarity имеют reference scope/history/representation identity;
+- replay/imagined/intervened signals не выдаются за natural actual-experience signals;
+- representation/normalization/provider revisions входят в provenance;
+- stateful providers входят в exact Agent snapshot;
+- `NoIntrinsicSignals`, Dummy и Control providers различаются.
 
-Concrete calibration/competence estimator, task taxonomy и Self Model training algorithm остаются candidate implementation choices.
+RND, ICM, VIME, NGU, RIDE, Plan2Explore, pseudo-count и конкретные normalization formulas являются candidate implementations/evidence, но не canonical requirements.
 
 Фактический статус: [`current.md`](current.md).
