@@ -4,9 +4,9 @@
 
 `docs/design/` — каноническое место архитектурной документации MINDRA.
 
-Здесь фиксируются принятые семантики, invariants, cognitive/runtime/data/training/reproducibility/evaluation boundaries, contracts, ADR и будущие version plans.
+Здесь фиксируются принятые семантики, invariants, cognitive/runtime/data/training/reproducibility/evaluation/testing boundaries, contracts, ADR и будущие version plans.
 
-На текущем этапе приняты `DU-01 … DU-28`. Реализация ещё не начата.
+На текущем этапе приняты `DU-01 … DU-29`. Реализация ещё не начата.
 
 ---
 
@@ -28,7 +28,7 @@
 - [`module-lifecycle.md`](module-lifecycle.md) — `DU-05`
 - [`observability-and-intervention.md`](observability-and-intervention.md) — `DU-06`
 
-## Принятые cognitive/runtime subsystem boundaries
+## Cognitive/runtime subsystem boundaries
 
 - [`modules/environment.md`](modules/environment.md) — `DU-07`
 - [`modules/perception.md`](modules/perception.md) — `DU-08`
@@ -53,28 +53,32 @@
 
 ## Experience / Data Plane
 
-- [`experience-data-replay.md`](experience-data-replay.md) — `DU-25`: append-only causal `Experience Journal`, derived projections/samples и Training Replay provenance.
+- [`experience-data-replay.md`](experience-data-replay.md) — `DU-25`.
 
 ## Training Plane
 
-- [`training-lifecycle.md`](training-lifecycle.md) — `DU-26`: external Training Runtime, pinned base revisions, explicit objectives/gradient flow, candidate revisions, validation и atomic activation.
+- [`training-lifecycle.md`](training-lifecycle.md) — `DU-26`.
 
 ## Checkpoint / Reproducibility / Compute Plane
 
-- [`checkpoint-reproducibility-compute.md`](checkpoint-reproducibility-compute.md) — `DU-27`: manifest-driven checkpoint, causal capture/restore, reproducibility claims, software/hardware/compute manifests.
+- [`checkpoint-reproducibility-compute.md`](checkpoint-reproducibility-compute.md) — `DU-27`.
 
 ## Evaluation Plane
 
-- [`mindra-eval.md`](mindra-eval.md) — `DU-28`: versioned evaluation studies/conditions, matched controls, paired interventions, typed metrics, statistical protocol, module gates и compute-normalized attribution.
+- [`mindra-eval.md`](mindra-eval.md) — `DU-28`.
+
+## Engineering Verification Plane
+
+- [`engineering-testing.md`](engineering-testing.md) — `DU-29`: VerificationObligation/Matrix, layered architecture/contract/property/state-machine/fault/persistence tests и CI verification gates.
 
 ## Decisions
 
 - [`decisions/README.md`](decisions/README.md)
-- `ADR-0001 … ADR-0028` — accepted.
+- `ADR-0001 … ADR-0029` — accepted.
 
 Последнее решение:
 
-- [`ADR-0028`](decisions/ADR-0028-multi-layer-causal-evaluation-harness.md) — multi-layer causal Evaluation Harness вместо universal leaderboard score.
+- [`ADR-0029`](decisions/ADR-0029-layered-invariant-driven-engineering-verification.md) — layered invariant-driven Engineering Verification вместо test-suite-by-convention.
 
 ## Candidate contracts
 
@@ -82,7 +86,7 @@
 
 Последний добавленный contract:
 
-- [`contracts/mindra-eval.md`](contracts/mindra-eval.md).
+- [`contracts/engineering-testing.md`](contracts/engineering-testing.md).
 
 Exact Python API ещё не frozen.
 
@@ -92,42 +96,38 @@ Exact Python API ещё не frozen.
 
 `DU-xx` — самостоятельный архитектурный documentation update, а не software version.
 
-Каждый DU закрывает ограниченный scope, исследует альтернативы, фиксирует responsibilities/invariants, создаёт ADR при существенном выборе и заканчивается consistency review.
-
 Канонический порядок: [`documentation-plan.md`](documentation-plan.md).
 
 Текущий следующий update:
 
 ```text
-DU-29 — Engineering Testing
+DU-30 — Research Claims / Limitations
 ```
 
 ---
 
-# Ключевые инварианты после DU-28
+# Ключевые инварианты после DU-29
 
 ```text
-Evaluation Runtime ≠ Agent cognition
-Task score ≠ module/causal/calibration evidence
-EvaluationCondition ≠ architecture name only
-nested episode ≠ independent training replicate
-ablation ≠ matched semantic control
-Policy pre-Gate quality ≠ post-Gate system quality
-actual compute evidence ≠ nominal resource budget
-invalid/censored/execution_unknown ≠ ordinary failure
+Engineering Testing ≠ MINDRA-Eval
+VerificationObligation ≠ ordinary test case
+line coverage ≠ architectural invariant coverage
+skipped/quarantined ≠ verified pass
+seed ≠ deterministic equality contract
+Test Oracle ≠ Agent-visible input
+fault injector ≠ production Service Locator
 ```
 
-- evaluation condition pin'ит checkpoint/world/revisions/resources/data/software/hardware context;
-- confirmatory primary hypothesis/metrics/statistical plan фиксируются до просмотра outcome;
-- stochastic claims требуют distribution/uncertainty evidence;
-- experimental/statistical unit и replicate nesting explicit;
-- paired causal branches требуют достаточного `DU-27` restore level;
-- evaluator Ground Truth остаётся privileged;
-- composite score optional и сохраняет lineage source metrics;
-- `Affect`, `Workspace`, `Planner`, `Executive Control` имеют explicit negative gates;
-- Policy, Action Gate и final system behavior оцениваются раздельно;
-- compute/data/context/tuning differences входят в attribution;
-- strength research claim не превышает strength evidence;
-- concrete benchmark/statistics/plotting implementation не выбран.
+- accepted engineering invariants имеют explicit verification status;
+- `VerificationMatrix` связывает design/ADR/contracts с test evidence;
+- architecture/unit/conformance/property/state-machine/integration/fault/round-trip/migration layers различаются;
+- failure semantics тестируются намеренно;
+- replaceable implementations и controls имеют capability-aware conformance profiles;
+- ownership/staleness/atomic commits и cross-plane leakage получают отдельные checks;
+- action lifecycle, training activation и checkpoint restore требуют stateful/fault testing;
+- golden artifacts ограничены deterministic stable contract surfaces;
+- flaky/quarantine policy не скрывает unresolved correctness;
+- CI tiers/gates семантически определены без выбора provider;
+- concrete pytest/Hypothesis/Import Linter/coverage/mutation/CI implementation не выбран.
 
 Фактический статус: [`current.md`](current.md).
