@@ -22,7 +22,8 @@
 - [`appraisal.md`](appraisal.md) — multidimensional Appraisal после `DU-16`;
 - [`affect.md`](affect.md) — persistent Affect dynamics после `DU-17`;
 - [`valuation.md`](valuation.md) — ValueProfile/ComparisonPolicy/Risk/Constraint semantics после `DU-18`;
-- [`salience.md`](salience.md) — SalienceTarget/Profile, explicit AttentionBudget, AllocationPolicy и AttentionAllocation после `DU-19`.
+- [`salience.md`](salience.md) — SalienceTarget/Profile, explicit AttentionBudget, AllocationPolicy и AttentionAllocation после `DU-19`;
+- [`memory-regulation.md`](memory-regulation.md) — MemoryBudget, regulation profiles/policies, lifecycle decisions, replay/reactivation и source-preserving consolidation после `DU-20`.
 
 ---
 
@@ -62,34 +63,45 @@ Appraisal ≠ emotion/value/Affect
 Affect ≠ emotion label/Drive/value
 ValueProfile ≠ mandatory scalar/reward/Policy decision
 SalienceProfile ≠ AttentionAllocation ≠ Workspace/Executive/Policy decision
+Memory Core validation ≠ Regulation admission
+Forgetting ≠ physical deletion
+SalienceProfile ≠ Memory retention decision
+Memory Replay ≠ Training Replay
+Consolidation ≠ in-place rewrite ≠ Learning Update
 ```
 
-Для Salience дополнительно:
+Для Memory Regulation дополнительно:
 
-- candidate set должен быть explicit;
-- purpose/context должен быть explicit;
-- scalar salience не обязателен;
-- budget приходит от consumer/context;
-- Cortex attention weights не реализуют Salience автоматически;
-- Salience не выполняет Memory retrieval/retention, Workspace admission, Cortex invocation или final action selection.
+- canonical Memory Store по-прежнему имеет одного owner — Memory Core;
+- regulation policy формирует decisions/proposals, но не мутирует Store напрямую;
+- admission/retention/eviction/replay/consolidation являются разными purposes;
+- raw/source provenance сохраняется при derivation;
+- derived semantic memory является новым `MemoryRecord`, а не переписанным source record;
+- consolidation может быть deferred/disabled;
+- usage/retrieval count не является automatic importance;
+- logical aging не следует из GPU/network/wall-clock задержки;
+- optimizer/slow-weight learning остаётся downstream Training responsibility.
 
 ---
 
 # Текущий статус
 
-После `DU-04 … DU-19` semantic requirements приняты, но **общий exact Python contract set намеренно не frozen**.
+После `DU-04 … DU-20` semantic requirements приняты, но **общий exact Python contract set намеренно не frozen**.
 
-`salience.md` остаётся candidate до `DU-20 … DU-23` и downstream Data/Training/Checkpoint/Evaluation integration.
+`memory-regulation.md` остаётся candidate до Workspace/Executive/Policy и downstream Data/Training/Checkpoint/Evaluation integration.
 
 До contract freeze нельзя считать каноническими:
 
 - `Protocol`/ABC/dataclass/TensorDict/Pydantic;
-- конкретные target/purpose enum;
-- weighted salience formula;
-- top-K/softmax/threshold policy;
-- neural router;
-- physical compute units;
-- Workspace/Executive/Memory Regulation API.
+- concrete lifecycle enum;
+- universal memory-importance scalar;
+- FIFO/LRU/top-K как default;
+- forgetting curve;
+- replay-priority formula;
+- consolidation LLM/prompt/clustering;
+- generative replay;
+- learned retention policy;
+- Training Replay/optimizer integration.
 
 ---
 
