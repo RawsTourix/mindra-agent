@@ -30,7 +30,7 @@
 6. релевантные canonical design owners;
 7. релевантные accepted/non-superseded ADR;
 8. релевантные candidate contracts;
-9. датированный research pass, если текущий DU использовал внешний literature/tooling landscape.
+9. датированный research/tool pass, если текущий DU использовал внешний landscape.
 
 ## Перед будущей реализацией
 
@@ -57,7 +57,7 @@ Concept
 Design ≠ Implementation ≠ Engineering Testing ≠ Research Evidence
 ```
 
-Research result, противоречащий design, инициирует review/ADR, а не молча переписывает архитектуру.
+Research/engineering evidence инициирует review/ADR при необходимости, но не переписывает architecture автоматически.
 
 ---
 
@@ -69,41 +69,41 @@ Research result, противоречащий design, инициирует revie
 
 # Исследовательский журнал
 
-Датированные literature/research pass хранятся в [`research/`](research/). Future hypotheses/experiments/results хранятся отдельно от canonical design.
+Датированные literature/research/tool pass хранятся в [`research/`](research/). Future hypotheses/experiments/results хранятся отдельно от canonical design.
 
 ---
 
 # Experience / Data Plane
 
-После `DU-25` source experience, Agent Memory, Training Samples и Training Replay являются разными слоями:
-
-- [`design/experience-data-replay.md`](design/experience-data-replay.md);
-- [`design/contracts/experience-data-replay.md`](design/contracts/experience-data-replay.md);
-- [`design/decisions/ADR-0025-causal-experience-journal-derived-projections.md`](design/decisions/ADR-0025-causal-experience-journal-derived-projections.md).
+- [`design/experience-data-replay.md`](design/experience-data-replay.md) — `DU-25`.
 
 # Training Plane
 
-После `DU-26` Training Runtime отделён от cognition и работает через pinned base revision → candidate → validation → activation:
-
-- [`design/training-lifecycle.md`](design/training-lifecycle.md);
-- [`design/contracts/training-lifecycle.md`](design/contracts/training-lifecycle.md);
-- [`design/decisions/ADR-0026-candidate-revision-validated-activation-training-lifecycle.md`](design/decisions/ADR-0026-candidate-revision-validated-activation-training-lifecycle.md).
+- [`design/training-lifecycle.md`](design/training-lifecycle.md) — `DU-26`.
 
 # Checkpoint / Reproducibility / Compute Plane
 
-После `DU-27` checkpoint является manifest-driven causal artifact set с explicit scope/restore/reproducibility/compute semantics:
-
-- [`design/checkpoint-reproducibility-compute.md`](design/checkpoint-reproducibility-compute.md);
-- [`design/contracts/checkpoint-reproducibility-compute.md`](design/contracts/checkpoint-reproducibility-compute.md);
-- [`design/decisions/ADR-0027-manifest-driven-causal-checkpoint-restore.md`](design/decisions/ADR-0027-manifest-driven-causal-checkpoint-restore.md).
+- [`design/checkpoint-reproducibility-compute.md`](design/checkpoint-reproducibility-compute.md) — `DU-27`.
 
 # Evaluation Plane
 
-После `DU-28` MINDRA-Eval отделён от Agent cognition и строит fully specified conditions, controls/interventions, typed metrics и statistical evidence:
+- [`design/mindra-eval.md`](design/mindra-eval.md) — `DU-28`.
 
-- [`design/mindra-eval.md`](design/mindra-eval.md);
-- [`design/contracts/mindra-eval.md`](design/contracts/mindra-eval.md);
-- [`design/decisions/ADR-0028-multi-layer-causal-evaluation-harness.md`](design/decisions/ADR-0028-multi-layer-causal-evaluation-harness.md).
+# Engineering Verification Plane
+
+После `DU-29` implementation correctness проверяется через versioned `VerificationObligation/VerificationMatrix`, layered conformance/property/state-machine/fault/persistence tests и CI verification gates:
+
+- [`design/engineering-testing.md`](design/engineering-testing.md);
+- [`design/contracts/engineering-testing.md`](design/contracts/engineering-testing.md);
+- [`design/decisions/ADR-0029-layered-invariant-driven-engineering-verification.md`](design/decisions/ADR-0029-layered-invariant-driven-engineering-verification.md).
+
+Ключевое различие:
+
+```text
+Engineering Testing
+≠
+MINDRA-Eval
+```
 
 ---
 
@@ -111,6 +111,6 @@ Research result, противоречащий design, инициирует revie
 
 Проект находится на стадии **последовательного канонического архитектурного проектирования**.
 
-`DU-01 … DU-28` приняты. Следующий допустимый этап определяется только [`design/current.md`](design/current.md); полный порядок задан в [`design/documentation-plan.md`](design/documentation-plan.md).
+`DU-01 … DU-29` приняты. Следующий допустимый этап определяется только [`design/current.md`](design/current.md); полный порядок задан в [`design/documentation-plan.md`](design/documentation-plan.md).
 
 Production/research implementation, exact contract freeze, version roadmap и implementation sequences ещё не начаты.
