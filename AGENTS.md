@@ -60,6 +60,7 @@ Research result меняет architecture только через design review/
 | Salience | `docs/design/modules/salience.md` | `docs/design/contracts/salience.md` | `ADR-0019` |
 | Memory Regulation | `docs/design/modules/memory-regulation.md` | `docs/design/contracts/memory-regulation.md` | `ADR-0020` |
 | Workspace | `docs/design/modules/workspace.md` | `docs/design/contracts/workspace.md` | `ADR-0021` |
+| Executive Control | `docs/design/modules/executive-control.md` | `docs/design/contracts/executive-control.md` | `ADR-0022` |
 
 Следующий разрешённый DU брать только из `docs/design/current.md`.
 
@@ -86,14 +87,15 @@ Retrieval ≠ Agent Memory Replay ≠ Training Replay
 Consolidation ≠ in-place rewrite ≠ Learning Update
 CognitiveState ≠ Workspace
 published state ≠ Workspace admission
-SalienceProfile/AttentionAllocation ≠ Workspace admission
-WorkspaceBudget ≠ AttentionBudget ≠ MemoryBudget ≠ Executive budget
-WorkspaceItem ≠ source truth
 Workspace ≠ Memory ≠ Cortex context
-Workspace eviction ≠ Memory forgetting
 broadcast ≠ callback/module execution
-imagined Workspace ≠ real Workspace
-Workspace ≠ Policy/Executive Control
+Executive Control ≠ Cognitive Scheduler
+Executive Control ≠ Policy / Planner
+Internal MetaAction ≠ Environment Action
+MetaActionProposal ≠ executed operation
+ExecutiveDecision ≠ direct provider/service call
+resource estimate ≠ reservation ≠ actual consumption
+Executive yield ≠ Action Commit
 ```
 
 ## Memory Regulation safeguards
@@ -115,50 +117,60 @@ Workspace ≠ Policy/Executive Control
 
 До пересмотра `DU-21`:
 
-- Workspace не является alias `CognitiveState` и не заменяет dependency contracts;
+- Workspace не является alias `CognitiveState`;
 - Workspace работает только с explicit proposals/candidates;
 - producers не мутируют Workspace напрямую;
-- capacity/bandwidth explicit; unbounded buffer не считается эквивалентным Workspace автоматически;
-- Salience/AttentionAllocation — evidence/hint, а не готовое admission decision;
-- Workspace AdmissionPolicy versioned и отдельна;
-- `WorkspaceItem` сохраняет source ref/revision/provenance/authority;
-- admission/compression не превращает prediction/retrieval/Cortex inference в observed fact;
-- source update не переписывает admitted item задним числом;
-- consumer access должен быть declared; Workspace не ambient global dictionary;
-- broadcast означает read availability, а не callback, interrupt или automatic module invocation;
-- Workspace не меняет scheduler graph;
+- Salience/AttentionAllocation — evidence, а не admission decision;
+- WorkspaceItem сохраняет source/provenance/authority;
+- consumer access declared;
+- broadcast означает availability, а не callback/automatic invocation;
 - Memory retrieval не попадает в Workspace автоматически;
-- Workspace eviction не удаляет/забывает source MemoryRecord;
-- Workspace не является Cortex prompt; context packing выполняется explicit consumer/Gateway path;
-- Workspace не выбирает Environment action и не владеет Executive compute budget;
-- imagined/branch-local Workspace не мутирует real Workspace автоматически;
-- failure/unavailable нельзя маскировать fake empty Workspace без traced degradation;
+- Workspace eviction не удаляет source memory;
+- Workspace не является Cortex prompt;
+- imagined/branch-local Workspace не мутирует real Workspace;
 - Workspace не считается evidence consciousness.
+
+## Executive Control safeguards
+
+До пересмотра `DU-22`:
+
+- Executive Control не изменяет dependency graph, write authority или atomic commit semantics Scheduler;
+- Executive не является runtime Service Locator и не получает direct handles на Memory/Cortex/World Model/Workspace services;
+- optional work поступает через explicit `MetaActionProposal` + declared `InternalOperationCatalog`;
+- `InternalOperationCatalog` содержит semantic descriptors, а не live provider objects;
+- `ExecutiveDecision` всегда проходит Scheduler/runtime validation до execution;
+- Executive не выбирает Environment action и `yield_to_policy` не является `Action Commit`;
+- Self Model, Salience, Workspace, Valuation и uncertainty являются evidence, а не готовыми control commands;
+- hard `CognitiveResourceEnvelope` не увеличивается Executive самостоятельно;
+- hidden infrastructure quota/latency/GPU telemetry не становится cognitive input без explicit agent-visible contract;
+- estimate, reservation и actual resource consumption не смешиваются;
+- hard budget exhaustion не разрешает hidden extra Cortex/retrieval/rollout calls;
+- Cortex/retrieval/rollout/consolidation не вызываются direct ambient способом;
+- Executive не генерирует чужой semantic payload без proposal boundary: Memory query, Cortex request и rollout target остаются responsibility соответствующего producer/consumer;
+- Goal focus может ссылаться на committed Goals, но не мутирует Goal Graph/lifecycle;
+- Workspace budget/context control не заменяет Workspace AdmissionPolicy;
+- real compute, потраченный на imagination, учитывается в real ledger; simulated future budget остаётся branch-local;
+- fallback/degradation всегда explicit и traced;
+- controller не должен читать весь `CognitiveState` ambient способом — только declared `ExecutiveObservation` projection.
 
 ## Research discipline
 
-Для Workspace минимум сравнивать:
+Для Executive Control минимум сравнивать:
 
 ```text
-Full Workspace
-vs NoWorkspace / DirectReads
-vs Random/Shuffled/Fixed admission
-vs UnboundedWorkspace
-vs WorkspaceWithoutBroadcast
-vs MatchedSharedBuffer
-vs MatchedRecurrentBuffer
+Adaptive Executive
+vs NoExecutive / fixed schedule
+vs FixedBudget
+vs RandomMetaAction
+vs SimpleThreshold
+vs SalienceOnly / uncertainty-only
+vs CostUnaware
+vs MatchedLearnedRouter
 ```
 
-Обязательны capacity sweep и causal checks:
+Обязательны equal/matched actual compute accounting, budget sweeps, operation/stopping distributions, competence/uncertainty/cost interventions, capability degradation tests и controller-overhead accounting.
 
-```text
-admission/broadcast intervention
-→ WorkspaceSnapshot/read access changed
-→ actual downstream processing changed
-→ measurable coordination/behavior effect
-```
-
-Если matched controls объясняют эффект, отдельная Workspace boundary должна быть пересмотрена.
+Positive result не считается доказанным, если adaptive configuration просто использовала больше cognitive resource.
 
 ## Implementation scope
 
