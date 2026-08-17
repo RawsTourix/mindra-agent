@@ -4,7 +4,7 @@
 
 Проект исследует, можно ли построить систему, в которой поведение определяется не только внешней задачей и базовой языковой моделью, но также собственным изменяющимся внутренним состоянием, памятью, моделью мира и себя, внутренними сигналами, drives, appraisal/affect, valuation, управляемым распределением cognitive processing, adaptive Executive Control, явной Policy/Planner boundary и причинно строгой Action Boundary между выбранным намерением и внешним действием.
 
-Отдельные Experience/Data, Training и Checkpoint/Reproducibility/Compute planes сохраняют причинную историю, строят training data, изменяют trainable revisions через explicit candidate → validation → activation lifecycle и фиксируют проверяемые restore/reproducibility/compute conditions, не смешиваясь с ordinary cognition.
+Отдельные Experience/Data, Training, Checkpoint/Reproducibility/Compute и Evaluation planes сохраняют причинную историю, изменяют trainable revisions через explicit candidate → validation → activation lifecycle, обеспечивают scoped restore/reproducibility и проверяют функциональный причинный вклад механизмов при контроле data/compute/base-state условий — не смешиваясь с ordinary cognition.
 
 MINDRA не объявляет целью создание сознания или доказательство субъективного опыта у искусственной системы. Исследуются функционально измеримые механизмы и их причинный вклад в поведение.
 
@@ -12,9 +12,9 @@ MINDRA не объявляет целью создание сознания ил
 
 Проект находится на стадии **канонического архитектурного и исследовательского проектирования**.
 
-Documentation foundation и `DU-01 … DU-27` приняты. Следующий допустимый Design Update всегда указан в [`docs/design/current.md`](docs/design/current.md).
+Documentation foundation и `DU-01 … DU-28` приняты. Следующий допустимый Design Update всегда указан в [`docs/design/current.md`](docs/design/current.md).
 
-Production/research implementation, software versions, exact contract freeze, конкретные algorithms/frameworks, storage/checkpoint backend и Cortex backend ещё не зафиксированы.
+Production/research implementation, software versions, exact contract freeze, конкретные algorithms/frameworks, storage/evaluation/testing backends и Cortex backend ещё не зафиксированы.
 
 ## Основные принципы
 
@@ -25,10 +25,11 @@ Production/research implementation, software versions, exact contract freeze, к
 - immutable source experience + explicit derived data lineage;
 - Training Runtime отдельно от cognition;
 - candidate/validated/activated revisions вместо скрытой live mutation;
-- manifest-driven checkpoint и scoped reproducibility claims вместо `weights + seed`;
-- ablation/control/intervention для каждого существенного механизма;
-- воспроизводимость и compute provenance;
-- разделение Design / Implementation / Research Evidence;
+- manifest-driven checkpoints и scoped reproducibility claims;
+- typed evaluation evidence вместо одного universal score;
+- ablation/control/matched-control/intervention для существенных механизмов;
+- compute/data/context attribution;
+- разделение Design / Implementation / Engineering Testing / Research Evidence;
 - причинная проверка функционального вклада;
 - отсутствие антропоморфных выводов без достаточных оснований.
 
