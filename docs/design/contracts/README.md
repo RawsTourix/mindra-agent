@@ -21,6 +21,7 @@
 - Cortex backend contract;
 - Environment API;
 - Perception/Canonical Percept contract;
+- Goal System/Goal Graph contract;
 - checkpoint format;
 - experiment record format;
 - module state serialization;
@@ -33,9 +34,10 @@
 # Текущие candidate contracts
 
 - [`environment.md`](environment.md) — candidate semantic machine-facing contract после `DU-07`: agent-facing/research-facing Environment operations, snapshot/clone/fork/intervention и transition-evidence requirements;
-- [`perception.md`](perception.md) — candidate semantic contract после `DU-08`: Perception input, `Canonical Percept`, Semantic Core, Feature Views, representation identity/versioning и research capabilities.
+- [`perception.md`](perception.md) — candidate semantic contract после `DU-08`: Perception input, `Canonical Percept`, Semantic Core, Feature Views, representation identity/versioning и research capabilities;
+- [`goals.md`](goals.md) — candidate semantic contract после `DU-09`: Goal Proposal, Committed Goal, Goal Graph, lifecycle/scope, transition authority, progress/priority/commitment и research capabilities.
 
-Оба документа **не** являются frozen Python API и могут уточняться последующими DU до общего contract freeze.
+Эти документы **не** являются frozen Python API и могут уточняться последующими DU до общего contract freeze.
 
 ---
 
@@ -69,6 +71,8 @@ Environment research capability не должна автоматически с�
 
 Perception contract не должен превращать конкретный encoder/Cortex hidden state в универсальный canonical representation.
 
+Goal contract не должен давать Cortex/Planner/Drives прямую mutation authority committed Goal Graph или смешивать structural priority с future dynamic valuation.
+
 ---
 
 # Иерархия
@@ -86,7 +90,7 @@ Exact contract уточняет форму принятой семантики, 
 
 # Текущий статус
 
-После `DU-04` … `DU-08` уже приняты semantic requirements для:
+После `DU-04` … `DU-09` уже приняты semantic requirements для:
 
 - versioned committed `CognitiveState`;
 - state ownership/provenance/scopes;
@@ -108,23 +112,25 @@ Exact contract уточняет форму принятой семантики, 
 - hybrid Semantic Core + optional Feature Views;
 - Perception provenance/missingness/entity ordering semantics;
 - learned representation identity/version/drift;
-- no-Cortex-compatible Perception boundary.
+- no-Cortex-compatible Perception boundary;
+- `External Task Specification` vs internal Goal boundary;
+- Goal Proposal vs Committed Goal;
+- Goal System semantic ownership;
+- Goal Graph/lifecycle/scope/dependency/conflict semantics;
+- structural priority vs future dynamic value;
+- commitment vs focus/value;
+- progress provenance и запрет evaluator-only metric как hidden runtime progress source.
 
 Однако **общий exact Python contract set пока намеренно не зафиксирован**.
 
-`environment.md` остаётся candidate, поскольку `DU-09`, `DU-24`, `DU-25`, `DU-27` и `DU-28` ещё могут уточнить exact task/action/data/snapshot forms.
+`environment.md` остаётся candidate, поскольку `DU-24`, `DU-25`, `DU-27` и `DU-28` ещё могут уточнить exact action/data/snapshot forms.
 
-`perception.md` остаётся candidate, поскольку `DU-09` … `DU-13`, `DU-25` … `DU-28` могут уточнить exact Goal/Cortex/Memory/World Model representation потребности, persistence и evaluation contracts.
+`perception.md` остаётся candidate, поскольку `DU-10` … `DU-13`, `DU-25` … `DU-28` могут уточнить exact Cortex/Memory/World Model representation потребности, persistence и evaluation contracts.
 
-Будущие module-specific Design Updates должны продолжать проверять semantic protocol реальными требованиями. В частности, только они покажут:
+`goals.md` остаётся candidate, поскольку `DU-10`, `DU-12` … `DU-18`, `DU-22`, `DU-23`, `DU-25` … `DU-28` ещё уточнят grounding, feasibility, autonomous proposal, valuation, focus/planning, data и evaluation semantics.
 
-- какие exact public/private probes реально нужны;
-- какие intervention targets являются осмысленными;
-- какие Feature Views действительно нужны downstream modules;
-- где необходимы compatibility adapters между representation revisions;
-- какие данные слишком велики для общего trace contract;
-- какие backend-specific research adapters потребуются.
+Будущие module-specific Design Updates должны продолжать проверять semantic protocol реальными требованиями.
 
-До contract freeze запрещено считать обсуждавшиеся `Protocol`, ABC, TensorDict `in_keys/out_keys`, dataclass schemas, OpenTelemetry span model, PyTorch hooks, pyvene API, Gymnasium `Env`, конкретный Perception encoder или scheduler/intervention result type каноническими.
+До contract freeze запрещено считать обсуждавшиеся `Protocol`, ABC, TensorDict `in_keys/out_keys`, dataclass schemas, OpenTelemetry span model, PyTorch hooks, pyvene API, Gymnasium `Env`, конкретный Perception encoder, graph library или scheduler/intervention result type каноническими.
 
 Exact contracts создаются тогда, когда соответствующая семантика достаточно устойчива и есть основания зафиксировать machine-facing форму.
