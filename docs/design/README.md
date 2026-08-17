@@ -6,7 +6,7 @@
 
 Здесь фиксируются принятые семантики, invariants, границы модулей, internal contracts, архитектурные решения и будущие version plans.
 
-На текущем этапе сформирован documentation foundation и приняты `DU-01` … `DU-08`. Детальные subsystem design добавляются последовательно после отдельного исследования вариантов.
+На текущем этапе сформирован documentation foundation и приняты `DU-01` … `DU-09`. Детальные subsystem design добавляются последовательно после отдельного исследования вариантов.
 
 ---
 
@@ -47,7 +47,8 @@ Research evidence не переписывает design напрямую: про�
 ## Спроектированные subsystem boundaries
 
 - [`modules/environment.md`](modules/environment.md) — `DU-07`: общий Environment contract, Agent Interaction Plane/Research Plane, hidden/raw/task/feedback boundaries, snapshot/clone/fork, procedural generation, distributions и reference `MicroWorld`;
-- [`modules/perception.md`](modules/perception.md) — `DU-08`: Perception boundary, `Canonical Percept`, structured Semantic Core, optional Feature Views, entity/missingness semantics, representation versioning/drift и Cortex/no-Cortex independence.
+- [`modules/perception.md`](modules/perception.md) — `DU-08`: Perception boundary, `Canonical Percept`, structured Semantic Core, optional Feature Views, entity/missingness semantics, representation versioning/drift и Cortex/no-Cortex independence;
+- [`modules/goals.md`](modules/goals.md) — `DU-09`: Goal Proposal, Committed Goal, Goal Graph, lifecycle/scope, subgoal/dependency/conflict semantics, priority/commitment/progress и goal ownership.
 
 ## Карта модулей
 
@@ -55,7 +56,7 @@ Research evidence не переписывает design напрямую: про�
 
 Наличие области в карте не означает, что отдельный модуль уже принят. Соответствующий Design Update может объединить, разделить, отложить или отвергнуть кандидатную ответственность.
 
-`Environment` и `Perception / Representation` уже имеют accepted semantic design в отдельных документах; остальные области карты проектируются последовательно.
+`Environment`, `Perception / Representation` и `Goal System` уже имеют accepted semantic design в отдельных документах; остальные области карты проектируются последовательно.
 
 ## Decision records
 
@@ -67,15 +68,17 @@ Research evidence не переписывает design напрямую: про�
 - [`ADR-0005`](decisions/ADR-0005-wave-scheduled-module-protocol.md) — declared DAG scheduling, execution waves и atomic public/private module commit;
 - [`ADR-0006`](decisions/ADR-0006-separated-evidence-plane-and-intervention-gateway.md) — passive Evidence Plane отдельно от privileged Intervention Gateway;
 - [`ADR-0007`](decisions/ADR-0007-two-plane-environment-boundary.md) — agent-visible Environment interaction отдельно от research-only world control/snapshot/intervention;
-- [`ADR-0008`](decisions/ADR-0008-hybrid-canonical-percept.md) — structured Semantic Core + optional revisioned Feature Views вместо одного universal latent/Cortex hidden space.
+- [`ADR-0008`](decisions/ADR-0008-hybrid-canonical-percept.md) — structured Semantic Core + optional revisioned Feature Views вместо одного universal latent/Cortex hidden space;
+- [`ADR-0009`](decisions/ADR-0009-committed-goal-graph.md) — Goal Proposal → Goal System → Committed Goal Graph; source capability не получает direct ownership Goal state.
 
 ## Candidate / exact internal contracts
 
 - [`contracts/README.md`](contracts/README.md);
 - [`contracts/environment.md`](contracts/environment.md) — candidate Environment capability/data contract после `DU-07`;
-- [`contracts/perception.md`](contracts/perception.md) — candidate Perception/Canonical Percept contract после `DU-08`.
+- [`contracts/perception.md`](contracts/perception.md) — candidate Perception/Canonical Percept contract после `DU-08`;
+- [`contracts/goals.md`](contracts/goals.md) — candidate Goal System/Goal Graph contract после `DU-09`.
 
-Оба candidate contract определяют semantic machine-facing requirements, но exact Python API ещё не frozen.
+Candidate contracts определяют semantic machine-facing requirements, но exact Python API ещё не frozen.
 
 ## Versions
 
@@ -100,7 +103,7 @@ Research evidence не переписывает design напрямую: про�
 
 Канонический порядок: [`documentation-plan.md`](documentation-plan.md).
 
-Текущий следующий update: `DU-09 — Goal System`.
+Текущий следующий update: `DU-10 — Cortex Boundary`.
 
 ---
 
@@ -164,43 +167,37 @@ Implementation-ready design должен минимизировать архит
 
 # 7. Текущая граница
 
-Приняты `DU-01` … `DU-08`, но пока не существует frozen exact module contract или version roadmap.
+Приняты `DU-01` … `DU-09`, но пока не существует frozen exact module contract или version roadmap.
 
 Канонически уже зафиксированы:
 
 - logical architecture boundary не равна deployment topology;
 - hidden concrete dependencies/runtime Service Locator запрещены;
-- runtime feedback cycle не равен static dependency cycle;
 - logical causal time не равно wall-clock;
-- Environment Episode не равно Agent Session;
 - Cognitive Cycle не равно Environment Transition;
-- runtime state update не равно Learning Update;
-- causal replay является архитектурной целью, а bitwise replay — best-effort свойством runtime;
 - `CognitiveState` является canonical shared runtime state, а не всем `Agent-owned state`;
-- committed state revision семантически неизменяема;
-- canonical writes имеют однозначного semantic owner;
-- state availability/freshness и provenance являются частью семантики;
-- module execution order выводится из declared dependencies/freshness/phase constraints;
-- instantaneous scheduler graph является DAG;
-- independent ready modules исполняются через snapshot-consistent execution waves;
-- public и causally relevant private effects согласуются через atomic commit semantics;
+- module execution следует declared DAG/wave semantics;
 - passive observability отделена от active intervention;
-- private-state inspection проходит через declared research probe;
 - Environment Agent Interaction Plane отделён от research-only ground truth/control plane;
 - `Raw Observation` не равен canonical internal representation;
 - External Task Specification не равен internal Goal state;
 - External Task Feedback, Objective Task Metric и Internal Utility различаются;
-- Environment exact snapshot включает causally relevant hidden state и RNG;
-- `MicroWorld` является reference Environment, а не внутренним schema MINDRA;
 - `Canonical Percept` состоит из structured Semantic Core и optional Feature Views;
-- один universal learned latent не является canonical inter-module representation;
-- Semantic Core описывает current observation, а не Memory/World Model belief;
-- entity order не несёт смысла по умолчанию, persistent object identity не выдаётся бесплатно;
-- direct/normalized/perceptually inferred perceptual facts различаются provenance;
-- missingness/modality availability являются explicit semantics;
+- один universal learned latent/Cortex hidden space не является canonical inter-module representation;
+- Perception описывает current observation, а не Memory/World Model belief;
 - learned feature spaces имеют identity/revision и могут drift;
-- Cortex hidden space не определяет Perception contract;
-- no-Cortex configuration остаётся архитектурно полноценной.
+- Goal отделён от reward, drives, value и Policy;
+- `Goal Proposal` не равен `Committed Goal`;
+- Goal System является semantic owner committed Goal state;
+- несколько active goals допустимы;
+- canonical goal structure является Goal Graph, а не обязательный LIFO stack;
+- parent/subgoal/dependency/conflict relations имеют явную semantics;
+- goal lifecycle различает pending/active/suspended и achieved/failed/abandoned/expired/invalidated states;
+- goal scope может переживать Episode reset;
+- structural goal priority отделена от future dynamic Valuation;
+- commitment отделён от priority/value/focus;
+- goal progress не обязан быть scalar `[0,1]` и не использует research-only metric скрыто;
+- Cortex/Planner/Drives могут в будущем предлагать goals, но не получают direct Goal write authority.
 
 Обсуждавшиеся ранее Qwen, TensorDict, PPO, Dreamer, RND, ICM, FAISS, PEFT/LoRA, Colab, OpenTelemetry, pyvene, Gymnasium, Slot Attention, GNN/Set Transformer/Perceiver и другие технологии являются кандидатами/evidence для будущего анализа, но не каноническими implementation requirements.
 
