@@ -8,15 +8,16 @@
 
 # 1. Общий статус
 
-**`DU-01 … DU-25` завершены и приняты. Реализация ещё не начата.**
+**`DU-01 … DU-26` завершены и приняты. Реализация ещё не начата.**
 
 Приняты:
 
 - foundation/system boundaries `DU-01 … DU-06`;
-- cognitive/subsystem boundaries `DU-07 … DU-24`;
-- Experience / Data / Replay;
-- 25 accepted ADR;
-- candidate semantic contracts для subsystem/data boundaries `DU-07 … DU-25`.
+- cognitive/runtime boundaries `DU-07 … DU-24`;
+- Experience / Data / Replay `DU-25`;
+- Training Lifecycle `DU-26`;
+- 26 accepted ADR;
+- candidate semantic contracts для boundaries `DU-07 … DU-26`.
 
 ---
 
@@ -49,123 +50,122 @@ DU-22 — Metacognitive / Executive Control
 DU-23 — Policy / Planner
 DU-24 — Action Boundary / Gate / Executor
 DU-25 — Experience / Data / Replay
+DU-26 — Training Lifecycle
 ```
 
 ---
 
-# 3. DU-25
+# 3. DU-26
 
 Canonical design:
 
-- [`experience-data-replay.md`](experience-data-replay.md)
+- [`training-lifecycle.md`](training-lifecycle.md)
 
 Candidate contract:
 
-- [`contracts/experience-data-replay.md`](contracts/experience-data-replay.md)
+- [`contracts/training-lifecycle.md`](contracts/training-lifecycle.md)
 
 Accepted decision:
 
-- [`ADR-0025`](decisions/ADR-0025-causal-experience-journal-derived-projections.md)
+- [`ADR-0026`](decisions/ADR-0026-candidate-revision-validated-activation-training-lifecycle.md)
 
 Research pass:
 
-- [`../research/literature/DU-25-experience-data-replay-landscape-2026-08.md`](../research/literature/DU-25-experience-data-replay-landscape-2026-08.md)
+- [`../research/literature/DU-26-training-lifecycle-landscape-2026-08.md`](../research/literature/DU-26-training-lifecycle-landscape-2026-08.md)
 
 Главные результаты:
 
 ```text
-TraceEvent
-≠ ExperienceEvent
+Runtime State Update
+≠ Consolidation Event
+≠ Replay Step
+≠ Learning Update
 
-Experience Journal
-≠ Agent runtime state
-≠ Replay Buffer
-≠ Agent Memory
+Training Objective
+≠ Agent Goal
+≠ ValueProfile
 
-Source Experience
-≠ TrainingSample
+CandidateRevisionBundle
+≠ Active AgentRevision
 ```
 
-- source of truth записанного опыта — append-only causal `Experience Journal`;
-- event-sourced именно data plane, а не runtime `CognitiveState`/Agent;
-- physical append order не определяет causal order;
-- stable IDs, causal parent refs и logical scopes являются основой correlation;
-- standard Episode/Decision/Transition/Sequence representations — derived projections;
-- `InteractionTransitionView` допускает `Action Commit` без Environment transition;
-- `execution_unknown`/definite dispatch failure/partial execution не fabricatе fake next state;
-- evaluator-only/Research Ground Truth хранится отдельными `ResearchAnnotationRecord`;
-- inclusion privileged data требует explicit `DataVisibilityPolicy`;
-- actual/imagined/replayed/counterfactual/intervened provenance хранится без комбинаторного смешения;
-- source `agent_revision` и component revisions сохраняются на соответствующих causal events;
-- online action может быть выбран одной Agent revision, а outcome обработан другой — это не скрывается;
-- `DatasetManifest` фиксирует source manifests, schema, transforms, revisions, splits, quality и determinism policy;
-- `TrainingSample` всегда derived и хранит source/transform lineage;
-- hindsight/relabeling/re-encoding не переписывают source experience;
-- Training Replay работает поверх source/derived samples, но replay table не source of truth;
-- `Agent Memory Replay ≠ Training Replay`;
-- replay priority/sampling frequency не становится cognitive importance автоматически;
-- core causal events отделены от heavy artifacts;
-- completeness/integrity является structured property;
-- storage/backend/file format намеренно не выбран.
+- `Training Runtime` находится вне agent-owned cognition;
+- ordinary module `compute()` не выполняет hidden optimizer update;
+- runtime mutable state, trainable parameters и optimizer/trainer state имеют разные ownership semantics;
+- `TrainingPlan` явно pin'ит target components, base revisions, data, visibility, objectives, optimizer и gradient-flow policy;
+- runtime dependency graph не определяет gradient graph;
+- source `TrainingSample`/Replay provenance сохраняется до `LearningUpdateRecord`;
+- Training Objective является внешней optimization semantics и не равен internal Utility/Drive/Intrinsic Signal автоматически;
+- joint и separate optimization оба допустимы, но shared parameter ownership/gradient coupling explicit;
+- frozen Cortex, adapters и частично/полностью trainable Cortex укладываются в одну lifecycle boundary;
+- training создаёт `CandidateRevisionBundle`, который проходит validation до activation;
+- activation новой `agent_revision` происходит на explicit safe causal boundary;
+- in-flight Decision/Cognitive segment сохраняет pinned старую revision;
+- behavior revision и learner revision могут различаться при decoupled online learning;
+- privileged supervision требует explicit training condition;
+- representation drift/Memory downstream compatibility проверяются до activation;
+- continual learning обязан отдельно учитывать forgetting/retention;
+- failed candidate не мутирует live Agent;
+- rollback сохраняет causal history плохого update/activation;
+- concrete optimizer/framework/algorithm/PEFT method намеренно не выбран.
 
 ---
 
 # 4. Следующий допустимый Design Update
 
 ```text
-DU-26 — Training Lifecycle
+DU-27 — Checkpoint / Reproducibility / Compute
 ```
 
-Цель `DU-26` — спроектировать **явную optimization/learning boundary MINDRA** поверх уже принятой data semantics: когда и что можно обучать, кто владеет optimizer state, как формируется Learning Update, как trainable state переходит между revisions и как online/offline learning не нарушает causal runtime.
+Цель `DU-27` — спроектировать **полный воспроизводимый snapshot/checkpoint и compute manifest MINDRA**, способный восстановить не только active Agent, но и causally relevant training/runtime state.
 
 Обязательные вопросы:
 
 ```text
-Training Runtime ownership
-trainable vs runtime/adaptive state
-Learning Objective / Loss composition
-TrainingSample consumption
-batch/sequence/replay semantics
-optimizer state ownership
-parameter/update proposal
-atomic Learning Update
-agent_revision activation
-in-flight cognition under old revision
-online vs offline training
-on-policy vs off-policy provenance
-frozen Cortex vs adapters vs trainable modules
-module-specific optimizers vs joint optimization
-multi-objective losses / loss weighting
-supervised / self-supervised / RL / distillation boundaries
-privileged supervision flags
-replay priorities / importance weights
-representation drift after update
-Memory/World/Self/Policy training interactions
-catastrophic forgetting controls
-rollback/reject failed update
-validation before activation
-RNG / determinism
-training metrics vs agent-visible signals
-checkpoint hooks
-training failure/degradation
+Agent Snapshot vs Checkpoint vs Training Checkpoint
+active/candidate AgentRevision manifests
+component/private state capture
+Memory / Workspace / Executive / Planner / Action Boundary pending state
+World/Self/Drive/Affect/provider RNG states
+optimizer/scheduler/scaler/trainer state
+TrainingPlan/Attempt resume state
+replay/sample cursors
+Environment snapshot/world manifest
+Experience Journal / DatasetManifest refs
+artifact identity / content hashes
+schema/contract/version manifests
+exact vs approximate restore
+full vs incremental/delta checkpoint
+portable vs hardware-specific state
+CPU/GPU/dtype/device migration
+randomness / deterministic algorithms
+framework/library/CUDA/driver/environment manifests
+compute accounting
+Colab/local/remote topology
+checkpoint consistency / two-phase capture
+in-flight action/dispatch/execution_unknown
+checkpoint corruption/integrity
+migration/backward compatibility
+retention/garbage collection
+resume-training vs inference-only checkpoints
+reproducibility claim levels
 ```
 
 Особенно нужно определить:
 
-- `Learning Update ≠ runtime state update ≠ Consolidation Event`;
-- Training Runtime остаётся вне Agent cognition, хотя обновляемые parameters принадлежат Agent;
-- optimizer/loss не должен скрыто жить внутри ordinary module `compute()`;
-- Learning Update создаёт новую `agent_revision`/component revisions и не меняет in-flight computation задним числом;
-- source `TrainingSample` provenance из `DU-25` сохраняется до конкретного update;
-- privileged annotations допустимы только при explicit training condition;
-- один universal optimizer для всех модулей не принимается заранее;
-- Cortex fine-tuning/LoRA/QLoRA, RL, supervised и self-supervised algorithms остаются implementation/version choices до их анализа;
-- update activation/rollback должен быть причинно наблюдаемым.
+- `Agent Snapshot ≠ persistent Checkpoint`;
+- exact counterfactual restore требует всех causally relevant private/RNG states;
+- checkpoint активного Agent и training-resume checkpoint могут иметь разный scope;
+- `DU-26` optimizer/trainer/candidate/activation state должен быть сохраняемым, если заявлен resumable training;
+- content identity и manifests важнее physical file path;
+- hardware/framework nondeterminism не маскируется утверждением «seed одинаковый»;
+- compute budget/usage становится воспроизводимым research metadata, но raw infrastructure telemetry не становится cognition автоматически;
+- concrete serialization/storage backend остаётся implementation choice.
 
-После принятия `DU-26` допускается:
+После принятия `DU-27` допускается:
 
 ```text
-DU-27 — Checkpoint / Reproducibility / Compute
+DU-28 — MINDRA-Eval
 ```
 
 ---
@@ -174,7 +174,6 @@ DU-27 — Checkpoint / Reproducibility / Compute
 
 Пока отсутствуют accepted решения по:
 
-- Training Lifecycle;
 - Checkpoint / Reproducibility / Compute;
 - MINDRA-Eval;
 - Engineering Testing;
