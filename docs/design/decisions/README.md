@@ -2,7 +2,7 @@
 
 ## Назначение
 
-Этот каталог хранит значимые архитектурные решения MINDRA. ADR создаётся, когда выбор влияет на module boundaries, contracts, ownership, runtime/training/evaluation/testing/research-claim semantics или исследовательскую валидность.
+Этот каталог хранит значимые архитектурные решения MINDRA. ADR создаётся, когда выбор влияет на module boundaries, contracts, ownership, runtime/training/evaluation/testing/research-claim semantics, freeze/governance или исследовательскую валидность.
 
 Статусы: `proposed`, `accepted`, `superseded`, `superseded in part`, `rejected`.
 
@@ -44,6 +44,7 @@ Research result не меняет design автоматически: снача�
 - [`ADR-0028`](ADR-0028-multi-layer-causal-evaluation-harness.md) — multi-layer causal Evaluation Harness с fully specified conditions, matched controls, paired interventions, typed metrics и explicit statistical plan вместо universal leaderboard score.
 - [`ADR-0029`](ADR-0029-layered-invariant-driven-engineering-verification.md) — layered invariant-driven Engineering Verification: `VerificationObligation/Matrix`, layered tests, fault/state-machine verification и obligation-aware CI gates.
 - [`ADR-0030`](ADR-0030-versioned-evidence-bounded-research-claims.md) — versioned evidence-bounded Research Claims с explicit scope, limitations/known unknowns, negative evidence и claim lifecycle вместо свободного reporting prose.
+- [`ADR-0031`](ADR-0031-semantic-contract-consistency-freeze.md) — semantic contract consistency freeze `F31`: `DU-01 … DU-30` считаются согласованным baseline, exact API остаётся deferred до version design.
 
 ## Proposed
 
@@ -59,15 +60,32 @@ Research result не меняет design автоматически: снача�
 
 ---
 
+# Freeze status
+
+После `ADR-0031`:
+
+```text
+ADR-0001 … ADR-0030
++
+DU-31 consistency resolutions
+=
+Semantic Freeze Baseline F31
+```
+
+Breaking semantic change после F31 требует нового ADR и обновления freeze baseline.
+
+---
+
 # Правило изменения design
 
 ```text
-research evidence
+research evidence / implementation blocker
 → interpretation/claim review
 → design review
 → ADR
 → canonical design owner
-→ contracts/status/version plans
+→ semantic contract / freeze baseline update
+→ version plans
 → implementation
 ```
 
