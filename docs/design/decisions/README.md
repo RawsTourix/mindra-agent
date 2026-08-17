@@ -74,6 +74,7 @@ Research experiment сам по себе не становится ADR: снач
 - [`ADR-0014 — Многопровайдерный Intrinsic Signal Layer без обязательной scalarization`](ADR-0014-multi-provider-intrinsic-signal-layer.md) — novelty, prediction discrepancy, information gain, competence change и другие signal families остаются typed independent outputs; общий intrinsic reward не является canonical boundary.
 - [`ADR-0015 — Typed stateful Drive System без global motivation scalar`](ADR-0015-typed-stateful-drive-system.md) — persistent typed drive states имеют единый owner, homeostatic и adaptive dynamics остаются разными semantics, cross-drive coupling explicit, а Drive не scalarize мотивацию и не получает Goal/Policy authority.
 - [`ADR-0016 — Event-centered multidimensional Appraisal без обязательной emotion/utility scalarization`](ADR-0016-multidimensional-event-centered-appraisal.md) — Appraisal оценивает causally identified target относительно revisioned Agent context через typed dimensions; emotion label/global valence/utility не являются canonical output.
+- [`ADR-0017 — Typed persistent Affect State с explicit history-dependent dynamics`](ADR-0017-typed-persistent-affect-state.md) — Affect принят как falsifiable persistent temporal-integration boundary поверх Appraisal history; mandatory emotion taxonomy/valence-arousal geometry отклонены, а самостоятельность должна проверяться matched controls.
 
 ## Proposed
 
