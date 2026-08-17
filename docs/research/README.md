@@ -17,7 +17,8 @@ research/
 │   ├── DU-10-cortex-landscape-2026-08.md
 │   ├── ...
 │   ├── DU-25-experience-data-replay-landscape-2026-08.md
-│   └── DU-26-training-lifecycle-landscape-2026-08.md
+│   ├── DU-26-training-lifecycle-landscape-2026-08.md
+│   └── DU-27-checkpoint-reproducibility-compute-landscape-2026-08.md
 ├── hypotheses.md          # появится позже
 ├── experiments/           # появится позже
 ├── results/               # появится позже
@@ -28,13 +29,13 @@ research/
 
 # Literature research pass
 
-Текущие pass `DU-10 … DU-26` находятся в [`literature/`](literature/).
+Текущие pass `DU-10 … DU-27` находятся в [`literature/`](literature/).
 
 Последние:
 
-- [`literature/DU-24-action-boundary-landscape-2026-08.md`](literature/DU-24-action-boundary-landscape-2026-08.md) — shielding/runtime assurance, action lifecycle/correlation, authorization placement и retry/idempotency;
 - [`literature/DU-25-experience-data-replay-landscape-2026-08.md`](literature/DU-25-experience-data-replay-landscape-2026-08.md) — episode-step datasets, replay infrastructure, hindsight relabeling, provenance и source/projection separation;
-- [`literature/DU-26-training-lifecycle-landscape-2026-08.md`](literature/DU-26-training-lifecycle-landscape-2026-08.md) — optimizer/training state ownership, PEFT, actor/learner policy lag, continual forgetting и candidate-revision activation.
+- [`literature/DU-26-training-lifecycle-landscape-2026-08.md`](literature/DU-26-training-lifecycle-landscape-2026-08.md) — optimizer/training state ownership, PEFT, actor/learner policy lag, continual forgetting и candidate-revision activation;
+- [`literature/DU-27-checkpoint-reproducibility-compute-landscape-2026-08.md`](literature/DU-27-checkpoint-reproducibility-compute-landscape-2026-08.md) — reproducibility constraints, training-resume state, RNG, distributed/sharded checkpointing, artifact manifests и compute provenance.
 
 Эти документы **не выбирают** canonical implementation framework/algorithm.
 
@@ -55,47 +56,40 @@ research evidence / experiment result
 
 Для будущих экспериментов заранее фиксировать hypothesis, independent variables, baselines/controls, seeds, environment/data versions, metrics, success/falsification criterion и analysis policy.
 
-Для Training Lifecycle особенно проверять:
+После `DU-27` любой сильный reproducibility claim обязан явно указывать:
 
 ```text
-Frozen / NoLearning
-vs Offline Learning
-vs Interleaved Online Learning
-vs Decoupled Online Learning
+checkpoint / base condition
+restore profile
+software manifest
+hardware/topology manifest
+determinism policy
+RNG state/initialization semantics
+compute manifest
+comparison/statistical criterion
 ```
 
-и, где применимо:
+Обязательные checkpoint/reproducibility проверки:
 
-```text
-independent module training
-vs joint training
+- weights-only vs training-resume distinction;
+- seed-only vs current RNG-state restore;
+- same-stack deterministic continuation where claimed;
+- cross-device portable restore отдельно от bitwise claim;
+- Agent/Environment causal-cut alignment;
+- `execution_unknown` duplicate-effect safety;
+- candidate revision остаётся candidate после restore;
+- artifact corruption/integrity detection;
+- missing delta-base failure;
+- migration lineage;
+- actual vs estimated/provider-reported compute provenance.
 
-frozen Cortex
-vs adapter-only Cortex
-vs larger trainable subset
-```
-
-Обязательные training-validity проверки:
-
-- source sample/behavior revision provenance;
-- base revision pinning;
-- privileged-supervision leakage;
-- new-task improvement отдельно от old-capability retention;
-- candidate validation до activation;
-- representation drift/compatibility;
-- in-flight decision revision stability;
-- off-policy/policy-lag assumptions;
-- optimizer state lineage;
-- actual training compute/data budgets;
-- rollback/rejected-update evidence.
-
-Training improvement не считается чистым результатом algorithm, если он объясняется другим source dataset, privileged labels, большим compute/data budget или другим activation/retention policy.
+Training/evaluation improvement не считается чистым результатом algorithm/module, если condition получила больший фактический compute, другой restore state, другую software/hardware topology или менее строгий determinism/data condition без отдельной attribution.
 
 ---
 
 # Результаты
 
-Любой result должен быть связан с конкретными commit/config/checkpoint/seed/environment version/raw artifacts/dataset manifest/training plan/agent revision/metrics/limitations.
+Любой result должен быть связан с конкретными commit/config/checkpoint/restore profile/seed+RNG policy/environment version/raw artifacts/dataset manifest/training plan/agent revision/software/hardware/compute manifests/metrics/limitations.
 
 Отрицательные результаты сохраняются наравне с положительными.
 
