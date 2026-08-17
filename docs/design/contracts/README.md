@@ -15,6 +15,9 @@
 - `CognitiveState` schema;
 - `ModuleProtocol`;
 - `ModuleDescriptor`;
+- observability event/trace schema;
+- module research probe contract;
+- intervention request/result contract;
 - Cortex backend contract;
 - Environment API;
 - checkpoint format;
@@ -38,6 +41,8 @@ Exact contract должен фиксировать, где применимо:
 - freshness/availability requirements;
 - lifecycle;
 - private-state/snapshot obligations;
+- observability/probe capabilities;
+- intervention target/phase/provenance semantics;
 - error/degradation behavior;
 - versioning;
 - serialization;
@@ -45,6 +50,10 @@ Exact contract должен фиксировать, где применимо:
 - invariants, которые можно проверить автоматическими tests.
 
 Contract не должен протаскивать private implementation detail одного backend во всю систему без design justification.
+
+Research observability contract не должен автоматически давать runtime consumers доступ к private state.
+
+Intervention contract не должен быть скрытым extension обычного logging callback.
 
 ---
 
@@ -63,19 +72,30 @@ Exact contract уточняет форму принятой семантики, 
 
 # Текущий статус
 
-После `DU-04` и `DU-05` уже приняты semantic requirements для:
+После `DU-04` … `DU-06` уже приняты semantic requirements для:
 
 - versioned committed `CognitiveState`;
 - state ownership/provenance/scopes;
 - module descriptors и declared dependencies;
 - DAG/wave scheduling;
 - staged public/private effects;
-- lifecycle/failure semantics.
+- lifecycle/failure semantics;
+- causal execution tracing;
+- passive Evidence Plane;
+- declared private-state research probes;
+- explicit Intervention Gateway;
+- intervention lineage/provenance;
+- exact-vs-approximate counterfactual distinction.
 
 Однако **exact Python contracts пока намеренно не зафиксированы**.
 
-Причина: будущие module-specific Design Updates (`DU-07` … `DU-24`) должны сначала проверить semantic protocol реальными требованиями Environment, Cortex, Memory, World Model, Policy и других подсистем. Это позволит не закрепить слишком ранний API, который придётся ломать после первого же содержательного модуля.
+Причина: будущие module-specific Design Updates (`DU-07` … `DU-24`) должны сначала проверить semantic protocol реальными требованиями Environment, Cortex, Memory, World Model, Policy и других подсистем. В частности, только они покажут:
 
-До contract freeze запрещено считать обсуждавшиеся `Protocol`, ABC, TensorDict `in_keys/out_keys`, dataclass schemas или конкретный scheduler result type каноническими.
+- какие public/private probes реально нужны;
+- какие intervention targets являются осмысленными;
+- какие данные слишком велики для общего trace contract;
+- какие backend-specific research adapters потребуются.
+
+До contract freeze запрещено считать обсуждавшиеся `Protocol`, ABC, TensorDict `in_keys/out_keys`, dataclass schemas, OpenTelemetry span model, PyTorch hooks, pyvene API или конкретный scheduler/intervention result type каноническими.
 
 Exact contracts создаются тогда, когда соответствующая семантика достаточно устойчива и есть основания зафиксировать machine-facing форму.
