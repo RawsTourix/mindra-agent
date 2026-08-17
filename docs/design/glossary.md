@@ -14,15 +14,15 @@
 
 ## CognitiveState
 
-Committed versioned shared-state surface между модулями. Не полный Agent state и не mutable bus.
+Committed versioned shared-state surface между модулями. Не полный Agent state, не mutable bus и не Workspace.
 
 ## Agent Snapshot
 
-Полный causally relevant снимок Agent: shared/private state, Memory, parameters, RNG и другие stateful mechanisms.
+Полный causally relevant снимок Agent: shared/private state, Memory, parameters, RNG, Workspace и другие stateful mechanisms.
 
 ## Cognitive Scheduler
 
-Agent-owned механизм declared scheduling/waves/commits. Не cognitive module.
+Agent-owned механизм declared scheduling/waves/commits. Не cognitive module и не Executive Control.
 
 ## Agent revision
 
@@ -40,10 +40,6 @@ Agent-visible Environment observation до Perception normalization.
 
 Стабильное internal representation текущего observation.
 
-## Semantic Core
-
-Структурированная interpretable часть Canonical Percept.
-
 ## Feature View
 
 Optional derived representation с explicit feature-space/encoder revision.
@@ -54,7 +50,7 @@ Privileged internal state Environment, недоступный Agent без expli
 
 ---
 
-# Goals / Cortex / Memory Core
+# Goals / Cortex / Memory
 
 ## Goal Proposal
 
@@ -102,7 +98,7 @@ Committed context-conditioned модель собственной competence/lim
 
 ---
 
-# Intrinsic Signals
+# Intrinsic Signals / Drives
 
 ## Intrinsic Signal
 
@@ -112,21 +108,9 @@ Typed нейтральное измерение свойства опыта. Н�
 
 Новизна относительно explicit history/representation/reference scope.
 
-## Predictive surprisal
-
-Информационная неожиданность относительно meaningful predictive probability.
-
 ## Information gain
 
 Изменение meaningful knowledge/belief state между before/after.
-
----
-
-# Drives
-
-## Drive System
-
-Owner committed `DriveStateSet` persistent typed regulatory states.
 
 ## Drive State
 
@@ -134,35 +118,15 @@ Owner committed `DriveStateSet` persistent typed regulatory states.
 
 ## Drive Pressure
 
-Производная интенсивность regulation в semantics конкретного Drive; не общая валюта и не Utility.
-
-## Homeostatic Drive
-
-Drive с meaningful regulated variable и target/range.
-
-## Adaptive Motivational Drive
-
-Persistent Drive без обязательного homeostatic set-point.
+Производная интенсивность regulation конкретного Drive; не Utility.
 
 ---
 
-# Appraisal
-
-## Appraisal System
-
-Event-level subsystem оценки значения causally identifiable target относительно current committed Agent context.
-
-## Appraisal Target
-
-Событие/outcome/prediction/imagined/retrieved event или другой причинно идентифицируемый объект оценки.
-
-## Appraisal Context
-
-Versioned declared context оценки: Goals, Drives, World/Self evidence, explicit Memory retrieval, Intrinsic Signals и при необходимости previous committed Affect.
+# Appraisal / Affect
 
 ## AppraisalRecord
 
-Versioned результат конкретного appraisal computation с target/context/provenance.
+Versioned результат оценки causally identifiable target относительно current Agent context.
 
 ## AppraisalProfile
 
@@ -170,19 +134,7 @@ Typed multidimensional профиль оценки без mandatory emotion labe
 
 ## Relevance
 
-Связь target с текущими concerns Agent. Не Salience, novelty или Utility.
-
-## Goal congruence
-
-Отношение target к конкретной committed Goal.
-
-## Drive conduciveness
-
-Отношение target к regulation конкретного Drive; не committed Drive update.
-
-## Expectedness
-
-Согласованность target с prior expectations; не novelty/surprisal/error.
+Связь target с текущими concerns Agent. Не Salience/Value.
 
 ## Controllability
 
@@ -192,101 +144,37 @@ Typed multidimensional профиль оценки без mandatory emotion labe
 
 Насколько текущий Agent способен эффективно изменить, выдержать или обойти последствия.
 
-## Urgency
-
-Temporal pressure потенциальной реакции; не Salience/action priority/Utility.
-
-## Reappraisal
-
-Новый AppraisalRecord при новом context; не mutation исторического record.
-
----
-
-# Affect
-
-## Affect System
-
-Persistent history-dependent subsystem, интегрирующий eligible Appraisal Records во времени.
-
 ## Affect State
 
-Текущее persistent состояние Affect. Не emotion label, Drive State или Utility.
-
-## AffectStateSet
-
-Committed набор typed Affect channel states с собственной revision.
-
-## Affect Channel
-
-Typed компонент Affect с собственной state/dynamics/source semantics.
-
-## Affect Dynamics
-
-Versioned update `Affect_t + Appraisal(s) + logical time → Affect_(t+1)`.
-
-## AffectView
-
-Derived representation AffectStateSet, например valence-arousal view. Не source of truth.
-
-## Anticipatory Affect
-
-Current Affect update от explicit predicted Appraisal source; prediction не становится фактом.
+Persistent history-dependent modulation state. Не emotion label, Drive State или Utility.
 
 ## Simulated Affect
 
 Branch-local Affect в imagination/counterfactual path; не real committed Affect.
 
-## NoAffect
-
-Конфигурация отсутствующей Affect capability, не fake zero/neutral state.
-
 ---
 
 # Valuation
 
-## Valuation System
-
-Decision-relevant subsystem, строящий typed `ValueProfile` и explicit comparison разнородных concerns. Не Policy и не Training Reward generator по умолчанию.
-
-## Valuation Target
-
-State/outcome/action candidate/trajectory/counterfactual branch, относительно которого строится valuation с explicit causal provenance/horizon.
-
-## ValueComponent
-
-Typed decision-relevant contribution конкретной semantics. Не обязана иметь общие units с другими components.
-
 ## ValueProfile
 
-Structured multi-objective representation ценности target до обязательной scalarization.
-
-## FeasibilityProfile
-
-Self-related evidence о возможности/стоимости выполнения target. `P(success)`/effort не являются Utility автоматически.
-
-## ConstraintProfile
-
-Explicit representation constraints/thresholds/violation evidence.
+Structured multi-objective representation decision-relevant ценности target до обязательной scalarization.
 
 ## RiskProfile
 
-Decision-relevant downside profile на основе outcome distribution/adverse semantics/explicit risk measure. Не predictive uncertainty.
+Decision-relevant downside profile; не predictive uncertainty.
 
 ## ComparisonPolicy
 
-Versioned rule сравнения `ValueProfile`: scalar, dominance/Pareto, lexicographic, constraint-first, nonlinear или learned semantics.
-
-## ComparisonResult
-
-Результат сравнения profiles: preference/order/dominance/tie/incomparability/constraint status и optional scalarized view.
+Versioned rule сравнения `ValueProfile`.
 
 ## ScalarizedValue
 
-Derived scalar из `ValueProfile` под конкретной `ComparisonPolicy`. Не universal currency и не Training Reward автоматически.
+Derived scalar под конкретной `ComparisonPolicy`. Не universal currency и не Training Reward автоматически.
 
 ## Incomparable
 
-Валидный multi-objective result, когда explicit policy не даёт полного ordering. Не technical failure.
+Валидный result, когда explicit policy не даёт полного ordering.
 
 ---
 
@@ -294,43 +182,19 @@ Derived scalar из `ValueProfile` под конкретной `ComparisonPolicy
 
 ## Salience System
 
-Agent-owned subsystem, строящий purpose-dependent priority profiles для explicit candidates и распределяющий заданный consumer/context budget через versioned `AllocationPolicy`.
-
-## Salience Target
-
-Causally identifiable semantic object, которому может назначаться processing priority.
-
-## SalienceCandidateSet
-
-Explicit набор targets для конкретного purpose/base revision. Salience не сканирует весь Agent state ambient способом.
-
-## Salience Purpose
-
-Контекст того, для какого вида processing строится priority.
-
-## Salience Evidence
-
-Typed evidence, влияющее на processing priority. Не общая числовая валюта автоматически.
+Agent-owned subsystem purpose-dependent priority ограниченного processing для explicit candidates.
 
 ## SalienceProfile
 
-Structured purpose-dependent representation причин priority target. Не обязан быть одним scalar.
+Structured representation причин processing priority target. Не обязан быть scalar.
 
 ## AttentionBudget
 
-Explicit ограничение ресурса, предоставляемое consumer/context. Salience не владеет global compute budget.
-
-## AllocationPolicy
-
-Versioned policy преобразования `SalienceProfile[] + AttentionBudget` в ranking/gating/allocation.
+Explicit ограничение ресурса, предоставляемое consumer/context. Не global Executive budget.
 
 ## AttentionAllocation
 
-Результат распределения budget между candidates. Сам по себе не выполняет Workspace admission, Cortex invocation, retrieval или Action Commit.
-
-## NoSalience
-
-Конфигурация отсутствующей Salience capability. Не fake `salience=0`.
+Результат распределения budget между candidates. Не Workspace admission и не Policy decision.
 
 ---
 
@@ -338,67 +202,99 @@ Versioned policy преобразования `SalienceProfile[] + AttentionBudg
 
 ## Memory Regulation
 
-Agent-owned policy responsibility поверх Memory Core, управляющая admission/retention/forgetting/eviction/replay/consolidation при explicit budget. Не второй owner canonical Memory Store.
-
-## MemoryRegulationProfile
-
-Typed purpose-specific representation memory-management evidence для proposal/record/group. Не universal `memory_importance` scalar.
+Agent-owned policy responsibility поверх Memory Core, управляющая admission/retention/forgetting/eviction/replay/consolidation. Не второй owner Store.
 
 ## MemoryBudget
 
-Explicit resource constraints Memory subsystem: record/payload/active-tier/representation или другие versioned budget dimensions. Не global Executive compute budget.
-
-## RegulationPolicy
-
-Versioned policy конкретного purpose: admission, retention, eviction, replay selection, consolidation и т.п.
+Explicit resource constraints Memory subsystem. Не global Executive compute budget.
 
 ## Cognitive forgetting
 
-Изменение agent-accessibility/retention state memory. Не обязательно physical deletion payload.
-
-## Physical deletion
-
-Фактическое уничтожение/удаление stored payload. Отличается от reversible/deprioritized cognitive forgetting.
+Изменение agent-accessibility/retention state memory. Не обязательно physical deletion.
 
 ## Memory Replay / Reactivation
 
-Explicit agent-owned re-presentation существующего `MemoryRecord` в consolidation/maintenance context. Не query-driven retrieval, не новый natural experience и не Training Replay.
+Explicit agent-owned re-presentation существующего `MemoryRecord` для consolidation/maintenance. Не Training Replay и не новый natural experience.
 
 ## Consolidation Event
 
-Отдельное causal событие logical runtime, в котором выбираются/replay'ятся source memories и могут создаваться derived memory proposals. Не Cognitive Cycle и не Learning Update.
-
-## ConsolidationProposal
-
-Source-linked предложение вывести новое derived memory из explicit source set. Ещё не committed `MemoryRecord`.
+Отдельное causal событие memory derivation/maintenance. Не Cognitive Cycle и не Learning Update.
 
 ## Derived MemoryRecord
 
-Новый canonical record, полученный derivation/consolidation из source records и сохраняющий `derived_from`/support/conflict/provenance. Не переписанный source episode и не privileged truth.
+Новый canonical record из source records с `derived_from`/support/conflict/provenance. Не переписанный source episode.
 
 ## Representation maintenance
 
-Re-encoding/reindexing уже существующего MemoryRecord под новую feature-space/index revision. Не semantic consolidation.
+Re-encoding/reindexing существующего MemoryRecord. Не semantic consolidation.
 
-## NoConsolidation
+---
 
-First-class конфигурация, в которой raw/episodic memory может регулироваться без создания derived semantic records.
+# Workspace
+
+## Workspace
+
+Bounded temporary shared-access/broadcast capability MINDRA для dynamically admitted subset информации. Не `CognitiveState`, Memory, Cortex context или доказательство сознания.
+
+## WorkspaceProposal
+
+Предложение producer поместить source-linked semantic content/projection в Workspace. Не direct write.
+
+## WorkspaceCandidateSet
+
+Explicit набор Workspace proposals для admission на конкретной base revision. Workspace не сканирует Agent state ambient способом.
+
+## WorkspaceBudget
+
+Explicit capacity/bandwidth constraint Workspace. Не `AttentionBudget`, `MemoryBudget` или global Executive compute budget.
+
+## Workspace AdmissionPolicy
+
+Versioned policy, принимающая решения admission/retain/replace/expire при текущем budget/context. Salience может быть evidence, но не является самой policy.
+
+## WorkspaceItem
+
+Admitted temporary shared item со stable workspace identity, source ref/revision/provenance, semantic payload/projection и lifetime. Не новый factual authority.
+
+## WorkspaceSnapshot
+
+Committed immutable по смыслу состояние Workspace на конкретной `workspace_revision`.
+
+## Broadcast
+
+В контексте MINDRA — доступность admitted Workspace content всем declared eligible consumers при их обычном scheduled compute. Не callback, interrupt или automatic module execution.
+
+## WorkspaceReadCapability
+
+Declared contract consumer, определяющий какие Workspace content kinds/projections он имеет право читать.
+
+## Branch-local Workspace
+
+Клон Workspace внутри imagination/counterfactual branch. Его updates не мутируют real Workspace автоматически.
+
+## NoWorkspace
+
+Конфигурация отсутствующей Workspace capability; consumers используют ordinary declared inputs/direct reads.
+
+## Matched Workspace control
+
+Control с сопоставимой state/parameter/compute capacity, но без целевой competition/broadcast semantics; нужен для проверки отдельного causal вклада Workspace.
 
 ---
 
 # Будущие области
 
-## Workspace
-
-Кандидат на temporary limited global-access surface. `DU-21`.
-
 ## Executive Control
 
-Будущая regulation cognitive process; не Cognitive Scheduler. `DU-22`.
+Будущая agent-owned regulation cognitive process: выбор допустимых internal operations и allocation global compute/resource budget. Не Cognitive Scheduler. `DU-22`.
 
 ## Policy / Planner
 
-Будущая boundary выбора/планирования поведения. `DU-23`.
+Будущая boundary планирования/final behavior selection. `DU-23`.
+
+## Action Gate / Executor
+
+Будущая boundary между selected action, execution и observed outcome. `DU-24`.
 
 ---
 
