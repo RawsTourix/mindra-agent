@@ -22,8 +22,9 @@
 - [`appraisal.md`](appraisal.md) — multidimensional Appraisal после `DU-16`;
 - [`affect.md`](affect.md) — persistent Affect dynamics после `DU-17`;
 - [`valuation.md`](valuation.md) — ValueProfile/ComparisonPolicy/Risk/Constraint semantics после `DU-18`;
-- [`salience.md`](salience.md) — SalienceTarget/Profile, explicit AttentionBudget, AllocationPolicy и AttentionAllocation после `DU-19`;
-- [`memory-regulation.md`](memory-regulation.md) — MemoryBudget, regulation profiles/policies, lifecycle decisions, replay/reactivation и source-preserving consolidation после `DU-20`.
+- [`salience.md`](salience.md) — SalienceTarget/Profile, AttentionBudget и AttentionAllocation после `DU-19`;
+- [`memory-regulation.md`](memory-regulation.md) — MemoryBudget, lifecycle/replay/consolidation после `DU-20`;
+- [`workspace.md`](workspace.md) — bounded Workspace proposal/admission/items/budget/broadcast/read/snapshot semantics после `DU-21`.
 
 ---
 
@@ -62,46 +63,51 @@ Drive State ≠ global motivation/value
 Appraisal ≠ emotion/value/Affect
 Affect ≠ emotion label/Drive/value
 ValueProfile ≠ mandatory scalar/reward/Policy decision
-SalienceProfile ≠ AttentionAllocation ≠ Workspace/Executive/Policy decision
+SalienceProfile ≠ AttentionAllocation
 Memory Core validation ≠ Regulation admission
 Forgetting ≠ physical deletion
-SalienceProfile ≠ Memory retention decision
 Memory Replay ≠ Training Replay
 Consolidation ≠ in-place rewrite ≠ Learning Update
+CognitiveState ≠ Workspace
+published state ≠ Workspace admission
+SalienceProfile/AttentionAllocation ≠ Workspace admission
+Workspace ≠ Memory ≠ Cortex context
+Workspace broadcast ≠ callback/module execution
+WorkspaceItem ≠ new factual authority
 ```
 
-Для Memory Regulation дополнительно:
+Для Workspace дополнительно:
 
-- canonical Memory Store по-прежнему имеет одного owner — Memory Core;
-- regulation policy формирует decisions/proposals, но не мутирует Store напрямую;
-- admission/retention/eviction/replay/consolidation являются разными purposes;
-- raw/source provenance сохраняется при derivation;
-- derived semantic memory является новым `MemoryRecord`, а не переписанным source record;
-- consolidation может быть deferred/disabled;
-- usage/retrieval count не является automatic importance;
-- logical aging не следует из GPU/network/wall-clock задержки;
-- optimizer/slow-weight learning остаётся downstream Training responsibility.
+- candidate set/proposals explicit;
+- producer не получает direct Workspace write authority;
+- capacity/budget explicit;
+- admission policy versioned и отделена от Salience;
+- consumer read capability declared;
+- admitted item сохраняет source revision/provenance;
+- source update не переписывает item задним числом;
+- branch-local Workspace не мутирует real Workspace;
+- Workspace eviction не мутирует source subsystem;
+- Cortex context packing выполняется отдельным explicit consumer;
+- `NoWorkspace` и matched controls обязательны для функциональных claims.
 
 ---
 
 # Текущий статус
 
-После `DU-04 … DU-20` semantic requirements приняты, но **общий exact Python contract set намеренно не frozen**.
+После `DU-04 … DU-21` semantic requirements приняты, но **общий exact Python contract set намеренно не frozen**.
 
-`memory-regulation.md` остаётся candidate до Workspace/Executive/Policy и downstream Data/Training/Checkpoint/Evaluation integration.
+`workspace.md` остаётся candidate до Executive/Policy/Data/Training/Checkpoint/Evaluation integration.
 
 До contract freeze нельзя считать каноническими:
 
 - `Protocol`/ABC/dataclass/TensorDict/Pydantic;
-- concrete lifecycle enum;
-- universal memory-importance scalar;
-- FIFO/LRU/top-K как default;
-- forgetting curve;
-- replay-priority formula;
-- consolidation LLM/prompt/clustering;
-- generative replay;
-- learned retention policy;
-- Training Replay/optimizer integration.
+- slot/token/byte unit Workspace;
+- top-K/winner-take-all/softmax admission;
+- concrete neural/shared-latent workspace;
+- exact producer/consumer set;
+- exact persistence duration;
+- exact Cortex packing;
+- training objective.
 
 ---
 
