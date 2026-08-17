@@ -32,7 +32,7 @@ Research result меняет architecture только через design review/
 
 ## Фундамент
 
-Перед subsystem changes обязательны:
+Перед subsystem/data changes обязательны:
 
 - `docs/design/system-context.md`;
 - `docs/design/dependency-rules.md`;
@@ -41,7 +41,7 @@ Research result меняет architecture только через design review/
 - `docs/design/module-lifecycle.md`;
 - `docs/design/observability-and-intervention.md`.
 
-## Принятые subsystem boundaries
+## Принятые boundaries
 
 | Область | Design | Contract | ADR |
 |---|---|---|---|
@@ -63,6 +63,7 @@ Research result меняет architecture только через design review/
 | Executive Control | `docs/design/modules/executive-control.md` | `docs/design/contracts/executive-control.md` | `ADR-0022` |
 | Policy / Planner | `docs/design/modules/policy-planner.md` | `docs/design/contracts/policy-planner.md` | `ADR-0023` |
 | Action Boundary | `docs/design/modules/action-boundary.md` | `docs/design/contracts/action-boundary.md` | `ADR-0024` |
+| Experience / Data / Replay | `docs/design/experience-data-replay.md` | `docs/design/contracts/experience-data-replay.md` | `ADR-0025` |
 
 Следующий разрешённый DU брать только из `docs/design/current.md`.
 
@@ -88,24 +89,23 @@ cognitive forgetting ≠ physical storage removal
 Retrieval ≠ Agent Memory Replay ≠ Training Replay
 Consolidation ≠ in-place rewrite ≠ Learning Update
 CognitiveState ≠ Workspace
-published state ≠ Workspace admission
 Workspace ≠ Memory ≠ Cortex context
-broadcast ≠ callback/module execution
-Executive Control ≠ Cognitive Scheduler
-Executive Control ≠ Policy / Planner
-Internal MetaAction ≠ Environment Action
-MetaActionProposal ≠ executed operation
-ExecutiveDecision ≠ direct provider/service call
+Executive Control ≠ Cognitive Scheduler ≠ Policy
 Policy ≠ Planner
 Planner ≠ World Model
 Plan ≠ ImaginedTrajectory
-Valuation ≠ Policy Decision
 ActionCandidate ≠ SelectedActionIntent
 SelectedActionIntent ≠ AuthorizedAction ≠ Action Commit
 Action Commit ≠ Dispatch ≠ Environment Transition
 Policy choice ≠ external override
 transport failure ≠ Environment no-effect
 execution_unknown ≠ definitely_not_sent
+TraceEvent ≠ ExperienceEvent
+Experience Journal ≠ Agent runtime state
+Experience Journal ≠ Replay Buffer ≠ Agent Memory
+Source Experience ≠ TrainingSample
+ResearchAnnotation ≠ agent-visible payload
+Agent Memory Replay ≠ Training Replay
 ```
 
 ## Memory Regulation safeguards
@@ -127,12 +127,10 @@ execution_unknown ≠ definitely_not_sent
 
 До пересмотра `DU-21`:
 
-- Workspace не является alias `CognitiveState`;
-- Workspace работает только с explicit proposals/candidates;
-- producers не мутируют Workspace напрямую;
+- Workspace не alias `CognitiveState`;
+- producers работают через explicit proposals/candidates;
 - Salience/AttentionAllocation — evidence, а не admission decision;
 - WorkspaceItem сохраняет source/provenance/authority;
-- consumer access declared;
 - broadcast означает availability, а не callback/automatic invocation;
 - Memory retrieval не попадает в Workspace автоматически;
 - Workspace eviction не удаляет source memory;
@@ -144,43 +142,36 @@ execution_unknown ≠ definitely_not_sent
 
 До пересмотра `DU-22`:
 
-- Executive Control не изменяет dependency graph, write authority или atomic commit semantics Scheduler;
-- Executive не является runtime Service Locator и не получает direct handles на Memory/Cortex/World Model/Workspace services;
-- optional work поступает через explicit `MetaActionProposal` + declared `InternalOperationCatalog`;
-- `ExecutiveDecision` всегда проходит Scheduler/runtime validation до execution;
-- Executive не выбирает Environment action и `yield_to_policy` не является `Action Commit`;
-- Self Model, Salience, Workspace, Valuation и uncertainty являются evidence, а не control commands;
-- hard `CognitiveResourceEnvelope` не увеличивается Executive самостоятельно;
-- hidden infrastructure quota/latency/GPU telemetry не становится cognitive input без explicit agent-visible contract;
-- estimate, reservation и actual resource consumption не смешиваются;
-- hard budget exhaustion не разрешает hidden extra Cortex/retrieval/rollout calls;
-- Goal focus может ссылаться на committed Goals, но не мутирует Goal Graph;
-- Workspace budget/context control не заменяет Workspace AdmissionPolicy;
-- real compute, потраченный на imagination, учитывается в real ledger; simulated future budget остаётся branch-local;
-- fallback/degradation всегда explicit и traced.
+- Executive не изменяет dependency graph/write authority/atomic commits Scheduler;
+- Executive не Service Locator и не получает direct handles на Memory/Cortex/World Model/Workspace;
+- optional work поступает через `MetaActionProposal` + `InternalOperationCatalog`;
+- `ExecutiveDecision` проходит Scheduler/runtime validation;
+- Executive не выбирает Environment action;
+- monitoring evidence не является control command;
+- hard `CognitiveResourceEnvelope` не увеличивается Executive;
+- estimate/reservation/actual consumption различаются;
+- budget exhaustion не разрешает hidden extra compute;
+- Goal focus не мутирует Goal Graph;
+- real imagination compute учитывается в real ledger;
+- fallback/degradation explicit и traced.
 
 ## Policy / Planner safeguards
 
 До пересмотра `DU-23`:
 
-- `Policy System` является единственным normal-runtime owner `SelectedActionIntent`;
-- Planner/Cortex/Valuation/World Model не создают `SelectedActionIntent` напрямую;
-- Policy не dispatch'ит Environment action и не выполняет `Action Commit`;
-- Planner не является World Model: он запрашивает/использует predictions/rollouts через explicit boundary;
-- `Plan` не является alias `ImaginedTrajectory`;
-- Planner normal runtime способом не читает hidden Environment Ground Truth;
-- candidate generation всегда сохраняет source/provenance и входит в explicit `PolicyCandidateSet`;
-- Planner-generated subgoal проходит `Goal Proposal → Goal System`, а не мутирует Goal Graph;
-- Valuation/Comparison evidence не превращается автоматически в `argmax` action;
-- `incomparable` допускается; fake scalarization ради выбора запрещена без explicit selection policy;
-- `DecisionDeferral` не вызывает Executive напрямую/рекурсивно;
-- planning/search compute связан с Executive allocation/actual compute accounting;
-- stale candidate set/plan не rebased молча;
-- plan persistence требует assumptions/validity/invalidation semantics;
-- Cortex-assisted proposal не получает повышенную authority;
-- stochastic Policy сохраняет causal RNG/selection provenance;
-- hidden random/default fallback запрещён;
-- imagined/counterfactual candidate provenance не становится natural action evidence.
+- Policy — единственный normal-runtime owner `SelectedActionIntent`;
+- Planner/Cortex/Valuation/World Model не создают final intent напрямую;
+- Policy не dispatch'ит Environment action;
+- Planner не World Model и не читает hidden Environment Ground Truth;
+- candidate generation сохраняет provenance и входит в `PolicyCandidateSet`;
+- Planner subgoal проходит Goal Proposal boundary;
+- Valuation evidence не превращается автоматически в `argmax` action;
+- `incomparable` допускается без fake scalarization;
+- `DecisionDeferral` не вызывает Executive рекурсивно;
+- planning compute связан с Executive accounting;
+- stale plan/candidates не rebased молча;
+- stochastic Policy сохраняет RNG provenance;
+- hidden random/default fallback запрещён.
 
 ## Action Boundary safeguards
 
@@ -188,42 +179,72 @@ execution_unknown ≠ definitely_not_sent
 
 - `SelectedActionIntent` не dispatch'ится напрямую;
 - stale/malformed/unauthorized intent не получает `ActionCommitRecord`;
-- normal `Action Gate` не является hidden Policy и не выбирает replacement behavior;
-- semantics-preserving normalization обязана иметь transformation provenance;
-- behavior-changing substitution допускается только через explicit `ActionOverridePolicy`/runtime-assurance stage с `ActionOverrideRecord`;
+- normal Gate не hidden Policy;
+- semantics-preserving normalization имеет transformation provenance;
+- behavior-changing substitution только через explicit override record;
 - original Policy intent и committed override сохраняются раздельно;
-- Gate normal runtime способом не читает hidden evaluator/Environment Ground Truth;
-- canonical `Action Commit` происходит после final authorization и до dispatch;
-- после commit semantic action для Decision Window не меняется;
-- dispatch/execution failure не удаляет или не переписывает Action Commit;
-- Dispatcher/adapter не выбирает fallback action и не вызывает Policy скрыто;
+- Gate не читает hidden evaluator/Environment Ground Truth normal runtime способом;
+- `Action Commit` после authorization и до dispatch;
+- post-commit failure не отменяет commit;
+- Dispatcher не выбирает fallback action;
 - retry не создаёт новый Action Commit;
-- retry того же logical dispatch использует stable `dispatch_id`;
-- blind retry запрещён при `execution_unknown`, если нет explicit idempotency/dedup guarantee или definite-non-send evidence;
+- stable `dispatch_id` используется для same logical retry;
+- blind retry запрещён при `execution_unknown` без dedup/idempotency/definite-non-send evidence;
 - universal physical exactly-once не предполагается;
-- Environment receipt `accepted` не означает execution success;
-- transport failure, Environment rejection, no-effect, partial execution и unknown execution не смешиваются;
-- `NoOp` не используется как universal hidden fallback;
+- accepted receipt не означает execution success;
+- transport failure/no-effect/partial/unknown различаются;
 - terminal outcome фиксируется до reset;
-- provider-native transport payload не становится Policy/action semantic contract.
+- provider-native transport payload не становится Policy semantic contract.
+
+## Experience / Data / Replay safeguards
+
+До пересмотра `DU-25`:
+
+- source of truth записанного опыта — append-only causal `Experience Journal`, а не transition table/replay buffer;
+- event-sourced только data plane; не реконструировать ordinary Agent runtime из journal вопреки `CognitiveState`/snapshot semantics;
+- `TraceEvent` и `ExperienceEvent` не считать синонимами;
+- source `ExperienceEvent` immutable по смыслу;
+- hindsight/relabeling/target recomputation/re-encoding создают derived sample/artifact, а не rewrite source history;
+- physical append order/wall-clock не использовать как единственное causal ordering evidence;
+- causal parent refs/logical scopes/revision refs сохраняются;
+- evaluator-only/Research Ground Truth не класть в обычный agent-visible `info`/payload;
+- privileged data хранить отдельным `ResearchAnnotationRecord` и включать только через explicit `DataVisibilityPolicy`;
+- `ActionCommitRecord` без Environment transition является валидным source case;
+- при `execution_unknown` запрещено fabricatе `next_state = state_before` или `executed=false`;
+- terminated/truncated различать до explicit training transform;
+- changing `agent_revision`/component revisions не скрывать;
+- `DatasetManifest` обязан фиксировать source selection/schema/transforms/revisions/splits/quality/determinism;
+- `TrainingSample` всегда derived и имеет source + transform lineage;
+- replay buffer/table не archival source of truth;
+- replay item eviction не удаляет source experience;
+- Training Replay selection не создаёт natural experience;
+- Agent Memory Replay и Training Replay не смешивать даже при общем source episode;
+- replay priority/loss/TD-error/sampling frequency не становились Salience/Memory importance/Valuation автоматически;
+- heavy artifact loss и core causal event loss различаются;
+- lossy transform маркируется и не masquerade как исходное evidence;
+- storage technology/RLDS/Minari/Reverb/Arrow/HDF5 не принимать как canonical до version design.
 
 ## Research discipline
 
-Для Action Boundary минимум разделять:
+Для Experience/Data минимум проверять:
 
 ```text
-Policy intent quality
-vs Gate effect
-vs external override/RTA effect
-vs dispatch reliability
-vs Environment execution/outcome
+full causal projection
+vs transition-only projection
+
+agent-visible-only data
+vs explicit privileged supervision
+
+correct sequence
+vs shuffled sequence
+
+uniform replay
+vs prioritized/other replay
 ```
 
-Для сложного Gate/override сравнивать `PassThrough/SchemaOnly`, capability/constraint gate, explicit shield/RTA и random/shuffled controls.
+Обязательны leakage, source→derived lineage, revision attribution, unresolved execution, split leakage, schema migration и deterministic extraction tests.
 
-Для dispatch обязательны failure-injection tests: definite-non-send, lost acknowledgement, duplicate retry, partial execution и reconciliation.
-
-Policy нельзя считать успешной за replacement action external shield без отдельной attribution analysis.
+Training improvement нельзя приписывать algorithm, если condition получила другую source population, hidden privileged fields или дополнительный transform/relabel policy без отдельной attribution.
 
 ## Implementation scope
 
