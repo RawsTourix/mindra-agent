@@ -192,10 +192,6 @@ Final semantic action после успешной authorization, до `Action Co
 
 Необратимая causal boundary final authorized Environment action после authorization и до dispatch.
 
-## ActionCommitRecord
-
-Immutable evidence committed action с intent/authorization/revision/dispatch lineage.
-
 ## DispatchAttempt
 
 Одна transport/adapter попытка отправить уже committed action. Retry того же logical dispatch не создаёт новый Action Commit.
@@ -280,10 +276,6 @@ Versioned training condition: targets, pinned base revisions, data, objectives, 
 
 Versioned правила trainable groups, cross-component gradient edges и stop-gradient boundaries.
 
-## BaseRevisionBundle
-
-Pinned revisions, от которых начинается TrainingAttempt.
-
 ## CandidateRevisionBundle
 
 Staged набор новых revisions после optimization, но до activation.
@@ -346,7 +338,7 @@ Versioned requested restore semantics: exact/compatible/portable/approximate.
 
 ## ReproducibilityClaim
 
-Scoped evidence-backed утверждение о воспроизводимости. Не boolean.
+Scoped evidence-backed утверждение о reproducibility/restore guarantee. Не boolean и не ResearchClaim о функциональном effect.
 
 ## DeterminismPolicy
 
@@ -375,10 +367,6 @@ Versioned reproducible run condition, связывающий code/config/checkpo
 ## EvaluationStudyPlan
 
 Versioned план исследования: hypotheses, conditions, controls, metrics, replicates/statistics и success/falsification criteria.
-
-## EvaluationSuite
-
-Versioned набор task/world distributions и measurement protocols.
 
 ## EvaluationCondition
 
@@ -430,7 +418,7 @@ Support/weakening/falsification criteria условно принятой module 
 
 ## EvaluationReport
 
-Derived report с lineage до raw evidence. Не source of truth сам по себе.
+Derived report с lineage до raw evidence. Не source of truth research claim.
 
 ---
 
@@ -442,15 +430,11 @@ Derived report с lineage до raw evidence. Не source of truth сам по с
 
 ## VerificationObligation
 
-Versioned обязанность проверить конкретный accepted engineering invariant, включая допустимый enforcement/test class и automation status.
+Versioned обязанность проверить конкретный accepted engineering invariant.
 
 ## VerificationMatrix
 
 Связь accepted design/ADR/contracts с obligations, test specs, CI tiers и latest evidence.
-
-## EngineeringTestSpec
-
-Versioned semantics конкретной engineering проверки: target, class, composition/environment, oracle, faults и assertion semantics.
 
 ## ContractConformanceProfile
 
@@ -462,15 +446,11 @@ Declared fault, injection point и ожидаемые failure/recovery semantics
 
 ## StatefulModelSpec
 
-Упрощённая reference-state model с operations/transitions/invariants для generated sequence testing.
+Упрощённая reference-state model для generated sequence testing.
 
 ## TestOracleSpec
 
 Test-only expected/invariant source. Privileged oracle не становится Agent-visible input.
-
-## EngineeringTestEnvironmentProfile
-
-Software/hardware/backend/determinism/resource/fault context engineering run.
 
 ## VerificationEvidenceRecord
 
@@ -486,19 +466,79 @@ Evidence того, какие obligations проверены в каком envir
 
 ## FlakyTestRecord
 
-Evidence nondeterministic pass/fail behavior и quarantine/repair state. Quarantine не равна verification pass.
-
-## GoldenArtifactSpec
-
-Reviewable deterministic reference artifact для stable contract surface; не universal neural-output oracle.
+Evidence nondeterministic pass/fail behavior. Quarantine не равна verification pass.
 
 ---
 
-# Будущие области
+# Research Claims / Limitations
 
-## Research Claims / Limitations
+## ObservationRecord
 
-Будущая boundary допустимых утверждений, evidence strength, limitations, known unknowns и антропоморфных ограничений. `DU-30`.
+Версионируемая запись непосредственно измеренного/полученного evidence без более сильного теоретического вывода.
+
+## InterpretationRecord
+
+Derived объяснение смысла observations с competing explanations, assumptions, confounders и scope.
+
+## ResearchClaim
+
+Versioned утверждение, которое проект готов защищать в явном `ClaimScope`, с supporting/challenging evidence, limitations и known unknowns.
+
+## ClaimScope
+
+Явные границы применимости claim: revisions, Cortex, data/training, worlds/tasks, composition/interventions, compute/tuning, software/hardware и replicate/analysis scope где material.
+
+## ClaimKind
+
+Semantic class claim: descriptive/associational/predictive/causal/generalization/architecture/efficiency и т.п. Exact enum не frozen.
+
+## ClaimStatus
+
+Lifecycle state claim: proposed/supported/challenged/weakened/inconclusive/unsupported/superseded и т.п. Historical revisions сохраняются.
+
+## LimitationRecord
+
+First-class versioned ограничение claim/study/module/version/project scope, measurement, causal inference, generalization, implementation, compute/data/Cortex или verification.
+
+## KnownUnknownRecord
+
+First-class важный вопрос, по которому текущего evidence недостаточно. `unknown` не равно `false`.
+
+## NegativeResultRecord
+
+Record отрицательного/null/inconclusive evidence с validity и uncertainty. Invalid/not-measured — отдельные classes.
+
+## ModuleGateOutcome
+
+Evidence outcome support/negative criteria условной module boundary. Сам не меняет ADR автоматически.
+
+## ClaimReviewRecord
+
+Версионируемое решение сохранить/сузить/ослабить/supersede/withdraw claim после нового evidence.
+
+## UnsupportedClaimPattern
+
+Явно запрещённый или необоснованный inference leap, например `Workspace → consciousness proof`.
+
+## ClaimRegistry
+
+Versioned registry active/challenged/superseded/unsupported claims и review lineage.
+
+## LimitationsRegistry
+
+Versioned registry project-wide/version/study/claim limitations.
+
+## PublicationStatementRecord
+
+Derived public/report statement, привязанный к canonical claim revision. Publication prose не source of truth.
+
+## Functional similarity
+
+Сходство вычислительной/причинной функции. Не означает biological или phenomenological equivalence.
+
+## Phenomenological claim
+
+Утверждение о subjective experience/conscious feeling. Текущая MINDRA architecture сама по себе не предоставляет достаточного direct bridge evidence для такого claim.
 
 ---
 
@@ -526,4 +566,10 @@ Control с сопоставимыми заявленными confounders, но �
 
 ## Engineering evidence
 
-Результат contract/invariant/failure verification конкретной implementation/revision; не evidence функциональной полезности.
+Результат contract/invariant/failure verification implementation; не evidence функциональной полезности.
+
+---
+
+# Следующий design scope
+
+`DU-31 — Contract + ADR Consistency Freeze`: общий consistency/freeze pass по `DU-01 … DU-30`, а не новая cognitive subsystem.
