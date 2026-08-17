@@ -6,7 +6,7 @@
 
 Здесь фиксируются принятые семантики, invariants, subsystem boundaries, contracts, ADR и будущие version plans.
 
-На текущем этапе приняты `DU-01 … DU-22`. Реализация ещё не начата.
+На текущем этапе приняты `DU-01 … DU-23`. Реализация ещё не начата.
 
 ---
 
@@ -45,18 +45,19 @@
 - [`modules/salience.md`](modules/salience.md) — `DU-19`
 - [`modules/memory-regulation.md`](modules/memory-regulation.md) — `DU-20`
 - [`modules/workspace.md`](modules/workspace.md) — `DU-21`
-- [`modules/executive-control.md`](modules/executive-control.md) — `DU-22`: proposal-driven budget-aware adaptive control optional cognition поверх invariant Scheduler.
+- [`modules/executive-control.md`](modules/executive-control.md) — `DU-22`
+- [`modules/policy-planner.md`](modules/policy-planner.md) — `DU-23`: Policy-owned final behavioral selection с optional/falsifiable Planner provider.
 
 Карта областей: [`modules/README.md`](modules/README.md).
 
 ## Decisions
 
 - [`decisions/README.md`](decisions/README.md)
-- `ADR-0001 … ADR-0022` — accepted.
+- `ADR-0001 … ADR-0023` — accepted.
 
 Последнее решение:
 
-- [`ADR-0022`](decisions/ADR-0022-proposal-driven-budget-aware-executive-control.md) — proposal-driven budget-aware Executive Control с explicit resource envelope, MetaAction proposals и Scheduler validation.
+- [`ADR-0023`](decisions/ADR-0023-policy-owned-selection-optional-planner.md) — обязательный Policy owner selected-action intention и optional Planner как provider планов/action candidates.
 
 ## Candidate contracts
 
@@ -64,7 +65,7 @@
 
 Последний добавленный contract:
 
-- [`contracts/executive-control.md`](contracts/executive-control.md).
+- [`contracts/policy-planner.md`](contracts/policy-planner.md).
 
 Exact Python API ещё не frozen.
 
@@ -81,35 +82,38 @@ Exact Python API ещё не frozen.
 Текущий следующий update:
 
 ```text
-DU-23 — Policy / Planner
+DU-24 — Action Boundary / Gate / Executor
 ```
 
 ---
 
-# Ключевые инварианты после DU-22
+# Ключевые инварианты после DU-23
 
 ```text
-Executive Control ≠ Cognitive Scheduler
-Executive Control ≠ Policy / Planner
-Internal MetaAction ≠ Environment Action
-MetaActionProposal ≠ executed operation
-ExecutiveDecision ≠ direct service call
-CognitiveResourceEnvelope ≠ raw runtime telemetry
-resource estimate ≠ reservation ≠ actual consumption
-Salience / Self Model ≠ controller
-Executive stop / yield ≠ Action Commit
+Policy ≠ Planner
+Planner ≠ World Model
+Plan ≠ ImaginedTrajectory
+Valuation ≠ Policy Decision
+Executive Control ≠ Policy
+ActionCandidate ≠ SelectedActionIntent
+SelectedActionIntent ≠ Action Commit ≠ Executed Action
 ```
 
-- optional cognitive work поступает через explicit proposals/catalog;
-- Executive не получает runtime Service Locator;
-- Scheduler остаётся owner dependency safety/waves/commit;
-- hard resource envelope задаётся явной boundary и не увеличивается Executive самостоятельно;
-- budget может быть multi-dimensional;
-- stop/continue принимается только на explicit control point относительно committed state;
-- Cortex/retrieval/rollout/consolidation не вызываются ambient способом;
-- Goal focus не меняет Goal Graph;
-- real compute imagination учитывается в real ledger, simulated future budget остаётся branch-local;
-- `NoExecutive`, fixed/equal-budget и matched controls обязательны;
-- adaptive control должен доказывать пользу на performance/resource frontier, а не за счёт большего compute.
+- Policy является единственным semantic owner selected behavioral intention normal runtime способом;
+- Planner остаётся optional/falsifiable capability/provider;
+- reactive/no-Planner configuration first-class;
+- Policy работает с explicit `PolicyCandidateSet`;
+- Planner строит plans/candidates относительно World Belief и agent-visible context;
+- hidden Environment state недоступен Planner normal runtime способом;
+- Plan может быть contingent/persistent, но имеет assumptions/revision/stale/invalidation semantics;
+- Valuation предоставляет comparison evidence, а не final selection;
+- `incomparable` не требует fake scalarization;
+- Policy может вернуть `DecisionDeferral` и proposals дополнительного cognition;
+- Planner subgoal проходит Goal Proposal boundary;
+- planning compute регулируется Executive Control;
+- Cortex может помогать generation/planning, но не становится Policy owner;
+- stochastic selection сохраняет RNG/provenance;
+- Planner contribution должен проверяться против reactive и matched controls при сопоставимом compute;
+- `SelectedActionIntent` ещё не разрешено и не исполнено — это boundary `DU-24`.
 
 Фактический статус: [`current.md`](current.md).
