@@ -18,7 +18,7 @@ Committed versioned shared-state surface между модулями. Не по�
 
 ## Agent Snapshot
 
-Полный causally relevant снимок Agent: shared/private state, Memory, Workspace, Executive state/budgets, parameters, RNG и другие stateful mechanisms.
+Полный causally relevant снимок Agent: shared/private state, Memory, Workspace, Executive state/budgets, Policy/Planner state, parameters, RNG и другие stateful mechanisms.
 
 ## Cognitive Scheduler
 
@@ -338,15 +338,59 @@ First-class конфигурация без adaptive agent-owned meta-control: o
 
 ---
 
+# Policy / Planner
+
+## Policy System
+
+Обязательный agent-owned semantic owner финального behavioral selection до Action Gate. Не Planner, Executive Control или Action Executor.
+
+## Planner
+
+Optional/falsifiable provider explicit multi-step/contingent plans и action candidates. Не World Model и не final selection owner.
+
+## BehavioralContext
+
+Declared read projection контекста, разрешённого Policy/Planner в конкретном Decision Window. Не ambient dump `CognitiveState`.
+
+## ActionCandidate
+
+Предложение возможного behavior с explicit source/provenance. Ещё не выбрано Policy и не разрешено Action Gate.
+
+## PolicyCandidateSet
+
+Versioned explicit набор `ActionCandidate` конкретного selection attempt.
+
+## Plan
+
+Agent-owned prescriptive/conditional структура возможного поведения с steps/branches/conditions/assumptions/validity. Не `ImaginedTrajectory`.
+
+## PlanState
+
+Persistent state активного plan, включая progress, validity/staleness и replanning context.
+
+## DecisionDeferral
+
+Явный результат Policy selection attempt, когда selected intention ещё не сформировано и требуется дополнительное cognition или explicit fallback.
+
+## SelectedActionIntent
+
+Выбранное Policy behavioral intention до Action Gate. Не `Action Commit`, dispatch, executed action или observed outcome.
+
+## ReactivePolicy
+
+Policy configuration без отдельного Planner/search, выбирающая behavior непосредственно из разрешённого context/evidence.
+
+## NoPlanner
+
+First-class configuration без Planner capability; Policy продолжает normal behavioral selection reactive/direct способом.
+
+---
+
 # Будущие области
-
-## Policy / Planner
-
-Будущая boundary планирования/final behavior selection. `DU-23`.
 
 ## Action Gate / Executor
 
-Будущая boundary между selected action, execution и observed outcome. `DU-24`.
+Будущая boundary между `SelectedActionIntent`, authorization, `Action Commit`, dispatch/execution и observed outcome. `DU-24`.
 
 ---
 
