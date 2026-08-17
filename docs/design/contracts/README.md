@@ -1,103 +1,104 @@
-# Exact internal contracts MINDRA
+# Candidate / exact internal contracts MINDRA
 
 ## Назначение
 
-Этот каталог предназначен для точных machine-facing контрактов между подсистемами MINDRA.
+Этот каталог хранит machine-facing semantic contracts уже принятых subsystem boundaries.
 
-Контракт создаётся **после** semantic design соответствующей области и не должен преждевременно определять архитектуру только потому, что конкретный Python API удобен для реализации.
+До общего contract freeze документы здесь остаются **candidate contracts**: они уточняют форму принятого design, но не имеют права молча менять его смысл или превращать удобный Python choice в архитектурный invariant.
 
 ---
 
 # Текущие candidate contracts
 
 - [`environment.md`](environment.md) — Environment interaction/research boundary после `DU-07`;
-- [`perception.md`](perception.md) — `Canonical Percept`, Semantic Core и Feature Views после `DU-08`;
+- [`perception.md`](perception.md) — Canonical Percept/Semantic Core/Feature Views после `DU-08`;
 - [`goals.md`](goals.md) — Goal Proposal/Committed Goal/Goal Graph после `DU-09`;
 - [`cortex.md`](cortex.md) — Cortex Gateway/capabilities/request/result после `DU-10`;
-- [`memory.md`](memory.md) — MemoryWriteProposal, MemoryRecord, MemoryRepresentation, RetrievalIndex/Request/Result после `DU-11`;
-- [`world-model.md`](world-model.md) — WorldBelief, assimilation, prediction/imagination/uncertainty после `DU-12`;
-- [`self-model.md`](self-model.md) — capabilities, competence, SelfPrediction/calibration после `DU-13`;
-- [`intrinsic-signals.md`](intrinsic-signals.md) — typed Signal Providers/Bundle после `DU-14`;
-- [`drives.md`](drives.md) — typed Drive System/dynamics после `DU-15`;
+- [`memory.md`](memory.md) — Memory records/representations/retrieval после `DU-11`;
+- [`world-model.md`](world-model.md) — World Belief/assimilation/prediction/imagination после `DU-12`;
+- [`self-model.md`](self-model.md) — capability/competence/Self Prediction после `DU-13`;
+- [`intrinsic-signals.md`](intrinsic-signals.md) — typed Intrinsic Signals после `DU-14`;
+- [`drives.md`](drives.md) — typed persistent Drives после `DU-15`;
 - [`appraisal.md`](appraisal.md) — multidimensional Appraisal после `DU-16`;
-- [`affect.md`](affect.md) — persistent typed Affect dynamics после `DU-17`;
-- [`valuation.md`](valuation.md) — ValuationTarget, ValueProfile, Risk/Constraint/Feasibility profiles, ComparisonPolicy/Result и optional scalarization после `DU-18`.
-
-Эти документы **не являются frozen Python API** и могут уточняться последующими DU до общего contract freeze.
+- [`affect.md`](affect.md) — persistent Affect dynamics после `DU-17`;
+- [`valuation.md`](valuation.md) — ValueProfile/ComparisonPolicy/Risk/Constraint semantics после `DU-18`;
+- [`salience.md`](salience.md) — SalienceTarget/Profile, explicit AttentionBudget, AllocationPolicy и AttentionAllocation после `DU-19`.
 
 ---
 
-# Общие правила
+# Общие требования
 
-Exact contract должен фиксировать, где применимо:
+Contract должен фиксировать, где применимо:
 
-- поля и типы;
-- required/optional semantics;
-- shape/dtype/device semantics;
-- ownership;
-- declared reads/writes;
-- freshness/availability;
+- required/optional semantic fields;
+- ownership/read/write boundaries;
+- revision/freshness/availability;
+- causal provenance;
 - lifecycle;
-- private-state/snapshot obligations;
+- public/private state;
+- snapshot/restore;
 - observability/intervention;
-- error/degradation behavior;
-- versioning;
-- serialization;
-- compatibility expectations;
+- failure/degradation;
+- compatibility/serialization;
 - автоматически проверяемые invariants.
 
-Contract не должен протаскивать private implementation detail одного backend во всю систему без design justification.
+Exact implementation detail одного backend не должен протекать в canonical contract без design justification.
 
 ---
 
-# Действующие subsystem safeguards
+# Действующие safeguards
 
-- Environment Research Plane не становится agent-facing;
-- Perception не превращает concrete encoder/Cortex hidden state в universal representation;
-- Goal proposal sources не получают direct mutation authority Goal Graph;
-- Cortex не получает ambient Agent-state access;
-- MemoryRecord не равен embedding/index и Memory не смешивается с training replay;
-- World Model prediction/imagination не становится observed fact;
-- Self Model не равен Cortex self-report и не получает decision authority;
-- Intrinsic Signals не являются universal reward/value;
-- Drive State не является global motivation/Utility;
-- Appraisal не является emotion label/global utility/persistent Affect;
-- Affect не является emotion label/global valence/reward/Drive state;
-- Valuation не превращает `ValueProfile` в mandatory scalar/reward/Policy decision, не смешивает uncertainty с risk и не использует evaluator-only preference/metric natural способом.
+```text
+Environment Ground Truth ≠ Agent input
+Canonical Percept ≠ concrete encoder latent
+Goal Proposal ≠ direct Goal mutation
+Cortex ≠ ambient Agent-state owner
+MemoryRecord ≠ embedding/index
+World Prediction ≠ observed fact
+Self Prediction ≠ Policy decision
+Intrinsic Signal ≠ reward/value
+Drive State ≠ global motivation/value
+Appraisal ≠ emotion/value/Affect
+Affect ≠ emotion label/Drive/value
+ValueProfile ≠ mandatory scalar/reward/Policy decision
+SalienceProfile ≠ AttentionAllocation ≠ Workspace/Executive/Policy decision
+```
+
+Для Salience дополнительно:
+
+- candidate set должен быть explicit;
+- purpose/context должен быть explicit;
+- scalar salience не обязателен;
+- budget приходит от consumer/context;
+- Cortex attention weights не реализуют Salience автоматически;
+- Salience не выполняет Memory retrieval/retention, Workspace admission, Cortex invocation или final action selection.
+
+---
+
+# Текущий статус
+
+После `DU-04 … DU-19` semantic requirements приняты, но **общий exact Python contract set намеренно не frozen**.
+
+`salience.md` остаётся candidate до `DU-20 … DU-23` и downstream Data/Training/Checkpoint/Evaluation integration.
+
+До contract freeze нельзя считать каноническими:
+
+- `Protocol`/ABC/dataclass/TensorDict/Pydantic;
+- конкретные target/purpose enum;
+- weighted salience formula;
+- top-K/softmax/threshold policy;
+- neural router;
+- physical compute units;
+- Workspace/Executive/Memory Regulation API.
 
 ---
 
 # Иерархия
 
 ```text
-canonical semantic design
-→ accepted ADR
-→ candidate/exact internal contract
+accepted ADR + canonical design
+→ candidate/exact contract
+→ version specification
+→ implementation sequence
 → implementation
 ```
-
-Exact contract уточняет форму принятой семантики, но не может молча изменить её смысл.
-
----
-
-# Текущий статус
-
-После `DU-04` … `DU-18` приняты semantic requirements для state/scheduler/observability и subsystem boundaries Environment, Perception, Goals, Cortex, Memory, World Model, Self Model, Intrinsic Signals, Drives, Appraisal, Affect и Valuation.
-
-Для Valuation зафиксированы:
-
-- `ValuationTarget` для state/outcome/action/trajectory/counterfactual families;
-- typed `ValueComponent`/`ValueProfile`;
-- отдельные `FeasibilityProfile`, `ConstraintProfile`, `RiskProfile`;
-- explicit `ComparisonPolicyDescriptor`/`ComparisonRequest`/`ComparisonResult`;
-- optional `ScalarizedValue` только как derived result;
-- immediate/prospective/trajectory semantics;
-- actual/predicted/imagined/counterfactual provenance;
-- intervention/control/snapshot/failure/versioning requirements;
-- `NoValuation`, weighted scalar, random/shuffled/matched, lexicographic и oracle controls.
-
-Однако **общий exact Python contract set пока намеренно не зафиксирован**.
-
-`valuation.md` остаётся candidate, поскольку `DU-19`, `DU-22/23`, `DU-25` … `DU-28` ещё уточнят Salience/Executive/Policy/data/training/checkpoint/evaluation integration.
-
-До contract freeze запрещено считать конкретные `Protocol`, ABC, TensorDict, dataclass/Pydantic schemas, weighted sum, Pareto/Tchebycheff/lexicographic ordering, CVaR, discount factor, critic architecture или RL reward mapping каноническими.
