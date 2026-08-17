@@ -16,7 +16,8 @@
 - [`cortex.md`](cortex.md) — Cortex Gateway/capabilities/request/result после `DU-10`;
 - [`memory.md`](memory.md) — MemoryWriteProposal, MemoryRecord, MemoryRepresentation, RetrievalIndex/Request/Result и snapshot semantics после `DU-11`;
 - [`world-model.md`](world-model.md) — WorldBelief, assimilation, WorldPrediction, imagination, uncertainty, prediction error и snapshot semantics после `DU-12`;
-- [`self-model.md`](self-model.md) — AgentCapabilityManifest, SelfEvidence, SelfBelief, competence profile, SelfPrediction/Resolution и calibration/staleness semantics после `DU-13`.
+- [`self-model.md`](self-model.md) — AgentCapabilityManifest, SelfEvidence, SelfBelief, competence profile, SelfPrediction/Resolution и calibration/staleness semantics после `DU-13`;
+- [`intrinsic-signals.md`](intrinsic-signals.md) — typed Signal Providers, IntrinsicSignal/Bundle, novelty/rarity/information/competence/normalization semantics после `DU-14`.
 
 Эти документы **не являются frozen Python API** и могут уточняться последующими DU до общего contract freeze.
 
@@ -52,7 +53,8 @@ Contract не должен протаскивать private implementation detai
 - Cortex contract не фиксирует model/provider и не даёт Gateway ambient Agent-state access;
 - Memory contract не превращает vector index/embedding в canonical memory identity, не даёт Cortex ambient retrieval и не смешивает Memory с training replay;
 - World Model contract не превращает prediction/imagination в observed fact, не делает backend latent universal state и не смешивает prediction error с reward/value;
-- Self Model contract не превращает Cortex verbal confidence в canonical self-knowledge, не смешивает capability availability с competence и не даёт Self Model decision authority Executive Control/Policy.
+- Self Model contract не превращает Cortex verbal confidence в canonical self-knowledge, не смешивает capability availability с competence и не даёт Self Model decision authority Executive Control/Policy;
+- Intrinsic Signals contract не превращает typed measures в universal reward/value, не смешивает signal families и требует provider/source/reference/normalization provenance.
 
 ---
 
@@ -71,23 +73,23 @@ Exact contract уточняет форму принятой семантики, 
 
 # Текущий статус
 
-После `DU-04` … `DU-13` приняты semantic requirements для state/scheduler/observability и subsystem boundaries Environment, Perception, Goals, Cortex, Memory, World Model и Self Model.
+После `DU-04` … `DU-14` приняты semantic requirements для state/scheduler/observability и subsystem boundaries Environment, Perception, Goals, Cortex, Memory, World Model, Self Model и Intrinsic Signals.
 
-Для Self Model теперь зафиксированы:
+Для Intrinsic Signals теперь зафиксированы:
 
-- versioned `Agent Capability Manifest`;
-- capability facts отдельно от learned competence;
-- causal `Self Evidence`;
-- committed context-conditioned `Self Belief`;
-- explicit `SelfPredictionRequest → SelfPrediction` boundary;
-- probability target/horizon/context semantics;
-- probability of success отдельно от estimate uncertainty/support;
-- Prediction Resolution для calibration evidence;
-- staleness/recalibration после behavior-relevant Agent revision;
-- Cortex self-report только как optional derived evidence;
-- Self Model отдельно от World Model/Valuation/Executive Control;
-- snapshot/restore obligations;
-- `NoSelfModel`/Dummy/Control distinctions.
+- multi-provider architecture;
+- `IntrinsicSignalProviderDescriptor`;
+- typed `IntrinsicSignal` и `IntrinsicSignalBundle`;
+- prediction discrepancy отдельно от probabilistic surprisal;
+- novelty отдельно от visitation rarity;
+- information gain только при meaningful knowledge-update semantics;
+- signed uncertainty/competence change;
+- temporal/reference scope и baseline/history revisions;
+- provider-specific normalization identity/revision;
+- representation-drift compatibility metadata;
+- actual/replayed/imagined/intervened provenance;
+- stateful-provider snapshot obligations;
+- `NoIntrinsicSignals`/Dummy/Constant/Random/Shuffled/Control distinctions.
 
 Однако **общий exact Python contract set пока намеренно не зафиксирован**.
 
@@ -103,6 +105,8 @@ Exact contract уточняет форму принятой семантики, 
 
 `world-model.md` остаётся candidate до Intrinsic/Valuation/Executive/Policy/Data/Training/Checkpoint/Evaluation DU.
 
-`self-model.md` остаётся candidate, поскольку `DU-14`, `DU-18`, `DU-22/23`, `DU-25` … `DU-28` ещё уточнят competence-progress, value/regulation, policy use, data/training/checkpoint/evaluation integration.
+`self-model.md` остаётся candidate до Intrinsic/Valuation/Executive/Policy/Data/Training/Checkpoint/Evaluation DU.
 
-До contract freeze запрещено считать конкретные `Protocol`, ABC, TensorDict, dataclass/Pydantic schemas, concrete calibration/competence estimator, task taxonomy, Brier/NLL/ECE policy или Self Model training algorithm каноническими.
+`intrinsic-signals.md` остаётся candidate, поскольку `DU-15`, `DU-18/19`, `DU-22/23`, `DU-25` … `DU-28` ещё уточнят Drives/Valuation/Salience/regulation/policy/data/training/checkpoint/evaluation integration.
+
+До contract freeze запрещено считать конкретные `Protocol`, ABC, TensorDict, dataclass/Pydantic schemas, RND/ICM/VIME/RIDE/NGU/Plan2Explore, count/density model, normalization formula, common scalarization или intrinsic-reward training adapter каноническими.
