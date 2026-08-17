@@ -10,7 +10,7 @@
 
 # 1. Общий статус
 
-**Фундамент документации создан. `DU-01` … `DU-16` завершены и приняты. Реализация ещё не начата.**
+**Фундамент документации создан. `DU-01` … `DU-17` завершены и приняты. Реализация ещё не начата.**
 
 На текущем этапе зафиксированы:
 
@@ -26,8 +26,9 @@
 - Intrinsic Signal Layer;
 - Drive System;
 - Appraisal System;
-- candidate contracts Environment, Perception, Goals, Cortex, Memory, World Model, Self Model, Intrinsic Signals, Drives и Appraisal;
-- шестнадцать accepted ADR.
+- Affect System;
+- candidate contracts Environment, Perception, Goals, Cortex, Memory, World Model, Self Model, Intrinsic Signals, Drives, Appraisal и Affect;
+- семнадцать accepted ADR.
 
 ---
 
@@ -51,99 +52,108 @@ DU-13 — Self Model
 DU-14 — Intrinsic Signals
 DU-15 — Drives
 DU-16 — Appraisal
+DU-17 — Affect Dynamics
 ```
 
-## DU-16
+## DU-17
 
 Канонический документ:
 
-- [`modules/appraisal.md`](modules/appraisal.md).
+- [`modules/affect.md`](modules/affect.md).
 
 Candidate contract:
 
-- [`contracts/appraisal.md`](contracts/appraisal.md).
+- [`contracts/affect.md`](contracts/affect.md).
 
 Research pass:
 
-- [`../research/literature/DU-16-appraisal-landscape-2026-08.md`](../research/literature/DU-16-appraisal-landscape-2026-08.md).
+- [`../research/literature/DU-17-affect-dynamics-landscape-2026-08.md`](../research/literature/DU-17-affect-dynamics-landscape-2026-08.md).
 
 Accepted decision:
 
-- [`ADR-0016`](decisions/ADR-0016-multidimensional-event-centered-appraisal.md).
+- [`ADR-0017`](decisions/ADR-0017-typed-persistent-affect-state.md).
 
 Главные результаты:
 
-- Appraisal является event-level relational assessment, а не persistent Affect/Reward/Value;
-- принят explicit `Appraisal Target` с actual/predicted/imagined/retrospective/intervened provenance;
-- appraisal context versioned и строится только из declared committed sources;
-- один target может иметь разные appraisal при разных Goals/Drives/Self/World context;
-- принят typed multidimensional `Appraisal Profile` без обязательного emotion label/global valence scalar;
-- relevance отделена от Salience/novelty/utility;
-- goal congruence сохраняется per Goal и не решает Goal conflict;
-- drive conduciveness сохраняется per Drive и не мутирует Drive State;
-- expectedness отделена от novelty/prediction discrepancy/probabilistic surprisal;
-- controllability отделена от coping potential;
-- controllability относится к action-sensitivity ситуации, coping potential — к способности текущего Agent справиться/адаптироваться;
-- urgency отделена от Salience/action priority/value;
-- agency/causal attribution является optional dimension family;
-- normative compatibility не вводится до отдельной agent-owned semantics норм/стандартов;
-- mandatory global valence отклонён; optional local polarity допустим только как derived summary;
-- reappraisal создаёт новый temporally identified `AppraisalRecord`, а не переписывает историю;
-- explicit Memory retrieval/Cortex call не скрываются внутри Appraisal;
-- rule-based, learned, hybrid и Cortex-assisted estimators допускаются;
-- partial profile и per-dimension availability/failure являются first-class semantics;
-- causally relevant estimator/calibration/RNG state входит в exact Agent Snapshot;
-- `NoAppraisal`, Dummy, Constant, Random, Shuffled и matched controls различаются.
+- отдельный Affect прошёл module gate как **falsifiable persistent history-dependent state boundary**;
+- `Appraisal ≠ Affect ≠ Drive ≠ Valuation`;
+- Affect интегрирует последовательность `AppraisalRecord` во времени, но не хранит полную историю вместо Memory/trajectory;
+- принят typed `AffectStateSet`, а mandatory emotion labels/valence-arousal/PAD geometry отклонены;
+- low-dimensional affect representations допускаются только как implementation/view/baseline;
+- dynamics может включать inertia/decay/recovery/accumulation/saturation/hysteresis;
+- Affect использует logical time, а не GPU/network/wall-clock latency;
+- canonical feedback имеет порядок `Affect_t → Appraisal_t → Affect_(t+1)` без instantaneous cycle;
+- actual appraisal является natural eligible source;
+- predicted appraisal может создавать anticipatory Affect только через explicit source policy;
+- imagined appraisal по умолчанию изменяет только branch-local simulated Affect;
+- current retrospective reappraisal может влиять на current Affect, не переписывая историческое состояние;
+- Affect не мутирует Drives/Goals и не вычисляет Utility/action;
+- будущие Valuation/Salience/Memory Regulation могут читать Affect только через explicit boundary;
+- `Environment.reset()` не является автоматическим Affect reset;
+- causally relevant recurrent/baseline/RNG/dynamics state входит в exact Agent Snapshot;
+- обязательны `NoAffect`, `ResetEveryEvent`, shuffled-history и matched-recurrent controls;
+- если temporal Affect не показывает специфической causal роли относительно matched controls, отдельный module должен быть пересмотрен новым ADR.
 
 ---
 
 # 3. Следующий допустимый Design Update
 
 ```text
-DU-17 — Affect Dynamics
+DU-18 — Valuation
 ```
 
-Цель `DU-17` — проверить необходимость и, если она обоснована, спроектировать **отдельный persistent affective state**, который интегрирует последовательность Appraisal Records во времени и способен создавать history-dependent modulation, не смешиваясь с Drives или Valuation.
+Цель `DU-18` — спроектировать **decision-relevant систему ценности**, которая преобразует разнородные Goal/Drive/Appraisal/Affect/World/Self evidence в сравнимую оценку candidate outcomes/actions, не превращая всё заранее в один reward scalar.
 
 Обязательные области:
 
 ```text
-Affect responsibility / module gate
-Appraisal → Affect integration
-persistent state semantics
-valence/arousal-like representation necessity
-multidimensional vs low-dimensional affect
-inertia / decay / recovery
-accumulation / saturation
-hysteresis / baseline
-actual vs predicted / imagined appraisal contribution
-interaction with Drives
-interaction with future Valuation / Salience / Memory
-state scope / reset / persistence
-reappraisal effect
-learning / adaptation
-NoAffect / Dummy / Control
-snapshot / observability / intervention
-failure / degradation
+Valuation responsibility / ownership
+valuation target boundary
+state/outcome/action/trajectory valuation
+input evidence model
+Goal / Drive / Appraisal / Affect integration
+external task feedback boundary
+Intrinsic Signals boundary
+World Prediction / uncertainty / risk
+Self Model / feasibility / cost
+vector-valued vs scalar value
+context-dependent scalarization
+multi-objective conflict
+immediate vs future value
+state value vs action value vs utility
+predicted / imagined valuation
+counterfactual comparison
+risk / downside / uncertainty treatment
+normalization / comparability / units
+rule-based vs learned valuation
+critic / RL value-function boundary
+training reward boundary
+NoValuation / Dummy / Control
+observability / intervention / calibration
+snapshot / revision / degradation
 ```
 
 Нужно определить:
 
-- существует ли у Affect самостоятельная functional responsibility или достаточно Appraisal + Drives;
-- что именно persistent Affect хранит сверх последних Appraisal Records;
-- должен ли Affect иметь valence/arousal-like low-dimensional state или typed/vector state;
-- как один и тот же новый Appraisal даёт разный Affect update в зависимости от предыдущего Affect;
-- как decay/inertia/recovery используют logical time;
-- следует ли predicted/imagined appraisal менять real Affect и с какой provenance;
-- где проходит граница Affect ↔ Drive;
-- где проходит граница Affect ↔ будущая Valuation;
-- какие causal interventions показывают самостоятельную роль Affect;
-- какой отрицательный результат приведёт к решению не выделять отдельный Affect module.
+- что именно является `Valuation Target`;
+- является ли canonical value вектором typed components, distribution/structured relation или scalar;
+- где и когда допустима scalarization;
+- как сохранить конфликт нескольких Goals/Drives вместо скрытого weighted sum;
+- чем event-level Appraisal polarity отличается от decision value;
+- чем persistent Affect modulation отличается от value;
+- как external task feedback участвует в valuation, не становясь автоматически внутренней utility;
+- как Intrinsic Signals входят или не входят в decision value;
+- как predictive uncertainty отличается от risk/downside;
+- как учитывать Self Model competence/expected cost;
+- как оценивать imagined trajectories без превращения их в observed outcomes;
+- где проходит граница между архитектурным Valuation и algorithm-specific RL reward/critic;
+- нужны ли разные value surfaces для state/action/outcome/trajectory;
+- какие controls исключают объяснение «любой дополнительный scalar помогает Policy».
 
-После принятия `DU-17` допускается:
+После принятия `DU-18` допускается:
 
 ```text
-DU-18 — Valuation
+DU-19 — Salience / Attention
 ```
 
 ---
@@ -192,6 +202,14 @@ controllability ≠ coping potential
 urgency ≠ Salience ≠ action priority
 Appraisal local polarity ≠ Utility/Value/Reward
 reappraisal ≠ mutation of historical AppraisalRecord
+Appraisal Record ≠ Affect State
+Affect State ≠ Drive State
+Affect State ≠ Utility/Value/Reward
+Affect State ≠ emotion label
+Affect history integration ≠ Memory Store
+Affect_t → Appraisal_t → Affect_(t+1)
+imagined Affect ≠ real committed Affect
+Environment reset ≠ Affect reset
 ```
 
 ---
@@ -200,7 +218,6 @@ reappraisal ≠ mutation of historical AppraisalRecord
 
 Пока отсутствуют accepted решения по:
 
-- Affect Dynamics;
 - Valuation;
 - Salience/Attention;
 - Memory Regulation/Consolidation;
@@ -217,7 +234,7 @@ reappraisal ≠ mutation of historical AppraisalRecord
 - version roadmap;
 - implementation sequences.
 
-Также пока не выбраны exact Python/package/framework решения, concrete Cortex backend, Memory backend/index, World Model architecture, Self Model estimator/calibration method, Intrinsic Signal estimators, concrete Drive list/dynamics, concrete Appraisal estimator/dimension subset или common normalization/scalarization policy.
+Также пока не выбраны exact Python/package/framework решения, concrete Cortex backend, Memory backend/index, World Model architecture, Self Model estimator/calibration method, Intrinsic Signal estimators, concrete Drive list/dynamics, concrete Appraisal dimension subset/estimator, concrete Affect channels/dynamics или common normalization/scalarization policy.
 
 ---
 
