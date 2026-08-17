@@ -117,6 +117,7 @@ Accepted foundation decisions: `ADR-0001` … `ADR-0006`.
 | Memory Core | `docs/design/modules/memory.md` | `contracts/memory.md` | `ADR-0011` |
 | World Model | `docs/design/modules/world-model.md` | `contracts/world-model.md` | `ADR-0012` |
 | Self Model | `docs/design/modules/self-model.md` | `contracts/self-model.md` | `ADR-0013` |
+| Intrinsic Signals | `docs/design/modules/intrinsic-signals.md` | `contracts/intrinsic-signals.md` | `ADR-0014` |
 
 Номер текущего разрешённого Design Update всегда брать из `docs/design/current.md`, а не из старых chat/prompt сообщений.
 
@@ -166,6 +167,11 @@ predictive uncertainty ≠ risk / value
 Agent Capability Fact ≠ Learned Competence Estimate ≠ Self Prediction
 P(success) ≠ uncertainty/support самой self-estimate
 Self Model ≠ Cortex self-report ≠ Executive Control
+Intrinsic Signal ≠ Reward ≠ Drive ≠ Utility/Value
+prediction discrepancy ≠ predictive surprisal ≠ novelty
+novelty ≠ visitation rarity
+information gain ≠ arbitrary uncertainty reduction
+higher intrinsic signal ≠ greater desirability
 ```
 
 ---
@@ -289,7 +295,28 @@ Self Model ≠ Cortex self-report ≠ Executive Control
 
 ---
 
-# 16. Research discipline
+# 16. Intrinsic Signals discipline
+
+До изменения `DU-14/15/18` запрещается:
+
+- превращать typed signals в обязательный общий `intrinsic_reward`;
+- считать высокий signal автоматически желательным;
+- называть arbitrary prediction error `novelty` или probabilistic `surprisal` без соответствующей semantics;
+- смешивать novelty и visitation rarity без explicit estimator/reference scope;
+- публиковать information gain без meaningful before/after knowledge-state estimator;
+- считать arbitrary uncertainty decrease information gain;
+- терять знак competence improvement/degradation через hidden `abs()` aggregation;
+- считать replay старого transition новым natural visitation event;
+- выдавать imagined/predicted signal за actual experienced signal;
+- использовать evaluator/world ground truth в natural provider без explicit research supervision/intervention;
+- смешивать несовместимые representation/provider/normalizer revisions;
+- использовать zero/`None` как неразличимый sentinel для unavailable, insufficient-history, incompatible и настоящего zero signal;
+- скрывать adaptive normalization/history update из snapshot/provenance;
+- делать RND/ICM/VIME/RIDE/NGU/Plan2Explore обязательным algorithm из-за research evidence.
+
+---
+
+# 17. Research discipline
 
 Обязателен [`docs/research-methodology.md`](docs/research-methodology.md).
 
@@ -310,7 +337,7 @@ Self Model ≠ Cortex self-report ≠ Executive Control
 
 ---
 
-# 17. Scope implementation
+# 18. Scope implementation
 
 Пока `docs/design/current.md` не разрешает implementation/version work, подробный design **не является разрешением писать production architecture**.
 
@@ -320,14 +347,15 @@ Self Model ≠ Cortex self-report ≠ Executive Control
 - конкретный Memory backend/index/embedding model;
 - RSSM/Dreamer/TD-MPC/Transformer world model;
 - конкретный Self Model/calibration estimator;
+- RND/ICM/VIME/RIDE/NGU/Plan2Explore или common intrinsic-reward formula;
 - TensorDict/DI/config/scheduler framework;
-- PPO/RND/ICM и другие learning algorithms;
+- PPO и другие learning algorithms;
 - Colab/cloud runtime;
 - конкретную структуру `src/`.
 
 ---
 
-# 18. Поведение при неопределённости
+# 19. Поведение при неопределённости
 
 Если документация не определяет существенное решение:
 
