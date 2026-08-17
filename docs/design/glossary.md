@@ -394,11 +394,91 @@ Explicit source→migration policy→new artifact/checkpoint lineage. Не silen
 
 ---
 
-# Будущие области
+# Evaluation
 
 ## MINDRA-Eval
 
-Будущая Evaluation Runtime/benchmark/causal metrics/statistical protocol boundary. `DU-28`.
+Внешний Evaluation Plane для task/diagnostic/causal/calibration/resource/reproducibility evidence. Не Agent cognition и не engineering test suite.
+
+## EvaluationStudyPlan
+
+Versioned план исследования: hypotheses, conditions, controls, metrics, replicate/statistical protocol и success/falsification criteria.
+
+## EvaluationSuite
+
+Versioned набор task/world distributions и measurement protocols. Не один Environment instance и не universal leaderboard.
+
+## EvaluationCondition
+
+Полностью определённое условие evaluation: Agent/checkpoint/world/Cortex/composition/interventions/data/resources/software/hardware/metrics context.
+
+## EvaluationRun
+
+Один причинно идентифицируемый запуск конкретной `EvaluationCondition`.
+
+## EvaluationUnit
+
+Семантическая единица measurement, например Episode, Decision Window, prediction resolution или paired branch. Не автоматически independent statistical sample.
+
+## ReplicateStructure
+
+Явная структура training/checkpoint/world/episode/stochastic/counterfactual replicates и их nesting/blocking/independence assumptions.
+
+## MetricSpec
+
+Versioned semantics evaluator metric: target, inputs, visibility, unit, aggregation, missing/censoring и provenance.
+
+## EvaluationScorecard
+
+Typed bundle task/calibration/causal/robustness/resource/reproducibility metrics. Не обязан сворачиваться в scalar.
+
+## StatisticalAnalysisPlan
+
+Versioned confirmatory analysis semantics: analysis unit, contrast, estimator/interval family, dependence/nesting, multiplicity, missing/censoring и stopping policy.
+
+## ControlDescriptor
+
+Описание baseline/ablation/No*/Dummy/random/shuffled/matched/oracle condition и факторов, которые сохраняются/изменяются.
+
+## ResourceMatchProfile
+
+Описание параметров/state/context/data/compute, которые должны быть matched между comparison conditions, и фактических deviations.
+
+## PairedCounterfactualPlan
+
+План control/treatment branching из общего verified checkpoint + Environment base state с explicit intervention и RNG-coupling semantics.
+
+## CausalContrastRecord
+
+Evidence control/treatment effect с base state, intervention, target/off-target effects, matching quality, uncertainty и causal limitations.
+
+## ModuleGateSpec
+
+Заранее определённые support/weakening/falsification criteria условно принятой module boundary.
+
+## PolicyActionAttributionRecord
+
+Связь pre-Gate `SelectedActionIntent` quality, Gate corrections/rejections и post-Gate execution/outcome metrics.
+
+## EvaluationValidityRecord
+
+Отдельный статус protocol validity/leakage/checkpoint/condition integrity. Invalid run не равен failed task.
+
+## EvaluationManifest
+
+Versioned manifest study/suite/conditions/controls/checkpoints/worlds/metrics/statistics/resources/reproducibility context.
+
+## EvaluationReport
+
+Derived report с lineage до raw runs/metrics/Evidence/Experience. Не source of truth сам по себе.
+
+---
+
+# Будущие области
+
+## Engineering Testing
+
+Будущая автоматическая проверка implementation contracts/invariants/failure semantics. `DU-29`.
 
 ---
 
@@ -418,7 +498,7 @@ Explicit source→migration policy→new artifact/checkpoint lineage. Не silen
 
 ## Matched control
 
-Control с сопоставимыми parameters/compute/state capacity, но другой целевой semantics.
+Control с сопоставимыми parameters/compute/state capacity или другими заявленными confounders, но иной целевой semantics.
 
 ## Research evidence
 
