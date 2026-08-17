@@ -17,8 +17,8 @@
 - документация пишется на русском языке;
 - комментарии в исходном коде пишутся на русском языке;
 - пользовательские и исследовательские пояснения в репозитории пишутся на русском языке;
-- технические идентификаторы остаются на английском: имена переменных, классов, функций, методов, протоколов, типов, модулей, package names, API names и другие machine-facing identifiers;
-- общепринятый технический термин допустимо оставить на английском, если перевод ухудшает точность или создаёт двусмысленность.
+- технические идентификаторы остаются на английском: имена переменных, классов, функций, методов, протоколов, типов, модулей, package/API names и другие machine-facing identifiers;
+- общепринятый технический термин допустимо оставить на английском, если перевод ухудшает точность.
 
 ---
 
@@ -58,22 +58,18 @@ implementation
 engineering/research evidence
 ```
 
-При противоречии experimental result и design:
+Research result не меняет architecture напрямую:
 
 ```text
 result
 → interpretation/design review
 → ADR/design update
-→ только затем implementation change
+→ implementation change
 ```
-
-Нельзя молча менять архитектуру по одному результату эксперимента.
 
 ---
 
 # 4. Три разных слоя истины
-
-Всегда разделять:
 
 ```text
 Design
@@ -83,9 +79,7 @@ Implementation
 Research evidence
 ```
 
-Наличие реализации не является подтверждением исследовательской гипотезы.
-
-Поведенческий результат не является доказательством сознания, субъективного опыта или феноменальных эмоций.
+Наличие механизма или поведенческого эффекта не является доказательством сознания, субъективного опыта или феноменальной эмоции.
 
 ---
 
@@ -106,22 +100,21 @@ Accepted foundation decisions: `ADR-0001` … `ADR-0006`.
 
 # 6. Принятые subsystem boundaries
 
-Для subsystem-specific работы читать соответствующий design + contract + ADR:
-
 | Область | Design | Contract | ADR |
 |---|---|---|---|
-| Environment | `docs/design/modules/environment.md` | `contracts/environment.md` | `ADR-0007` |
-| Perception | `docs/design/modules/perception.md` | `contracts/perception.md` | `ADR-0008` |
-| Goal System | `docs/design/modules/goals.md` | `contracts/goals.md` | `ADR-0009` |
-| Cortex | `docs/design/modules/cortex.md` | `contracts/cortex.md` | `ADR-0010` |
-| Memory Core | `docs/design/modules/memory.md` | `contracts/memory.md` | `ADR-0011` |
-| World Model | `docs/design/modules/world-model.md` | `contracts/world-model.md` | `ADR-0012` |
-| Self Model | `docs/design/modules/self-model.md` | `contracts/self-model.md` | `ADR-0013` |
-| Intrinsic Signals | `docs/design/modules/intrinsic-signals.md` | `contracts/intrinsic-signals.md` | `ADR-0014` |
-| Drives | `docs/design/modules/drives.md` | `contracts/drives.md` | `ADR-0015` |
-| Appraisal | `docs/design/modules/appraisal.md` | `contracts/appraisal.md` | `ADR-0016` |
+| Environment | `docs/design/modules/environment.md` | `docs/design/contracts/environment.md` | `ADR-0007` |
+| Perception | `docs/design/modules/perception.md` | `docs/design/contracts/perception.md` | `ADR-0008` |
+| Goal System | `docs/design/modules/goals.md` | `docs/design/contracts/goals.md` | `ADR-0009` |
+| Cortex | `docs/design/modules/cortex.md` | `docs/design/contracts/cortex.md` | `ADR-0010` |
+| Memory Core | `docs/design/modules/memory.md` | `docs/design/contracts/memory.md` | `ADR-0011` |
+| World Model | `docs/design/modules/world-model.md` | `docs/design/contracts/world-model.md` | `ADR-0012` |
+| Self Model | `docs/design/modules/self-model.md` | `docs/design/contracts/self-model.md` | `ADR-0013` |
+| Intrinsic Signals | `docs/design/modules/intrinsic-signals.md` | `docs/design/contracts/intrinsic-signals.md` | `ADR-0014` |
+| Drives | `docs/design/modules/drives.md` | `docs/design/contracts/drives.md` | `ADR-0015` |
+| Appraisal | `docs/design/modules/appraisal.md` | `docs/design/contracts/appraisal.md` | `ADR-0016` |
+| Affect | `docs/design/modules/affect.md` | `docs/design/contracts/affect.md` | `ADR-0017` |
 
-Номер текущего разрешённого Design Update всегда брать из `docs/design/current.md`, а не из старых chat/prompt сообщений.
+Номер текущего разрешённого Design Update всегда брать из `docs/design/current.md`.
 
 ---
 
@@ -130,17 +123,17 @@ Accepted foundation decisions: `ADR-0001` … `ADR-0006`.
 Без explicit design change запрещается:
 
 - concrete peer dependency между независимыми cognitive modules;
-- runtime Service Locator внутри cognition/runtime code;
+- runtime Service Locator внутри cognition;
 - shared mutable globals как межмодульный state bus;
 - hidden direct mutation чужого state;
 - зависимость Agent от Training/Evaluation Runtime;
-- скрытый evaluator/oracle input;
-- hidden behavior-changing fallback;
+- hidden evaluator/oracle input;
+- скрытый behavior-changing fallback;
 - ad-hoc module ordering вместо declared scheduler semantics;
 - partial commit causally relevant public/private state;
 - silent stale-result rebase;
 - смешивание natural/replayed/imagined/intervened/counterfactual provenance;
-- реализация downstream-функциональности «заодно» до соответствующего DU.
+- реализация downstream-функциональности до соответствующего DU.
 
 ---
 
@@ -154,54 +147,44 @@ committed state ≠ mutable shared bus
 Observability ≠ Intervention
 Agent Interaction Plane ≠ Environment Research Plane
 Raw Observation ≠ Canonical Percept
-Canonical Percept ≠ hidden world belief
 External Task Specification ≠ Goal Proposal ≠ Committed Goal
 Goal ≠ Reward ≠ Drive ≠ Utility/Value ≠ Policy
 MINDRA Agent ≠ Cortex ≠ concrete LLM
 MemoryRecord ≠ embedding/index entry
 Memory ≠ trajectory/replay
-Memory retrieval ≠ ambient Cortex context
 Canonical Percept ≠ World Belief ≠ World Prediction
 World Prediction ≠ observed fact
 Imagined Transition ≠ Environment Transition
 prediction error ≠ reward / intrinsic utility
-predictive uncertainty ≠ risk / value
 Agent Capability Fact ≠ Learned Competence Estimate ≠ Self Prediction
-P(success) ≠ uncertainty/support самой self-estimate
 Self Model ≠ Cortex self-report ≠ Executive Control
 Intrinsic Signal ≠ Reward ≠ Drive ≠ Utility/Value
-prediction discrepancy ≠ predictive surprisal ≠ novelty
-novelty ≠ visitation rarity
-information gain ≠ arbitrary uncertainty reduction
-higher intrinsic signal ≠ greater desirability
-Intrinsic Signal ≠ Drive State
 Drive State ≠ Drive Pressure ≠ Utility/Value
-homeostatic drive ≠ mandatory form of every drive
-Drive System ≠ global motivation scalar
-Environment reset ≠ Drive reset
-wall-clock ≠ implicit Drive time
-Appraisal ≠ Intrinsic Signal ≠ Drive ≠ Affect ≠ Valuation
+Appraisal ≠ Affect ≠ Valuation
 Appraisal Target ≠ Appraisal Context
 relevance ≠ Salience ≠ novelty ≠ utility
-goal congruence ≠ global Goal priority/value
-drive conduciveness ≠ committed Drive update
-expectedness ≠ novelty ≠ prediction discrepancy ≠ predictive surprisal
 controllability ≠ coping potential
-urgency ≠ Salience ≠ action priority
-Appraisal local polarity ≠ Utility/Value/Reward
-reappraisal ≠ mutation of historical AppraisalRecord
+Appraisal Record ≠ Affect State
+Affect State ≠ Drive State
+Affect State ≠ Utility/Value/Reward
+Affect State ≠ emotion label
+Affect history integration ≠ Memory Store
+Affect_t → Appraisal_t → Affect_(t+1)
+imagined Affect ≠ real committed Affect
+Environment reset ≠ Drive reset
+Environment reset ≠ Affect reset
 ```
 
 ---
 
 # 9. State/scheduler discipline
 
-До изменения `DU-03…05` запрещается:
+Запрещается:
 
 - мутировать committed `CognitiveState` inplace;
 - писать в namespace без semantic ownership;
 - использовать hidden `last-write-wins`;
-- публиковать peer output до commit текущей wave;
+- публиковать peer output до commit wave;
 - строить instantaneous dependency cycle;
 - использовать physical completion order как causal semantics;
 - оставлять causally relevant private state изменённым после rejected commit;
@@ -212,178 +195,108 @@ reappraisal ≠ mutation of historical AppraisalRecord
 
 # 10. Observability/intervention discipline
 
-До изменения `DU-06` запрещается:
+Запрещается:
 
 - давать passive observer mutation authority;
 - превращать research probe в runtime dependency;
 - выполнять intervention без target/base/provenance;
 - скрывать intervention как natural output;
 - выдавать partial restore за exact counterfactual;
-- считать raw activation access обязательной capability всех backends;
 - смешивать intervened experience с natural experience без provenance.
 
 ---
 
-# 11. Environment/Perception discipline
+# 11. Environment / Perception / Goal / Cortex safeguards
 
-До изменения `DU-07/08` запрещается:
+Запрещается:
 
 - передавать Environment Research Ground Truth Agent как normal input;
 - использовать evaluator metric как task feedback;
-- считать seed полным world identity;
-- считать `MicroWorld` universal internal representation;
 - передавать raw Environment-specific schema независимым modules;
 - делать один learned latent единственным canonical percept;
-- использовать hidden persistent object ID как бесплатную percept identity;
-- смешивать direct observation, perceptual inference, Memory и World Model prediction;
-- молча смешивать несовместимые feature-space revisions.
-
----
-
-# 12. Goal/Cortex discipline
-
-До изменения `DU-09/10` запрещается:
-
 - давать Cortex/Planner/Drives direct write authority Goal Graph;
-- хранить authoritative Goal только в Policy/Cortex hidden state;
 - превращать Goal в scalar reward/value;
 - делать model-specific prompt/tokenizer/provider API частью cognitive consumer;
 - давать Cortex Gateway ambient access ко всему Agent state;
 - превращать Cortex output автоматически в Goal/Memory/Action/observed fact;
-- требовать hidden states/CoT/gradients от любого Cortex backend;
-- скрывать context truncation/model fallback/provider substitution;
 - делать конкретную LLM частью canonical architecture.
 
 ---
 
-# 13. Memory discipline
+# 12. Memory / World Model / Self Model safeguards
 
-До изменения `DU-11/19/20` запрещается:
+Запрещается:
 
-- считать vector database или embedding каноническим Memory Store;
-- использовать index slot/row/object id как `memory_id`;
-- молча переписывать source payload старого MemoryRecord;
-- смешивать несовместимые representation revisions;
-- давать consumer direct write authority Memory Store;
-- выполнять hidden Memory retrieval внутри Cortex Gateway/другого consumer;
-- считать retrieval score utility/salience/importance/truth probability;
-- смешивать Agent Memory с trajectory log или training replay;
-- добавлять salience/emotional forgetting до соответствующих DU;
-- называть `NoMemory` implementation, возвращающую fake successful retrieval.
-
----
-
-# 14. World Model discipline
-
-До изменения `DU-12` запрещается:
-
-- использовать Environment hidden ground truth как normal World Model belief/input;
-- считать текущий `Canonical Percept` полным World Belief при partial observability без explicit baseline semantics;
-- превращать backend latent в universal inter-module representation;
-- считать action prediction фактом выбора/commit действия;
-- записывать imagined rollout как observed Environment trajectory;
-- делать imagined state natural MemoryRecord автоматически;
-- позволять World Model выбирать preferred action вместо Policy/Planner;
-- смешивать world dynamics с Goal/Valuation;
-- считать prediction error reward/intrinsic utility автоматически;
-- называть arbitrary variance `epistemic`/`aleatoric` без estimator/evaluation semantics;
-- выполнять hidden Memory lookup или hidden Cortex call без declared causal operation;
-- обучать baseline на evaluator-only oracle state и описывать это как agent-experience-only learning;
-- фиксировать RSSM/Dreamer/Transformer/TorchRL обязательными из-за research evidence.
+- считать vector database или embedding канонической Memory;
+- использовать hidden Memory retrieval внутри Cortex/consumer;
+- смешивать Agent Memory с trajectory/replay;
+- записывать imagined World Model rollout как observed trajectory;
+- позволять World Model выбирать action вместо Policy/Planner;
+- считать prediction error reward автоматически;
+- считать Cortex self-report canonical Self Model;
+- смешивать capability availability и competence;
+- давать Self Model authority выбирать action/goal/compute policy.
 
 ---
 
-# 15. Self Model discipline
+# 13. Intrinsic Signals / Drives safeguards
 
-До изменения `DU-13` запрещается:
+Запрещается:
 
-- считать текстовое самоописание/`confidence` Cortex каноническим self-knowledge;
-- смешивать capability availability и learned competence;
-- использовать один global scalar competence/confidence без domain/target semantics;
-- публиковать `P(success)` без определения success event/context/horizon;
-- смешивать probability predicted outcome и uncertainty/support самой оценки;
-- использовать evaluator-only success/ground truth как natural Self Evidence;
-- давать Self Model arbitrary host/process/GPU telemetry как self-state без explicit agent-visible boundary;
-- считать старый competence profile автоматически валидным после behavior-relevant `agent_revision`/Cortex/module change;
-- давать Self Model authority выбирать action, goal, Cortex/Memory invocation или compute policy;
-- смешивать Self Model competence с World Model external dynamics;
-- использовать `0.5`/`None` как неразличимый sentinel для unknown/unavailable/out-of-domain и реальной вероятности 0.5.
-
----
-
-# 16. Intrinsic Signals discipline
-
-До изменения `DU-14/15/18` запрещается:
-
-- превращать typed signals в обязательный общий `intrinsic_reward`;
+- превращать typed Intrinsic Signals в mandatory `intrinsic_reward`;
 - считать высокий signal автоматически желательным;
-- называть arbitrary prediction error `novelty` или probabilistic `surprisal` без соответствующей semantics;
-- смешивать novelty и visitation rarity без explicit estimator/reference scope;
-- публиковать information gain без meaningful before/after knowledge-state estimator;
-- считать arbitrary uncertainty decrease information gain;
-- терять знак competence improvement/degradation через hidden `abs()` aggregation;
-- считать replay старого transition новым natural visitation event;
-- выдавать imagined/predicted signal за actual experienced signal;
-- использовать evaluator/world ground truth в natural provider без explicit research supervision/intervention;
-- смешивать несовместимые representation/provider/normalizer revisions;
-- использовать zero/`None` как неразличимый sentinel для unavailable/insufficient-history/incompatible и настоящего zero signal;
-- скрывать adaptive normalization/history update из snapshot/provenance;
-- делать RND/ICM/VIME/RIDE/NGU/Plan2Explore обязательным algorithm из-за research evidence.
+- смешивать novelty, surprisal, prediction discrepancy и visitation rarity;
+- считать replay новым natural visitation;
+- превращать `DriveStateSet` в global motivation scalar;
+- считать Drive Pressure готовой Utility/action score;
+- требовать homeostatic set-point от каждого drive;
+- давать Drive direct Goal/Policy authority;
+- обновлять Drive по wall-clock/GPU/network latency.
 
 ---
 
-# 17. Drives discipline
+# 14. Appraisal safeguards
 
-До изменения `DU-15/16/18/23` запрещается:
+Запрещается:
 
-- превращать `DriveStateSet` в обязательный global `motivation` scalar;
-- считать `Drive Pressure` готовым reward/value/action score;
-- требовать homeostatic target/set-point от каждого drive;
-- добавлять фиктивный target только ради общего API;
-- считать высокий Intrinsic Signal прямым высоким Drive Pressure;
-- обновлять drive по wall-clock/GPU/network latency без explicit agent-visible time semantics;
-- запускать hidden background mutation Drive State вне scheduler/commit boundaries;
-- сбрасывать все drives автоматически на `Environment.reset()`;
-- разрешать direct private mutation между drives;
-- разрешать physical completion order определять cross-drive dynamics;
-- скрыто выбирать `winning_drive` через `argmax`/sum внутри Drive System;
-- давать Drive direct write authority Goal Graph;
-- позволять Drive выбирать action/strategy вместо будущих Valuation/Policy;
-- считать natural Drive update и research intervention одним типом события;
-- использовать zero pressure как sentinel failure/unavailable;
-- объявлять конкретный curiosity/resource drive обязательным только из-за примеров design;
-- делать HRRL/Active Inference/конкретную drive equation обязательной implementation из-за research evidence.
-
----
-
-# 18. Appraisal discipline
-
-До изменения `DU-16/17/18/19/23` запрещается:
-
-- превращать Appraisal в один mandatory `valence`, `emotion_score` или reward scalar;
-- использовать human emotion label как единственный canonical Appraisal output;
-- считать Appraisal persistent Affect/mood state;
-- создавать Appraisal без explicit target/context/revision provenance;
-- смешивать actual, predicted, imagined, retrospective и intervened targets;
-- считать novelty/surprisal/prediction error автоматически Appraisal expectedness/value;
-- смешивать relevance и Salience/attention allocation;
-- scalarize conflicts нескольких Goals внутри goal congruence;
-- мутировать Goal Graph из Appraisal;
-- мутировать Drive State из drive conduciveness;
+- превращать Appraisal в mandatory emotion label/global valence/reward;
+- считать Appraisal persistent Affect state;
+- создавать Appraisal без target/context/revision provenance;
+- смешивать actual/predicted/imagined/retrospective/intervened targets;
+- смешивать relevance с Salience;
+- scalarize Goal conflicts внутри Appraisal;
+- мутировать Goal/Drive state из Appraisal;
 - смешивать controllability и coping potential;
 - позволять Appraisal выбирать coping strategy/action;
 - использовать evaluator-only Ground Truth как natural appraisal evidence;
-- выполнять hidden Memory retrieval/Cortex invocation без declared causal operation;
-- считать Cortex emotion/self-report canonical Appraisal;
-- подменять unknown/unavailable/failed dimension значением `0`;
-- переписывать historical AppraisalRecord при reappraisal;
-- вводить normative compatibility без explicit agent-owned norm semantics;
-- считать optional local polarity Utility/Value/Reward;
-- делать конкретную human appraisal taxonomy или LLM appraisal framework обязательной implementation из-за research evidence.
+- выполнять hidden Memory/Cortex operation;
+- переписывать historical `AppraisalRecord` при reappraisal.
 
 ---
 
-# 19. Research discipline
+# 15. Affect safeguards
+
+До explicit пересмотра `DU-17` запрещается:
+
+- превращать canonical Affect в human emotion labels;
+- требовать mandatory valence/arousal/PAD geometry;
+- смешивать Affect State с Drive State или Utility/Reward;
+- вычислять action/goal choice внутри Affect System;
+- давать Affect direct mutation authority Goals/Drives;
+- создавать same-wave recursive cycle Appraisal ↔ Affect;
+- позволять Appraisal читать partially updated Affect;
+- обновлять real committed Affect из любого imagined appraisal по умолчанию;
+- терять provenance actual/predicted/imagined/retrospective/intervened source;
+- сбрасывать Affect автоматически на `Environment.reset()`;
+- обновлять Affect по wall-clock/latency скрытым background process;
+- считать `0`/neutral fake state успешной заменой unavailable/failed;
+- продвигать private recurrent Affect state после rejected commit;
+- объявлять Affect доказательством субъективного чувства;
+- считать separate Affect доказанным без `NoAffect`, temporal-history и matched recurrent controls.
+
+---
+
+# 16. Research discipline
 
 Обязателен [`docs/research-methodology.md`](docs/research-methodology.md).
 
@@ -400,23 +313,24 @@ reappraisal ≠ mutation of historical AppraisalRecord
 - held-out world distributions;
 - заранее определённый criterion.
 
-Не подбирать success criterion после просмотра результата без явной post-hoc маркировки.
+Отрицательный результат сохраняется и может инициировать design review/ADR.
 
 ---
 
-# 20. Scope implementation
+# 17. Scope implementation
 
-Пока `docs/design/current.md` не разрешает implementation/version work, подробный design **не является разрешением писать production architecture**.
+Пока `docs/design/current.md` не разрешает implementation/version work, detailed design **не является разрешением писать production architecture**.
 
-До соответствующих Design Updates нельзя превращать обсуждавшиеся candidates в обязательные choices, включая:
+До соответствующих DU нельзя превращать candidates в обязательные choices, включая:
 
-- конкретный Cortex backend/model size;
-- конкретный Memory backend/index/embedding model;
-- RSSM/Dreamer/TD-MPC/Transformer world model;
-- конкретный Self Model/calibration estimator;
-- RND/ICM/VIME/RIDE/NGU/Plan2Explore или common intrinsic-reward formula;
-- конкретный Drive list/homeostatic equation/coupling model;
-- конкретную human appraisal taxonomy/emotion labels/Appraisal LLM framework;
+- concrete Cortex backend/model;
+- concrete Memory backend/index;
+- RSSM/Dreamer/Transformer world model;
+- concrete Self Model estimator;
+- RND/ICM/VIME и common intrinsic formula;
+- concrete Drive list/equation;
+- concrete Appraisal taxonomy/LLM framework;
+- concrete Affect channels, valence-arousal/PAD, recurrent model или decay equation;
 - TensorDict/DI/config/scheduler framework;
 - PPO и другие learning algorithms;
 - Colab/cloud runtime;
@@ -424,7 +338,7 @@ reappraisal ≠ mutation of historical AppraisalRecord
 
 ---
 
-# 21. Поведение при неопределённости
+# 18. Поведение при неопределённости
 
 Если документация не определяет существенное решение:
 
@@ -433,5 +347,3 @@ reappraisal ≠ mutation of historical AppraisalRecord
 - зафиксировать вопрос как design blocker/open question;
 - предложить варианты/trade-offs, если это часть задачи;
 - не реализовывать зависимую архитектуру до design decision.
-
-Мелкие локальные implementation details могут выбираться самостоятельно только если они не меняют contracts, research validity и принятые boundaries.
