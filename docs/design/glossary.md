@@ -18,7 +18,7 @@ Committed versioned shared-state surface между модулями. Не по�
 
 ## Agent Snapshot
 
-Полный causally relevant снимок Agent: shared/private state, Memory, Workspace, Executive state/budgets, Policy/Planner state, parameters, RNG и другие stateful mechanisms.
+Полный causally relevant снимок Agent: shared/private state, Memory, Workspace, Executive/Policy/Planner state, pending Action Boundary state, parameters, RNG и другие stateful mechanisms.
 
 ## Cognitive Scheduler
 
@@ -374,7 +374,7 @@ Persistent state активного plan, включая progress, validity/stal
 
 ## SelectedActionIntent
 
-Выбранное Policy behavioral intention до Action Gate. Не `Action Commit`, dispatch, executed action или observed outcome.
+Выбранное Policy behavioral intention до Action Boundary. Не `AuthorizedAction`, `Action Commit`, dispatch, executed action или observed outcome.
 
 ## ReactivePolicy
 
@@ -386,11 +386,67 @@ First-class configuration без Planner capability; Policy продолжает
 
 ---
 
+# Action Boundary / Gate / Executor
+
+## Action Boundary
+
+Обязательная граница между Policy-selected intent и внешним Environment effect: authorization → `Action Commit` → dispatch/execution correlation.
+
+## Action Gate
+
+Agent-runtime authorization responsibility, проверяющая schema/freshness/capability/preconditions/explicit constraints. Не hidden Policy и не Environment oracle.
+
+## ActionAuthorizationResult
+
+Versioned результат Gate/authorization chain: authorized, rejected/stale/blocked/failed с stage provenance.
+
+## AuthorizedAction
+
+Успешно проверенное final semantic action до `Action Commit`. Может включать semantics-preserving normalization или explicit override lineage.
+
+## ActionOverrideRecord
+
+Явная запись behavior-changing replacement `Policy intent A → external action B` с owner/revision/reason/provenance. Без неё скрытая substitution запрещена.
+
+## Action Commit
+
+Необратимая causal boundary после final authorization и до dispatch. Фиксирует external action для данного Decision Window, но не гарантирует успешное исполнение.
+
+## ActionCommitRecord
+
+Immutable evidence committed action, связывающая intent/authorization/revisions с stable dispatch identity.
+
+## DispatchAttempt
+
+Одна transport/execution-adapter попытка отправить уже committed action. Retry того же logical dispatch не создаёт новый Action Commit.
+
+## EnvironmentActionReceipt
+
+Environment/adapter acknowledgement принятия команды. `accepted` не означает `succeeded`.
+
+## ActionExecutionRecord
+
+Causal evidence фактического lifecycle action: accepted/executing/completed/no-effect/partial/aborted/cancelled/rejected/unknown согласно capabilities среды.
+
+## execution_unknown
+
+Состояние, при котором неизвестно, был ли уже применён dispatched action. Не эквивалентно `not_executed` и не разрешает blind retry без idempotency/dedup/reconciliation guarantee.
+
+## Semantics-preserving normalization
+
+Преобразование representation/units/encoding без изменения behavioral meaning action. Не новый Policy choice.
+
+## Runtime-assurance override
+
+Explicit external/deployment safety correction action. Не приписывается Policy и сохраняет отдельную provenance.
+
+---
+
 # Будущие области
 
-## Action Gate / Executor
+## Experience / Data / Replay
 
-Будущая boundary между `SelectedActionIntent`, authorization, `Action Commit`, dispatch/execution и observed outcome. `DU-24`.
+Будущая causal experience/data schema для trajectories и Training Replay. `DU-25`.
 
 ---
 
