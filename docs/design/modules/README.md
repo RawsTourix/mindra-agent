@@ -2,11 +2,11 @@
 
 ## Статус
 
-Этот документ — карта принятых cognitive/runtime boundaries и внешних data/training/reproducibility областей. Канонический статус определяется специализированными design docs и [`../current.md`](../current.md).
+Этот документ — карта принятых cognitive/runtime boundaries и внешних data/training/reproducibility/evaluation областей. Канонический статус определяется специализированными design docs и [`../current.md`](../current.md).
 
 Отдельный cognitive module существует только при самостоятельной ответственности, явной boundary/state semantics и независимо проверяемом causal вкладе.
 
-`DU-25/26/27` находятся **вне cognitive module chain**: это Experience/Data, Training и Checkpoint/Reproducibility/Compute planes.
+`DU-25/26/27/28` находятся **вне cognitive module chain**: это Experience/Data, Training, Checkpoint/Reproducibility/Compute и Evaluation planes.
 
 ---
 
@@ -78,106 +78,104 @@ Environment
 # 3. Внешние planes вокруг cognition
 
 ```text
-Agent / Environment / Runtime
-          ↓
-      Evidence Plane
-          ↓
-   Experience Recorder
-          ↓
-    Experience Journal
-          ↓
- Projection / Dataset Builder
-          ↓
- TrainingSample / Replay
-          ↓
-     Training Runtime
-          ↓
- Candidate Revision
-          ↓
- Validation / Activation
-          ↓
-       MINDRA Agent
+                    ┌─────────────────────┐
+                    │   Evaluation Plane  │
+                    │ conditions/metrics  │
+                    │ controls/statistics │
+                    └──────────┬──────────┘
+                               │ Evidence / Intervention
+                               ▼
+Environment ↔ MINDRA Agent ↔ Action Boundary
+                 │
+                 ▼
+          Experience Plane
+                 │
+                 ▼
+           Training Plane
+                 │
+                 ▼
+      Candidate / Activation
 
 runtime / training / environment state
-          ↓
-Checkpoint Capture
-          ↓
-Checkpoint Manifest + Artifacts
-          ↓
-Restore / Experiment / Compute Manifests
+                 │
+                 ▼
+Checkpoint / Reproducibility / Compute Plane
 ```
 
 Canonical owners:
 
 - [`../experience-data-replay.md`](../experience-data-replay.md) — `DU-25`;
 - [`../training-lifecycle.md`](../training-lifecycle.md) — `DU-26`;
-- [`../checkpoint-reproducibility-compute.md`](../checkpoint-reproducibility-compute.md) — `DU-27`.
+- [`../checkpoint-reproducibility-compute.md`](../checkpoint-reproducibility-compute.md) — `DU-27`;
+- [`../mindra-eval.md`](../mindra-eval.md) — `DU-28`.
 
 Ключевые различия:
 
 ```text
 Experience Journal ≠ Agent runtime state
-Agent Memory Replay ≠ Training Replay
 Training Runtime ≠ cognitive module
 Runtime State Update ≠ Learning Update
 CandidateRevisionBundle ≠ Active AgentRevision
 AgentSnapshot ≠ persistent Checkpoint
-Checkpoint ≠ TrainingResumeCheckpoint ≠ ExperimentManifest
 same seed ≠ same RNG state ≠ guaranteed same execution
 ComputeManifest ≠ CognitiveResourceEnvelope
+Evaluation Runtime ≠ Agent cognition
+Task score ≠ module/causal/calibration evidence
+nested episode ≠ independent training replicate
+Policy pre-Gate quality ≠ post-Gate system quality
 ```
 
 ---
 
-# 4. DU-27 — Checkpoint / Reproducibility / Compute
+# 4. DU-28 — MINDRA-Eval
 
-Checkpoint/Reproducibility plane:
+Evaluation Plane:
 
-- фиксирует explicit causal `CaptureBoundary`;
-- различает AgentSnapshot, persistent Checkpoint, TrainingResumeCheckpoint и ExperimentManifest;
-- materializes и verifies required content-identified artifacts до final manifest commit;
-- сохраняет active/candidate revision separation;
-- интегрирует Environment/action pending state для full-system restore;
-- не считает seed заменой current RNG state;
-- различает exact/compatible/portable/approximate restore;
-- задаёт scoped ReproducibilityClaim вместо boolean;
-- сохраняет software/hardware/determinism/compute manifests;
-- не делает storage/tensor/checkpoint library частью architecture.
+- работает через explicit `EvaluationStudyPlan`/`EvaluationCondition`;
+- использует typed metrics вместо обязательного universal score;
+- различает baseline/ablation/semantic/matched/oracle controls;
+- поддерживает paired counterfactual interventions только при достаточном restore level;
+- сохраняет experimental/statistical unit и replicate nesting;
+- требует uncertainty/distribution evidence для stochastic aggregate claims;
+- отделяет evaluator Ground Truth от Agent-visible information;
+- измеряет Policy до Action Gate отдельно от post-Gate system;
+- учитывает actual compute/data/context/tuning differences;
+- задаёт negative gates для Affect/Workspace/Planner/Executive;
+- связывает report с raw Evidence/Experience/reproducibility manifests;
+- не фиксирует benchmark/statistics/plotting framework.
 
 ---
 
-# 5. Первый ещё не спроектированный блок — MINDRA-Eval
+# 5. Первый ещё не спроектированный блок — Engineering Testing
 
 Следующий Design Update:
 
 ```text
-DU-28 — MINDRA-Eval
+DU-29 — Engineering Testing
 ```
 
 Предварительная responsibility:
 
-> определить Evaluation Runtime, benchmark/condition manifests, causal ablations/interventions, diagnostic metrics и statistical protocol, позволяющие измерять самостоятельный вклад MINDRA mechanisms при сопоставимых data/compute/base-state условиях.
+> определить автоматическую проверку реализации MINDRA: contracts, ownership, causal invariants, failure semantics, serialization/restore/migration, data leakage и runtime/training/evaluation integration — отдельно от research utility evaluation.
 
 Особенно нужны:
 
-- end-to-end и module-specific metrics;
-- No*/Dummy/random/shuffled/matched controls;
-- common checkpoint/counterfactual base state;
-- compute-normalized comparisons;
-- stochastic evaluation/statistics;
-- evaluator-only Ground Truth isolation;
-- Policy vs Action Gate attribution;
-- negative module gates Workspace/Affect/Planner/Executive;
-- training plasticity vs retention;
-- EvaluationManifest/report schema;
-- evidence threshold для causal claims.
+- architecture/dependency tests;
+- unit/contract/property tests;
+- scheduler/state/action invariants;
+- failure injection;
+- checkpoint round-trip/corruption tests;
+- data lineage/leakage tests;
+- candidate/activation/rollback tests;
+- EvaluationManifest validation;
+- fast/slow/accelerator CI tiers;
+- flaky/golden/fuzz policies.
 
 ---
 
 # 6. Оставшиеся Design Updates
 
 ```text
-DU-28 — MINDRA-Eval
 DU-29 — Engineering Testing
 DU-30 — Research Claims / Limitations
 DU-31 — Contract + ADR Consistency Freeze
@@ -196,6 +194,8 @@ DU-32 — Version Roadmap
 
 Для Training Runtime требуются Frozen/NoLearning, offline/online controls, data/compute-matched comparisons, retention diagnostics и explicit revision activation evidence.
 
-Для Checkpoint/Reproducibility обязательны scope/integrity/restore/RNG/Environment causal-cut/compute provenance tests из `DU-27`.
+Для Checkpoint/Reproducibility обязательны scope/integrity/restore/RNG/Environment causal-cut/compute provenance requirements `DU-27`.
+
+Для Evaluation обязательны condition provenance, replicate/statistical semantics, matched controls, privileged Ground Truth isolation и report lineage `DU-28`.
 
 Следующий допустимый этап определяется только [`../current.md`](../current.md).
