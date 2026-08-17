@@ -32,7 +32,7 @@ Research result меняет architecture только через design review/
 
 ## Фундамент
 
-Перед subsystem/data/training changes обязательны:
+Перед subsystem/data/training/checkpoint changes обязательны:
 
 - `docs/design/system-context.md`;
 - `docs/design/dependency-rules.md`;
@@ -65,6 +65,7 @@ Research result меняет architecture только через design review/
 | Action Boundary | `docs/design/modules/action-boundary.md` | `docs/design/contracts/action-boundary.md` | `ADR-0024` |
 | Experience / Data / Replay | `docs/design/experience-data-replay.md` | `docs/design/contracts/experience-data-replay.md` | `ADR-0025` |
 | Training Lifecycle | `docs/design/training-lifecycle.md` | `docs/design/contracts/training-lifecycle.md` | `ADR-0026` |
+| Checkpoint / Reproducibility / Compute | `docs/design/checkpoint-reproducibility-compute.md` | `docs/design/contracts/checkpoint-reproducibility-compute.md` | `ADR-0027` |
 
 Следующий разрешённый DU брать только из `docs/design/current.md`.
 
@@ -102,6 +103,12 @@ runtime dependency graph ≠ gradient graph
 optimizer/trainer state ≠ CognitiveState
 CandidateRevisionBundle ≠ Active AgentRevision
 LearningUpdateRecord ≠ RevisionActivationRecord
+AgentSnapshot ≠ persistent Checkpoint
+Checkpoint ≠ TrainingResumeCheckpoint ≠ ExperimentManifest
+same seed ≠ same RNG state ≠ guaranteed same execution
+semantic restore ≠ bitwise reproducibility
+artifact identity ≠ physical path
+ComputeManifest ≠ CognitiveResourceEnvelope
 ```
 
 ## Memory / Workspace / Executive safeguards
@@ -177,6 +184,31 @@ LearningUpdateRecord ≠ RevisionActivationRecord
 - training loss/accuracy/KL/gradient norm/replay priority не становятся cognitive signals автоматически;
 - concrete optimizer/PyTorch/LoRA/PPO/GRPO/SFT/etc. не превращать в architecture invariant до version design.
 
+## Checkpoint / Reproducibility / Compute safeguards
+
+До пересмотра `DU-27`:
+
+- `AgentSnapshot` не считать persistent checkpoint или ExperimentManifest;
+- weights-only artifact не называть full/training-resume checkpoint без required state;
+- `seed` не использовать вместо current RNG states;
+- одинаковый seed не является доказательством identical execution;
+- final `CheckpointManifest` не commit'ить до verification обязательных artifacts;
+- physical file path/URI не использовать как единственную artifact identity;
+- content/integrity mismatch fail closed;
+- active и candidate revisions сохранять раздельно; restore candidate не активирует её автоматически;
+- `execution_unknown` не разрешает blind retry/naive branch после restore;
+- full-system exact restore требует causally aligned Agent + Environment state;
+- requested exact restore не downgraded молча до approximate/portable;
+- migration создаёт новый explicit lineage и не переписывает source checkpoint;
+- missing required delta/base checkpoint fail closed;
+- optional artifact loss не masquerade как наличие required causal state;
+- remote provider state unavailable/partial должен ограничивать reproducibility claim;
+- software/hardware/determinism conditions фиксируются для сильных reproducibility claims;
+- raw GPU/CPU/network/storage telemetry не публикуется в `CognitiveState` автоматически;
+- `ComputeManifest`/device-hours/FLOPs/VRAM не подменяют `CognitiveResourceEnvelope`/Executive ledger;
+- estimated/measured/provider-reported compute не смешивать без provenance;
+- `torch.save`/safetensors/DCP/Accelerate/hash/storage/container technology не превращать в architecture invariant до version design.
+
 ## Research discipline
 
 Для Training Lifecycle минимум сравнивать, где применимо:
@@ -190,9 +222,9 @@ vs Decoupled Online
 
 и учитывать **одновременно** новую capability и retention прежних capabilities.
 
-При online actor/learner отдельно анализировать behavior revision, learner revision, policy lag/off-policy assumptions и фактический data/compute budget.
+После `DU-27` любой сильный experiment/result должен иметь explicit checkpoint/base condition, restore profile, software/hardware/determinism/RNG/compute provenance. `same seed` недостаточно.
 
-Training improvement нельзя приписывать algorithm, если condition получила другой dataset, privileged labels, больший compute/data budget, другую replay policy или более слабую validation/retention policy.
+Training/evaluation improvement нельзя приписывать algorithm/module, если condition получила другой dataset, privileged labels, больший фактический compute/data budget, другой restore state или более слабую validation/reproducibility policy без отдельной attribution.
 
 ## Implementation scope
 
