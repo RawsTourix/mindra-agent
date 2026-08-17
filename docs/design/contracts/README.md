@@ -29,6 +29,14 @@
 
 ---
 
+# Текущие candidate contracts
+
+- [`environment.md`](environment.md) — candidate semantic machine-facing contract, появившийся после `DU-07`. Он фиксирует классы agent-facing/research-facing Environment operations, snapshot/clone/fork/intervention/transition-evidence requirements, но **не** является frozen Python API.
+
+Candidate contract может уточняться последующими DU до общего contract freeze.
+
+---
+
 # Правила
 
 Exact contract должен фиксировать, где применимо:
@@ -55,6 +63,8 @@ Research observability contract не должен автоматически д�
 
 Intervention contract не должен быть скрытым extension обычного logging callback.
 
+Environment research capability не должна автоматически становиться agent-facing capability.
+
 ---
 
 # Иерархия
@@ -62,7 +72,7 @@ Intervention contract не должен быть скрытым extension обы
 ```text
 canonical semantic design
 → accepted ADR
-→ exact internal contract
+→ candidate/exact internal contract
 → implementation
 ```
 
@@ -72,7 +82,7 @@ Exact contract уточняет форму принятой семантики, 
 
 # Текущий статус
 
-После `DU-04` … `DU-06` уже приняты semantic requirements для:
+После `DU-04` … `DU-07` уже приняты semantic requirements для:
 
 - versioned committed `CognitiveState`;
 - state ownership/provenance/scopes;
@@ -85,17 +95,24 @@ Exact contract уточняет форму принятой семантики, 
 - declared private-state research probes;
 - explicit Intervention Gateway;
 - intervention lineage/provenance;
-- exact-vs-approximate counterfactual distinction.
+- exact-vs-approximate counterfactual distinction;
+- agent-visible vs research-only Environment boundaries;
+- Environment snapshot/clone/fork/intervention semantics;
+- procedural world identity/version/RNG provenance;
+- External Task Feedback vs Objective Task Metric vs Internal Utility distinction.
 
-Однако **exact Python contracts пока намеренно не зафиксированы**.
+Однако **общий exact Python contract set пока намеренно не зафиксирован**.
 
-Причина: будущие module-specific Design Updates (`DU-07` … `DU-24`) должны сначала проверить semantic protocol реальными требованиями Environment, Cortex, Memory, World Model, Policy и других подсистем. В частности, только они покажут:
+`environment.md` уже существует как candidate contract, потому что `DU-07` дал достаточно устойчивую семантику для описания required capabilities. Он остаётся candidate, поскольку `DU-08`, `DU-09`, `DU-24`, `DU-25`, `DU-27` и `DU-28` ещё могут уточнить exact observation/action/data/snapshot forms.
+
+Будущие module-specific Design Updates (`DU-08` … `DU-24`) должны продолжать проверять semantic protocol реальными требованиями Cortex, Memory, World Model, Policy и других подсистем. В частности, только они покажут:
 
 - какие public/private probes реально нужны;
 - какие intervention targets являются осмысленными;
 - какие данные слишком велики для общего trace contract;
-- какие backend-specific research adapters потребуются.
+- какие backend-specific research adapters потребуются;
+- какие Environment observation/action fields действительно нужны downstream modules.
 
-До contract freeze запрещено считать обсуждавшиеся `Protocol`, ABC, TensorDict `in_keys/out_keys`, dataclass schemas, OpenTelemetry span model, PyTorch hooks, pyvene API или конкретный scheduler/intervention result type каноническими.
+До contract freeze запрещено считать обсуждавшиеся `Protocol`, ABC, TensorDict `in_keys/out_keys`, dataclass schemas, OpenTelemetry span model, PyTorch hooks, pyvene API, Gymnasium `Env` или конкретный scheduler/intervention result type каноническими.
 
 Exact contracts создаются тогда, когда соответствующая семантика достаточно устойчива и есть основания зафиксировать machine-facing форму.
