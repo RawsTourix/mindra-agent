@@ -6,7 +6,7 @@
 
 Здесь фиксируются принятые семантики, invariants, границы модулей, internal contracts, архитектурные решения и будущие version plans.
 
-На текущем этапе сформирован documentation foundation и приняты `DU-01` … `DU-14`. Детальные subsystem design добавляются последовательно после отдельного исследования вариантов.
+На текущем этапе сформирован documentation foundation и приняты `DU-01` … `DU-15`. Детальные subsystem design добавляются последовательно после отдельного исследования вариантов.
 
 ---
 
@@ -53,22 +53,23 @@ Research evidence не переписывает design напрямую: про�
 - [`modules/memory.md`](modules/memory.md) — `DU-11`: canonical Memory Store, MemoryRecord, derived representations/indexes и explicit retrieval boundary;
 - [`modules/world-model.md`](modules/world-model.md) — `DU-12`: World Belief, assimilation, action-conditioned prediction, imagination, uncertainty и prediction-error boundary;
 - [`modules/self-model.md`](modules/self-model.md) — `DU-13`: capability facts, context-conditioned competence, calibrated Self Prediction и self-change semantics;
-- [`modules/intrinsic-signals.md`](modules/intrinsic-signals.md) — `DU-14`: typed multi-provider Intrinsic Signal Layer без обязательного intrinsic reward/scalarization.
+- [`modules/intrinsic-signals.md`](modules/intrinsic-signals.md) — `DU-14`: typed multi-provider Intrinsic Signal Layer без обязательного intrinsic reward/scalarization;
+- [`modules/drives.md`](modules/drives.md) — `DU-15`: typed persistent Drive System, homeostatic/adaptive dynamics и explicit Goal/Valuation boundaries.
 
 ## Карта модулей
 
 - [`modules/README.md`](modules/README.md) — предварительная карта архитектурных областей.
 
-`Environment`, `Perception`, `Goal System`, `Cortex`, `Memory Core`, `World Model`, `Self Model` и `Intrinsic Signals` уже имеют accepted semantic design. Остальные области проектируются последовательно.
+`Environment`, `Perception`, `Goal System`, `Cortex`, `Memory Core`, `World Model`, `Self Model`, `Intrinsic Signals` и `Drive System` уже имеют accepted semantic design. Остальные области проектируются последовательно.
 
 ## Decision records
 
 - [`decisions/README.md`](decisions/README.md);
-- `ADR-0001` … `ADR-0014` — accepted.
+- `ADR-0001` … `ADR-0015` — accepted.
 
 Последнее решение:
 
-- [`ADR-0014`](decisions/ADR-0014-multi-provider-intrinsic-signal-layer.md) — independent typed Intrinsic Signal Providers без обязательной scalarization.
+- [`ADR-0015`](decisions/ADR-0015-typed-stateful-drive-system.md) — typed stateful Drive System без global motivation scalar и без требования homeostatic set-point для каждого drive.
 
 ## Candidate / exact internal contracts
 
@@ -80,7 +81,8 @@ Research evidence не переписывает design напрямую: про�
 - [`contracts/memory.md`](contracts/memory.md);
 - [`contracts/world-model.md`](contracts/world-model.md);
 - [`contracts/self-model.md`](contracts/self-model.md);
-- [`contracts/intrinsic-signals.md`](contracts/intrinsic-signals.md).
+- [`contracts/intrinsic-signals.md`](contracts/intrinsic-signals.md);
+- [`contracts/drives.md`](contracts/drives.md).
 
 Candidate contracts определяют semantic machine-facing requirements, но exact Python API ещё не frozen.
 
@@ -107,7 +109,7 @@ Candidate contracts определяют semantic machine-facing requirements, �
 
 Канонический порядок: [`documentation-plan.md`](documentation-plan.md).
 
-Текущий следующий update: `DU-15 — Drives`.
+Текущий следующий update: `DU-16 — Appraisal`.
 
 ---
 
@@ -124,7 +126,7 @@ Candidate contracts определяют semantic machine-facing requirements, �
 5. diagnostic/evaluation strategy;
 6. функциональную роль, не дублирующую соседнюю.
 
-`Cortex` принят как shared capability boundary. `Intrinsic Signals` приняты как семейство независимо конфигурируемых providers, а не как один обязательный монолитный cognitive module.
+`Cortex` принят как shared capability boundary. `Intrinsic Signals` приняты как семейство independently configurable providers. `Drive System` принят как единый ownership boundary persistent typed drive states с pluggable drive components.
 
 ---
 
@@ -133,25 +135,31 @@ Candidate contracts определяют semantic machine-facing requirements, �
 В дополнение к предыдущим DU теперь зафиксировано:
 
 ```text
-Intrinsic Signal ≠ Reward ≠ Drive ≠ Utility/Value
-prediction discrepancy ≠ predictive surprisal ≠ novelty
-novelty ≠ visitation rarity
-information gain ≠ arbitrary uncertainty reduction
-higher signal magnitude ≠ greater desirability
+Intrinsic Signal ≠ Drive State
+Drive State ≠ Drive Pressure ≠ Utility/Value
+Drive ≠ Goal ≠ Policy
+higher Drive Pressure ≠ universally greater desirability
+homeostatic drive ≠ mandatory form of every drive
+Drive System ≠ global motivation scalar
+Environment reset ≠ Drive reset
+wall-clock ≠ implicit Drive time
+natural Drive update ≠ research intervention
 ```
 
-- Intrinsic Signals выводятся только из explicit causal sources;
-- разные signal families сохраняют отдельные semantics/provider identity;
-- общего mandatory `intrinsic_reward` нет;
-- prediction error не становится curiosity/value автоматически;
-- information gain допускается только при meaningful before/after knowledge semantics;
-- competence change сохраняет signed meaning до downstream interpretation;
-- novelty/rarity имеют reference scope/history/representation identity;
-- replay/imagined/intervened signals не выдаются за natural actual-experience signals;
-- representation/normalization/provider revisions входят в provenance;
-- stateful providers входят в exact Agent snapshot;
-- `NoIntrinsicSignals`, Dummy и Control providers различаются.
+- Drive System владеет committed `DriveStateSet`;
+- отдельные drives сохраняют собственную semantic identity/revision;
+- homeostatic drives имеют meaningful regulated state/target/range;
+- adaptive motivational drives не обязаны иметь фиктивный set-point;
+- Intrinsic Signal является input/evidence, а не готовым drive pressure;
+- persistent drive dynamics может включать decay/recovery/accumulation/satiation;
+- drives могут изменяться без нового Environment observation, но только на explicit logical boundary;
+- cross-drive interaction читает предыдущую committed revision и не создаёт hidden instantaneous cycle;
+- Drive System не выбирает winning drive и не scalarize конфликт;
+- Drive может породить только `Goal Proposal`, а не напрямую commit Goal;
+- будущий Valuation получает Drive State как input, но Drive не вычисляет action utility;
+- causally relevant Drive private state входит в exact Agent snapshot;
+- `NoDrives`, Dummy, Constant/Clamped/Random/Shuffled/Matched controls различаются.
 
-RND, ICM, VIME, NGU, RIDE, Plan2Explore, pseudo-count и конкретные normalization formulas являются candidate implementations/evidence, но не canonical requirements.
+Homeostatic RL, Active Inference, curiosity scheduling и конкретные drive equations являются research evidence/candidate approaches, но не canonical implementation requirements.
 
 Фактический статус: [`current.md`](current.md).
