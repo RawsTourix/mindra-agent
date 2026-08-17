@@ -4,9 +4,9 @@
 
 `docs/design/` — каноническое место архитектурной документации MINDRA.
 
-Здесь фиксируются принятые семантики, invariants, cognitive/runtime/data/training/reproducibility/evaluation/testing/research-claim boundaries, contracts, ADR и будущие version plans.
+Здесь фиксируются принятые семантики, invariants, cognitive/runtime/data/training/reproducibility/evaluation/testing/research-claim boundaries, contracts, ADR, consistency freeze и будущие version plans.
 
-На текущем этапе приняты `DU-01 … DU-30`. Реализация ещё не начата.
+На текущем этапе приняты `DU-01 … DU-31`. Реализация ещё не начата.
 
 ---
 
@@ -73,26 +73,39 @@
 
 ## Research Claims / Limitations Plane
 
-- [`research-claims-limitations.md`](research-claims-limitations.md) — `DU-30`: versioned claims, explicit scope/evidence/limitations/known unknowns, negative results и claim lifecycle.
+- [`research-claims-limitations.md`](research-claims-limitations.md) — `DU-30`.
+
+## Semantic consistency freeze
+
+- [`contract-adr-consistency-freeze.md`](contract-adr-consistency-freeze.md) — `DU-31`;
+- [`contracts/semantic-freeze-manifest.md`](contracts/semantic-freeze-manifest.md) — machine-facing baseline `F31`.
+
+Статус после `DU-31`:
+
+```text
+DU-01 … DU-30 semantic design
+= baseline F31
+= ready for version planning
+```
 
 ## Decisions
 
 - [`decisions/README.md`](decisions/README.md)
-- `ADR-0001 … ADR-0030` — accepted.
+- `ADR-0001 … ADR-0031` — accepted.
 
 Последнее решение:
 
-- [`ADR-0030`](decisions/ADR-0030-versioned-evidence-bounded-research-claims.md) — versioned evidence-bounded Research Claims вместо свободного reporting prose.
+- [`ADR-0031`](decisions/ADR-0031-semantic-contract-consistency-freeze.md) — semantic contract consistency freeze перед Version Roadmap.
 
-## Candidate contracts
+## Semantic contracts
 
 Каталог: [`contracts/README.md`](contracts/README.md).
 
-Последний добавленный contract:
+После `DU-31` contracts `DU-07 … DU-30` считаются **semantic-frozen for roadmap baseline F31**, но exact Python/API/serialization representation ещё не frozen.
 
-- [`contracts/research-claims-limitations.md`](contracts/research-claims-limitations.md).
+Freeze manifest:
 
-Exact Python API ещё не frozen.
+- [`contracts/semantic-freeze-manifest.md`](contracts/semantic-freeze-manifest.md).
 
 ---
 
@@ -105,34 +118,34 @@ Exact Python API ещё не frozen.
 Текущий следующий update:
 
 ```text
-DU-31 — Contract + ADR Consistency Freeze
+DU-32 — Version Roadmap
 ```
 
 ---
 
-# Ключевые инварианты после DU-30
+# Ключевые инварианты после DU-31
 
 ```text
-Observation ≠ Interpretation ≠ ResearchClaim
-claim scope ≠ universal scope
-association ≠ causation
-engineering verified ≠ functionally useful
-null/inconclusive/invalid ≠ one result class
-functional similarity ≠ phenomenological equivalence
-supersession ≠ history rewrite
-publication prose ≠ claim source of truth
+semantic ownership frozen
+exact Python API not frozen
+
+CognitiveState ≠ AgentSnapshot ≠ Checkpoint
+Memory Core ≠ Memory Regulation
+Retrieval ≠ Memory Replay ≠ Training Replay
+Consolidation ≠ Learning Update
+Scheduler ≠ Executive ≠ Policy
+Planner ≠ Policy ≠ Action Boundary
+SelectedActionIntent ≠ AuthorizedAction ≠ Action Commit
+Action Commit ≠ Dispatch ≠ Environment Transition
+Evaluation ≠ Engineering Verification ≠ Research Claims
 ```
 
-- `ResearchClaim` имеет stable identity/revision и explicit `ClaimScope`;
-- supporting/challenging evidence сохраняется;
-- causal/generalization/architecture/efficiency claims требуют соответствующего evidence;
-- limitations и known unknowns first-class;
-- negative/null/inconclusive evidence сохраняется наравне с positive;
-- failed module gate инициирует claim/design review, а не silent architecture mutation;
-- Cortex/provider/compute/data/tuning dependence входит в scope/limitations;
-- Workspace/Affect/Self Model/first-person Cortex output не являются сами по себе evidence consciousness/subjective experience;
-- old claims weaken/supersede с сохранением lineage;
-- public/report wording traceable до canonical claim revision;
-- concrete paper/report/preregistration/evidence-score implementation не выбран.
+- `F31` закрепляет normative reading `DU-01 … DU-30`;
+- CR-01 … CR-05 разрешают накопленные generic→specialized wording ambiguities;
+- 24 semantic boundary contracts покрывают `DU-07 … DU-30`;
+- breaking semantic change после freeze требует нового ADR;
+- version roadmap может выбирать framework/model/algorithm/storage/API только при сохранении frozen meaning;
+- conditional Affect/Workspace/Executive/Planner остаются falsifiable и не объявляются empirically proven;
+- implementation начинается только после `DU-32` и version-specific implementation sequence.
 
 Фактический статус: [`current.md`](current.md).
