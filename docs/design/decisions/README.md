@@ -38,6 +38,7 @@ Research result не меняет design автоматически: снача�
 - [`ADR-0022`](ADR-0022-proposal-driven-budget-aware-executive-control.md) — proposal-driven budget-aware Executive Control поверх invariant Scheduler, с explicit MetaAction proposals, resource envelope и equal-compute negative gate.
 - [`ADR-0023`](ADR-0023-policy-owned-selection-optional-planner.md) — Policy-owned final behavioral selection с optional/falsifiable Planner provider и explicit selected-intent boundary перед Action Gate.
 - [`ADR-0024`](ADR-0024-post-authorization-pre-dispatch-action-commit.md) — mandatory Action authorization boundary и `Action Commit` после финальной authorization, но до dispatch; explicit override provenance и retry/idempotency semantics.
+- [`ADR-0025`](ADR-0025-causal-experience-journal-derived-projections.md) — append-only causal `Experience Journal` как source of truth записанного опыта + versioned derived trajectory/dataset/training projections.
 
 ## Proposed
 
