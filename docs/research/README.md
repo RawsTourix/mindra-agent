@@ -27,7 +27,8 @@ research/
 │   ├── DU-20-memory-regulation-consolidation-landscape-2026-08.md
 │   ├── DU-21-workspace-landscape-2026-08.md
 │   ├── DU-22-executive-control-landscape-2026-08.md
-│   └── DU-23-policy-planner-landscape-2026-08.md
+│   ├── DU-23-policy-planner-landscape-2026-08.md
+│   └── DU-24-action-boundary-landscape-2026-08.md
 ├── hypotheses.md          # появится позже
 ├── experiments/           # появится позже
 ├── results/               # появится позже
@@ -38,13 +39,13 @@ research/
 
 # Literature research pass
 
-Текущие pass `DU-10 … DU-23` находятся в [`literature/`](literature/).
+Текущие pass `DU-10 … DU-24` находятся в [`literature/`](literature/).
 
 Последние:
 
-- [`literature/DU-21-workspace-landscape-2026-08.md`](literature/DU-21-workspace-landscape-2026-08.md) — bounded workspace/broadcast и ограничения consciousness claims;
 - [`literature/DU-22-executive-control-landscape-2026-08.md`](literature/DU-22-executive-control-landscape-2026-08.md) — adaptive computation, metareasoning, budget allocation и stopping;
-- [`literature/DU-23-policy-planner-landscape-2026-08.md`](literature/DU-23-policy-planner-landscape-2026-08.md) — reactive/direct Policy, learned world-model policies, online planning/search, belief-space planning, LLM-assisted planning и action-grounding boundaries.
+- [`literature/DU-23-policy-planner-landscape-2026-08.md`](literature/DU-23-policy-planner-landscape-2026-08.md) — reactive/direct Policy, online planning/search, belief-space planning, LLM-assisted planning и action-grounding boundaries;
+- [`literature/DU-24-action-boundary-landscape-2026-08.md`](literature/DU-24-action-boundary-landscape-2026-08.md) — shielding/runtime assurance, action lifecycle/correlation, authorization placement и retry/idempotency semantics.
 
 Эти документы **не выбирают** canonical implementation framework/algorithm.
 
@@ -65,31 +66,41 @@ research evidence / experiment result
 
 Для будущих экспериментов заранее фиксировать hypothesis, independent variables, baselines/controls, seeds, environment/data versions, metrics, success/falsification criterion и analysis policy.
 
-Для Policy / Planner особенно важны:
+Для Action Boundary особенно важны:
 
 ```text
-Policy + Planner
-vs ReactivePolicy / NoPlanner
-vs Depth1 / fixed-lookahead planner
-vs Random/Shuffled plan
-vs Matched search/recurrent control
+PassThrough/SchemaOnly Gate
+vs Capability/Constraint Gate
+vs explicit Shield/RuntimeAssurance
+vs Random/Shuffled rejection controls
 ```
 
 Нужно отдельно измерять:
 
-- actual planning compute;
-- long-horizon/compositional success;
-- contingent planning при partial observability;
-- candidate quality/diversity;
-- plan validity/replanning;
-- robustness к World Model error;
-- constraint/risk behavior;
-- generalization;
-- planning overhead.
+- Policy quality **до** Gate по `SelectedActionIntent`;
+- Gate accept/reject/override behavior;
+- stale/malformed/capability rejection rate;
+- false/over-conservative rejection;
+- предотвращённые constraint violations;
+- external override rate и attribution;
+- dispatch attempts/retries;
+- duplicate suppression;
+- `execution_unknown` frequency;
+- Environment no-effect/partial/abort outcomes;
+- complete intent→outcome correlation.
 
-Положительный Planner result не считается доказанным, если configuration просто использовала больше compute/state capacity или World Model oracle information.
+Для retry/idempotency нужны failure-injection experiments:
 
-Для Policy отдельно проверять causal sensitivity selection к `ComparisonPolicy`, risk/constraint evidence и stochastic RNG, не смешивая quality Valuation и quality final selector.
+```text
+definitely-not-sent
+acknowledgement lost after possible send
+duplicate retry attempt
+partial execution
+```
+
+Policy нельзя считать успешной за behavior-changing action, созданный external shield/override, без отдельной attribution analysis.
+
+Сложный Gate/override не считается обоснованным, если simpler pass-through/schema/capability controls дают тот же safety/validity result.
 
 ---
 
