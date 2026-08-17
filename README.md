@@ -4,17 +4,17 @@
 
 Проект исследует, можно ли построить систему, в которой поведение определяется не только внешней задачей и базовой языковой моделью, но также собственным изменяющимся внутренним состоянием, памятью, моделью мира и себя, внутренними сигналами, drives, appraisal/affect, valuation, управляемым распределением cognitive processing, adaptive Executive Control, явной Policy/Planner boundary и причинно строгой Action Boundary между выбранным намерением и внешним действием.
 
-Отдельные Experience/Data, Training, Checkpoint/Reproducibility/Compute, Evaluation и Engineering Verification planes сохраняют причинную историю, изменяют trainable revisions через explicit candidate → validation → activation lifecycle, обеспечивают scoped restore/reproducibility, проверяют функциональный причинный вклад механизмов и машинно контролируют соблюдение contracts/invariants — не смешиваясь с ordinary cognition.
+Отдельные Experience/Data, Training, Checkpoint/Reproducibility/Compute, Evaluation, Engineering Verification и Research Claims/Limitations planes сохраняют причинную историю, изменяют trainable revisions через explicit candidate → validation → activation lifecycle, обеспечивают scoped restore/reproducibility, проверяют функциональный причинный вклад механизмов, машинно контролируют соблюдение contracts/invariants и ограничивают научные утверждения реальным evidence/scope — не смешиваясь с ordinary cognition.
 
-MINDRA не объявляет целью создание сознания или доказательство субъективного опыта у искусственной системы. Исследуются функционально измеримые механизмы и их причинный вклад в поведение.
+MINDRA не объявляет целью создание сознания или доказательство субъективного опыта у искусственной системы. Исследуются функционально измеримые механизмы и их причинный вклад в поведение; функциональное сходство не считается доказательством феноменологического равенства.
 
 ## Статус
 
 Проект находится на стадии **канонического архитектурного и исследовательского проектирования**.
 
-Documentation foundation и `DU-01 … DU-29` приняты. Следующий допустимый Design Update всегда указан в [`docs/design/current.md`](docs/design/current.md).
+Documentation foundation и `DU-01 … DU-30` приняты. Следующий допустимый Design Update всегда указан в [`docs/design/current.md`](docs/design/current.md).
 
-Production/research implementation, software versions, exact contract freeze, конкретные algorithms/frameworks, storage/evaluation/testing backends и Cortex backend ещё не зафиксированы.
+Production/research implementation, software versions, общий contract freeze, конкретные algorithms/frameworks, storage/evaluation/testing backends и Cortex backend ещё не зафиксированы.
 
 ## Основные принципы
 
@@ -28,11 +28,13 @@ Production/research implementation, software versions, exact contract freeze, к
 - manifest-driven checkpoints и scoped reproducibility claims;
 - typed evaluation evidence вместо одного universal score;
 - invariant-driven Engineering Verification вместо одной метрики line coverage;
+- versioned Research Claims с explicit scope/limitations/known unknowns;
+- negative/null/inconclusive evidence не скрывается;
 - ablation/control/matched-control/intervention для существенных механизмов;
-- compute/data/context attribution;
-- разделение Design / Implementation / Engineering Testing / Research Evidence;
+- compute/data/context/tuning attribution;
+- разделение Design / Implementation / Engineering Testing / Research Evidence / Research Claims;
 - причинная проверка функционального вклада;
-- отсутствие антропоморфных выводов без достаточных оснований.
+- отсутствие антропоморфных и phenomenological выводов без достаточных оснований.
 
 ## Документация
 
