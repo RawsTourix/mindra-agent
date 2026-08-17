@@ -17,7 +17,8 @@ research/
 │   ├── DU-10-cortex-landscape-2026-08.md
 │   ├── DU-11-memory-landscape-2026-08.md
 │   ├── DU-12-world-model-landscape-2026-08.md
-│   └── DU-13-self-model-landscape-2026-08.md
+│   ├── DU-13-self-model-landscape-2026-08.md
+│   └── DU-14-intrinsic-signals-landscape-2026-08.md
 ├── hypotheses.md          # появится позже
 ├── experiments/           # появится позже
 ├── results/               # появится позже
@@ -71,7 +72,8 @@ research evidence / experiment result
 - [`literature/DU-10-cortex-landscape-2026-08.md`](literature/DU-10-cortex-landscape-2026-08.md) — small/open-weight Cortex candidates и tooling evidence для `DU-10`;
 - [`literature/DU-11-memory-landscape-2026-08.md`](literature/DU-11-memory-landscape-2026-08.md) — external/neural/hybrid Memory approaches, representation drift и retrieval-index evidence для `DU-11`;
 - [`literature/DU-12-world-model-landscape-2026-08.md`](literature/DU-12-world-model-landscape-2026-08.md) — RSSM/Dreamer, decoder-free, Transformer world models, uncertainty и TorchRL tooling evidence для `DU-12`;
-- [`literature/DU-13-self-model-landscape-2026-08.md`](literature/DU-13-self-model-landscape-2026-08.md) — confidence calibration, competence awareness, metacognition и functional self-modeling evidence для `DU-13`.
+- [`literature/DU-13-self-model-landscape-2026-08.md`](literature/DU-13-self-model-landscape-2026-08.md) — confidence calibration, competence awareness, metacognition и functional self-modeling evidence для `DU-13`;
+- [`literature/DU-14-intrinsic-signals-landscape-2026-08.md`](literature/DU-14-intrinsic-signals-landscape-2026-08.md) — prediction-error, novelty, count/density, information-gain, learning-progress и modern intrinsic-exploration evidence для `DU-14`.
 
 Эти документы **не выбирают** canonical model/backend/database/index/framework/estimator.
 
@@ -122,4 +124,4 @@ research evidence / experiment result
 
 # Текущий статус
 
-Experiment/hypothesis registry ещё не создан. На текущем design этапе журнал уже используется для датированных research/literature pass, которые не должны смешиваться с canonical design.
+Experiment/hypothesis registry ещё не создан. На текущем design этапе журнал используется для датированных research/literature pass, которые не должны смешиваться с canonical design.
