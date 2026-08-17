@@ -6,7 +6,7 @@
 
 Здесь фиксируются принятые семантики, invariants, границы модулей, internal contracts, архитектурные решения и будущие version plans.
 
-На текущем этапе сформирован documentation foundation и приняты `DU-01` … `DU-06`. Детальные subsystem design добавляются последовательно после отдельного исследования вариантов.
+На текущем этапе сформирован documentation foundation и приняты `DU-01` … `DU-07`. Детальные subsystem design добавляются последовательно после отдельного исследования вариантов.
 
 ---
 
@@ -16,7 +16,7 @@
 Concept
 → Design semantics / invariants
 → ADR
-→ Exact internal contracts
+→ Candidate / exact internal contracts
 → Version specification
 → Implementation sequence
 → Engineering/research acceptance evidence
@@ -44,11 +44,17 @@ Research evidence не переписывает design напрямую: про�
 - [`module-lifecycle.md`](module-lifecycle.md) — `DU-05`: module descriptors, declared reads/writes, DAG/wave scheduling, transactional public/private effects, lifecycle/failure semantics и граница будущего Executive Control;
 - [`observability-and-intervention.md`](observability-and-intervention.md) — `DU-06`: passive Evidence Plane, causal tracing, private-state probes, observability depth, explicit Intervention Gateway, branch/provenance semantics и counterfactual requirements.
 
+## Спроектированные subsystem boundaries
+
+- [`modules/environment.md`](modules/environment.md) — `DU-07`: общий Environment contract, Agent Interaction Plane/Research Plane, hidden/raw/task/feedback boundaries, snapshot/clone/fork, procedural generation, distributions и reference `MicroWorld`.
+
 ## Карта модулей
 
 - [`modules/README.md`](modules/README.md) — предварительная карта архитектурных областей, их responsibilities, различий и зависимостей.
 
 Наличие области в карте не означает, что отдельный модуль уже принят. Соответствующий Design Update может объединить, разделить, отложить или отвергнуть кандидатную ответственность.
+
+`Environment` уже имеет accepted semantic design в [`modules/environment.md`](modules/environment.md); остальные области карты проектируются последовательно.
 
 ## Decision records
 
@@ -58,13 +64,15 @@ Research evidence не переписывает design напрямую: про�
 - [`ADR-0003`](decisions/ADR-0003-hierarchical-logical-time.md) — hierarchical logical time и causal commit boundaries;
 - [`ADR-0004`](decisions/ADR-0004-versioned-committed-cognitive-state.md) — versioned committed CognitiveState, staged owner-scoped updates и запрет hidden mutable bus semantics;
 - [`ADR-0005`](decisions/ADR-0005-wave-scheduled-module-protocol.md) — declared DAG scheduling, execution waves и atomic public/private module commit;
-- [`ADR-0006`](decisions/ADR-0006-separated-evidence-plane-and-intervention-gateway.md) — passive Evidence Plane отдельно от privileged Intervention Gateway.
+- [`ADR-0006`](decisions/ADR-0006-separated-evidence-plane-and-intervention-gateway.md) — passive Evidence Plane отдельно от privileged Intervention Gateway;
+- [`ADR-0007`](decisions/ADR-0007-two-plane-environment-boundary.md) — agent-visible Environment interaction отдельно от research-only world control/snapshot/intervention.
 
-## Exact internal contracts
+## Candidate / exact internal contracts
 
-- [`contracts/README.md`](contracts/README.md).
+- [`contracts/README.md`](contracts/README.md);
+- [`contracts/environment.md`](contracts/environment.md) — candidate Environment capability/data contract после `DU-07`; exact Python API ещё не frozen.
 
-Semantic `CognitiveState`, module lifecycle и research observability/intervention boundaries уже определены, но exact machine-facing Python contracts намеренно не фиксируются до появления module-specific design pressure и дальнейшего contract freeze.
+Semantic `CognitiveState`, module lifecycle, research observability/intervention и Environment boundaries уже определены, но общий exact machine-facing Python contract set намеренно не фиксируется до дальнейшего design pressure и contract freeze.
 
 ## Versions
 
@@ -89,7 +97,7 @@ Semantic `CognitiveState`, module lifecycle и research observability/interventi
 
 Канонический порядок: [`documentation-plan.md`](documentation-plan.md).
 
-Текущий следующий update: `DU-07 — Environment / MicroWorld Contract`.
+Текущий следующий update: `DU-08 — Perception / Canonical Representation`.
 
 ---
 
@@ -103,7 +111,7 @@ Semantic `CognitiveState`, module lifecycle и research observability/interventi
 
 1. обновляется ADR registry;
 2. обновляется canonical design owner;
-3. обновляются exact contracts;
+3. обновляются exact/candidate contracts;
 4. обновляются затронутые version plans/status;
 5. только затем implementation следует новому решению.
 
@@ -153,7 +161,7 @@ Implementation-ready design должен минимизировать архит
 
 # 7. Текущая граница
 
-Приняты `DU-01` … `DU-06`, но пока не существует accepted detailed cognitive module design, exact module contract или version roadmap.
+Приняты `DU-01` … `DU-07`, но пока не существует accepted detailed cognitive module design, frozen exact module contract или version roadmap.
 
 Канонически уже зафиксированы:
 
@@ -182,8 +190,16 @@ Implementation-ready design должен минимизировать архит
 - intervention имеет отдельные target/base/provenance semantics и не меняет semantic owner;
 - confirmatory causal experiments по умолчанию предпочитают fork от committed base;
 - raw/backend activation access является opt-in research capability, а не универсальным контрактом;
-- intervened data не смешивается с natural experience без явного design.
+- intervened data не смешивается с natural experience без явного design;
+- Environment Agent Interaction Plane отделён от research-only ground truth/control plane;
+- Raw Observation не равен canonical internal representation;
+- External Task Specification не равен internal Goal state;
+- External Task Feedback, Objective Task Metric и Internal Utility различаются;
+- Environment exact snapshot включает causally relevant hidden state и RNG;
+- seed сам по себе не является достаточной world identity;
+- procedural generation должна быть factorized/versioned и поддерживать held-out distributions;
+- `MicroWorld` принят как reference 2D symbolic Environment family, но не как универсальное определение Environment.
 
-Обсуждавшиеся ранее Qwen, TensorDict, PPO, Dreamer, RND, ICM, FAISS, PEFT/LoRA, Colab, OpenTelemetry, pyvene и другие технологии являются кандидатами для будущего анализа, но не каноническими требованиями.
+Обсуждавшиеся ранее Qwen, TensorDict, PPO, Dreamer, RND, ICM, FAISS, PEFT/LoRA, Colab, OpenTelemetry, pyvene, Gymnasium и другие технологии являются кандидатами для будущего анализа/adapter implementation, но не каноническими требованиями.
 
 Фактический статус: [`current.md`](current.md).
