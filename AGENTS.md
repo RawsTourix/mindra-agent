@@ -32,7 +32,7 @@
 4. определить, является ли задача documentation, design, implementation или research change;
 5. прочитать релевантный canonical design;
 6. прочитать все релевантные accepted/non-superseded ADR;
-7. прочитать релевантные exact internal contracts, если они уже существуют;
+7. прочитать релевантные candidate/exact internal contracts, если они уже существуют;
 8. проверить границы текущего разрешённого scope;
 9. только после этого изменять код или документацию.
 
@@ -88,7 +88,7 @@ Research evidence
 
 1. оформить или обновить ADR, если существовало несколько реалистичных вариантов;
 2. обновить канонический документ-владелец темы;
-3. обновить exact contracts, если решение меняет интерфейс;
+3. обновить candidate/exact contracts, если решение меняет интерфейс;
 4. обновить current/status и будущий implementation plan, если они затронуты;
 5. только после consistency patch реализовывать изменение.
 
@@ -392,7 +392,67 @@ OpenTelemetry, PyTorch hooks, pyvene и другие инструменты по
 
 ---
 
-# 14. Scope текущего этапа
+# 14. Environment discipline
+
+Обязательны [`docs/design/modules/environment.md`](docs/design/modules/environment.md), [`docs/design/contracts/environment.md`](docs/design/contracts/environment.md) и `ADR-0007`.
+
+Помнить:
+
+```text
+Agent Interaction Plane
+≠
+Environment Research Plane
+```
+
+```text
+Raw Observation
+≠
+Hidden World State
+≠
+Research Ground Truth
+```
+
+```text
+External Task Feedback
+≠
+Objective Task Metric
+≠
+Internal Utility
+```
+
+```text
+seed
+≠
+complete world identity
+```
+
+До явного изменения canonical design запрещается:
+
+- передавать hidden world state, oracle action/path, solver result или evaluator metric в normal Agent input;
+- передавать framework `info`/debug payload Agent целиком без explicit agent-visible schema;
+- считать split/distribution label или generator seed частью observation по умолчанию;
+- использовать research-only Objective Task Metric как External Task Feedback без отдельного task design;
+- использовать External Task Feedback как каноническое определение Internal Utility;
+- сводить malformed action и valid-but-ineffective world action к одному неразличимому случаю;
+- раскрывать privileged reason world-action failure, если task observation contract его не предусматривает;
+- терять различие `terminated`/`truncated`;
+- считать full hidden map обычной partial observation;
+- жёстко кодировать appearance shortcut вроде `red = danger` как универсальную causal semantics MicroWorld;
+- считать одного seed достаточным для exact world reproducibility без version/generator/manifest identity;
+- называть restore/fork exact, если не восстановлены causally relevant Environment hidden state, pending events и RNG states;
+- выполнять snapshot/restore/fork или Environment intervention как будто это обычные Agent actions;
+- изменять natural Environment lineage intervention-ом без provenance;
+- смешивать natural/intervened world histories без явной маркировки;
+- использовать procedural benchmark instances с неизвестной solvability для claims, требующих гарантированно решаемых задач, без documented limitation;
+- допускать autoreset/vectorization, который теряет final outcome/terminal observation evidence;
+- считать `MicroWorld` universal Environment или canonical internal representation Agent;
+- фиксировать Gymnasium, MiniGrid, Procgen или другой framework как обязательную реализацию только потому, что он использовался как research evidence.
+
+`MicroWorld` является reference 2D symbolic Environment family. Общий Environment boundary должен оставаться пригодным для будущих других сред.
+
+---
+
+# 15. Scope текущего этапа
 
 Фактический текущий scope всегда определяется `docs/design/current.md`.
 
@@ -412,11 +472,12 @@ OpenTelemetry, PyTorch hooks, pyvene и другие инструменты по
 - DI/config/plugin framework;
 - scheduler/async/graph framework;
 - telemetry/intervention framework;
+- Gymnasium/другой Environment framework;
 - окончательную структуру `src/`.
 
 ---
 
-# 15. Поведение при неопределённости
+# 16. Поведение при неопределённости
 
 Если документация не определяет важное решение:
 
@@ -426,4 +487,4 @@ OpenTelemetry, PyTorch hooks, pyvene и другие инструменты по
 - при необходимости предложить варианты и trade-offs;
 - дождаться design decision до реализации зависимой части.
 
-Мелкие локальные implementation details, не влияющие на public/internal contracts, исследовательскую валидность, dependency/temporal/state/scheduler/observability boundaries или будущую расширяемость, могут выбираться реализацией самостоятельно при сохранении принятых принципов.
+Мелкие локальные implementation details, не влияющие на public/internal contracts, исследовательскую валидность, dependency/temporal/state/scheduler/observability/Environment boundaries или будущую расширяемость, могут выбираться реализацией самостоятельно при сохранении принятых принципов.
