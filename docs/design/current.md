@@ -10,7 +10,7 @@
 
 # 1. Общий статус
 
-**Фундамент документации создан. `DU-01` … `DU-06` завершены и приняты. Реализация ещё не начата.**
+**Фундамент документации создан. `DU-01` … `DU-07` завершены и приняты. Реализация ещё не начата.**
 
 На текущем этапе зафиксированы:
 
@@ -20,7 +20,7 @@
 - базовые принципы проектирования;
 - глоссарий;
 - правила для coding agents;
-- реестры ADR, exact contracts и будущих версий;
+- реестры ADR, candidate/exact contracts и будущих версий;
 - карта кандидатных модулей;
 - канонический порядок `DU-00` … `DU-32`;
 - системный контекст;
@@ -29,7 +29,9 @@
 - canonical `CognitiveState` semantics;
 - module lifecycle и scheduler semantics;
 - observability/intervention semantics;
-- шесть accepted ADR.
+- общий Environment/MicroWorld design;
+- candidate Environment contract;
+- семь accepted ADR.
 
 ---
 
@@ -43,6 +45,7 @@ DU-03 — Runtime / Temporal Model
 DU-04 — CognitiveState Semantics
 DU-05 — Module Protocol & Scheduling
 DU-06 — Observability & Intervention
+DU-07 — Environment / MicroWorld Contract
 ```
 
 ## DU-01
@@ -51,7 +54,7 @@ DU-06 — Observability & Intervention
 
 - [`system-context.md`](system-context.md).
 
-Ключевой результат: MINDRA Agent определяется логической responsibility/state ownership, а не process/VM/GPU; Environment, Training Runtime, Evaluation Runtime и research infrastructure отделены от cognition.
+Ключевой результат: MINDRA Agent определяется logical responsibility/state ownership, а не process/VM/GPU; Environment, Training Runtime, Evaluation Runtime и research infrastructure отделены от cognition.
 
 Accepted decision:
 
@@ -111,77 +114,96 @@ Accepted decision:
 
 - [`observability-and-intervention.md`](observability-and-intervention.md).
 
-Главные результаты:
-
-- passive `Evidence Plane` отделён от active `Intervention Gateway`;
-- tracing обязан сохранять causal identities и различать attempt/commit;
-- metrics являются производными данными и не заменяют raw causal evidence;
-- private-state inspection выполняется через declared research probe/export boundary;
-- observability не даёт evaluator write authority;
-- raw/backend activations относятся к opt-in research capability, а не universal module contract;
-- intervention имеет explicit target, base revision, duration и provenance;
-- intervention не меняет semantic owner целевого состояния;
-- confirmatory causal experiment по умолчанию предпочитает control/treatment fork от identifiable committed base;
-- natural и intervened trajectories различаются по provenance;
-- exact counterfactual claim требует полного causally relevant Agent + Environment state;
-- partial restore должен называться approximate counterfactual/replay;
-- stochastic branch/RNG policy является частью experiment protocol;
-- latent/raw interventions требуют учитывать OOD/divergent representations и off-target effects;
-- telemetry failure и Agent/module failure различаются;
-- evidence-critical loss делает соответствующий research claim incomplete/invalid, если данные нельзя восстановить;
-- capture/sampling policy является частью experiment provenance.
+Ключевой результат: passive `Evidence Plane` отделён от active `Intervention Gateway`; tracing сохраняет causal identities, private state наблюдается через declared probes, intervention создаёт отдельную provenance/lineage, а exact counterfactual требует полного causally relevant state.
 
 Accepted decision:
 
 - [`ADR-0006`](decisions/ADR-0006-separated-evidence-plane-and-intervention-gateway.md).
+
+## DU-07
+
+Канонический документ:
+
+- [`modules/environment.md`](modules/environment.md).
+
+Candidate contract:
+
+- [`contracts/environment.md`](contracts/environment.md).
+
+Главные результаты:
+
+- общий Environment contract отделён от конкретного `MicroWorld`;
+- Environment имеет отдельные `Agent Interaction Plane` и research-only control/evidence surface;
+- Hidden World State и Research Ground Truth не становятся Agent input;
+- `Raw Observation` отделена от будущего canonical representation;
+- `External Task Specification` отделена от internal Goal state;
+- `External Task Feedback`, `Objective Task Metric` и `Internal Utility` различаются;
+- structurally invalid action отделён от valid-but-ineffective world action;
+- `terminated` и `truncated` различаются;
+- partial observability является first-class capability, full observability — control condition;
+- observed appearance и hidden causal property factorized;
+- Environment stochasticity разделяется на identifiable RNG roles;
+- seed не является достаточной world identity;
+- exact `Environment Snapshot` включает hidden state, task state, pending events и causally relevant RNG state;
+- snapshot/restore/clone/fork являются privileged research/runtime operations;
+- Environment intervention создаёт отдельную provenance/lineage;
+- procedural generator должен быть factorized/versioned;
+- core benchmark instances должны иметь явную solvability/validity policy;
+- distributions должны поддерживать ID unseen, compositional holdout, rule-shift и stronger OOD conditions;
+- `MicroWorld` принят как reference 2D symbolic Environment family;
+- MicroWorld должен быть выразителен для baseline, Memory, World Model, exploration/trade-off, delayed consequence, adaptation и compositional tasks;
+- Gymnasium остаётся interoperability/adapter candidate, а не canonical dependency.
+
+Accepted decision:
+
+- [`ADR-0007`](decisions/ADR-0007-two-plane-environment-boundary.md).
 
 ---
 
 # 3. Следующий допустимый Design Update
 
 ```text
-DU-07 — Environment / MicroWorld Contract
+DU-08 — Perception / Canonical Representation
 ```
 
-Цель `DU-07` — определить общий Environment boundary и первую контролируемую исследовательскую среду, на которой можно будет одинаково тестировать baseline и будущие MINDRA configurations.
+Цель `DU-08` — определить границу между `Raw Observation` Environment и стабильным внутренним representation space, которым смогут пользоваться World Model, Memory, Self Model, Policy и другие независимые модули.
 
 Обязательные области:
 
 ```text
-Environment state
-agent-visible observation
-hidden world state
-action contract
-external task feedback
-reset / step
-termination / truncation
-clone / restore / fork
-seed / procedural generation
-train / validation / test distributions
-world/task versioning
-Environment intervention
-transition evidence
+Raw Observation ingestion
+structured vs learned encoding
+canonical representation semantics
+modality metadata
+partial/missing observation
+normalization
+representation identity/versioning
+provenance back to Environment observation
+trainable encoder boundary
+representation drift
+backend/device independence
+Cortex embedding adapter
+no-Cortex mode
+batch semantics
+research probes/interventions
 ```
 
 Нужно определить:
 
-- что Environment считает истинным world state;
-- что Agent имеет право наблюдать;
-- как отделяется external feedback от internal utility;
-- как выглядит action acceptance/failure semantics;
-- какие состояния/правила скрыты от Agent;
-- как обеспечивается procedural diversity без leakage;
-- как создаются reproducible worlds;
-- как Environment участвует в exact counterfactual fork;
-- как evaluator вмешивается в world state, не маскируя intervention под normal observation;
-- как задаются train/validation/test distributions;
-- какие минимальные task families необходимы для будущих module experiments;
-- как MicroWorld остаётся достаточно простым для диагностики, но не вырождается в одну игрушечную задачу.
+- какие свойства representation должны быть semantic, а какие implementation-private;
+- должен ли canonical representation быть одним latent vector или структурой нескольких namespaces;
+- как сохранить observable provenance и не смешать prediction/retrieval с observation;
+- как downstream modules не привязать к exact MicroWorld encoding;
+- как representation остаётся совместимой при замене Cortex;
+- где заканчивается deterministic normalization и начинается learned Perception;
+- как version/drift representation влияет на Memory/World Model/checkpoints;
+- какие raw/latent intervention targets допустимы;
+- как no-Cortex baseline получает тот же canonical boundary.
 
-После принятия `DU-07` допускается:
+После принятия `DU-08` допускается:
 
 ```text
-DU-08 — Perception / Canonical Representation
+DU-09 — Goal System
 ```
 
 ---
@@ -237,38 +259,61 @@ Intervention
 ```
 
 ```text
-natural execution
+agent-visible Environment interaction
 ≠
-intervened execution
+research-visible world ground truth
 ```
 
 ```text
-inspection capability
+Raw Observation
 ≠
-write authority
+canonical internal representation
+```
+
+```text
+External Task Feedback
+≠
+Objective Task Metric
+≠
+Internal Utility
+```
+
+```text
+seed
+≠
+complete world identity
+```
+
+```text
+Environment Snapshot
+≠
+rendered observation
 ```
 
 ---
 
-# 5. Действующие observability/intervention invariants
+# 5. Действующие Environment invariants
 
-До явного изменения canonical design запрещаются:
+До явного изменения canonical design запрещается:
 
-- использовать logger/collector/evaluator как normal cognitive dependency;
-- возвращать trace/metric/debug metadata в cognitive payload без отдельного design;
-- считать наличие research probe правом другого module читать private state;
-- выдавать evaluator mutable reference на private/canonical state как canonical inspection mechanism;
-- объединять passive tracing и active mutation в один неразличимый callback contract;
-- выполнять intervention без explicit target/base/provenance;
-- менять semantic owner target из-за evaluator override;
-- изменять natural lineage задним числом;
-- выдавать partial restore за exact counterfactual clone;
-- смешивать intervened trajectory с natural experience без explicit provenance/training decision;
-- делать arbitrary mid-operation mutation через race/alias и интерпретировать её как clean causal intervention;
-- считать raw activation access обязательным для любого Cortex/backend;
-- игнорировать intervention OOD/off-target risk при сильных latent manipulations;
-- молча терять evidence-critical trace и затем делать confirmatory claim;
-- использовать physical telemetry timestamp как logical causal order.
+- передавать Agent hidden world state, oracle path/action или evaluator metric как normal input;
+- использовать framework `info`/debug metadata как Agent input без explicit task semantics;
+- считать split/distribution/world seed обычным observation;
+- путать External Task Feedback с research-only Objective Task Metric;
+- использовать Environment reward/feedback как определение Internal Utility MINDRA;
+- считать malformed action нормальным world-level no-op;
+- передавать privileged reason failed action Agent, если observation contract его не раскрывает;
+- сводить `terminated` и `truncated` в один неразличимый `done` внутри canonical evidence;
+- считать полный hidden world map обычной partial observation;
+- фиксировать causal meaning object по цвету/форме без сознательно принятой distribution semantics;
+- использовать один seed как полное доказательство воспроизводимости world instance;
+- называть restore exact, если не восстановлены causally relevant Environment RNG/pending state;
+- использовать Environment restore/intervention как обычное Agent action;
+- изменять natural world lineage intervention-ом без provenance;
+- смешивать train/test distributions без manifest/version identity;
+- использовать procedural instances с неизвестной solvability для claims, требующих гарантированно решаемых задач, без documented limitation;
+- терять final terminal outcome из-за autoreset/vectorization;
+- считать `MicroWorld` универсальным internal representation Agent.
 
 ---
 
@@ -280,8 +325,10 @@ write authority
 - exact Python `ModuleProtocol`;
 - concrete scheduler/DAG implementation;
 - exact trace/event/probe/intervention Python contracts;
-- OpenTelemetry/другому telemetry backend;
-- Environment/MicroWorld;
+- exact Python Environment API;
+- concrete Gymnasium adapter;
+- exact MicroWorld observation/action encoding;
+- exact grid sizes/entity enum/task grammar;
 - Perception representation;
 - Goal System;
 - Cortex contract/backend;
@@ -320,6 +367,8 @@ write authority
 - OpenTelemetry;
 - PyTorch hooks как canonical mechanism;
 - pyvene или другой intervention library;
+- Gymnasium как mandatory dependency;
+- procedural-generation library;
 - artifact database/storage stack;
 - concrete architecture-test tool.
 
@@ -347,6 +396,8 @@ write authority
 - `CognitiveState`: [`cognitive-state.md`](cognitive-state.md);
 - module lifecycle/scheduling: [`module-lifecycle.md`](module-lifecycle.md);
 - observability/intervention: [`observability-and-intervention.md`](observability-and-intervention.md);
+- Environment/MicroWorld: [`modules/environment.md`](modules/environment.md);
+- candidate Environment contract: [`contracts/environment.md`](contracts/environment.md);
 - ADR registry: [`decisions/README.md`](decisions/README.md);
 - карта областей: [`modules/README.md`](modules/README.md);
 - общие принципы: [`principles.md`](principles.md);
