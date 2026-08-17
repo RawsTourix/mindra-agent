@@ -2,36 +2,27 @@
 
 ## Статус документа
 
-Этот документ является **картой будущего проектирования**, а не набором уже принятых module contracts.
+Этот документ является **картой архитектурных областей и порядка их проектирования**, а не заменой канонических subsystem design.
 
-Он нужен для того, чтобы:
+Наличие блока в карте не гарантирует, что он останется отдельным trainable module. Соответствующий Design Update может:
 
-- видеть полный набор архитектурных областей до начала реализации;
-- не прятать важную ответственность внутри случайного соседнего модуля;
-- проектировать модули в порядке зависимостей;
-- заранее планировать ablation/control/replaceability;
-- отличать обязательную ответственность системы от конкретного способа её реализации.
-
-Наличие блока в этой карте **не гарантирует**, что он останется отдельным модулем. В ходе соответствующего design update может быть принято решение:
-
-- оставить отдельный модуль;
-- объединить ответственность с другим модулем;
-- разделить область на несколько модулей;
-- сделать механизм algorithmic/rule-based вместо neural;
-- отложить область;
-- отказаться от неё, если отдельная роль не обоснована.
+- принять отдельный модуль;
+- разделить область;
+- объединить её с другой;
+- принять algorithmic/rule-based mechanism;
+- отложить или отклонить отдельную boundary.
 
 Главное правило:
 
-> Отдельный модуль существует не потому, что для него есть красивая когнитивная аналогия, а потому что у него есть самостоятельная вычислительная ответственность, явный контракт и независимо проверяемый функциональный вклад.
+> Отдельный модуль существует не из-за когнитивной аналогии, а при наличии самостоятельной вычислительной ответственности, явного контракта и независимо проверяемого функционального вклада.
+
+Фактический статус каждого блока определяется его каноническим документом и [`../current.md`](../current.md).
 
 ---
 
 # 1. Классы архитектурных областей
 
-Удобно различать пять групп.
-
-## 1.1 Границы взаимодействия
+## 1.1. Границы взаимодействия
 
 ```text
 Environment
@@ -40,9 +31,7 @@ Cortex
 Action / Actuation boundary
 ```
 
-Они связывают MINDRA с внешним миром, pretrained model и исполняемыми действиями.
-
-## 1.2 Когнитивное состояние и прогнозирование
+## 1.2. Когнитивное состояние и прогнозирование
 
 ```text
 CognitiveState
@@ -54,7 +43,7 @@ Workspace
 Metacognitive / Executive Control
 ```
 
-## 1.3 Мотивация, оценка и регуляция
+## 1.3. Внутренние измерения, мотивация, оценка и регуляция
 
 ```text
 Intrinsic Signal Providers
@@ -65,16 +54,16 @@ Valuation
 Salience / Attention Control
 ```
 
-## 1.4 Выбор и исполнение поведения
+`Intrinsic Signal Providers` находятся здесь как источник внутренних **измерений опыта**, а не как уже готовая мотивация или reward.
+
+## 1.4. Выбор и исполнение поведения
 
 ```text
 Policy / Planner
 Action Gate / Executor
 ```
 
-## 1.5 Обучение и исследовательская инфраструктура
-
-Это не обязательно когнитивные модули агента:
+## 1.5. Обучение и исследовательская инфраструктура
 
 ```text
 Experience / Trajectory Recorder
@@ -85,286 +74,122 @@ Experiment Runner
 MINDRA-Eval
 ```
 
-Их нельзя смешивать с внутренней психологической интерпретацией агента.
+Эти области нельзя смешивать с внутренней психологической интерпретацией Agent только потому, что они работают в том же процессе.
 
 ---
 
-# 2. Environment
+# 2. Принятые subsystem boundaries
 
-## Ответственность
+## Environment — `DU-07`
 
-Environment определяет внешний мир, в котором агент наблюдает последствия действий.
+Канонический владелец: [`environment.md`](environment.md).
 
-Для первой исследовательской линии особенно важен контролируемый MicroWorld, позволяющий:
+Environment задаёт внешний мир и отделяет Agent Interaction Plane от research-only hidden world control.
 
-- детерминированно воспроизводить эпизоды;
-- клонировать состояние;
-- программно менять скрытые правила;
-- отделять train/test worlds;
-- проводить counterfactual intervention;
-- измерять причинный вклад внутренних состояний.
+## Perception / Representation — `DU-08`
 
-## Не является
+Канонический владелец: [`perception.md`](perception.md).
 
-Environment не должен решать за агента, что важно, интересно, опасно или полезно, кроме минимального объективного feedback, если он предусмотрен задачей.
+Perception преобразует `Raw Observation` в hybrid `Canonical Percept`, не делая model-specific latent универсальным языком MINDRA.
 
----
+## Goal System — `DU-09`
 
-# 3. Perception / Representation
+Канонический владелец: [`goals.md`](goals.md).
 
-## Ответственность
+Goal System владеет committed Goal Graph; внешние/Cortex/internal sources создают proposals, а не мутируют goals напрямую.
 
-Преобразует raw observation в каноническое представление, пригодное для остальных модулей.
+## Cortex — `DU-10`
 
-Эта область нужна, чтобы World Model, Memory, Policy и другие компоненты не зависели напрямую от случайной формы observation конкретной среды или от hidden size конкретной LLM.
+Канонический владелец: [`cortex.md`](cortex.md).
 
-Возможные ответственности:
+Cortex является replaceable semantic capability через Gateway/Adapter boundary, а не центральной архитектурой Agent.
 
-- нормализация observations;
-- encoding structured/raw input;
-- canonical feature representation;
-- modality metadata;
-- uncertainty/missingness representation;
-- обратимая связь с provenance исходного observation.
+## Memory Core — `DU-11`
 
-## Ключевой invariant
+Канонический владелец: [`memory.md`](memory.md).
 
-Canonical representation не должна становиться неявным alias для model-specific hidden state Cortex.
+Memory хранит stable `MemoryRecord`; embeddings/indexes являются производными retrieval structures.
 
----
+## World Model — `DU-12`
 
-# 4. CognitiveState
+Канонический владелец: [`world-model.md`](world-model.md).
 
-`CognitiveState` — не когнитивный модуль в обычном смысле, а каноническая граница обмена состоянием.
+World Model поддерживает `World Belief`, assimilation actual evidence, action-conditioned prediction и imagination, не смешивая prediction с observation/value.
 
-Он должен определять:
+## Self Model — `DU-13`
 
-- какие категории state существуют;
-- владельца каждой категории;
-- read/write permissions;
-- временную семантику;
-- absence/unknown/stale;
-- сериализуемость;
-- наблюдаемость;
-- совместимость с checkpoint/replay;
-- запрет скрытого state между модулями, если он должен быть частью воспроизводимого поведения.
+Канонический владелец: [`self-model.md`](self-model.md).
 
-Точное представление будет отдельным design decision.
+Self Model объединяет self-observable capability facts, context-conditioned competence и calibrated self-predictions, но не принимает executive/behavior decisions.
 
----
+## Intrinsic Signals — `DU-14`
 
-# 5. Goal System
+Канонический владелец: [`intrinsic-signals.md`](intrinsic-signals.md).
 
-## Ответственность
-
-Отдельно представляет **что агент стремится изменить или сохранить**, не смешивая это с оценкой текущего состояния или выбором действия.
-
-Нужно будет различить как минимум:
-
-- внешне поставленную цель;
-- внутренне сформированную цель;
-- subgoal;
-- active/inactive/completed/failed/abandoned state;
-- priority;
-- commitment/persistence;
-- termination condition;
-- конфликт целей;
-- связь цели с ожидаемым прогрессом.
-
-## Не является
-
-Goal System не должен автоматически быть Policy и не должен сводиться к scalar reward.
-
----
-
-# 6. Cortex
-
-## Ответственность
-
-Cortex предоставляет богатые pretrained capabilities, например:
-
-- язык;
-- semantic representations;
-- general knowledge;
-- reasoning/planning candidates;
-- интерпретацию natural-language instruction;
-- генерацию natural-language output.
-
-## Ключевые свойства
-
-- backend заменяем;
-- конкретная model family не является архитектурой MINDRA;
-- model-specific hidden state не должен протекать в остальные модули без adapter boundary;
-- должны существовать диагностические `DummyCortex`/`NoCortex` режимы;
-- Cortex может быть frozen, partially adapted или trainable в зависимости от будущего training design.
-
----
-
-# 7. Memory Core
-
-## Ответственность
-
-Хранение и retrieval прошлого опыта без преждевременной привязки к механизму эмоциональной значимости.
-
-Нужно будет определить:
-
-- episodic memory;
-- необходимость отдельной semantic/procedural memory;
-- identity/provenance эпизода;
-- indexing/retrieval;
-- capacity;
-- temporal ordering;
-- similarity/relevance semantics;
-- deterministic replay compatibility.
-
-## Почему core проектируется отдельно
-
-Если сразу сделать запись/удаление памяти зависимыми от Appraisal/Salience, получится циклический design: Appraisal может требовать Memory, а Memory — уже требовать Appraisal. Поэтому сначала проектируется нейтральный memory substrate, а правила retention/forgetting/consolidation добавляются позднее.
-
----
-
-# 8. World Model
-
-## Ответственность
-
-Предсказывает динамику внешнего мира и последствия возможных действий.
-
-Потенциальные outputs:
-
-- next-state prediction;
-- multi-step rollout;
-- outcome features;
-- prediction error;
-- epistemic/aleatoric uncertainty, если выбранный подход позволяет различать их обоснованно;
-- latent imagined trajectory.
-
-World Model не определяет сам по себе, желательно ли предсказанное состояние.
-
----
-
-# 9. Self Model
-
-## Ответственность
-
-Моделирует функционально значимые свойства самого агента.
-
-Кандидаты:
-
-- probability of success;
-- competence;
-- uncertainty/calibration;
-- resource/cost estimate;
-- capability boundaries;
-- ожидаемое собственное состояние после действия;
-- известные ограничения.
-
-## Не является
-
-Self Model не является текстовым personality profile и не является доказательством самосознания.
-
----
-
-# 10. Intrinsic Signal Providers
-
-## Ответственность
-
-Формируют **внутренние обучающие/мотивационные сигналы**, выводимые из структуры опыта, а не напрямую задаваемые внешней задачей.
-
-Кандидаты:
-
-- novelty;
-- surprise/prediction error;
-- information gain;
-- uncertainty reduction;
-- competence progress;
-- state visitation rarity.
-
-Этот слой следует отличать от Drives: signal сообщает о свойстве события, а Drive задаёт контекстную внутреннюю потребность/направление регуляции.
-
----
-
-# 11. Drives
-
-## Ответственность
-
-Поддерживают внутренние переменные, меняющие относительную ценность состояний и действий во времени.
-
-Design должен определить:
-
-- state dynamics;
-- target/range/homeostatic semantics, если применимо;
-- update sources;
-- saturation/decay;
-- interactions между drives;
-- различие learned и fixed dynamics;
-- связь с goals и valuation.
-
-Ключевой исследовательский критерий:
+Принята multi-provider architecture:
 
 ```text
-одинаковое внешнее состояние
+experience-derived evidence
+→ typed Intrinsic Signal Providers
+→ IntrinsicSignalBundle
+```
+
+Канонически:
+
+```text
+Intrinsic Signal
+≠
+Reward
+≠
+Drive
+≠
+Utility / Value
+```
+
+Signal сообщает о свойстве опыта. Он не определяет автоматически, насколько это свойство желаемо.
+
+---
+
+# 3. Следующие ещё не спроектированные области
+
+## Drives — `DU-15`
+
+Предварительная ответственность:
+
+- persistent internal regulatory state;
+- need/deficit/pressure semantics;
+- homeostatic/adaptive dynamics, где обосновано;
+- saturation/decay/recovery;
+- interaction между drives;
+- влияние на Goal Proposal и будущую Valuation.
+
+Ключевой вопрос:
+
+```text
+одинаковый внешний контекст
 +
-разное drive state
+разное Drive state
 →
-предсказуемо различающееся поведение
+предсказуемо различающееся downstream поведение
 ```
 
 при контроле off-target effects.
 
----
+## Appraisal — `DU-16`
 
-# 12. Appraisal
+Предварительная ответственность: оценка значения конкретного события/ситуации для текущего Agent в текущем контексте.
 
-## Ответственность
+Appraisal не должен превращаться в ещё один scalar reward model.
 
-Оценивает **значение конкретного события или ситуации для текущего агента в текущем контексте**.
+## Affect Dynamics — `DU-17`
 
-Возможные inputs:
+Кандидат на persistent internal state, интегрирующий effects Appraisal во времени.
 
-- observation;
-- goals;
-- drives;
-- World Model prediction/error;
-- Self Model;
-- retrieved memories;
-- uncertainty;
-- actual action outcome.
+Gate: если отдельная state не имеет функционально отличимой роли от Appraisal/Drives, её следует объединить, а не сохранять ради аналогии.
 
-Возможные outputs могут включать многомерные свойства вроде valence, controllability, goal congruence, novelty, urgency, но точная схема пока не принята.
+## Valuation — `DU-18`
 
-## Не является
-
-Appraisal не должен незаметно превратиться в ещё один scalar reward model.
-
----
-
-# 13. Affect Dynamics
-
-## Причина выделения
-
-Appraisal может быть мгновенной оценкой события, но исходная гипотеза MINDRA требует проверить также **сохраняющееся внутреннее состояние**, которое переносит влияние прошлого опыта на последующие решения.
-
-Affect Dynamics — кандидат на отдельный модуль, который может:
-
-- интегрировать appraisal во времени;
-- иметь decay/recovery;
-- обладать inertia;
-- модулировать attention/valuation/policy/learning;
-- сохранять контекст между соседними событиями.
-
-## Gate существования
-
-Если отдельная affect state не показывает функционально отличимой роли от Appraisal/Drives, область должна быть объединена, а не сохраняться ради антропоморфной аналогии.
-
----
-
-# 14. Valuation
-
-## Ответственность
-
-Это центральная область, которой нельзя позволить раствориться внутри Policy.
-
-Valuation должна определять, как decision-relevant ценность строится из нескольких классов информации:
+Предварительная ответственность: decision-relevant value из нескольких независимых источников:
 
 ```text
 external feedback
@@ -373,214 +198,75 @@ goal progress
 drives
 appraisal
 affect
-predicted future states
-risk/uncertainty
+predicted futures
+risk / uncertainty
 ```
 
-Нужно развести:
+Именно здесь, а не в `DU-14`, решается вопрос scalarization/value.
 
-- immediate utility;
-- predicted future value;
-- vector-valued criteria;
-- scalarization, если она вообще нужна;
-- state value и action value;
-- learned critic и rule-based aggregation.
+## Salience / Attention — `DU-19`
 
-Именно здесь будет проверяться исходная идея о сложной внутренней системе оценки вместо одного заранее заданного reward.
+Предварительная ответственность: приоритет информации и распределение ограниченного cognitive processing.
 
----
+## Memory Regulation / Consolidation — `DU-20`
 
-# 15. Salience / Attention Control
+Расширяет Memory Core: retention, forgetting, replay scheduling, consolidation и transition от episodic experience к slow learned knowledge.
 
-## Ответственность
+## Workspace — `DU-21`
 
-Определяет относительную приоритетность информации и распределение ограниченного cognitive processing.
+Кандидат на ограниченную временную globally available surface.
 
-Возможные downstream effects:
+Gate: если он не даёт роли сверх `CognitiveState`, отдельный Workspace не принимается.
 
-- memory write priority;
-- retrieval priority;
-- replay priority;
-- Workspace admission;
-- Cortex/planner compute allocation;
-- learning priority;
-- event logging detail.
+## Metacognitive / Executive Control — `DU-22`
 
-Salience score сам по себе бесполезен, если он ни на что причинно не влияет.
+Кандидат на regulation cognition: retrieval, Cortex invocation, planning depth, compute budget и goal focus.
 
----
+Он не равен техническому `Cognitive Scheduler`.
 
-# 16. Memory Regulation / Consolidation
+## Policy / Planner — `DU-23`
 
-Эта область расширяет Memory Core после появления Salience/Appraisal/Valuation.
+Преобразует состояние, predictions и value evidence в candidate actions/plans.
 
-Нужно определить:
+## Action Gate / Executor — `DU-24`
 
-- retention;
-- forgetting;
-- eviction;
-- replay scheduling;
-- prioritized replay;
-- consolidation;
-- transition от episodic опыта к slow learned parameters/representations;
-- защита от catastrophic forgetting;
-- provenance влияния replay на обучение.
+Отделяет выбранное действие от фактически валидированного/исполненного действия и его outcome.
 
 ---
 
-# 17. Workspace
+# 4. Обучение и исследовательские области
 
-## Ответственность
-
-Кандидат на ограниченный интеграционный механизм, через который небольшая часть информации становится временно доступна нескольким downstream-процессам.
-
-Нужно проверить:
-
-- ограниченную capacity;
-- competition/gating;
-- broadcast/read semantics;
-- persistence across ticks;
-- consumers;
-- intervention;
-- отличие от обычного `CognitiveState` и Memory.
-
-## Gate существования
-
-Если Workspace не имеет самостоятельной роли сверх общего state bus, его нельзя сохранять только по аналогии с Global Workspace Theory.
-
----
-
-# 18. Metacognitive / Executive Control
-
-## Причина выделения
-
-Self Model отвечает на вопрос «что система знает/предсказывает о себе», но не обязательно отвечает на вопрос «как на основании этой информации менять собственный процесс мышления».
-
-Кандидатный Executive Control может управлять:
-
-- решением вызвать Cortex или обойтись без него;
-- глубиной planning;
-- memory retrieval;
-- exploration/exploitation mode;
-- computational budget;
-- проверкой собственной uncertainty;
-- выбором стратегии обучения/адаптации;
-- переходом между goal focus.
-
-Это **не** тот же scheduler, что исполняет технический lifecycle модулей. Scheduler обеспечивает детерминированный runtime graph; Executive Control, если будет принят, является частью поведения агента.
-
-## Gate существования
-
-Необходимо доказать, что эта роль не сводится без потерь к Self Model + Policy + Workspace.
-
----
-
-# 19. Policy / Planner
-
-## Ответственность
-
-Преобразует доступное состояние, прогнозы и ценности в candidate action/plan.
-
-Нужно будет отдельно определить:
-
-- model-free policy;
-- model-based planning;
-- hierarchical/subgoal planning;
-- роль Cortex reasoning;
-- использование World Model;
-- exploration;
-- action distribution;
-- deterministic/evaluation mode;
-- critic/value coupling.
-
-Policy не должна напрямую владеть всеми остальными механизмами только ради удобства реализации.
-
----
-
-# 20. Action Gate / Executor
-
-## Ответственность
-
-Отделяет **выбранное действие** от **фактически исполненного действия**.
-
-Эта граница нужна даже в MicroWorld, а особенно важна для будущих внешних инструментов/сред.
-
-Нужно определить:
-
-- validation against action space;
-- feasibility;
-- safety/constraint hooks;
-- action identity;
-- dispatch;
-- timeout/failure/unknown outcome;
-- outcome observation;
-- связь action с trajectory record.
-
-Это не должно становиться скрытым вторым Policy.
-
----
-
-# 21. Learning / Training subsystems
-
-Обучение не является одним когнитивным модулем.
-
-Нужно будет разделить как минимум:
+После когнитивных subsystem boundaries проектируются:
 
 ```text
-runtime state update
-online parameter update
-experience collection
-offline replay
-consolidation
-module pretraining
-joint training
-optional Cortex adaptation
+DU-25 — Experience / Data / Replay
+DU-26 — Training Lifecycle
+DU-27 — Checkpoint / Reproducibility / Compute
+DU-28 — MINDRA-Eval
+DU-29 — Engineering Testing
+DU-30 — Research Claims / Limitations
+DU-31 — Contract + ADR Consistency Freeze
+DU-32 — Version Roadmap
 ```
 
-Каждая trainable subsystem должна явно сообщать:
-
-- что является target;
-- откуда приходит learning signal;
-- когда обновляются weights;
-- что frozen;
-- какие optimizer/checkpoint boundaries существуют.
+Точный scope задаёт [`../documentation-plan.md`](../documentation-plan.md).
 
 ---
 
-# 22. MINDRA-Eval
+# 5. Предварительный dependency graph
 
-MINDRA-Eval — **внешняя исследовательская система**, а не часть когнитивной архитектуры агента.
-
-Она должна уметь:
-
-- собирать baseline matrix;
-- выполнять ablation;
-- подменять modules control implementations;
-- клонировать состояния;
-- проводить causal interventions;
-- сравнивать Cortex backends;
-- выполнять generalization/transfer tests;
-- агрегировать seeds;
-- хранить experiment evidence.
-
-Нельзя позволять evaluator незаметно давать агенту информацию, которой тот не имел бы в обычном runtime.
-
----
-
-# 23. Предварительный dependency graph
-
-Это **план проектирования**, а не окончательный runtime graph.
+Это **порядок проектирования**, а не окончательный runtime graph.
 
 ```text
 System boundaries
     ↓
 CognitiveState / module protocol
     ↓
-Environment contract
+Environment
     ↓
-Perception / Representation
+Perception
     ├──────────────→ Goal System
-    ├──────────────→ Cortex boundary
+    ├──────────────→ Cortex
     └──────────────→ Memory Core
                          ↓
                World Model + Self Model
@@ -610,39 +296,39 @@ Perception / Representation
                      Environment
 ```
 
-Фактический runtime почти наверняка будет иметь feedback loops; порядок выше нужен только для того, чтобы **семантика каждого следующего блока опиралась на уже определённые контракты**, а не проектировалась в вакууме.
+Runtime позже будет содержать feedback loops. Порядок выше нужен только для dependency-aware design.
 
 ---
 
-# 24. Правило независимой диагностируемости
+# 6. Правило независимой диагностируемости
 
-Для каждого принятого cognitive module design нужно определить минимум:
+Для каждого принятого cognitive subsystem/provider нужно определить, где применимо:
 
-- `NoOp`/disabled behavior;
-- deterministic или rule-based control, если применимо;
-- random/shuffled control, если это meaningful;
-- parameter/compute-matched control для learned module, где возможно;
-- входы/выходы для logging;
+- disabled/`No*` behavior;
+- Dummy/Control implementation;
+- random/shuffled control;
+- parameter/compute-matched control;
+- observable inputs/outputs;
 - intervention points;
-- checkpoint state;
+- snapshot/checkpoint state;
 - module-specific metrics;
 - failure/degradation behavior.
 
-Если модуль нельзя отключить без ручного переписывания архитектуры, модульность считается недостаточной.
+Если механизм нельзя отключить или подменить без ручного переписывания соседей, модульность недостаточна.
 
 ---
 
-# 25. Правило предотвращения скрытой дубликации
+# 7. Правило предотвращения скрытой дубликации
 
-При проектировании каждого нового блока необходимо проверять:
+При проектировании каждого нового блока проверять:
 
-1. Не выполняет ли эту ответственность уже другой модуль?
-2. Отличается ли его state от уже существующего state семантически, а не только названием?
-3. Есть ли downstream effect, который невозможно выразить существующим контрактом без нарушения его ответственности?
+1. Не выполняет ли эту ответственность уже другой блок?
+2. Отличается ли state семантически, а не только названием?
+3. Есть ли уникальный downstream effect?
 4. Можно ли независимо измерить вклад?
-5. Нужен ли отдельный trainable network или достаточно алгоритмического преобразования?
+5. Нужна ли trainable network или достаточно algorithmic transform?
 
-Особенно внимательно проверять пары:
+Особенно внимательно проверять:
 
 ```text
 Appraisal ↔ Valuation
@@ -659,8 +345,12 @@ Scheduler ↔ Executive Control
 
 ---
 
-# 26. Следующий шаг
+# 8. Следующий шаг
 
-Точный порядок проектирования этих областей задаётся `../documentation-plan.md`.
+Текущий первый ещё не спроектированный блок:
 
-Первым ещё не спроектированным блоком остаются system context и фундаментальные dependency/runtime boundaries. До их принятия начинать детальный design отдельных когнитивных модулей преждевременно.
+```text
+DU-15 — Drives
+```
+
+Фактический разрешённый шаг всегда подтверждать через [`../current.md`](../current.md).
