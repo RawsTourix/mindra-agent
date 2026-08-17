@@ -10,7 +10,7 @@
 
 # 1. Общий статус
 
-**Фундамент документации создан. `DU-01` … `DU-12` завершены и приняты. Реализация ещё не начата.**
+**Фундамент документации создан. `DU-01` … `DU-13` завершены и приняты. Реализация ещё не начата.**
 
 На текущем этапе зафиксированы:
 
@@ -22,8 +22,9 @@
 - Cortex semantic capability boundary;
 - Memory Core;
 - World Model;
-- candidate contracts Environment, Perception, Goals, Cortex, Memory и World Model;
-- двенадцать accepted ADR.
+- Self Model;
+- candidate contracts Environment, Perception, Goals, Cortex, Memory, World Model и Self Model;
+- тринадцать accepted ADR.
 
 ---
 
@@ -43,93 +44,93 @@ DU-09 — Goal System
 DU-10 — Cortex Boundary
 DU-11 — Memory Core
 DU-12 — World Model
+DU-13 — Self Model
 ```
 
-## DU-12
+## DU-13
 
 Канонический документ:
 
-- [`modules/world-model.md`](modules/world-model.md).
+- [`modules/self-model.md`](modules/self-model.md).
 
 Candidate contract:
 
-- [`contracts/world-model.md`](contracts/world-model.md).
+- [`contracts/self-model.md`](contracts/self-model.md).
 
 Research pass:
 
-- [`../research/literature/DU-12-world-model-landscape-2026-08.md`](../research/literature/DU-12-world-model-landscape-2026-08.md).
+- [`../research/literature/DU-13-self-model-landscape-2026-08.md`](../research/literature/DU-13-self-model-landscape-2026-08.md).
 
 Accepted decision:
 
-- [`ADR-0012`](decisions/ADR-0012-belief-state-world-model.md).
+- [`ADR-0013`](decisions/ADR-0013-hybrid-functional-self-model.md).
 
 Главные результаты:
 
-- `Canonical Percept`, `World Belief`, `World Prediction`, imagination и Hidden World State являются разными сущностями;
-- World Model является agent-owned cognitive subsystem;
-- partial observability выражается через committed belief-state semantics;
-- assimilation actual percept/outcome отделена от prior/action-conditioned prediction;
-- candidate action query не означает Action Commit;
-- multi-step imagination не является Environment trajectory;
-- backend-specific latent может быть private state/optional Feature View, но не universal inter-module representation;
-- prediction surface может быть structured и/или learned;
-- observation reconstruction не является обязательным requirement;
-- Goal не является обязательным causal input physical dynamics;
-- Memory используется только через explicit RetrievalResult;
-- Cortex assistance остаётся optional/traceable и не становится world truth;
-- predictive uncertainty допускается, а epistemic/aleatoric decomposition требует отдельного обоснования;
-- prediction error/surprise evidence не является reward или intrinsic utility автоматически;
-- baseline training не может молча использовать Environment Research Ground Truth как будто Agent её наблюдал;
-- World Model имеет отдельные belief/model revision и snapshot obligations;
-- `NoWorldModel`, Dummy и Control configurations различаются;
-- correct/degraded/NoWorldModel comparison является будущим causal evaluation pattern.
+- Self Model является agent-owned functional cognitive subsystem, а не personality/self-awareness claim;
+- self-observable `Agent Capability Manifest` отделён от learned competence;
+- capability availability не означает фактическую competence;
+- `Self Evidence` имеет явную provenance и не получает evaluator-only truth normal runtime способом;
+- `Self Belief` context/domain-conditioned и не сводится к одному global scalar;
+- Self Prediction имеет explicit target/context/horizon;
+- `P(success)` имеет смысл только относительно формального outcome;
+- probability of success отделена от uncertainty/support самой оценки;
+- SelfPredictionResolution связывает forecast с фактическим outcome для calibration evidence;
+- старые competence estimates могут стать stale после behavior-relevant `agent_revision`/capability-manifest change;
+- internal resource/cost channels должны быть explicit agent-visible semantics, а не произвольная host telemetry;
+- Self Model отделена от World Model, Valuation и Executive Control;
+- Cortex self-report является optional derived evidence, а не canonical self-knowledge;
+- Self Model оценивает собственную capability/competence, но не решает, как действовать на основании оценки;
+- exact Agent snapshot обязан учитывать causally relevant Self Model state;
+- `NoSelfModel`, Dummy и Control configurations различаются;
+- accurate/miscalibrated/shuffled/NoSelfModel comparison является будущим causal evaluation pattern.
 
 ---
 
 # 3. Следующий допустимый Design Update
 
 ```text
-DU-13 — Self Model
+DU-14 — Intrinsic Signals
 ```
 
-Цель `DU-13` — определить, как MINDRA представляет и обновляет **модель собственных функциональных свойств Agent**, не смешивая её с World Model, Goal, Valuation или текстовым самоописанием Cortex.
+Цель `DU-14` — определить **нейтральные внутренние сигналы, выводимые из структуры собственного опыта Agent**, до появления Drives/Valuation: novelty, prediction surprise/error, information gain, uncertainty reduction, competence progress и visitation rarity как возможные измеряемые свойства опыта.
 
 Обязательные области:
 
 ```text
-Self Model responsibility / ownership
-self vs world boundary
-capability / competence representation
-success probability / calibration
-resource / compute / action-cost estimates
-known limitations / unavailable capabilities
-self-state under partial observability
-source evidence / learning targets
-uncertainty / confidence semantics
-prediction of own future state
-Cortex self-description boundary
-Self Model revision / snapshot
-NoSelfModel / Dummy / Control
+Intrinsic Signal responsibility / ownership
+signal vs reward / drive / utility boundary
+prediction-error source from World Model
+novelty semantics
+information gain / uncertainty reduction
+competence-progress source from Self Model
+state/event visitation rarity
+normalization / scale / stationarity
+per-step vs event/window aggregation
+representation dependence / drift
+source provenance
+online computability without evaluator leakage
+NoSignal / Dummy / Control variants
 observability / intervention
 failure / degradation
 ```
 
 Нужно определить:
 
-- какие свойства Agent вообще относятся к Self Model, а какие остаются обычным runtime metadata;
-- чем Self Model отличается от World Model prediction embodiment state;
-- как измерять competence без evaluator-only leakage;
-- как представлять calibrated `P(success)` и где такой target применим;
-- как учитывать изменение собственных capabilities после Learning Update/Cortex swap/module disable;
-- как Self Model узнаёт о собственных ограничениях через causal experience;
-- где заканчивается Self Model и начинается будущий Executive Control;
-- как не превратить natural-language self-report Cortex в каноническое self-knowledge;
-- какие interventions позволяют проверить причинную роль self-estimates.
+- нужен ли один `Intrinsic Signal` module или несколько provider capabilities;
+- какие signals являются свойствами события/обновления, а какие требуют temporal baseline/history;
+- чем raw prediction error отличается от surprise и novelty;
+- когда information gain можно оценивать корректно;
+- как competence progress использует Self Model predictions/resolutions, не становясь self-reward автоматически;
+- как representation drift влияет на novelty/distance signals;
+- как избежать нестационарной шкалы, делающей разные signals несопоставимыми;
+- как не превратить intrinsic signal сразу в reward/utility;
+- какие random/shuffled/constant controls нужны для causal evaluation.
 
-После принятия `DU-13` допускается:
+После принятия `DU-14` допускается:
 
 ```text
-DU-14 — Intrinsic Signals
+DU-15 — Drives
 ```
 
 ---
@@ -153,6 +154,9 @@ World Prediction ≠ observed fact
 Imagined Transition ≠ Environment Transition
 prediction error ≠ reward / intrinsic utility
 predictive uncertainty ≠ risk / value
+Agent Capability Fact ≠ Learned Competence Estimate ≠ Self Prediction
+P(success) ≠ uncertainty/support самой self-estimate
+Self Model ≠ Cortex self-report ≠ Executive Control
 ```
 
 ---
@@ -161,7 +165,6 @@ predictive uncertainty ≠ risk / value
 
 Пока отсутствуют accepted решения по:
 
-- Self Model;
 - intrinsic signals;
 - Drives;
 - Appraisal;
@@ -182,7 +185,7 @@ predictive uncertainty ≠ risk / value
 - version roadmap;
 - implementation sequences.
 
-Также пока не выбраны exact Python/package/framework решения, concrete Cortex backend, Memory backend/index, World Model architecture или uncertainty estimator.
+Также пока не выбраны exact Python/package/framework решения, concrete Cortex backend, Memory backend/index, World Model architecture, Self Model estimator/calibration method или uncertainty estimator.
 
 ---
 
