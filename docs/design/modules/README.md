@@ -2,13 +2,15 @@
 
 ## Статус
 
-Этот документ — карта принятых boundaries и оставшихся областей. Канонический статус определяется специализированными design docs и [`../current.md`](../current.md).
+Этот документ — карта принятых cognitive/runtime boundaries и оставшихся областей. Канонический статус определяется специализированными design docs и [`../current.md`](../current.md).
 
-Отдельный модуль существует только при самостоятельной ответственности, явной boundary/state semantics и независимо проверяемом causal вкладе.
+Отдельный cognitive module существует только при самостоятельной ответственности, явной boundary/state semantics и независимо проверяемом causal вкладе.
+
+`DU-25` уже находится **вне cognitive module chain**: это внешний Experience/Data plane.
 
 ---
 
-# 1. Принятые boundaries
+# 1. Принятые cognitive/runtime boundaries
 
 ```text
 DU-07  Environment
@@ -31,7 +33,7 @@ DU-23  Policy / Planner
 DU-24  Action Boundary / Gate / Executor
 ```
 
-Канонические документы находятся рядом в `docs/design/modules/`.
+Канонические subsystem documents находятся рядом в `docs/design/modules/`.
 
 ---
 
@@ -91,99 +93,7 @@ Policy choice ≠ external override
 
 ---
 
-# 3. DU-24 — Action Boundary / Gate / Executor
-
-[`action-boundary.md`](action-boundary.md)
-
-Каноническая форма:
-
-```text
-SelectedActionIntent
-        ↓
-Action Gate / Authorization
-        ↓
-AuthorizedAction
-        ↓
-Action Commit
-        ↓
-Dispatch
-        ↓
-Environment acceptance/execution
-        ↓
-Environment Transition
-        ↓
-Outcome Commit
-```
-
-Action Boundary:
-
-- обязательна как semantic boundary между Policy и Environment;
-- базовый Gate не является второй Policy;
-- проверяет schema/freshness/capability/preconditions/explicit constraints;
-- не использует hidden evaluator/Environment Ground Truth normal runtime способом;
-- по умолчанию accept/reject + semantics-preserving normalization;
-- behavior-changing replacement допускается только как explicit override с отдельной provenance;
-- фиксирует `Action Commit` после authorization, но до dispatch;
-- сохраняет commit даже при последующем dispatch/execution failure;
-- различает `definitely_not_sent`, `execution_unknown`, Environment `no_effect` и partial execution;
-- использует stable dispatch identity и explicit retry/idempotency capability;
-- не обещает universal physical exactly-once execution.
-
-Dispatcher:
-
-- execution infrastructure, не cognitive Policy;
-- не меняет committed semantic action;
-- управляет transport/retry/reconciliation;
-- Environment остаётся владельцем transition/outcome.
-
----
-
-# 4. Первый ещё не спроектированный блок — Experience / Data / Replay
-
-Следующий Design Update:
-
-```text
-DU-25 — Experience / Data / Replay
-```
-
-Предварительная responsibility:
-
-> зафиксировать canonical causal experience/data schema, из которой можно получать research trajectories и training replay samples без смешивания natural experience, Memory, imagination и derived training data.
-
-Нужно определить:
-
-- event/transition/trajectory hierarchy;
-- action candidate→intent→commit→dispatch→outcome linkage;
-- natural/replayed/imagined/intervened/counterfactual provenance;
-- evaluator-only vs agent-visible data;
-- agent/model/state revision refs;
-- failed-dispatch/no-transition representation;
-- sequence/window extraction;
-- derived training sample/relabeling semantics;
-- replay sample provenance;
-- schema/version/storage tiers;
-- quality/completeness flags.
-
----
-
-# 5. После cognitive architecture
-
-```text
-DU-25 — Experience / Data / Replay
-DU-26 — Training Lifecycle
-DU-27 — Checkpoint / Reproducibility / Compute
-DU-28 — MINDRA-Eval
-DU-29 — Engineering Testing
-DU-30 — Research Claims / Limitations
-DU-31 — Contract + ADR Consistency Freeze
-DU-32 — Version Roadmap
-```
-
-Только после `DU-32` появляются concrete software versions и `implementation-sequence.md`.
-
----
-
-# 6. Design dependency graph
+# 3. Завершённая cognitive interaction chain
 
 ```text
 Environment
@@ -219,7 +129,92 @@ Action Boundary / Gate
 Environment
 ```
 
-Это design dependency graph, не runtime DAG.
+Это design dependency/causal map, не literal runtime DAG одного Cognitive Cycle.
+
+---
+
+# 4. DU-25 — Experience / Data / Replay находится сбоку от cognition
+
+Canonical owner:
+
+- [`../experience-data-replay.md`](../experience-data-replay.md)
+
+Experience Data Plane наблюдает causally relevant execution и создаёт долговременную data history, но не входит в cognitive feedback path normal runtime способом.
+
+```text
+Agent / Environment / Runtime
+          ↓
+      Evidence Plane
+          ↓
+   Experience Recorder
+          ↓
+    Experience Journal
+          ↓
+ Projection / Dataset Builder
+          ↓
+ Training Samples / Replay
+```
+
+Ключевые различия:
+
+```text
+TraceEvent ≠ ExperienceEvent
+Experience Journal ≠ Agent runtime state
+Experience Journal ≠ Agent Memory
+Experience Journal ≠ Replay Buffer
+Source Experience ≠ TrainingSample
+Agent Memory Replay ≠ Training Replay
+```
+
+`Experience Journal` не становится новым cognitive module только потому, что хранит internal events.
+
+---
+
+# 5. Первый ещё не спроектированный блок — Training Lifecycle
+
+Следующий Design Update:
+
+```text
+DU-26 — Training Lifecycle
+```
+
+Предварительная responsibility:
+
+> определить external Training Runtime, Learning Update semantics, ownership optimizer/loss state и causal activation новых agent/component revisions поверх `TrainingSample`/Replay data boundary `DU-25`.
+
+Нужно определить минимум:
+
+- Training Runtime ownership;
+- trainable vs ordinary runtime state;
+- losses/objectives;
+- TrainingSample consumption;
+- replay/batch/sequence semantics;
+- optimizer state;
+- Learning Update proposal/commit/activation;
+- online/offline/on-policy/off-policy distinctions;
+- new `agent_revision` activation;
+- in-flight cognition under previous revision;
+- frozen/trainable Cortex/adapters;
+- module-local vs joint optimization;
+- representation drift;
+- privileged supervision;
+- rollback/failure/degradation.
+
+---
+
+# 6. Оставшиеся Design Updates
+
+```text
+DU-26 — Training Lifecycle
+DU-27 — Checkpoint / Reproducibility / Compute
+DU-28 — MINDRA-Eval
+DU-29 — Engineering Testing
+DU-30 — Research Claims / Limitations
+DU-31 — Contract + ADR Consistency Freeze
+DU-32 — Version Roadmap
+```
+
+Только после `DU-32` появляются concrete software versions и `implementation-sequence.md`.
 
 ---
 
@@ -239,6 +234,8 @@ Environment
 
 Для Planner отрицательный gate обязателен: если matched reactive/search controls объясняют эффект, отдельную boundary нужно пересмотреть.
 
-Для сложного Action Gate/override также обязателен simpler pass-through/schema/capability control и отдельная Policy-vs-override attribution.
+Для сложного Action Gate/override обязателен simpler pass-through/schema/capability control и отдельная Policy-vs-override attribution.
+
+Для Experience/Data отдельный module gate не применяется: это infrastructure/data responsibility, но требуются data-lineage, leakage, schema and replay controls из `DU-25`.
 
 Следующий допустимый этап определяется только [`../current.md`](../current.md).
