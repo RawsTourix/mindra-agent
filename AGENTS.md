@@ -116,6 +116,7 @@ Accepted foundation decisions: `ADR-0001` … `ADR-0006`.
 | Cortex | `docs/design/modules/cortex.md` | `contracts/cortex.md` | `ADR-0010` |
 | Memory Core | `docs/design/modules/memory.md` | `contracts/memory.md` | `ADR-0011` |
 | World Model | `docs/design/modules/world-model.md` | `contracts/world-model.md` | `ADR-0012` |
+| Self Model | `docs/design/modules/self-model.md` | `contracts/self-model.md` | `ADR-0013` |
 
 Номер текущего разрешённого Design Update всегда брать из `docs/design/current.md`, а не из старых chat/prompt сообщений.
 
@@ -162,6 +163,9 @@ World Prediction ≠ observed fact
 Imagined Transition ≠ Environment Transition
 prediction error ≠ reward / intrinsic utility
 predictive uncertainty ≠ risk / value
+Agent Capability Fact ≠ Learned Competence Estimate ≠ Self Prediction
+P(success) ≠ uncertainty/support самой self-estimate
+Self Model ≠ Cortex self-report ≠ Executive Control
 ```
 
 ---
@@ -266,7 +270,26 @@ predictive uncertainty ≠ risk / value
 
 ---
 
-# 15. Research discipline
+# 15. Self Model discipline
+
+До изменения `DU-13` запрещается:
+
+- считать текстовое самоописание/`confidence` Cortex каноническим self-knowledge;
+- смешивать capability availability и learned competence;
+- использовать один global scalar competence/confidence без domain/target semantics;
+- публиковать `P(success)` без определения success event/context/horizon;
+- смешивать probability predicted outcome и uncertainty/support самой оценки;
+- использовать evaluator-only success/ground truth как natural Self Evidence;
+- давать Self Model arbitrary host/process/GPU telemetry как self-state без explicit agent-visible boundary;
+- считать старый competence profile автоматически валидным после behavior-relevant `agent_revision`/Cortex/module change;
+- давать Self Model authority выбирать action, goal, Cortex/Memory invocation или compute policy;
+- смешивать Self Model competence с World Model external dynamics;
+- использовать `0.5`/`None` как неразличимый sentinel для unknown, unavailable, out-of-domain и реальной вероятности 0.5;
+- считать `NoSelfModel` implementation, возвращающую фиктивную успешную self-estimate.
+
+---
+
+# 16. Research discipline
 
 Обязателен [`docs/research-methodology.md`](docs/research-methodology.md).
 
@@ -287,7 +310,7 @@ predictive uncertainty ≠ risk / value
 
 ---
 
-# 16. Scope implementation
+# 17. Scope implementation
 
 Пока `docs/design/current.md` не разрешает implementation/version work, подробный design **не является разрешением писать production architecture**.
 
@@ -296,6 +319,7 @@ predictive uncertainty ≠ risk / value
 - конкретный Cortex backend/model size;
 - конкретный Memory backend/index/embedding model;
 - RSSM/Dreamer/TD-MPC/Transformer world model;
+- конкретный Self Model/calibration estimator;
 - TensorDict/DI/config/scheduler framework;
 - PPO/RND/ICM и другие learning algorithms;
 - Colab/cloud runtime;
@@ -303,7 +327,7 @@ predictive uncertainty ≠ risk / value
 
 ---
 
-# 17. Поведение при неопределённости
+# 18. Поведение при неопределённости
 
 Если документация не определяет существенное решение:
 
