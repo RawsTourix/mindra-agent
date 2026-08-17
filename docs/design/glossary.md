@@ -18,7 +18,7 @@ Committed versioned shared-state surface между модулями. Не по�
 
 ## Agent Snapshot
 
-Логический causally relevant снимок самого Agent для clone/restore. Не persistent Checkpoint и не ExperimentManifest.
+Логический causally relevant снимок Agent для clone/restore. Не persistent Checkpoint.
 
 ## Agent revision
 
@@ -26,7 +26,7 @@ Committed versioned shared-state surface между модулями. Не по�
 
 ## Cognitive Scheduler
 
-Agent-owned механизм declared scheduling/waves/commits. Не cognitive module, Executive Control или Policy.
+Механизм declared scheduling/waves/commits. Не cognitive module, Executive Control или Policy.
 
 ## Decision Window
 
@@ -34,7 +34,7 @@ Agent-owned механизм declared scheduling/waves/commits. Не cognitive m
 
 ## Cognitive Cycle
 
-Одна причинно различимая внутренняя итерация cognition внутри Decision Window.
+Одна причинно различимая внутренняя итерация cognition.
 
 ---
 
@@ -70,7 +70,7 @@ Versioned identity/configuration world instance/family сверх одного s
 
 ## Committed Goal
 
-Цель, принятая Goal System и существующая в Goal Graph.
+Цель, принятая Goal System.
 
 ## Cortex
 
@@ -78,7 +78,7 @@ Versioned identity/configuration world instance/family сверх одного s
 
 ## MemoryRecord
 
-Каноническое agent-owned воспоминание со stable identity/provenance; не embedding/index slot или research trajectory.
+Каноническое agent-owned воспоминание со stable identity/provenance; не embedding/index slot.
 
 ## RetrievalResult
 
@@ -122,7 +122,7 @@ Persistent regulatory состояние конкретного Drive.
 
 ## AppraisalRecord
 
-Versioned оценка causally identifiable target относительно current Agent context.
+Versioned оценка identifiable target относительно current Agent context.
 
 ## Affect State
 
@@ -134,7 +134,7 @@ Structured multi-objective representation decision-relevant ценности tar
 
 ## SalienceProfile
 
-Structured representation причин processing priority target. Не обязан быть scalar и не равен AttentionAllocation.
+Structured representation причин processing priority target. Не AttentionAllocation.
 
 ---
 
@@ -174,7 +174,7 @@ Agent-owned control optional internal operations/resources и continue/yield cog
 
 ## Planner
 
-Optional/falsifiable provider multi-step/contingent plans и action candidates. Не World Model и не final selection owner.
+Optional/falsifiable provider multi-step/contingent plans и action candidates. Не final selection owner.
 
 ## ActionCandidate
 
@@ -182,7 +182,7 @@ Optional/falsifiable provider multi-step/contingent plans и action candidates. 
 
 ## SelectedActionIntent
 
-Выбранное Policy behavioral intention до Action Boundary. Не authorized/committed/dispatched/executed action.
+Выбранное Policy behavioral intention до Action Boundary.
 
 ## AuthorizedAction
 
@@ -226,7 +226,7 @@ Bundle behavior-relevant Agent/component/environment/representation revisions к
 
 ## ResearchAnnotationRecord
 
-Отдельная evaluator/research-only annotation, ссылающаяся на source events/samples. Не обычный agent-visible payload.
+Отдельная evaluator/research-only annotation. Не обычный agent-visible payload.
 
 ## DataVisibilityPolicy
 
@@ -234,7 +234,7 @@ Versioned правила включения visibility/trust classes в derived 
 
 ## DatasetManifest
 
-Versioned описание source journals/projections, schemas, transforms, splits, revisions, quality и determinism data product.
+Versioned описание source journals/projections, schemas, transforms, splits, revisions и quality data product.
 
 ## TrainingSample
 
@@ -242,15 +242,15 @@ Derived training data product со source refs и transformation lineage. Не h
 
 ## Training Replay
 
-Повторное использование source/derived training data внешним Training Runtime. Не Agent Memory Replay.
+Повторное использование training data внешним Training Runtime. Не Agent Memory Replay.
 
 ## ReplaySelectionRecord
 
-Evidence конкретного training replay selection: population/sampler revision, selected refs, probability/priority/RNG metadata где применимо.
+Evidence конкретного training replay selection.
 
 ## Privileged supervision
 
-Training condition, явно разрешающая ResearchAnnotation/evaluator-only data. Не natural agent-visible learning по умолчанию.
+Training condition, явно разрешающая evaluator/research-only data.
 
 ---
 
@@ -258,67 +258,55 @@ Training condition, явно разрешающая ResearchAnnotation/evaluator
 
 ## Training Runtime
 
-Внешняя относительно cognition optimization responsibility, потребляющая TrainingSample/Replay data и создающая candidate trainable revisions. Не cognitive module.
+Внешняя optimization responsibility, создающая candidate trainable revisions. Не cognitive module.
 
 ## Runtime State Update
 
-Изменение ordinary agent runtime/adaptive state без optimizer semantics. Не Learning Update.
+Изменение ordinary agent runtime/adaptive state без optimizer semantics.
 
 ## Learning Update
 
-Явное parameter/model-fitting изменение trainable state через Training Runtime. Не Runtime State Update, Consolidation Event или Replay Step.
-
-## TrainableComponentDescriptor
-
-Semantic descriptor того, какие parameter groups/capabilities компонента могут обучаться и при каких compatibility/activation constraints.
+Явное parameter/model-fitting изменение через Training Runtime.
 
 ## TrainingPlan
 
-Versioned training condition: targets, pinned base revisions, data/visibility, objectives, optimizer/gradient policy, validation, activation, retention и determinism.
+Versioned training condition: targets, pinned base revisions, data, objectives, gradient/optimizer, validation и activation semantics.
 
 ## Training Objective
 
-Внешняя optimization semantics, определяющая training targets/losses. Не Agent Goal, Drive, Intrinsic Signal или ValueProfile.
+Внешняя optimization semantics. Не Agent Goal, Drive, Intrinsic Signal или ValueProfile.
 
 ## GradientFlowPolicy
 
-Versioned правила trainable parameter groups, cross-component gradient edges, stop-gradient boundaries и joint-update atomicity. Runtime dependency graph её не заменяет.
-
-## OptimizerStateLineage
-
-Training-only lineage optimizer/scheduler/scaler state относительно parameter topology/revisions. Не `CognitiveState`.
+Versioned правила trainable groups, cross-component gradient edges и stop-gradient boundaries.
 
 ## BaseRevisionBundle
 
-Pinned Agent/component/representation revisions, от которых начинается TrainingAttempt.
+Pinned revisions, от которых начинается TrainingAttempt.
 
 ## CandidateRevisionBundle
 
-Совместимый staged набор новых component revisions после optimization, но до activation live Agent.
+Staged набор новых revisions после optimization, но до activation.
 
 ## LearningUpdateRecord
 
-Immutable evidence завершённого/принятого training update: source data, base revisions, objective/optimizer policies, candidate revisions, validation и provenance. Не automatic activation.
+Immutable evidence training update; не automatic activation.
 
 ## RevisionActivationRecord
 
-Causal запись перевода совместимого revision bundle в active Agent revision на разрешённой boundary.
+Causal запись перевода compatible revision bundle в active Agent revision.
 
 ## Behavior revision
 
-Agent/Policy revision, которая реально породила source action/trajectory.
+Revision, реально породившая source action/trajectory.
 
 ## Learner revision
 
-Revision, относительно которой Training Runtime вычисляет текущий update/target. Может отличаться от behavior revision.
-
-## Representation effect
-
-Изменение feature/representation space после Learning Update, требующее новой revision и downstream compatibility/migration semantics.
+Revision, относительно которой Trainer вычисляет update/target.
 
 ## Rollback
 
-Новая causal activation предыдущего/исправленного compatible revision bundle после обнаружения проблемы. Не rewrite истории Learning Update.
+Новая causal activation предыдущего/исправленного revision bundle. Не rewrite истории.
 
 ---
 
@@ -326,71 +314,55 @@ Revision, относительно которой Training Runtime вычисл�
 
 ## Checkpoint
 
-Persistent manifest-driven набор verified artifacts, относящийся к explicit causal capture boundary и объявленному scope. Не синоним одного tensor file.
+Persistent manifest-driven набор verified artifacts относительно explicit causal capture boundary и scope.
 
 ## CheckpointScope
 
-Явное описание intended use и required/optional state classes checkpoint: например inference, exact agent state, training resume или full-system resume.
+Intended use и required/optional state classes checkpoint.
 
 ## CheckpointManifest
 
-Committed descriptor checkpoint: capture boundary, revisions, artifacts, integrity, Environment/Training refs, compatibility и reproducibility metadata. Коммитится после verification обязательных artifacts.
+Committed descriptor checkpoint после verification обязательных artifacts.
 
 ## TrainingResumeCheckpoint
 
-Checkpoint scope с causally relevant optimizer/scheduler/scaler/trainer/replay/data-cursor/RNG state для заявленного продолжения Training Lifecycle.
+Checkpoint scope с training state для заявленного continuation.
 
 ## FullSystemCheckpoint
 
-Checkpoint scope, включающий согласованный Agent + Environment/runtime state для заявленного continuation/counterfactual restore.
+Checkpoint scope с causally aligned Agent + Environment/runtime state.
 
 ## CaptureBoundary
 
-Explicit committed causal cut, относительно которого pin'ятся revisions/state при создании checkpoint.
+Committed causal cut, относительно которого pin'ятся revisions/state при capture.
 
 ## ArtifactRef
 
-Stable logical/content/integrity identity checkpoint artifact, отделённая от physical path/storage location.
+Stable logical/content/integrity identity artifact, отделённая от physical path.
 
 ## RestoreProfile
 
-Versioned semantics requested restore: exact/compatible/portable/approximate и соответствующие compatibility/state requirements.
-
-## RestoreRecord
-
-Evidence конкретной попытки restore: requested/actual profile, migrations, integrity/compatibility/invariant checks и результат.
+Versioned requested restore semantics: exact/compatible/portable/approximate.
 
 ## ReproducibilityClaim
 
-Scoped утверждение о воспроизводимости с required environment constraints, comparison criterion, limitations и validation evidence. Не boolean `reproducible=true`.
+Scoped evidence-backed утверждение о воспроизводимости. Не boolean.
 
 ## DeterminismPolicy
 
-Versioned набор framework/runtime/precision/autotuning/parallelism условий, под которыми заявляется deterministic behavior.
-
-## SoftwareEnvironmentManifest
-
-Versioned identity code/runtime/framework/library/model/backend окружения experiment/restore.
-
-## HardwareTopologyManifest
-
-Versioned identity CPU/GPU/accelerator/topology ресурсов, релевантных reproducibility claim. Не agent-visible Self state автоматически.
+Versioned framework/runtime/precision/parallelism условия deterministic claim.
 
 ## ComputeManifest
 
-Research/infrastructure описание allocated compute context и способов измерения resource usage. Не `CognitiveResourceEnvelope`.
+Infrastructure/research описание allocated compute context. Не `CognitiveResourceEnvelope`.
 
 ## ComputeUsageRecord
 
-Evidence фактически/оценочно/provider-reported использованного compute с method/provenance.
+Evidence фактически/оценочно/provider-reported использованного compute.
 
 ## ExperimentManifest
 
-Versioned reproducible run condition, связывающий code/config/checkpoints/Environment/data/software/hardware/compute/determinism/results. Не Agent state.
-
-## Checkpoint migration
-
-Explicit source→migration policy→new artifact/checkpoint lineage. Не silent rewrite старого checkpoint.
+Versioned reproducible run condition, связывающий code/config/checkpoints/Environment/data/software/hardware/compute/results.
 
 ---
 
@@ -398,87 +370,135 @@ Explicit source→migration policy→new artifact/checkpoint lineage. Не silen
 
 ## MINDRA-Eval
 
-Внешний Evaluation Plane для task/diagnostic/causal/calibration/resource/reproducibility evidence. Не Agent cognition и не engineering test suite.
+Внешний Evaluation Plane для task/diagnostic/causal/calibration/resource/reproducibility evidence. Не engineering test suite.
 
 ## EvaluationStudyPlan
 
-Versioned план исследования: hypotheses, conditions, controls, metrics, replicate/statistical protocol и success/falsification criteria.
+Versioned план исследования: hypotheses, conditions, controls, metrics, replicates/statistics и success/falsification criteria.
 
 ## EvaluationSuite
 
-Versioned набор task/world distributions и measurement protocols. Не один Environment instance и не universal leaderboard.
+Versioned набор task/world distributions и measurement protocols.
 
 ## EvaluationCondition
 
-Полностью определённое условие evaluation: Agent/checkpoint/world/Cortex/composition/interventions/data/resources/software/hardware/metrics context.
+Полностью определённое условие evaluation.
 
 ## EvaluationRun
 
-Один причинно идентифицируемый запуск конкретной `EvaluationCondition`.
+Один причинно идентифицируемый запуск конкретной condition.
 
 ## EvaluationUnit
 
-Семантическая единица measurement, например Episode, Decision Window, prediction resolution или paired branch. Не автоматически independent statistical sample.
+Единица measurement; не автоматически independent statistical sample.
 
 ## ReplicateStructure
 
-Явная структура training/checkpoint/world/episode/stochastic/counterfactual replicates и их nesting/blocking/independence assumptions.
+Структура training/checkpoint/world/episode/counterfactual replicates и nesting assumptions.
 
 ## MetricSpec
 
-Versioned semantics evaluator metric: target, inputs, visibility, unit, aggregation, missing/censoring и provenance.
-
-## EvaluationScorecard
-
-Typed bundle task/calibration/causal/robustness/resource/reproducibility metrics. Не обязан сворачиваться в scalar.
+Versioned semantics evaluator metric.
 
 ## StatisticalAnalysisPlan
 
-Versioned confirmatory analysis semantics: analysis unit, contrast, estimator/interval family, dependence/nesting, multiplicity, missing/censoring и stopping policy.
+Versioned analysis semantics: unit, contrast, estimator/interval family, nesting, missing/censoring и stopping policy.
 
 ## ControlDescriptor
 
-Описание baseline/ablation/No*/Dummy/random/shuffled/matched/oracle condition и факторов, которые сохраняются/изменяются.
+Описание baseline/ablation/No*/Dummy/random/shuffled/matched/oracle condition.
 
 ## ResourceMatchProfile
 
-Описание параметров/state/context/data/compute, которые должны быть matched между comparison conditions, и фактических deviations.
+Описание confounders/resources, которые должны быть matched между conditions.
 
 ## PairedCounterfactualPlan
 
-План control/treatment branching из общего verified checkpoint + Environment base state с explicit intervention и RNG-coupling semantics.
+План control/treatment branching из общего verified base state.
 
 ## CausalContrastRecord
 
-Evidence control/treatment effect с base state, intervention, target/off-target effects, matching quality, uncertainty и causal limitations.
+Evidence control/treatment effect с assumptions/limitations.
 
 ## ModuleGateSpec
 
-Заранее определённые support/weakening/falsification criteria условно принятой module boundary.
-
-## PolicyActionAttributionRecord
-
-Связь pre-Gate `SelectedActionIntent` quality, Gate corrections/rejections и post-Gate execution/outcome metrics.
+Support/weakening/falsification criteria условно принятой module boundary.
 
 ## EvaluationValidityRecord
 
-Отдельный статус protocol validity/leakage/checkpoint/condition integrity. Invalid run не равен failed task.
-
-## EvaluationManifest
-
-Versioned manifest study/suite/conditions/controls/checkpoints/worlds/metrics/statistics/resources/reproducibility context.
+Статус protocol/leakage/checkpoint/condition validity. Invalid run не равен failed task.
 
 ## EvaluationReport
 
-Derived report с lineage до raw runs/metrics/Evidence/Experience. Не source of truth сам по себе.
+Derived report с lineage до raw evidence. Не source of truth сам по себе.
+
+---
+
+# Engineering Testing
+
+## Engineering Verification Plane
+
+Внешняя responsibility проверки implementation contracts/invariants/failure semantics. Не MINDRA-Eval.
+
+## VerificationObligation
+
+Versioned обязанность проверить конкретный accepted engineering invariant, включая допустимый enforcement/test class и automation status.
+
+## VerificationMatrix
+
+Связь accepted design/ADR/contracts с obligations, test specs, CI tiers и latest evidence.
+
+## EngineeringTestSpec
+
+Versioned semantics конкретной engineering проверки: target, class, composition/environment, oracle, faults и assertion semantics.
+
+## ContractConformanceProfile
+
+Capability-aware профиль conformance конкретной real/Dummy/control implementation semantic contract.
+
+## FaultInjectionSpec
+
+Declared fault, injection point и ожидаемые failure/recovery semantics.
+
+## StatefulModelSpec
+
+Упрощённая reference-state model с operations/transitions/invariants для generated sequence testing.
+
+## TestOracleSpec
+
+Test-only expected/invariant source. Privileged oracle не становится Agent-visible input.
+
+## EngineeringTestEnvironmentProfile
+
+Software/hardware/backend/determinism/resource/fault context engineering run.
+
+## VerificationEvidenceRecord
+
+Evidence того, какие obligations проверены в каком environment/capability scope.
+
+## VerificationGate
+
+Набор required obligations/evidence для change/merge scope. Skip/not-run не становятся pass.
+
+## CoverageProfile
+
+Раздельное описание code, contract, invariant, failure-mode, schema/migration и backend-capability coverage.
+
+## FlakyTestRecord
+
+Evidence nondeterministic pass/fail behavior и quarantine/repair state. Quarantine не равна verification pass.
+
+## GoldenArtifactSpec
+
+Reviewable deterministic reference artifact для stable contract surface; не universal neural-output oracle.
 
 ---
 
 # Будущие области
 
-## Engineering Testing
+## Research Claims / Limitations
 
-Будущая автоматическая проверка implementation contracts/invariants/failure semantics. `DU-29`.
+Будущая boundary допустимых утверждений, evidence strength, limitations, known unknowns и антропоморфных ограничений. `DU-30`.
 
 ---
 
@@ -498,8 +518,12 @@ Derived report с lineage до raw runs/metrics/Evidence/Experience. Не source
 
 ## Matched control
 
-Control с сопоставимыми parameters/compute/state capacity или другими заявленными confounders, но иной целевой semantics.
+Control с сопоставимыми заявленными confounders, но иной целевой semantics.
 
 ## Research evidence
 
-Фактический воспроизводимый результат с conditions/limitations; не automatic design change.
+Воспроизводимый результат с conditions/limitations; не automatic design change.
+
+## Engineering evidence
+
+Результат contract/invariant/failure verification конкретной implementation/revision; не evidence функциональной полезности.
