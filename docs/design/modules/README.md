@@ -1,218 +1,159 @@
 # Карта проектирования модулей MINDRA
 
-## Статус документа
+## Статус
 
-Этот документ является **картой архитектурных областей и порядка их проектирования**, а не заменой канонических subsystem design.
+Этот документ — карта принятых boundaries и оставшихся областей. Канонический статус определяется специализированными design docs и [`../current.md`](../current.md).
 
-Наличие блока в карте не гарантирует, что он навсегда останется отдельным trainable module.
-
-Главное правило:
-
-> Отдельный модуль существует не из-за когнитивной аналогии, а при наличии самостоятельной вычислительной ответственности, явного state/contract и независимо проверяемого функционального вклада.
-
-Фактический статус определяется каноническим документом и [`../current.md`](../current.md).
+Отдельный модуль существует только при самостоятельной ответственности, явной boundary/state semantics и независимо проверяемом causal вкладе.
 
 ---
 
-# 1. Классы архитектурных областей
-
-## 1.1. Границы взаимодействия
+# 1. Принятые boundaries
 
 ```text
-Environment
-Perception / Representation
-Cortex
-Action / Actuation boundary
+DU-07  Environment
+DU-08  Perception / Canonical Representation
+DU-09  Goal System
+DU-10  Cortex Boundary
+DU-11  Memory Core
+DU-12  World Model
+DU-13  Self Model
+DU-14  Intrinsic Signals
+DU-15  Drives
+DU-16  Appraisal
+DU-17  Affect Dynamics
+DU-18  Valuation
+DU-19  Salience / Attention
 ```
 
-## 1.2. Когнитивное состояние и прогнозирование
+Канонические документы находятся рядом в `docs/design/modules/`.
+
+---
+
+# 2. Разведение внутренних слоёв
 
 ```text
-CognitiveState
-Goal System
-World Model
-Self Model
-Memory
-Workspace
-Metacognitive / Executive Control
-```
+Intrinsic Signals
+→ свойства опыта
 
-## 1.3. Внутренние измерения, мотивация, оценка и регуляция
-
-```text
-Intrinsic Signal Providers
 Drives
+→ persistent regulatory state
+
 Appraisal
-Affect Dynamics
+→ event-level meaning относительно Agent context
+
+Affect
+→ history-dependent persistent modulation state
+
 Valuation
-Salience / Attention Control
+→ decision-relevant multi-objective comparison
+
+Salience
+→ purpose-dependent priority ограниченного processing
 ```
 
-После `DU-18` роли разведены так:
+Ключевые различия:
 
 ```text
-Intrinsic Signals → свойства опыта
-Drives           → persistent regulatory state
-Appraisal        → event meaning
-Affect           → history-dependent temporal context
-Valuation        → decision-relevant comparison
-Salience         → будущая allocation priority
-```
-
-## 1.4. Выбор и исполнение поведения
-
-```text
-Policy / Planner
-Action Gate / Executor
-```
-
-## 1.5. Обучение и исследовательская инфраструктура
-
-```text
-Experience / Trajectory Recorder
-Replay / Consolidation
-Training Runtime
-Checkpoint / Artifact System
-Experiment Runner
-MINDRA-Eval
+relevance ≠ value ≠ salience
+SalienceProfile ≠ AttentionAllocation
+AttentionAllocation ≠ Workspace admission
+AttentionAllocation ≠ Executive compute decision
 ```
 
 ---
 
-# 2. Уже принятые subsystem boundaries
+# 3. DU-19 — Salience / Attention
 
-## DU-07 — Environment
+[`salience.md`](salience.md)
 
-[`environment.md`](environment.md): Agent Interaction Plane отделён от Research Plane.
-
-## DU-08 — Perception
-
-[`perception.md`](perception.md): `Raw Observation → Canonical Percept` со structured core + optional views.
-
-## DU-09 — Goal System
-
-[`goals.md`](goals.md): `Goal Proposal → Committed Goal Graph`.
-
-## DU-10 — Cortex
-
-[`cortex.md`](cortex.md): backend-neutral semantic capability boundary.
-
-## DU-11 — Memory Core
-
-[`memory.md`](memory.md): `MemoryRecord ≠ embedding/index entry`; Memory ≠ replay.
-
-## DU-12 — World Model
-
-[`world-model.md`](world-model.md): belief/assimilation/prediction/imagination разделены.
-
-## DU-13 — Self Model
-
-[`self-model.md`](self-model.md): capability facts ≠ competence ≠ Self Prediction.
-
-## DU-14 — Intrinsic Signals
-
-[`intrinsic-signals.md`](intrinsic-signals.md): independent typed signals, без mandatory intrinsic reward.
-
-## DU-15 — Drives
-
-[`drives.md`](drives.md): persistent typed regulatory state, без global motivation scalar.
-
-## DU-16 — Appraisal
-
-[`appraisal.md`](appraisal.md): multidimensional event-centered appraisal, без mandatory emotion/global valence.
-
-## DU-17 — Affect Dynamics
-
-[`affect.md`](affect.md): falsifiable persistent history-dependent state, без mandatory emotion taxonomy/VA/PAD.
-
-## DU-18 — Valuation
-
-[`valuation.md`](valuation.md)
+Каноническая форма:
 
 ```text
-source evidence
-→ typed ValueProfile
-→ explicit ComparisonPolicy
-→ ComparisonResult / optional ScalarizedValue
+Explicit Candidate Set
++
+Typed Evidence
++
+Purpose
+→ SalienceProfile[]
+
+SalienceProfile[]
++
+AttentionBudget
++
+AllocationPolicy
+→ AttentionAllocation
 ```
 
-Канонически:
+Salience:
 
-```text
-ValueProfile ≠ ScalarizedValue
-ValueProfile ≠ Reward/Critic/Policy
-predictive uncertainty ≠ RiskProfile
-```
-
-Weighted scalar, Pareto/dominance, lexicographic, constraint-first и nonlinear/learned comparison являются допустимыми policy families, а не universal default.
+- не владеет Memory retrieval/retention;
+- не является Workspace;
+- не вызывает Cortex;
+- не меняет scheduler;
+- не выбирает action;
+- не считает Transformer attention weights canonical salience;
+- может иметь optional persistence/inhibition state;
+- должна иметь measurable downstream allocation effect.
 
 ---
 
-# 3. Первый ещё не спроектированный блок — Salience / Attention
+# 4. Первый ещё не спроектированный блок — Memory Regulation / Consolidation
 
 Следующий Design Update:
 
 ```text
-DU-19 — Salience / Attention
+DU-20 — Memory Regulation / Consolidation
 ```
 
 Предварительная ответственность:
 
-> определять relative priority информации/targets для ограниченного cognitive processing и explicit allocation, используя разрешённые relevance/novelty/urgency/value/uncertainty/context signals, но не становясь Appraisal, Valuation или Workspace.
+> расширить нейтральный Memory Core политиками admission/retention/forgetting/eviction/replay/consolidation, используя explicit Salience и другой разрешённый evidence без превращения Memory в скрытую Valuation или Training Runtime.
 
-Нужно определить:
+Нужно будет определить:
 
-- Salience Target;
-- bottom-up/top-down contributions;
-- scalar/ranking/allocation semantics;
-- limited attention/compute budget;
-- competition/normalization;
-- persistence/inhibition/hysteresis;
-- relation to Appraisal relevance/urgency;
-- relation to Valuation;
-- relation to Intrinsic Signals/Affect/Drives;
-- Memory retrieval/retention boundary;
-- Workspace admission boundary;
-- Executive/Policy boundary;
-- controls/interventions.
-
-Ключевой gate:
-
-> Salience должна иметь observable allocation effect, а не быть ещё одним декоративным score, дублирующим relevance/value.
+- memory admission;
+- retention/aging;
+- forgetting/eviction;
+- replay candidate priority;
+- consolidation boundary;
+- episodic → derived/semantic abstraction;
+- Salience integration;
+- capacity/resource policy;
+- conflict между recency/salience/diversity/value;
+- representation drift при consolidation;
+- training replay vs Agent memory replay;
+- catastrophic forgetting;
+- snapshot/revision/intervention;
+- controls `NoRegulation`, random/recency/shuffled/matched.
 
 ---
 
-# 4. Будущие области после Salience
-
-## DU-20 — Memory Regulation / Consolidation
-
-Расширяет нейтральный Memory Core: retention, forgetting, eviction, replay priority, consolidation.
+# 5. Будущие cognitive areas
 
 ## DU-21 — Workspace
 
-Кандидат на ограниченную temporary global-access surface.
+Ограниченная temporary global-access surface, если module gate подтвердит отдельную роль сверх `CognitiveState`.
 
 ## DU-22 — Metacognitive / Executive Control
 
-Регулирует Cortex/retrieval/planning depth/compute budget/goal focus/strategy switching. Не scheduler.
+Реальный выбор Cortex/retrieval/planning depth/compute budget/goal focus. Не scheduler.
 
 ## DU-23 — Policy / Planner
 
-Преобразует state/predictions/valuation в candidate action/plan.
+Final planning/action-selection boundary.
 
 ## DU-24 — Action Gate / Executor
 
 ```text
 selected action
-≠
-executed action
-≠
-observed outcome
+≠ executed action
+≠ observed outcome
 ```
 
 ---
 
-# 5. Research/runtime infrastructure после cognitive architecture
+# 6. После cognitive architecture
 
 ```text
 DU-25 — Experience / Data / Replay
@@ -225,98 +166,62 @@ DU-31 — Contract + ADR Consistency Freeze
 DU-32 — Version Roadmap
 ```
 
-Только после `DU-32` создаются concrete software versions и их `implementation-sequence.md`.
+Только после `DU-32` появляются concrete software versions и `implementation-sequence.md`.
 
 ---
 
-# 6. Dependency graph проектирования
+# 7. Design dependency graph
 
 ```text
-System boundaries
-    ↓
-CognitiveState / Module Protocol / Observability
-    ↓
 Environment
-    ↓
+   ↓
 Perception
-    ├──────────────→ Goal System
-    ├──────────────→ Cortex
-    └──────────────→ Memory Core
-                         ↓
-               World Model + Self Model
-                         ↓
-                Intrinsic Signals
-                         ↓
-                       Drives
-                         ↓
-                     Appraisal
-                         ↓
-                  Affect Dynamics
-                         ↓
-                     Valuation
-                         ↓
-               Salience / Attention
-                  ┌──────┴──────┐
-                  ↓             ↓
-       Memory Regulation     Workspace
-                  └──────┬──────┘
-                         ↓
-           Metacognitive / Executive Control
-                         ↓
-                  Policy / Planner
-                         ↓
-                Action Gate / Executor
-                         ↓
-                     Environment
+   ↓
+Goals / Cortex / Memory
+   ↓
+World + Self
+   ↓
+Intrinsic Signals
+   ↓
+Drives
+   ↓
+Appraisal
+   ↓
+Affect
+   ↓
+Valuation
+   ↓
+Salience
+   ↓
+Memory Regulation
+   ↓
+Workspace
+   ↓
+Executive Control
+   ↓
+Policy / Planner
+   ↓
+Action Gate
+   ↓
+Environment
 ```
 
 Это design dependency graph, не runtime DAG.
 
 ---
 
-# 7. Правило независимой диагностируемости
+# 8. Diagnostic rule
 
-Для каждого принятого subsystem определить минимум:
+Для каждого cognitive subsystem требуются, где применимо:
 
-- disabled/`No*` behavior;
+- `No*` configuration;
 - Dummy/control implementation;
-- random/shuffled/constant control, если meaningful;
-- parameter/compute-matched control;
-- logging/evidence;
-- intervention points;
-- checkpoint state;
-- subsystem metrics;
-- failure/degradation behavior.
+- random/shuffled/constant baseline;
+- parameter/compute/state-matched control;
+- observability;
+- interventions;
+- snapshot state;
+- failure/degradation semantics;
+- module-specific causal metrics.
 
----
-
-# 8. Правило предотвращения скрытой дубликации
-
-Особенно внимательно проверять:
-
-```text
-Appraisal ↔ Valuation
-Affect ↔ Valuation
-Valuation ↔ Policy critic
-Valuation ↔ Salience
-Drives ↔ Intrinsic Signals
-Drives ↔ Affect
-Self Model ↔ Metacognition
-Salience ↔ Workspace
-CognitiveState ↔ Workspace
-Goal System ↔ Policy
-Memory ↔ Workspace
-Scheduler ↔ Executive Control
-```
-
----
-
-# 9. Следующий шаг
-
-Точный порядок задаётся [`../documentation-plan.md`](../documentation-plan.md).
-
-Следующий допустимый этап:
-
-```text
-DU-19 — Salience / Attention
-```
+Следующий допустимый этап определяется только [`../current.md`](../current.md).
