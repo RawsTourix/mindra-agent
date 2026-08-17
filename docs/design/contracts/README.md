@@ -14,7 +14,8 @@
 - [`perception.md`](perception.md) — `Canonical Percept`, Semantic Core и Feature Views после `DU-08`;
 - [`goals.md`](goals.md) — Goal Proposal/Committed Goal/Goal Graph после `DU-09`;
 - [`cortex.md`](cortex.md) — Cortex Gateway/capabilities/request/result после `DU-10`;
-- [`memory.md`](memory.md) — MemoryWriteProposal, MemoryRecord, MemoryRepresentation, RetrievalIndex/Request/Result и snapshot semantics после `DU-11`.
+- [`memory.md`](memory.md) — MemoryWriteProposal, MemoryRecord, MemoryRepresentation, RetrievalIndex/Request/Result и snapshot semantics после `DU-11`;
+- [`world-model.md`](world-model.md) — WorldBelief, assimilation, WorldPrediction, imagination, uncertainty, prediction error и snapshot semantics после `DU-12`.
 
 Эти документы **не являются frozen Python API** и могут уточняться последующими DU до общего contract freeze.
 
@@ -48,7 +49,8 @@ Contract не должен протаскивать private implementation detai
 - Perception не превращает конкретный encoder/Cortex hidden state в universal representation;
 - Goal contract не даёт proposal sources direct mutation authority Goal Graph;
 - Cortex contract не фиксирует model/provider и не даёт Gateway ambient Agent-state access;
-- Memory contract не превращает vector index/embedding в canonical memory identity, не даёт Cortex ambient retrieval и не смешивает Memory с training replay.
+- Memory contract не превращает vector index/embedding в canonical memory identity, не даёт Cortex ambient retrieval и не смешивает Memory с training replay;
+- World Model contract не превращает prediction/imagination в observed fact, не делает backend latent universal state и не смешивает prediction error с reward/value.
 
 ---
 
@@ -67,33 +69,34 @@ Exact contract уточняет форму принятой семантики, 
 
 # Текущий статус
 
-После `DU-04` … `DU-11` приняты semantic requirements для state/scheduler/observability и subsystem boundaries Environment, Perception, Goals, Cortex и Memory.
+После `DU-04` … `DU-12` приняты semantic requirements для state/scheduler/observability и subsystem boundaries Environment, Perception, Goals, Cortex, Memory и World Model.
 
-Для Memory теперь зафиксированы:
+Для World Model теперь зафиксированы:
 
-- agent-owned canonical Memory Store;
-- stable `MemoryRecord` identity;
-- source/provenance preservation;
-- canonical content отдельно от derived representations;
-- `MemoryRepresentation` с feature-space/encoder revision;
-- rebuildable/versioned retrieval indexes;
-- explicit `RetrievalRequest → RetrievalResult` boundary;
-- relevance отдельно от utility/salience/importance;
-- neutral pre-Salience admission/capacity semantics;
-- Memory отдельно от Cortex context и trajectory/replay;
-- snapshot/restore/counterfactual requirements;
-- `NoMemory`/Dummy/Control distinctions.
+- `World Belief` отдельно от текущего percept и hidden world state;
+- assimilation actual evidence отдельно от action-conditioned prediction;
+- one-step prediction и multi-step imagination;
+- structured + optional feature/latent prediction surface;
+- prediction/imagination provenance;
+- cautious uncertainty semantics;
+- prediction error отдельно от reward/intrinsic utility;
+- Memory/Cortex integration только через explicit boundaries;
+- model/belief revisioning;
+- snapshot/restore/counterfactual obligations;
+- `NoWorldModel`/Dummy/Control distinctions.
 
 Однако **общий exact Python contract set пока намеренно не зафиксирован**.
 
 `environment.md` остаётся candidate до Action/Data/Checkpoint/Evaluation DU.
 
-`perception.md` остаётся candidate до World/Self/Data/Training/Evaluation DU.
+`perception.md` остаётся candidate до Self/Data/Training/Evaluation DU.
 
-`goals.md` остаётся candidate до World/Self/Drives/Valuation/Executive/Policy/Data/Evaluation DU.
+`goals.md` остаётся candidate до Self/Drives/Valuation/Executive/Policy/Data/Evaluation DU.
 
 `cortex.md` остаётся candidate до Workspace/Executive/Policy/Training/Checkpoint/Evaluation DU.
 
-`memory.md` остаётся candidate, поскольку `DU-12`, `DU-19/20`, `DU-21/22`, `DU-25` … `DU-28` ещё уточнят prediction integration, salience/consolidation, workspace/context, data/replay, checkpoint и evaluation requirements.
+`memory.md` остаётся candidate до Salience/Consolidation/Workspace/Data/Checkpoint/Evaluation DU.
 
-До contract freeze запрещено считать конкретные `Protocol`, ABC, TensorDict, dataclass/Pydantic schemas, FAISS/HNSW/vector database, SQL store, embedding model или retrieval library каноническими.
+`world-model.md` остаётся candidate, поскольку `DU-13/14`, `DU-18`, `DU-22/23`, `DU-25` … `DU-28` ещё уточнят Self/Intrinsic/Valuation/Planning/Data/Training/Checkpoint/Evaluation integration.
+
+До contract freeze запрещено считать конкретные `Protocol`, ABC, TensorDict, dataclass/Pydantic schemas, RSSM/Dreamer/Transformer/TD-MPC, TorchRL, uncertainty estimator или rollout framework каноническими.
