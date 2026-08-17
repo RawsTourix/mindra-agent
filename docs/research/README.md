@@ -23,7 +23,8 @@ research/
 │   ├── DU-16-appraisal-landscape-2026-08.md
 │   ├── DU-17-affect-dynamics-landscape-2026-08.md
 │   ├── DU-18-valuation-landscape-2026-08.md
-│   └── DU-19-salience-attention-landscape-2026-08.md
+│   ├── DU-19-salience-attention-landscape-2026-08.md
+│   └── DU-20-memory-regulation-consolidation-landscape-2026-08.md
 ├── hypotheses.md          # появится позже
 ├── experiments/           # появится позже
 ├── results/               # появится позже
@@ -45,7 +46,8 @@ research/
 - [`literature/DU-16-appraisal-landscape-2026-08.md`](literature/DU-16-appraisal-landscape-2026-08.md) — multidimensional appraisal;
 - [`literature/DU-17-affect-dynamics-landscape-2026-08.md`](literature/DU-17-affect-dynamics-landscape-2026-08.md) — persistent Affect;
 - [`literature/DU-18-valuation-landscape-2026-08.md`](literature/DU-18-valuation-landscape-2026-08.md) — multi-objective valuation/risk;
-- [`literature/DU-19-salience-attention-landscape-2026-08.md`](literature/DU-19-salience-attention-landscape-2026-08.md) — salience, selective processing, adaptive compute, budgeted attention и routing.
+- [`literature/DU-19-salience-attention-landscape-2026-08.md`](literature/DU-19-salience-attention-landscape-2026-08.md) — salience, selective processing, adaptive compute, budgeted attention и routing;
+- [`literature/DU-20-memory-regulation-consolidation-landscape-2026-08.md`](literature/DU-20-memory-regulation-consolidation-landscape-2026-08.md) — episodic retention, forgetting/eviction, replay, source-preserving consolidation и retain-vs-consolidate trade-offs.
 
 Эти документы **не выбирают** canonical implementation framework/algorithm.
 
@@ -75,27 +77,31 @@ research evidence / experiment result
 - success/falsification criterion;
 - analysis policy.
 
-Для Salience особенно важны:
+Для Memory Regulation особенно важны:
 
 ```text
-Correct Allocation
-vs Uniform
-vs Random
-vs Shuffled
-vs source-only controls
-vs matched learned router
+Full Regulation
+vs FIFO/recency/random/shuffled
+vs NoRegulation
+
+Full Consolidation
+vs episodic-only
+vs random/matched compression
 ```
 
-и обязательная проверка цепочки:
+и раздельные метрики:
 
 ```text
-Salience intervention
-→ changed allocation
-→ changed actual processing
-→ measurable downstream effect
+behavioral utility
+retention efficiency
+source fidelity
+contradiction preservation
+false derived-memory rate
+budget efficiency
+generalization
 ```
 
-Логируемый score без изменения processing не считается сильным evidence функциональной Salience.
+Compression ratio без functional correctness не считается достаточным evidence полезной consolidation.
 
 ---
 
