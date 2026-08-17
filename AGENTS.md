@@ -62,6 +62,7 @@ Research result меняет architecture только через design review/
 | Workspace | `docs/design/modules/workspace.md` | `docs/design/contracts/workspace.md` | `ADR-0021` |
 | Executive Control | `docs/design/modules/executive-control.md` | `docs/design/contracts/executive-control.md` | `ADR-0022` |
 | Policy / Planner | `docs/design/modules/policy-planner.md` | `docs/design/contracts/policy-planner.md` | `ADR-0023` |
+| Action Boundary | `docs/design/modules/action-boundary.md` | `docs/design/contracts/action-boundary.md` | `ADR-0024` |
 
 Следующий разрешённый DU брать только из `docs/design/current.md`.
 
@@ -100,7 +101,11 @@ Planner ≠ World Model
 Plan ≠ ImaginedTrajectory
 Valuation ≠ Policy Decision
 ActionCandidate ≠ SelectedActionIntent
-SelectedActionIntent ≠ Action Commit / Executed Action
+SelectedActionIntent ≠ AuthorizedAction ≠ Action Commit
+Action Commit ≠ Dispatch ≠ Environment Transition
+Policy choice ≠ external override
+transport failure ≠ Environment no-effect
+execution_unknown ≠ definitely_not_sent
 ```
 
 ## Memory Regulation safeguards
@@ -160,7 +165,7 @@ SelectedActionIntent ≠ Action Commit / Executed Action
 
 - `Policy System` является единственным normal-runtime owner `SelectedActionIntent`;
 - Planner/Cortex/Valuation/World Model не создают `SelectedActionIntent` напрямую;
-- Policy не dispatch'ит Environment action и не выполняет `Action Commit` до `DU-24` boundary;
+- Policy не dispatch'ит Environment action и не выполняет `Action Commit`;
 - Planner не является World Model: он запрашивает/использует predictions/rollouts через explicit boundary;
 - `Plan` не является alias `ImaginedTrajectory`;
 - Planner normal runtime способом не читает hidden Environment Ground Truth;
@@ -168,32 +173,57 @@ SelectedActionIntent ≠ Action Commit / Executed Action
 - Planner-generated subgoal проходит `Goal Proposal → Goal System`, а не мутирует Goal Graph;
 - Valuation/Comparison evidence не превращается автоматически в `argmax` action;
 - `incomparable` допускается; fake scalarization ради выбора запрещена без explicit selection policy;
-- `DecisionDeferral` не вызывает Executive напрямую/рекурсивно: дополнительное cognition оформляется `MetaActionProposal` и проходит следующий control point;
-- planning/search compute должен быть связан с Executive allocation/actual compute accounting;
-- stale candidate set/plan не rebased молча на новый state/belief/Goal revision;
-- plan persistence требует explicit assumptions/validity/invalidation semantics;
-- Cortex-assisted plan/action proposal не получает повышенную authority из-за источника;
+- `DecisionDeferral` не вызывает Executive напрямую/рекурсивно;
+- planning/search compute связан с Executive allocation/actual compute accounting;
+- stale candidate set/plan не rebased молча;
+- plan persistence требует assumptions/validity/invalidation semantics;
+- Cortex-assisted proposal не получает повышенную authority;
 - stochastic Policy сохраняет causal RNG/selection provenance;
-- fallback на random/default action без явного degradation/fallback provenance запрещён;
-- imagined/counterfactual candidate provenance не становится natural/observed action evidence.
+- hidden random/default fallback запрещён;
+- imagined/counterfactual candidate provenance не становится natural action evidence.
+
+## Action Boundary safeguards
+
+До пересмотра `DU-24`:
+
+- `SelectedActionIntent` не dispatch'ится напрямую;
+- stale/malformed/unauthorized intent не получает `ActionCommitRecord`;
+- normal `Action Gate` не является hidden Policy и не выбирает replacement behavior;
+- semantics-preserving normalization обязана иметь transformation provenance;
+- behavior-changing substitution допускается только через explicit `ActionOverridePolicy`/runtime-assurance stage с `ActionOverrideRecord`;
+- original Policy intent и committed override сохраняются раздельно;
+- Gate normal runtime способом не читает hidden evaluator/Environment Ground Truth;
+- canonical `Action Commit` происходит после final authorization и до dispatch;
+- после commit semantic action для Decision Window не меняется;
+- dispatch/execution failure не удаляет или не переписывает Action Commit;
+- Dispatcher/adapter не выбирает fallback action и не вызывает Policy скрыто;
+- retry не создаёт новый Action Commit;
+- retry того же logical dispatch использует stable `dispatch_id`;
+- blind retry запрещён при `execution_unknown`, если нет explicit idempotency/dedup guarantee или definite-non-send evidence;
+- universal physical exactly-once не предполагается;
+- Environment receipt `accepted` не означает execution success;
+- transport failure, Environment rejection, no-effect, partial execution и unknown execution не смешиваются;
+- `NoOp` не используется как universal hidden fallback;
+- terminal outcome фиксируется до reset;
+- provider-native transport payload не становится Policy/action semantic contract.
 
 ## Research discipline
 
-Для Policy / Planner минимум сравнивать:
+Для Action Boundary минимум разделять:
 
 ```text
-Policy + Planner
-vs ReactivePolicy / NoPlanner
-vs Depth1 / FixedLookahead
-vs Random/ShuffledPlan
-vs MatchedSearch/RecurrentControl
+Policy intent quality
+vs Gate effect
+vs external override/RTA effect
+vs dispatch reliability
+vs Environment execution/outcome
 ```
 
-Planner claims требуют matched actual compute/resource accounting, long-horizon/contingent tasks, robustness к World Model error и plan lesion/intervention tests.
+Для сложного Gate/override сравнивать `PassThrough/SchemaOnly`, capability/constraint gate, explicit shield/RTA и random/shuffled controls.
 
-Для Policy отдельно разделять качество source candidates/Valuation и качество final selector; проверять sensitivity к comparison/risk/constraint interventions и stochastic RNG.
+Для dispatch обязательны failure-injection tests: definite-non-send, lost acknowledgement, duplicate retry, partial execution и reconciliation.
 
-Если matched controls объясняют Planner benefit, отдельная Planner boundary должна быть пересмотрена.
+Policy нельзя считать успешной за replacement action external shield без отдельной attribution analysis.
 
 ## Implementation scope
 
