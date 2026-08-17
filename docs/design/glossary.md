@@ -120,7 +120,7 @@ Hidden World State принадлежит Environment и не равен `Raw Ob
 
 ## Raw Observation
 
-Agent-visible проекция Environment state до обработки будущим Perception/Representation layer.
+Agent-visible проекция Environment state до обработки Perception/Representation layer.
 
 `Raw Observation` не является canonical internal representation MINDRA.
 
@@ -201,6 +201,90 @@ MicroWorld не является универсальным определени
 Свойство generated task instance, показывающее, соответствует ли он правилам family и существует ли решение там, где benchmark предполагает решаемую задачу.
 
 Research oracle/validator может проверять solvability, но его данные не передаются Agent.
+
+---
+
+# Perception и representation
+
+## Perception
+
+Agent-owned capability, преобразующая текущую agent-visible `Raw Observation` в `Canonical Percept`, сохраняя provenance, missingness и representation identity.
+
+Perception не является Memory, World Model или Goal System.
+
+## Canonical Percept
+
+Каноническое внутреннее представление текущего observation context после Perception processing.
+
+Состоит conceptually из `Percept Envelope`, structured `Semantic Core`, modality status и optional `Feature Views`.
+
+`Canonical Percept` не равен одному latent vector и не равен Cortex hidden state.
+
+## Percept Envelope
+
+Control/provenance metadata Canonical Percept: source observation identity, causal context, representation/schema revisions, pipeline identity и intervention provenance, если применимо.
+
+Envelope не является автоматически cognitive input всех modules.
+
+## Semantic Core
+
+Структурированная semantic surface Canonical Percept, описывающая то, что Perception утверждает о **текущем agent-visible observation**: наблюдаемый self/world-side state, entities, relations, events и relevant modality state.
+
+Semantic Core не является hidden-world belief и не включает Memory/World Model prediction без отдельной provenance/boundary.
+
+## Feature View
+
+Optional вычислительное представление Semantic Core и/или разрешённой Raw Observation в конкретном feature space.
+
+Может быть learned latent, entity embedding set, spatial map или другой representation. Feature View не заменяет Semantic Core как единственный canonical source of meaning.
+
+## Percept Entity Identity
+
+Identity элемента entity collection внутри конкретного percept.
+
+По умолчанию является observation-local и не гарантирует persistent identity одного объекта между Environment Transitions.
+
+## Perceptual inference
+
+Inference о свойствах текущего observation, полученный learned/algorithmic Perception из текущей разрешённой sensory modality.
+
+Отличается от direct observation, deterministic normalization, Memory retrieval и World Model prediction и должен иметь соответствующую provenance.
+
+## Modality Status
+
+Explicit representation доступности/качества sensory modality в конкретном percept.
+
+Отсутствующая/unavailable modality не должна кодироваться только «нулевым tensor» без contract semantics.
+
+## Feature Space
+
+Семантически идентифицируемое пространство признаков конкретного `Feature View`.
+
+Совместимость определяется identity/revision/contract, а не только dimensionality tensor.
+
+## Feature Space Revision
+
+Версия semantic/geometry feature space, необходимая для определения совместимости stored/current embeddings.
+
+Одинаковая размерность двух revisions не делает их автоматически совместимыми.
+
+## Encoder Revision
+
+Идентичность версии trainable/algorithmic encoder, которая влияет на получаемый Feature View или perceptual inference.
+
+Update encoder, меняющий behavior/representations, должен быть воспроизводимо versioned.
+
+## Representation Drift
+
+Изменение representation одного и того же входа после изменения learned encoder/pipeline.
+
+Drift не является автоматически ошибкой, но должен быть измеримым и не позволяет молча смешивать несовместимые embeddings.
+
+## Sensor / Input Intervention
+
+Controlled research treatment, изменяющий agent-visible Raw Observation после Environment projection, но не изменяющий Hidden World State.
+
+Отличается от Environment world-state intervention и от semantic/feature intervention после Perception.
 
 ---
 
