@@ -26,7 +26,8 @@
 - [`memory-regulation.md`](memory-regulation.md) — MemoryBudget, lifecycle/replay/consolidation после `DU-20`;
 - [`workspace.md`](workspace.md) — Workspace proposal/admission/items/budget/broadcast/read/snapshot semantics после `DU-21`;
 - [`executive-control.md`](executive-control.md) — MetaActionProposal/InternalOperationCatalog, CognitiveResourceEnvelope, ExecutiveDecision, stop/continue и budget ledger semantics после `DU-22`;
-- [`policy-planner.md`](policy-planner.md) — BehavioralContext, ActionCandidate, PlanCandidate, PolicyCandidateSet, DecisionDeferral и SelectedActionIntent после `DU-23`.
+- [`policy-planner.md`](policy-planner.md) — BehavioralContext, ActionCandidate, PlanCandidate, PolicyCandidateSet, DecisionDeferral и SelectedActionIntent после `DU-23`;
+- [`action-boundary.md`](action-boundary.md) — authorization stages, AuthorizedAction, ActionCommitRecord, dispatch/receipt/execution/reconciliation semantics после `DU-24`.
 
 ---
 
@@ -84,45 +85,50 @@ Planner ≠ World Model
 Plan ≠ ImaginedTrajectory
 Valuation ≠ Policy Decision
 ActionCandidate ≠ SelectedActionIntent
-SelectedActionIntent ≠ Action Commit / Executed Action
+SelectedActionIntent ≠ AuthorizedAction ≠ Action Commit
+Action Commit ≠ Dispatch ≠ Environment Transition
+Policy choice ≠ external override
+transport failure ≠ Environment no-effect
 ```
 
-Для Policy / Planner дополнительно:
+Для Action Boundary дополнительно:
 
-- Policy является owner `SelectedActionIntent`;
-- Planner normal runtime способом не создаёт final selected intent;
-- Planner планирует относительно `World Belief`, а не hidden Environment state;
-- Planner subgoal проходит Goal Proposal boundary;
-- candidate sources входят в explicit `PolicyCandidateSet`;
-- stale plan/candidate set нельзя silent-rebase;
-- `incomparable` допускает deferral/tie-break, но не требует fake scalarization;
-- `DecisionDeferral` не вызывает Executive рекурсивно, а создаёт lifecycle-visible proposals;
-- Cortex/World Model/Valuation outputs не становятся action автоматически;
-- stochastic selection сохраняет causal RNG/provenance;
-- selected intent передаётся в `DU-24`, а не dispatch'ится Policy напрямую;
-- `NoPlanner`/ReactivePolicy и matched controls обязательны для claims о planning.
+- stale/malformed/rejected intent не получает `ActionCommitRecord`;
+- normal Gate не выбирает replacement behavior скрыто;
+- semantics-preserving normalization сохраняет отдельную transformation provenance;
+- behavior-changing override имеет explicit `ActionOverrideRecord`;
+- `Action Commit` происходит после final authorization и до dispatch;
+- post-commit dispatch/execution failure не отменяет commit;
+- retry не создаёт новый commit и использует stable logical dispatch identity;
+- retry требует explicit idempotency/dedup semantics либо definite-non-send evidence;
+- `execution_unknown` не считается `not_executed`;
+- Environment receipt `accepted` не считается success;
+- partial/no-effect/transport failure остаются разными causal classes;
+- hidden evaluator truth не становится normal Gate input;
+- provider-native payload не протекает обратно в Policy semantic contract.
 
 ---
 
 # Текущий статус
 
-После `DU-04 … DU-23` semantic requirements приняты, но **общий exact Python contract set намеренно не frozen**.
+После `DU-04 … DU-24` semantic requirements приняты, но **общий exact Python contract set намеренно не frozen**.
 
-`policy-planner.md` остаётся candidate до Action/Data/Training/Checkpoint/Evaluation integration.
+`action-boundary.md` остаётся candidate до Data/Training/Checkpoint/Evaluation integration.
 
 До contract freeze нельзя считать каноническими:
 
 - `Protocol`/ABC/dataclass/TensorDict/Pydantic;
-- exact action encoding;
-- Policy/Planner neural architecture;
-- MCTS/MPC/POMCP/ToT/beam search;
-- plan tree/graph/list representation;
-- candidate count;
-- horizon/replanning frequency;
-- stochastic distribution/tie-break rule;
-- value scalarization;
-- exact Action Gate integration;
-- training objective.
+- exact Environment action enum/schema;
+- exact authorization stage ordering;
+- constraint DSL;
+- shielding/RTA implementation;
+- idempotency token format;
+- ROS/gRPC/HTTP transport;
+- retry/backoff policy;
+- cancellation state machine;
+- timeout values;
+- exact dispatch runtime library;
+- exact experience serialization.
 
 ---
 
