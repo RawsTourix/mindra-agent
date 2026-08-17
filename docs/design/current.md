@@ -8,7 +8,7 @@
 
 # 1. Общий статус
 
-**`DU-01 … DU-23` завершены и приняты. Реализация ещё не начата.**
+**`DU-01 … DU-24` завершены и приняты. Реализация ещё не начата.**
 
 Приняты:
 
@@ -30,8 +30,9 @@
 - Workspace;
 - Metacognitive / Executive Control;
 - Policy / Planner;
-- 23 accepted ADR;
-- candidate semantic contracts для subsystem boundaries `DU-07 … DU-23`.
+- Action Boundary / Gate / Executor;
+- 24 accepted ADR;
+- candidate semantic contracts для subsystem boundaries `DU-07 … DU-24`.
 
 ---
 
@@ -62,113 +63,112 @@ DU-20 — Memory Regulation / Consolidation
 DU-21 — Workspace
 DU-22 — Metacognitive / Executive Control
 DU-23 — Policy / Planner
+DU-24 — Action Boundary / Gate / Executor
 ```
 
 ---
 
-# 3. DU-23
+# 3. DU-24
 
 Canonical design:
 
-- [`modules/policy-planner.md`](modules/policy-planner.md)
+- [`modules/action-boundary.md`](modules/action-boundary.md)
 
 Candidate contract:
 
-- [`contracts/policy-planner.md`](contracts/policy-planner.md)
+- [`contracts/action-boundary.md`](contracts/action-boundary.md)
 
 Accepted decision:
 
-- [`ADR-0023`](decisions/ADR-0023-policy-owned-selection-optional-planner.md)
+- [`ADR-0024`](decisions/ADR-0024-post-authorization-pre-dispatch-action-commit.md)
 
 Research pass:
 
-- [`../research/literature/DU-23-policy-planner-landscape-2026-08.md`](../research/literature/DU-23-policy-planner-landscape-2026-08.md)
+- [`../research/literature/DU-24-action-boundary-landscape-2026-08.md`](../research/literature/DU-24-action-boundary-landscape-2026-08.md)
 
 Главные результаты:
 
 ```text
-Policy ≠ Planner
-Planner ≠ World Model
-Plan ≠ ImaginedTrajectory
-Valuation ≠ Policy Decision
-Executive Control ≠ Policy
-ActionCandidate ≠ SelectedActionIntent
-SelectedActionIntent ≠ Action Commit / Executed Action
+SelectedActionIntent
+≠ AuthorizedAction
+≠ Action Commit
+≠ Dispatch
+≠ Execution
+≠ Environment Transition
+≠ Outcome Commit
 ```
 
-- `Policy System` принят как обязательный semantic owner final behavioral selection;
-- `Planner` принят как optional/falsifiable provider планов/action candidates;
-- reactive/no-Planner Policy остаётся first-class configuration;
-- Planner использует `World Belief`, а не hidden Environment state;
-- Planner может строить contingent plans по будущим observations/beliefs;
-- World Model предоставляет prediction/imagination primitives, но не владеет Plan;
-- `Plan` является agent-owned prescriptive/conditional structure и не равен одному rollout;
-- candidate generation допускает reactive, Planner, Cortex-assisted, scripted/control и другие explicit sources;
-- все sources входят в explicit `PolicyCandidateSet`;
-- Valuation предоставляет `ValueProfile`/`ComparisonResult`, но final selection остаётся Policy;
-- `incomparable` является валидным состоянием и не требует fake scalarization;
-- Policy может вернуть `DecisionDeferral` + `MetaActionProposal`, если требуется дополнительное cognition;
-- возврат к Executive происходит через lifecycle/control point, не recursive direct call;
-- Planner-generated subgoal проходит `Goal Proposal → Goal System`;
-- planning compute/horizon/branching ограничиваются Executive resource semantics;
-- Planner может хранить `PlanState`, но plan имеет revision/assumptions/stale/invalidation/replanning semantics;
-- `SelectedActionIntent` является результатом Policy до Action Gate и не означает, что action уже разрешён/committed/executed;
-- stochastic Policy должна сохранять selection/RNG provenance;
-- обязательны ReactivePolicy/NoPlanner, random/shuffled/depth-1/matched search controls;
-- benefit Planner должен проверяться при matched actual compute и на задачах, действительно требующих multi-step/contingent planning;
-- если matched controls объясняют эффект, отдельная Planner boundary должна быть пересмотрена.
+- обязательная `Action Boundary` отделяет Policy selection от внешнего воздействия;
+- базовый `Action Gate` является invariant agent-runtime boundary, а не второй Policy;
+- Gate проверяет schema/freshness/capability/preconditions/explicit constraints;
+- hidden evaluator/Environment Ground Truth не используется normal authorization способом;
+- default Gate может accept/reject и выполнять только semantics-preserving normalization;
+- behavior-changing substitution допускается только через explicit `ActionOverridePolicy`/runtime-assurance stage;
+- override сохраняет исходный Policy intent и отдельную external/intervention provenance;
+- `Action Commit` происходит после финальной authorization и до dispatch;
+- после commit semantic action не меняется задним числом;
+- dispatch/execution failure не удаляет `ActionCommitRecord`;
+- `definitely_not_sent`, `execution_unknown`, Environment `no_effect` и partial execution различаются;
+- retry того же logical dispatch использует стабильный `dispatch_id` и не создаёт новый Action Commit;
+- blind retry запрещён при неизвестном выполнении non-idempotent action;
+- universal physical exactly-once не обещается;
+- synchronous MicroWorld может дать stronger dedup semantics по `action_commit_id`;
+- dispatcher/transport принадлежат Execution Runtime integration, Environment владеет фактическим transition/outcome;
+- terminal outcome фиксируется до reset;
+- causal trace связывает candidate → intent → authorization → commit → dispatch → execution → transition → outcome.
 
 ---
 
 # 4. Следующий допустимый Design Update
 
 ```text
-DU-24 — Action Boundary / Gate / Executor
+DU-25 — Experience / Data / Replay
 ```
 
-Цель `DU-24` — спроектировать **границу между выбранным Policy намерением, проверкой/разрешением action, причинным `Action Commit`, dispatch в Environment и фактически наблюдаемым outcome**.
+Цель `DU-25` — спроектировать **каноническую схему опыта и данных MINDRA**, которая сможет сохранять полную причинную историю interaction/cognition/training evidence без смешивания Agent Memory, research trajectory и Training Replay.
 
 Обязательные вопросы:
 
 ```text
-SelectedActionIntent ≠ AuthorizedAction ≠ Action Commit ≠ Dispatch ≠ Executed Action ≠ Outcome
-Action Gate responsibility/module gate
-semantic action validation
-capability/availability checks
-stale selected intent
-final precondition validation
-hard constraints / safety-policy boundary без evaluator oracle leakage
-Action rejection / modification / substitution semantics
-who may transform an intent
-NoOp / abort / retry semantics
-Action Commit exact point
-idempotency / duplicate dispatch
-Environment acknowledgement
-partial execution / execution failure
-asynchronous dispatch boundary?
-termination/truncation interaction
-action/outcome correlation IDs
-observability/intervention
-Action Gate controls
-snapshot/revision
+Experience Event / Transition / Trajectory hierarchy
+natural ≠ replayed ≠ imagined ≠ intervened ≠ counterfactual
+Action candidate / intent / commit / dispatch / outcome linkage
+state_revision / agent_revision / memory/world/self revisions
+Environment manifest / episode / decision identities
+module/wave/executive/planner evidence refs
+what belongs in canonical dataset vs heavy artifacts
+agent-visible vs evaluator-only fields
+Training sample ≠ raw experience record
+Replay sample provenance
+sequence/window extraction
+terminal/truncated transitions
+failed dispatch / execution_unknown / no-transition records
+online collection under changing agent revisions
+schema/version compatibility
+compression/storage tiers
+privacy/security boundaries if external data later appears
+deterministic sampling / RNG
+snapshot links
+intervention links
+quality/completeness flags
 ```
 
 Нужно особенно определить:
 
-- где именно находится канонический `Action Commit` из `DU-03`;
-- кто имеет authority превратить `SelectedActionIntent` в действие, допустимое для Environment adapter;
-- может ли Gate изменить действие или только accept/reject, и как это отражается в provenance;
-- как не использовать hidden evaluator/Environment Ground Truth как обычный safety oracle;
-- как stale intent обнаруживается после изменения state/action capability;
-- как различить malformed action, semantically invalid action, rejected action, dispatch failure и Environment-level no-effect;
-- как избежать двойного выполнения при retry/transport error;
-- как terminal outcome сохраняется до reset;
-- какой causal evidence нужен для связи `intent → authorization → commit → dispatch → outcome`.
+- является ли canonical experience event-sourced log, transition table или гибрид;
+- как из causal event stream получать RL-like transition samples без потери промежуточных MINDRA events;
+- как не смешать `Agent Memory Replay` из `DU-20` с `Training Replay`;
+- как хранить committed action, если dispatch не привёл к Environment Transition;
+- как представить `execution_unknown` и partial execution;
+- как сохранить evaluator-only ground truth для анализа, не делая его agent-visible training input автоматически;
+- как dataset знает, какая `agent_revision`, policy/world/self/memory revision породила каждый action;
+- какие минимальные поля обязательны для causal replay и какие могут быть optional/heavy artifacts;
+- как extraction/relabeling/hindsight создаёт **derived training sample**, не переписывая source experience.
 
-После принятия `DU-24` допускается:
+После принятия `DU-25` допускается:
 
 ```text
-DU-25 — Experience / Data / Replay
+DU-26 — Training Lifecycle
 ```
 
 ---
@@ -177,7 +177,6 @@ DU-25 — Experience / Data / Replay
 
 Пока отсутствуют accepted решения по:
 
-- Action Gate / Executor;
 - Experience / Data / Replay schema;
 - Training Lifecycle;
 - Checkpoint / Reproducibility / Compute;
