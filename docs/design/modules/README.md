@@ -26,6 +26,7 @@ DU-18  Valuation
 DU-19  Salience / Attention
 DU-20  Memory Regulation / Consolidation
 DU-21  Workspace
+DU-22  Metacognitive / Executive Control
 ```
 
 Канонические документы находятся рядом в `docs/design/modules/`.
@@ -58,6 +59,9 @@ Memory Regulation
 
 Workspace
 → bounded temporary shared availability/broadcast admitted content
+
+Executive Control
+→ adaptive selection/stop/allocation optional cognitive operations под explicit budget
 ```
 
 Ключевые различия:
@@ -67,81 +71,89 @@ CognitiveState ≠ Workspace
 SalienceProfile ≠ Workspace admission
 Workspace ≠ Memory ≠ Cortex context
 broadcast ≠ module execution
-Workspace ≠ Policy / Executive Control
+Executive Control ≠ Cognitive Scheduler
+Executive Control ≠ Policy / Planner
+Internal MetaAction ≠ Environment Action
 ```
 
 ---
 
-# 3. DU-21 — Workspace
+# 3. DU-22 — Executive Control
 
-[`workspace.md`](workspace.md)
+[`executive-control.md`](executive-control.md)
 
 Каноническая форма:
 
 ```text
-explicit producers
-→ WorkspaceCandidateSet
-→ optional Salience evidence
-→ Workspace admission under explicit budget
-→ bounded WorkspaceSnapshot
-→ declared eligible consumers
+MetaActionProposal[]
++
+ExecutiveObservation
++
+CognitiveResourceEnvelope
+        ↓
+Executive Control
+        ↓
+ExecutiveDecision
+        ↓
+Scheduler validation
+        ↓
+allowed internal operation(s)
 ```
 
-Workspace:
+Executive Control:
 
-- не является вторым `CognitiveState`;
-- имеет реальный capacity/bandwidth bottleneck;
-- сохраняет source revision/provenance;
-- поддерживает temporary multi-cycle persistence;
-- использует broadcast как availability, а не callback;
-- не выполняет Memory retrieval;
-- не является Cortex prompt;
+- не является Scheduler;
 - не выбирает Environment action;
-- поддерживает branch-local simulated Workspace;
-- имеет first-class `NoWorkspace` и matched controls;
-- должен быть пересмотрен, если matched shared/recurrent buffers объясняют эффект.
+- не имеет direct provider/service handles;
+- выбирает только из declared proposal/catalog boundary;
+- управляет allocation/ledger внутри предоставленного resource envelope;
+- поддерживает explicit continue/yield control points;
+- может разрешать Cortex/retrieval/rollout/consolidation без ownership leakage;
+- использует Self/Salience/Workspace/Valuation evidence без передачи им control authority;
+- не мутирует Goal Graph через temporary Goal focus;
+- учитывает actual resource consumption отдельно от estimates;
+- имеет `NoExecutive`/fixed/equal-budget/matched controls;
+- должен быть пересмотрен, если adaptive gain исчезает при matched actual compute.
 
 ---
 
-# 4. Первый ещё не спроектированный блок — Executive Control
+# 4. Первый ещё не спроектированный блок — Policy / Planner
 
 Следующий Design Update:
 
 ```text
-DU-22 — Metacognitive / Executive Control
+DU-23 — Policy / Planner
 ```
 
 Предварительная responsibility:
 
-> выбирать допустимые internal cognitive operations и распределять global compute/resource budget без подмены Scheduler или final Policy.
+> генерировать/оценивать behavioral candidates/plans и выбирать final action intention, не подменяя Executive resource control, World Model dynamics, Valuation comparison или Action Gate.
 
 Нужно определить:
 
-- module gate;
-- monitoring vs control;
-- compute/resource budgets;
-- continue/stop Cognitive Cycles;
-- Cortex/retrieval/planning/consolidation decisions;
-- Workspace budget/focus control;
-- Goal focus;
-- Self Model/uncertainty/cost evidence;
-- meta-action semantics;
-- Scheduler boundary;
-- Policy boundary;
-- controls/interventions/snapshot.
+- Policy/Planner module gates;
+- reactive vs planning path;
+- Action Candidate semantics;
+- plan representation/persistence;
+- Planner ↔ World Model;
+- Planner ↔ Goal Proposal;
+- candidate valuation/comparison;
+- constraints/risk/incomparability;
+- Cortex-assisted planning;
+- Executive compute budget boundary;
+- stochastic selection;
+- failure/degradation;
+- observability/intervention/snapshot;
+- NoPlanner/reactive/matched controls.
 
 ---
 
 # 5. Будущие cognitive areas
 
-## DU-23 — Policy / Planner
-
-Final planning/action-selection boundary.
-
 ## DU-24 — Action Gate / Executor
 
 ```text
-selected action
+selected action intention
 ≠ executed action
 ≠ observed outcome
 ```
