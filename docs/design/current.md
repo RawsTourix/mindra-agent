@@ -8,31 +8,15 @@
 
 # 1. Общий статус
 
-**`DU-01 … DU-24` завершены и приняты. Реализация ещё не начата.**
+**`DU-01 … DU-25` завершены и приняты. Реализация ещё не начата.**
 
 Приняты:
 
 - foundation/system boundaries `DU-01 … DU-06`;
-- Environment/MicroWorld;
-- Perception;
-- Goal System;
-- Cortex boundary;
-- Memory Core;
-- World Model;
-- Self Model;
-- Intrinsic Signals;
-- Drives;
-- Appraisal;
-- Affect;
-- Valuation;
-- Salience / Attention;
-- Memory Regulation / Consolidation;
-- Workspace;
-- Metacognitive / Executive Control;
-- Policy / Planner;
-- Action Boundary / Gate / Executor;
-- 24 accepted ADR;
-- candidate semantic contracts для subsystem boundaries `DU-07 … DU-24`.
+- cognitive/subsystem boundaries `DU-07 … DU-24`;
+- Experience / Data / Replay;
+- 25 accepted ADR;
+- candidate semantic contracts для subsystem/data boundaries `DU-07 … DU-25`.
 
 ---
 
@@ -64,111 +48,124 @@ DU-21 — Workspace
 DU-22 — Metacognitive / Executive Control
 DU-23 — Policy / Planner
 DU-24 — Action Boundary / Gate / Executor
+DU-25 — Experience / Data / Replay
 ```
 
 ---
 
-# 3. DU-24
+# 3. DU-25
 
 Canonical design:
 
-- [`modules/action-boundary.md`](modules/action-boundary.md)
+- [`experience-data-replay.md`](experience-data-replay.md)
 
 Candidate contract:
 
-- [`contracts/action-boundary.md`](contracts/action-boundary.md)
+- [`contracts/experience-data-replay.md`](contracts/experience-data-replay.md)
 
 Accepted decision:
 
-- [`ADR-0024`](decisions/ADR-0024-post-authorization-pre-dispatch-action-commit.md)
+- [`ADR-0025`](decisions/ADR-0025-causal-experience-journal-derived-projections.md)
 
 Research pass:
 
-- [`../research/literature/DU-24-action-boundary-landscape-2026-08.md`](../research/literature/DU-24-action-boundary-landscape-2026-08.md)
+- [`../research/literature/DU-25-experience-data-replay-landscape-2026-08.md`](../research/literature/DU-25-experience-data-replay-landscape-2026-08.md)
 
 Главные результаты:
 
 ```text
-SelectedActionIntent
-≠ AuthorizedAction
-≠ Action Commit
-≠ Dispatch
-≠ Execution
-≠ Environment Transition
-≠ Outcome Commit
+TraceEvent
+≠ ExperienceEvent
+
+Experience Journal
+≠ Agent runtime state
+≠ Replay Buffer
+≠ Agent Memory
+
+Source Experience
+≠ TrainingSample
 ```
 
-- обязательная `Action Boundary` отделяет Policy selection от внешнего воздействия;
-- базовый `Action Gate` является invariant agent-runtime boundary, а не второй Policy;
-- Gate проверяет schema/freshness/capability/preconditions/explicit constraints;
-- hidden evaluator/Environment Ground Truth не используется normal authorization способом;
-- default Gate может accept/reject и выполнять только semantics-preserving normalization;
-- behavior-changing substitution допускается только через explicit `ActionOverridePolicy`/runtime-assurance stage;
-- override сохраняет исходный Policy intent и отдельную external/intervention provenance;
-- `Action Commit` происходит после финальной authorization и до dispatch;
-- после commit semantic action не меняется задним числом;
-- dispatch/execution failure не удаляет `ActionCommitRecord`;
-- `definitely_not_sent`, `execution_unknown`, Environment `no_effect` и partial execution различаются;
-- retry того же logical dispatch использует стабильный `dispatch_id` и не создаёт новый Action Commit;
-- blind retry запрещён при неизвестном выполнении non-idempotent action;
-- universal physical exactly-once не обещается;
-- synchronous MicroWorld может дать stronger dedup semantics по `action_commit_id`;
-- dispatcher/transport принадлежат Execution Runtime integration, Environment владеет фактическим transition/outcome;
-- terminal outcome фиксируется до reset;
-- causal trace связывает candidate → intent → authorization → commit → dispatch → execution → transition → outcome.
+- source of truth записанного опыта — append-only causal `Experience Journal`;
+- event-sourced именно data plane, а не runtime `CognitiveState`/Agent;
+- physical append order не определяет causal order;
+- stable IDs, causal parent refs и logical scopes являются основой correlation;
+- standard Episode/Decision/Transition/Sequence representations — derived projections;
+- `InteractionTransitionView` допускает `Action Commit` без Environment transition;
+- `execution_unknown`/definite dispatch failure/partial execution не fabricatе fake next state;
+- evaluator-only/Research Ground Truth хранится отдельными `ResearchAnnotationRecord`;
+- inclusion privileged data требует explicit `DataVisibilityPolicy`;
+- actual/imagined/replayed/counterfactual/intervened provenance хранится без комбинаторного смешения;
+- source `agent_revision` и component revisions сохраняются на соответствующих causal events;
+- online action может быть выбран одной Agent revision, а outcome обработан другой — это не скрывается;
+- `DatasetManifest` фиксирует source manifests, schema, transforms, revisions, splits, quality и determinism policy;
+- `TrainingSample` всегда derived и хранит source/transform lineage;
+- hindsight/relabeling/re-encoding не переписывают source experience;
+- Training Replay работает поверх source/derived samples, но replay table не source of truth;
+- `Agent Memory Replay ≠ Training Replay`;
+- replay priority/sampling frequency не становится cognitive importance автоматически;
+- core causal events отделены от heavy artifacts;
+- completeness/integrity является structured property;
+- storage/backend/file format намеренно не выбран.
 
 ---
 
 # 4. Следующий допустимый Design Update
 
 ```text
-DU-25 — Experience / Data / Replay
+DU-26 — Training Lifecycle
 ```
 
-Цель `DU-25` — спроектировать **каноническую схему опыта и данных MINDRA**, которая сможет сохранять полную причинную историю interaction/cognition/training evidence без смешивания Agent Memory, research trajectory и Training Replay.
+Цель `DU-26` — спроектировать **явную optimization/learning boundary MINDRA** поверх уже принятой data semantics: когда и что можно обучать, кто владеет optimizer state, как формируется Learning Update, как trainable state переходит между revisions и как online/offline learning не нарушает causal runtime.
 
 Обязательные вопросы:
 
 ```text
-Experience Event / Transition / Trajectory hierarchy
-natural ≠ replayed ≠ imagined ≠ intervened ≠ counterfactual
-Action candidate / intent / commit / dispatch / outcome linkage
-state_revision / agent_revision / memory/world/self revisions
-Environment manifest / episode / decision identities
-module/wave/executive/planner evidence refs
-what belongs in canonical dataset vs heavy artifacts
-agent-visible vs evaluator-only fields
-Training sample ≠ raw experience record
-Replay sample provenance
-sequence/window extraction
-terminal/truncated transitions
-failed dispatch / execution_unknown / no-transition records
-online collection under changing agent revisions
-schema/version compatibility
-compression/storage tiers
-privacy/security boundaries if external data later appears
-deterministic sampling / RNG
-snapshot links
-intervention links
-quality/completeness flags
+Training Runtime ownership
+trainable vs runtime/adaptive state
+Learning Objective / Loss composition
+TrainingSample consumption
+batch/sequence/replay semantics
+optimizer state ownership
+parameter/update proposal
+atomic Learning Update
+agent_revision activation
+in-flight cognition under old revision
+online vs offline training
+on-policy vs off-policy provenance
+frozen Cortex vs adapters vs trainable modules
+module-specific optimizers vs joint optimization
+multi-objective losses / loss weighting
+supervised / self-supervised / RL / distillation boundaries
+privileged supervision flags
+replay priorities / importance weights
+representation drift after update
+Memory/World/Self/Policy training interactions
+catastrophic forgetting controls
+rollback/reject failed update
+validation before activation
+RNG / determinism
+training metrics vs agent-visible signals
+checkpoint hooks
+training failure/degradation
 ```
 
-Нужно особенно определить:
+Особенно нужно определить:
 
-- является ли canonical experience event-sourced log, transition table или гибрид;
-- как из causal event stream получать RL-like transition samples без потери промежуточных MINDRA events;
-- как не смешать `Agent Memory Replay` из `DU-20` с `Training Replay`;
-- как хранить committed action, если dispatch не привёл к Environment Transition;
-- как представить `execution_unknown` и partial execution;
-- как сохранить evaluator-only ground truth для анализа, не делая его agent-visible training input автоматически;
-- как dataset знает, какая `agent_revision`, policy/world/self/memory revision породила каждый action;
-- какие минимальные поля обязательны для causal replay и какие могут быть optional/heavy artifacts;
-- как extraction/relabeling/hindsight создаёт **derived training sample**, не переписывая source experience.
+- `Learning Update ≠ runtime state update ≠ Consolidation Event`;
+- Training Runtime остаётся вне Agent cognition, хотя обновляемые parameters принадлежат Agent;
+- optimizer/loss не должен скрыто жить внутри ordinary module `compute()`;
+- Learning Update создаёт новую `agent_revision`/component revisions и не меняет in-flight computation задним числом;
+- source `TrainingSample` provenance из `DU-25` сохраняется до конкретного update;
+- privileged annotations допустимы только при explicit training condition;
+- один universal optimizer для всех модулей не принимается заранее;
+- Cortex fine-tuning/LoRA/QLoRA, RL, supervised и self-supervised algorithms остаются implementation/version choices до их анализа;
+- update activation/rollback должен быть причинно наблюдаемым.
 
-После принятия `DU-25` допускается:
+После принятия `DU-26` допускается:
 
 ```text
-DU-26 — Training Lifecycle
+DU-27 — Checkpoint / Reproducibility / Compute
 ```
 
 ---
@@ -177,7 +174,6 @@ DU-26 — Training Lifecycle
 
 Пока отсутствуют accepted решения по:
 
-- Experience / Data / Replay schema;
 - Training Lifecycle;
 - Checkpoint / Reproducibility / Compute;
 - MINDRA-Eval;
@@ -187,7 +183,7 @@ DU-26 — Training Lifecycle
 - Version Roadmap;
 - implementation sequences.
 
-Также не выбраны concrete Python/framework/model/algorithm implementations.
+Также не выбраны concrete Python/framework/model/algorithm/storage implementations.
 
 ---
 
