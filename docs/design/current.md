@@ -8,7 +8,7 @@
 
 # 1. Общий статус
 
-**`DU-01 … DU-19` завершены и приняты. Реализация ещё не начата.**
+**`DU-01 … DU-20` завершены и приняты. Реализация ещё не начата.**
 
 Приняты:
 
@@ -26,8 +26,9 @@
 - Affect;
 - Valuation;
 - Salience / Attention;
-- 19 accepted ADR;
-- candidate semantic contracts для subsystem boundaries `DU-07 … DU-19`.
+- Memory Regulation / Consolidation;
+- 20 accepted ADR;
+- candidate semantic contracts для subsystem boundaries `DU-07 … DU-20`.
 
 ---
 
@@ -54,107 +55,118 @@ DU-16 — Appraisal
 DU-17 — Affect Dynamics
 DU-18 — Valuation
 DU-19 — Salience / Attention
+DU-20 — Memory Regulation / Consolidation
 ```
 
 ---
 
-# 3. DU-19
+# 3. DU-20
 
 Canonical design:
 
-- [`modules/salience.md`](modules/salience.md)
+- [`modules/memory.md`](modules/memory.md) — нейтральный Memory Core `DU-11`;
+- [`modules/memory-regulation.md`](modules/memory-regulation.md) — regulation/consolidation extension `DU-20`.
 
-Candidate contract:
+Candidate contracts:
 
-- [`contracts/salience.md`](contracts/salience.md)
+- [`contracts/memory.md`](contracts/memory.md);
+- [`contracts/memory-regulation.md`](contracts/memory-regulation.md).
 
 Accepted decision:
 
-- [`ADR-0019`](decisions/ADR-0019-budgeted-contextual-salience-allocation.md)
+- [`ADR-0020`](decisions/ADR-0020-source-preserving-budget-aware-memory-regulation.md).
 
 Research pass:
 
-- [`../research/literature/DU-19-salience-attention-landscape-2026-08.md`](../research/literature/DU-19-salience-attention-landscape-2026-08.md)
+- [`../research/literature/DU-20-memory-regulation-consolidation-landscape-2026-08.md`](../research/literature/DU-20-memory-regulation-consolidation-landscape-2026-08.md).
 
 Главные результаты:
 
 ```text
-Appraisal relevance ≠ Salience
-Value ≠ Salience
-Intrinsic novelty ≠ Salience
-SalienceProfile ≠ AttentionAllocation
-AttentionAllocation ≠ Workspace admission
-AttentionAllocation ≠ Executive compute decision
-AttentionAllocation ≠ Policy decision
-Cortex attention weight ≠ MINDRA Salience
+Memory Core validation ≠ Regulation admission
+Memory Core owner ≠ Memory Regulation policy owner
+SalienceProfile ≠ retention/eviction decision
+forgetting ≠ physical deletion
+retrieval ≠ Agent Memory Replay ≠ Training Replay
+consolidation ≠ in-place rewrite
+consolidation ≠ Learning Update
+representation maintenance ≠ semantic consolidation
 ```
 
-- принят отдельный `Salience System` как boundary priority/allocation;
-- Salience работает только с explicit `SalienceCandidateSet`;
-- Salience является purpose/context dependent;
-- canonical intermediate — typed `SalienceProfile`, а не обязательный scalar;
-- budget приходит от explicit consumer/context;
-- `AllocationPolicy` versioned и отделена от profile;
-- ranking, gating и allocation различаются;
-- bottom-up/signal-driven и top-down/concern-driven evidence остаются различимыми;
-- optional focus persistence/inhibition/habituation state допустим;
-- Salience не выполняет Memory retention, Workspace admission, Cortex invocation, scheduler mutation или final action selection;
-- actual/predicted/imagined/intervened provenance сохраняется;
-- functional gate требует реального downstream allocation/processing effect;
-- обязательны `NoSalience`, uniform/random/shuffled/source-only и matched controls.
+- Memory Core остаётся единственным owner canonical Store и lifecycle commit;
+- Memory Regulation является отдельной policy responsibility, но не вторым Store owner;
+- admission/retention/eviction/replay/consolidation имеют разные purpose-specific policies;
+- принят explicit multi-dimensional `MemoryBudget`;
+- universal `memory_importance` scalar не является canonical representation;
+- Salience является одним из evidence sources, но не final memory authority;
+- retrieval/access history не становится importance автоматически;
+- aging использует logical time, а не GPU/network/Colab latency;
+- cognitive forgetting отделено от physical deletion;
+- replay/reactivation запускается только в explicit causal context и не считается новым natural experience;
+- Agent Memory Replay не является Training Runtime replay;
+- consolidation gated и может быть полностью отключена;
+- derived/semantic memory создаётся как новый `MemoryRecord`;
+- source episodes не переписываются inplace;
+- `derived_from`, support/conflict и derivation provenance сохраняются;
+- consolidation не повышает source authority/trust автоматически;
+- contradiction/minority evidence должно быть представимо без hidden majority-vote;
+- representation re-encoding/index rebuild не создаёт semantic memory;
+- optimizer/slow-weight update отложен до `DU-26`;
+- episodic-only/`NoConsolidation` является обязательным control;
+- compression ratio сам по себе не считается evidence полезной consolidation.
 
 ---
 
 # 4. Следующий допустимый Design Update
 
 ```text
-DU-20 — Memory Regulation / Consolidation
+DU-21 — Workspace
 ```
 
-Цель `DU-20` — расширить нейтральный `Memory Core` механизмами управляемого сохранения, забывания, eviction, replay selection и consolidation, используя explicit evidence вроде Salience без превращения Memory в скрытую Valuation или Training Runtime.
+Цель `DU-21` — проверить, нужен ли MINDRA отдельный ограниченный temporary global-access mechanism сверх versioned `CognitiveState`, Salience allocation и обычных explicit module dependencies.
 
 Обязательные вопросы:
 
 ```text
-memory admission
-retention
-aging / forgetting
-eviction
-capacity pressure
-salience integration
-recency/diversity/value conflicts
-retrieval-history influence?
-replay candidate selection
-Agent memory replay ≠ Training replay
-consolidation event semantics
-episodic → derived/semantic memory
-source preservation / provenance
-contradiction/supersession
-representation drift / re-encoding
-slow learned structures boundary
-catastrophic forgetting
-logical time
-snapshot/revision
-failure/degradation
-NoRegulation / random / recency / shuffled / matched controls
+Workspace module gate
+Workspace candidate/admission boundary
+Workspace ≠ CognitiveState
+Workspace ≠ Salience
+Workspace ≠ Cortex context
+Workspace ≠ Memory
+capacity / slots / token-like budget?
+persistence / replacement
+broadcast/read semantics
+consumer eligibility
+producer authority
+competition/admission
+Salience integration
+Goal/Affect/Valuation relation
+Cortex context packing boundary
+Memory retrieval → Workspace boundary
+multi-cycle persistence
+branch/imagination workspace
+observability/intervention
+NoWorkspace / matched control
+snapshot/revision/degradation
 ```
 
 Нужно особенно определить:
 
-- где заканчивается Memory Core и начинается regulation;
-- кто принимает `MemoryWriteProposal` при ограниченной capacity;
-- может ли Salience быть одним из signals, но не единственным определением retention;
-- чем forgetting отличается от physical deletion;
-- когда derived summary/semantic record становится новым `MemoryRecord`;
-- как сохраняется lineage исходного episodic evidence;
-- чем internal memory replay/consolidation отличается от `Training Runtime Replay`;
-- допускаются ли learned slow-weight updates в DU-20 или только создаётся evidence для `DU-26`;
-- как проверить, что regulation лучше random/recency baseline и не создаёт confirmation bias.
+- существует ли measurable функция Workspace сверх общего committed state;
+- должен ли Workspace хранить ограниченный subset уже доступного information;
+- является ли global availability отдельной capability или достаточно declared reads `CognitiveState`;
+- как Salience предлагает priority, но Workspace сам принимает admission;
+- могут ли modules читать Workspace только через declared dependency;
+- должен ли Workspace переживать несколько Cognitive Cycles/Decision Window;
+- как избежать превращения Workspace в giant prompt Cortex;
+- как сравнить Workspace с parameter/state-capacity-matched recurrent/shared-state control;
+- при каком отрицательном результате отдельный Workspace должен быть отклонён.
 
-После принятия `DU-20` допускается:
+После принятия `DU-21` допускается:
 
 ```text
-DU-21 — Workspace
+DU-22 — Metacognitive / Executive Control
 ```
 
 ---
@@ -163,7 +175,6 @@ DU-21 — Workspace
 
 Пока отсутствуют accepted решения по:
 
-- Memory Regulation / Consolidation;
 - Workspace;
 - Metacognitive / Executive Control;
 - Policy / Planner;
