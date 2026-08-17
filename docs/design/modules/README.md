@@ -27,6 +27,7 @@ DU-19  Salience / Attention
 DU-20  Memory Regulation / Consolidation
 DU-21  Workspace
 DU-22  Metacognitive / Executive Control
+DU-23  Policy / Planner
 ```
 
 Канонические документы находятся рядом в `docs/design/modules/`.
@@ -61,106 +62,112 @@ Workspace
 → bounded temporary shared availability/broadcast admitted content
 
 Executive Control
-→ adaptive selection/stop/allocation optional cognitive operations под explicit budget
+→ adaptive allocation optional cognitive operations/resources
+
+Policy
+→ final selected behavioral intention
+
+Planner
+→ optional explicit multi-step/contingent plan/action candidate provider
 ```
 
 Ключевые различия:
 
 ```text
 CognitiveState ≠ Workspace
-SalienceProfile ≠ Workspace admission
-Workspace ≠ Memory ≠ Cortex context
-broadcast ≠ module execution
-Executive Control ≠ Cognitive Scheduler
-Executive Control ≠ Policy / Planner
-Internal MetaAction ≠ Environment Action
+Executive Control ≠ Scheduler ≠ Policy
+Policy ≠ Planner
+Planner ≠ World Model
+Plan ≠ ImaginedTrajectory
+Valuation ≠ Policy Decision
+SelectedActionIntent ≠ Action Commit / Executed Action
 ```
 
 ---
 
-# 3. DU-22 — Executive Control
+# 3. DU-23 — Policy / Planner
 
-[`executive-control.md`](executive-control.md)
+[`policy-planner.md`](policy-planner.md)
 
 Каноническая форма:
 
 ```text
-MetaActionProposal[]
-+
-ExecutiveObservation
-+
-CognitiveResourceEnvelope
-        ↓
-Executive Control
-        ↓
-ExecutiveDecision
-        ↓
-Scheduler validation
-        ↓
-allowed internal operation(s)
+BehavioralContext
+      ↓
+explicit candidate sources
+      ↓
+PolicyCandidateSet
+      +
+Valuation/Comparison evidence
+      ↓
+Policy
+      ├── SelectedActionIntent
+      └── DecisionDeferral
 ```
 
-Executive Control:
+Optional Planner:
 
-- не является Scheduler;
-- не выбирает Environment action;
-- не имеет direct provider/service handles;
-- выбирает только из declared proposal/catalog boundary;
-- управляет allocation/ledger внутри предоставленного resource envelope;
-- поддерживает explicit continue/yield control points;
-- может разрешать Cortex/retrieval/rollout/consolidation без ownership leakage;
-- использует Self/Salience/Workspace/Valuation evidence без передачи им control authority;
-- не мутирует Goal Graph через temporary Goal focus;
-- учитывает actual resource consumption отдельно от estimates;
-- имеет `NoExecutive`/fixed/equal-budget/matched controls;
-- должен быть пересмотрен, если adaptive gain исчезает при matched actual compute.
+```text
+WorldBelief + Goals + Executive planning budget
+      ↓
+Planner
+      ↓
+PlanCandidate / ActionCandidate
+      ↓
+PolicyCandidateSet
+```
+
+Policy:
+
+- является единственным owner selected-action intention;
+- не исполняет Environment action;
+- может быть reactive/direct без Planner;
+- может использовать Planner, Cortex-assisted или scripted candidates;
+- корректно обрабатывает constraints/risk/incomparability;
+- может вернуть `DecisionDeferral` вместо fake scalarization/random implicit fallback;
+- сохраняет stochastic selection/RNG provenance.
+
+Planner:
+
+- optional/falsifiable;
+- использует World Belief и agent-visible evidence;
+- не читает hidden Environment state normal runtime способом;
+- не владеет final selection;
+- не мутирует Goal Graph;
+- может поддерживать PlanState/replanning;
+- должен доказывать пользу против reactive/matched controls.
 
 ---
 
-# 4. Первый ещё не спроектированный блок — Policy / Planner
+# 4. Первый ещё не спроектированный блок — Action Boundary
 
 Следующий Design Update:
 
 ```text
-DU-23 — Policy / Planner
+DU-24 — Action Boundary / Gate / Executor
 ```
 
 Предварительная responsibility:
 
-> генерировать/оценивать behavioral candidates/plans и выбирать final action intention, не подменяя Executive resource control, World Model dynamics, Valuation comparison или Action Gate.
+> превратить `SelectedActionIntent` в причинно идентифицируемое разрешённое/committed/dispatchable действие и связать его с фактическим Environment outcome.
 
 Нужно определить:
 
-- Policy/Planner module gates;
-- reactive vs planning path;
-- Action Candidate semantics;
-- plan representation/persistence;
-- Planner ↔ World Model;
-- Planner ↔ Goal Proposal;
-- candidate valuation/comparison;
-- constraints/risk/incomparability;
-- Cortex-assisted planning;
-- Executive compute budget boundary;
-- stochastic selection;
-- failure/degradation;
-- observability/intervention/snapshot;
-- NoPlanner/reactive/matched controls.
+- Action Gate module/responsibility gate;
+- semantic validation;
+- stale intent handling;
+- action capability/precondition checks;
+- accept/reject/modify/substitute semantics;
+- exact `Action Commit` boundary;
+- dispatch/idempotency/retry;
+- execution/acknowledgement/failure;
+- outcome correlation;
+- termination/truncation/reset;
+- controls/interventions/snapshot.
 
 ---
 
-# 5. Будущие cognitive areas
-
-## DU-24 — Action Gate / Executor
-
-```text
-selected action intention
-≠ executed action
-≠ observed outcome
-```
-
----
-
-# 6. После cognitive architecture
+# 5. После cognitive architecture
 
 ```text
 DU-25 — Experience / Data / Replay
@@ -177,7 +184,7 @@ DU-32 — Version Roadmap
 
 ---
 
-# 7. Design dependency graph
+# 6. Design dependency graph
 
 ```text
 Environment
@@ -206,9 +213,9 @@ Workspace
    ↓
 Executive Control
    ↓
-Policy / Planner
+Policy ← Planner(optional)
    ↓
-Action Gate
+Action Boundary / Gate
    ↓
 Environment
 ```
@@ -217,7 +224,7 @@ Environment
 
 ---
 
-# 8. Diagnostic rule
+# 7. Diagnostic rule
 
 Для каждого cognitive subsystem требуются, где применимо:
 
@@ -230,5 +237,7 @@ Environment
 - snapshot state;
 - failure/degradation semantics;
 - module-specific causal metrics.
+
+Для Planner отрицательный gate обязателен: если matched reactive/search controls объясняют эффект, отдельную boundary нужно пересмотреть.
 
 Следующий допустимый этап определяется только [`../current.md`](../current.md).
