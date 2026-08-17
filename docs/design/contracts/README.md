@@ -8,80 +8,47 @@
 
 ---
 
-# Что относится к exact internal contracts
-
-В будущем здесь могут появиться спецификации уровня:
-
-- `CognitiveState` schema;
-- `ModuleProtocol`;
-- `ModuleDescriptor`;
-- observability event/trace schema;
-- module research probe contract;
-- intervention request/result contract;
-- Cortex Gateway/backend contract;
-- Environment API;
-- Perception/Canonical Percept contract;
-- Goal System/Goal Graph contract;
-- checkpoint format;
-- experiment record format;
-- module state serialization;
-- configuration schema.
-
-Это предварительный список типов контрактов, а не утверждённый catalog.
-
----
-
 # Текущие candidate contracts
 
-- [`environment.md`](environment.md) — candidate semantic machine-facing contract после `DU-07`: agent-facing/research-facing Environment operations, snapshot/clone/fork/intervention и transition-evidence requirements;
-- [`perception.md`](perception.md) — candidate semantic contract после `DU-08`: Perception input, `Canonical Percept`, Semantic Core, Feature Views, representation identity/versioning и research capabilities;
-- [`goals.md`](goals.md) — candidate semantic contract после `DU-09`: Goal Proposal, Committed Goal, Goal Graph, lifecycle/scope, transition authority, progress/priority/commitment и research capabilities;
-- [`cortex.md`](cortex.md) — candidate semantic contract после `DU-10`: Cortex descriptor, capability negotiation, semantic request/context/result, backend adapter/provider provenance, optional research/adaptation capabilities и failure/resource semantics.
+- [`environment.md`](environment.md) — Environment interaction/research boundary после `DU-07`;
+- [`perception.md`](perception.md) — `Canonical Percept`, Semantic Core и Feature Views после `DU-08`;
+- [`goals.md`](goals.md) — Goal Proposal/Committed Goal/Goal Graph после `DU-09`;
+- [`cortex.md`](cortex.md) — Cortex Gateway/capabilities/request/result после `DU-10`;
+- [`memory.md`](memory.md) — MemoryWriteProposal, MemoryRecord, MemoryRepresentation, RetrievalIndex/Request/Result и snapshot semantics после `DU-11`.
 
-Эти документы **не** являются frozen Python API и могут уточняться последующими DU до общего contract freeze.
+Эти документы **не являются frozen Python API** и могут уточняться последующими DU до общего contract freeze.
 
 ---
 
-# Правила
+# Общие правила
 
 Exact contract должен фиксировать, где применимо:
 
 - поля и типы;
 - required/optional semantics;
-- shape/dtype/device semantics для tensor data;
+- shape/dtype/device semantics;
 - ownership;
 - declared reads/writes;
-- freshness/availability requirements;
+- freshness/availability;
 - lifecycle;
 - private-state/snapshot obligations;
-- observability/probe capabilities;
-- intervention target/phase/provenance semantics;
+- observability/intervention;
 - error/degradation behavior;
 - versioning;
 - serialization;
-- backward/forward compatibility expectations;
-- invariants, которые можно проверить автоматическими tests.
+- compatibility expectations;
+- автоматически проверяемые invariants.
 
 Contract не должен протаскивать private implementation detail одного backend во всю систему без design justification.
 
-Research observability contract не должен автоматически давать runtime consumers доступ к private state.
+Дополнительные действующие ограничения:
 
-Intervention contract не должен быть скрытым extension обычного logging callback.
-
-Environment research capability не должна автоматически становиться agent-facing capability.
-
-Perception contract не должен превращать конкретный encoder/Cortex hidden state в универсальный canonical representation.
-
-Goal contract не должен давать Cortex/Planner/Drives прямую mutation authority committed Goal Graph или смешивать structural priority с future dynamic valuation.
-
-Cortex contract не должен:
-
-- фиксировать конкретную model family/provider как architecture requirement;
-- давать Gateway ambient access ко всему Agent state;
-- требовать hidden states/gradients/CoT от любого backend;
-- протаскивать model-specific chat template/tokenizer в cognitive consumers;
-- превращать Cortex result в direct Goal/Memory/Action write;
-- скрывать fallback/context truncation/provider substitution.
+- research observability не даёт runtime consumers private-state access;
+- Environment Research Plane не становится agent-facing;
+- Perception не превращает конкретный encoder/Cortex hidden state в universal representation;
+- Goal contract не даёт proposal sources direct mutation authority Goal Graph;
+- Cortex contract не фиксирует model/provider и не даёт Gateway ambient Agent-state access;
+- Memory contract не превращает vector index/embedding в canonical memory identity, не даёт Cortex ambient retrieval и не смешивает Memory с training replay.
 
 ---
 
@@ -94,47 +61,39 @@ canonical semantic design
 → implementation
 ```
 
-Exact contract уточняет форму принятой семантики, но не может сам молча изменить её смысл.
+Exact contract уточняет форму принятой семантики, но не может молча изменить её смысл.
 
 ---
 
 # Текущий статус
 
-После `DU-04` … `DU-10` уже приняты semantic requirements для:
+После `DU-04` … `DU-11` приняты semantic requirements для state/scheduler/observability и subsystem boundaries Environment, Perception, Goals, Cortex и Memory.
 
-- versioned committed `CognitiveState`;
-- state ownership/provenance/scopes;
-- module descriptors и declared dependencies;
-- DAG/wave scheduling;
-- staged public/private effects;
-- lifecycle/failure semantics;
-- causal execution tracing;
-- passive Evidence Plane и explicit Intervention Gateway;
-- Environment/Perception/Goal boundaries;
-- Goal Graph/lifecycle/scope/dependency/conflict semantics;
-- Cortex как agent-owned shared pretrained capability;
-- backend-neutral Cortex Gateway;
-- semantic Request/Context/Result boundary;
-- backend-specific prompt/chat-template/tokenizer/provider isolation;
-- local/remote provider compatibility с explicit capability/provenance;
-- optional hidden-state/embedding/gradient/multimodal/adapter capabilities;
-- `NoCortex`/Dummy/Control distinctions;
-- model/adapter/template behavior-revision provenance;
-- explicit context overflow/truncation/failure/degradation semantics;
-- Goal Proposal и Feature View boundaries для Cortex-derived outputs.
+Для Memory теперь зафиксированы:
+
+- agent-owned canonical Memory Store;
+- stable `MemoryRecord` identity;
+- source/provenance preservation;
+- canonical content отдельно от derived representations;
+- `MemoryRepresentation` с feature-space/encoder revision;
+- rebuildable/versioned retrieval indexes;
+- explicit `RetrievalRequest → RetrievalResult` boundary;
+- relevance отдельно от utility/salience/importance;
+- neutral pre-Salience admission/capacity semantics;
+- Memory отдельно от Cortex context и trajectory/replay;
+- snapshot/restore/counterfactual requirements;
+- `NoMemory`/Dummy/Control distinctions.
 
 Однако **общий exact Python contract set пока намеренно не зафиксирован**.
 
-`environment.md` остаётся candidate, поскольку `DU-24`, `DU-25`, `DU-27` и `DU-28` ещё могут уточнить exact action/data/snapshot forms.
+`environment.md` остаётся candidate до Action/Data/Checkpoint/Evaluation DU.
 
-`perception.md` остаётся candidate, поскольку `DU-11` … `DU-13`, `DU-25` … `DU-28` могут уточнить exact Memory/World Model representation потребности, persistence и evaluation contracts.
+`perception.md` остаётся candidate до World/Self/Data/Training/Evaluation DU.
 
-`goals.md` остаётся candidate, поскольку `DU-12` … `DU-18`, `DU-22`, `DU-23`, `DU-25` … `DU-28` ещё уточнят feasibility, autonomous proposal, valuation, focus/planning, data и evaluation semantics.
+`goals.md` остаётся candidate до World/Self/Drives/Valuation/Executive/Policy/Data/Evaluation DU.
 
-`cortex.md` остаётся candidate, поскольку `DU-11`, `DU-21` … `DU-23`, `DU-26` … `DU-28` ещё уточнят Memory/Workspace context, invocation control, Policy usage, adaptation, checkpoint и evaluation requirements.
+`cortex.md` остаётся candidate до Workspace/Executive/Policy/Training/Checkpoint/Evaluation DU.
 
-Будущие module-specific Design Updates должны продолжать проверять semantic protocol реальными требованиями.
+`memory.md` остаётся candidate, поскольку `DU-12`, `DU-19/20`, `DU-21/22`, `DU-25` … `DU-28` ещё уточнят prediction integration, salience/consolidation, workspace/context, data/replay, checkpoint и evaluation requirements.
 
-До contract freeze запрещено считать обсуждавшиеся `Protocol`, ABC, TensorDict `in_keys/out_keys`, dataclass schemas, OpenTelemetry span model, PyTorch hooks, pyvene API, Gymnasium `Env`, Transformers/vLLM/SGLang, конкретный Cortex backend, PEFT method или scheduler/intervention result type каноническими.
-
-Exact contracts создаются тогда, когда соответствующая семантика достаточно устойчива и есть основания зафиксировать machine-facing форму.
+До contract freeze запрещено считать конкретные `Protocol`, ABC, TensorDict, dataclass/Pydantic schemas, FAISS/HNSW/vector database, SQL store, embedding model или retrieval library каноническими.
