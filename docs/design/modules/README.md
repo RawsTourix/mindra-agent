@@ -2,11 +2,11 @@
 
 ## Статус
 
-Этот документ — карта принятых cognitive/runtime boundaries и оставшихся областей. Канонический статус определяется специализированными design docs и [`../current.md`](../current.md).
+Этот документ — карта принятых cognitive/runtime boundaries и внешних data/training областей. Канонический статус определяется специализированными design docs и [`../current.md`](../current.md).
 
 Отдельный cognitive module существует только при самостоятельной ответственности, явной boundary/state semantics и независимо проверяемом causal вкладе.
 
-`DU-25` уже находится **вне cognitive module chain**: это внешний Experience/Data plane.
+`DU-25/26` находятся **вне cognitive module chain**: это Experience/Data и Training planes.
 
 ---
 
@@ -33,67 +33,9 @@ DU-23  Policy / Planner
 DU-24  Action Boundary / Gate / Executor
 ```
 
-Канонические subsystem documents находятся рядом в `docs/design/modules/`.
-
 ---
 
-# 2. Разведение внутренних слоёв
-
-```text
-Intrinsic Signals
-→ свойства опыта
-
-Drives
-→ persistent regulatory state
-
-Appraisal
-→ event-level meaning относительно Agent context
-
-Affect
-→ history-dependent persistent modulation state
-
-Valuation
-→ decision-relevant multi-objective comparison
-
-Salience
-→ purpose-dependent priority ограниченного processing
-
-Memory Regulation
-→ budget-aware lifecycle/replay/consolidation policy
-
-Workspace
-→ bounded temporary shared availability/broadcast admitted content
-
-Executive Control
-→ adaptive allocation optional cognitive operations/resources
-
-Policy
-→ final selected behavioral intention
-
-Planner
-→ optional explicit multi-step/contingent plan/action candidate provider
-
-Action Boundary
-→ validation/authorization → Action Commit → dispatch/execution correlation
-```
-
-Ключевые различия:
-
-```text
-CognitiveState ≠ Workspace
-Executive Control ≠ Scheduler ≠ Policy
-Policy ≠ Planner
-Planner ≠ World Model
-Plan ≠ ImaginedTrajectory
-Valuation ≠ Policy Decision
-SelectedActionIntent ≠ AuthorizedAction ≠ Action Commit
-Action Commit ≠ Dispatch ≠ Environment Transition
-Policy choice ≠ external override
-```
-
----
-
-# 3. Завершённая cognitive interaction chain
+# 2. Завершённая cognitive interaction chain
 
 ```text
 Environment
@@ -133,13 +75,7 @@ Environment
 
 ---
 
-# 4. DU-25 — Experience / Data / Replay находится сбоку от cognition
-
-Canonical owner:
-
-- [`../experience-data-replay.md`](../experience-data-replay.md)
-
-Experience Data Plane наблюдает causally relevant execution и создаёт долговременную data history, но не входит в cognitive feedback path normal runtime способом.
+# 3. Experience/Data и Training находятся вокруг cognition
 
 ```text
 Agent / Environment / Runtime
@@ -152,60 +88,87 @@ Agent / Environment / Runtime
           ↓
  Projection / Dataset Builder
           ↓
- Training Samples / Replay
+ TrainingSample / Replay
+          ↓
+     Training Runtime
+          ↓
+ Candidate Revision
+          ↓
+ Validation / Activation
+          ↓
+       MINDRA Agent
 ```
+
+Canonical owners:
+
+- [`../experience-data-replay.md`](../experience-data-replay.md) — `DU-25`;
+- [`../training-lifecycle.md`](../training-lifecycle.md) — `DU-26`.
 
 Ключевые различия:
 
 ```text
-TraceEvent ≠ ExperienceEvent
 Experience Journal ≠ Agent runtime state
-Experience Journal ≠ Agent Memory
-Experience Journal ≠ Replay Buffer
-Source Experience ≠ TrainingSample
 Agent Memory Replay ≠ Training Replay
+Training Runtime ≠ cognitive module
+Runtime State Update ≠ Learning Update
+Training Objective ≠ Agent Goal / ValueProfile
+runtime dependency graph ≠ gradient graph
+CandidateRevisionBundle ≠ Active AgentRevision
 ```
-
-`Experience Journal` не становится новым cognitive module только потому, что хранит internal events.
 
 ---
 
-# 5. Первый ещё не спроектированный блок — Training Lifecycle
+# 4. DU-26 — Training Lifecycle
+
+Training Runtime:
+
+- работает только по explicit `TrainingPlan`;
+- pin'ит base revisions и source datasets/samples;
+- владеет optimizer/trainer state;
+- использует explicit `GradientFlowPolicy`;
+- создаёт candidate component/agent revisions;
+- не мутирует in-flight cognition;
+- валидирует candidate до activation;
+- активирует совместимые revision bundles на explicit safe boundary;
+- сохраняет behavior/learner revision provenance;
+- требует explicit privileged-supervision status;
+- учитывает representation drift/continual retention;
+- не фиксирует конкретный optimizer/framework/algorithm.
+
+---
+
+# 5. Первый ещё не спроектированный блок — Checkpoint / Reproducibility / Compute
 
 Следующий Design Update:
 
 ```text
-DU-26 — Training Lifecycle
+DU-27 — Checkpoint / Reproducibility / Compute
 ```
 
 Предварительная responsibility:
 
-> определить external Training Runtime, Learning Update semantics, ownership optimizer/loss state и causal activation новых agent/component revisions поверх `TrainingSample`/Replay data boundary `DU-25`.
+> определить полный persistent snapshot/checkpoint, restore/reproducibility levels и compute/environment manifests для runtime и training state MINDRA.
 
-Нужно определить минимум:
+Особенно нужны:
 
-- Training Runtime ownership;
-- trainable vs ordinary runtime state;
-- losses/objectives;
-- TrainingSample consumption;
-- replay/batch/sequence semantics;
-- optimizer state;
-- Learning Update proposal/commit/activation;
-- online/offline/on-policy/off-policy distinctions;
-- new `agent_revision` activation;
-- in-flight cognition under previous revision;
-- frozen/trainable Cortex/adapters;
-- module-local vs joint optimization;
-- representation drift;
-- privileged supervision;
-- rollback/failure/degradation.
+- Agent Snapshot vs persistent Checkpoint;
+- active/candidate revision manifests;
+- optimizer/trainer/RNG state;
+- Memory/Workspace/private module state;
+- Environment snapshot/world manifest;
+- dataset/journal/checkpoint artifact refs;
+- exact vs approximate restore;
+- content identity/integrity;
+- hardware/framework manifests;
+- compute accounting;
+- migration/compatibility;
+- resume training vs inference-only scope.
 
 ---
 
 # 6. Оставшиеся Design Updates
 
 ```text
-DU-26 — Training Lifecycle
 DU-27 — Checkpoint / Reproducibility / Compute
 DU-28 — MINDRA-Eval
 DU-29 — Engineering Testing
@@ -220,22 +183,10 @@ DU-32 — Version Roadmap
 
 # 7. Diagnostic rule
 
-Для каждого cognitive subsystem требуются, где применимо:
+Для cognitive subsystem требуются, где применимо, `No*`/Dummy/matched controls, observability, interventions, snapshots и causal metrics.
 
-- `No*` configuration;
-- Dummy/control implementation;
-- random/shuffled/constant baseline;
-- parameter/compute/state-matched control;
-- observability;
-- interventions;
-- snapshot state;
-- failure/degradation semantics;
-- module-specific causal metrics.
+Для Experience/Data требуются lineage/leakage/schema/replay controls `DU-25`.
 
-Для Planner отрицательный gate обязателен: если matched reactive/search controls объясняют эффект, отдельную boundary нужно пересмотреть.
-
-Для сложного Action Gate/override обязателен simpler pass-through/schema/capability control и отдельная Policy-vs-override attribution.
-
-Для Experience/Data отдельный module gate не применяется: это infrastructure/data responsibility, но требуются data-lineage, leakage, schema and replay controls из `DU-25`.
+Для Training Runtime требуются Frozen/NoLearning, offline/online controls, data/compute-matched comparisons, retention diagnostics и explicit revision activation evidence.
 
 Следующий допустимый этап определяется только [`../current.md`](../current.md).
