@@ -2,7 +2,7 @@
 
 ## Назначение
 
-Этот каталог хранит machine-facing semantic contracts уже принятых subsystem/data/training/reproducibility boundaries.
+Этот каталог хранит machine-facing semantic contracts уже принятых subsystem/data/training/reproducibility/evaluation boundaries.
 
 До общего contract freeze документы здесь остаются **candidate contracts**: они уточняют форму принятого design, но не имеют права молча менять его смысл или превращать удобный Python choice в архитектурный invariant.
 
@@ -30,7 +30,8 @@
 - [`action-boundary.md`](action-boundary.md) — authorization stages, AuthorizedAction, ActionCommitRecord, dispatch/receipt/execution/reconciliation semantics после `DU-24`;
 - [`experience-data-replay.md`](experience-data-replay.md) — ExperienceEvent/Journal, causal revisions, annotations, projections, DatasetManifest, TrainingSample и Training Replay provenance после `DU-25`;
 - [`training-lifecycle.md`](training-lifecycle.md) — TrainingPlan/Attempt, GradientFlowPolicy, CandidateRevisionBundle, LearningUpdateRecord и RevisionActivation semantics после `DU-26`;
-- [`checkpoint-reproducibility-compute.md`](checkpoint-reproducibility-compute.md) — checkpoint scope/capture/artifacts, restore profiles, reproducibility claims и software/hardware/compute manifests после `DU-27`.
+- [`checkpoint-reproducibility-compute.md`](checkpoint-reproducibility-compute.md) — checkpoint scope/capture/artifacts, restore profiles, reproducibility claims и software/hardware/compute manifests после `DU-27`;
+- [`mindra-eval.md`](mindra-eval.md) — EvaluationStudy/Suite/Condition/Run/Unit, controls, metrics, paired interventions, statistical plan, module gates и report lineage после `DU-28`.
 
 ---
 
@@ -93,47 +94,54 @@ same seed ≠ same RNG state ≠ guaranteed same execution
 semantic restore ≠ bitwise reproducibility
 artifact identity ≠ physical path
 ComputeManifest ≠ CognitiveResourceEnvelope
+Evaluation Runtime ≠ Agent cognition
+Task score ≠ module/causal/calibration evidence
+EvaluationCondition ≠ architecture name only
+nested episode ≠ independent training replicate
+Policy pre-Gate quality ≠ post-Gate system quality
 ```
 
-Для Checkpoint / Reproducibility / Compute дополнительно:
+Для MINDRA-Eval дополнительно:
 
-- final `CheckpointManifest` commit только после verification обязательных artifacts;
-- checkpoint scope явно определяет required state;
-- content/integrity identity не зависит от storage path;
-- active/candidate revisions не смешиваются при restore;
-- `execution_unknown` не разрешает unsafe blind retry/branch;
-- full-system restore требует causally aligned Agent/Environment state;
-- exact restore не downgraded молча до approximate;
-- migration создаёт explicit lineage;
-- missing delta base fail closed;
-- weights-only не masquerade как training resume;
-- stronger reproducibility claim требует соответствующих software/hardware/RNG/determinism manifests/evidence;
-- infrastructure compute telemetry не становится cognition автоматически.
+- evaluator-only Ground Truth не пересекает Agent Interaction Plane normal runtime способом;
+- confirmatory study pin'ит primary hypotheses/contrasts/metrics/statistical plan до outcome evidence;
+- experimental/statistical unit и replicate nesting explicit;
+- stochastic aggregate claim требует uncertainty/distribution evidence;
+- ablation не masquerade как matched semantic control;
+- matched-compute/capacity claim сохраняет actual matched/unmatched factors;
+- paired causal intervention требует verified compatible base state;
+- invalid/censored/`execution_unknown` не превращаются молча в task failure;
+- Policy, Action Gate и post-Gate system metrics separate;
+- aggregate score derived и сохраняет source metric lineage;
+- privileged oracle conditions маркируются отдельно;
+- module gate имеет explicit negative criterion;
+- actual compute/data/context/tuning differences входят в attribution;
+- report traceable до raw runs/metrics/evidence.
 
 ---
 
 # Текущий статус
 
-После `DU-04 … DU-27` semantic requirements приняты, но **общий exact Python contract set намеренно не frozen**.
+После `DU-04 … DU-28` semantic requirements приняты, но **общий exact Python contract set намеренно не frozen**.
 
-`checkpoint-reproducibility-compute.md` остаётся candidate до Evaluation/Engineering Testing/contract freeze integration.
+`mindra-eval.md` остаётся candidate до Engineering Testing/Research Claims/contract freeze integration.
 
 До contract freeze нельзя считать каноническими:
 
 - `Protocol`/ABC/dataclass/TensorDict/Pydantic;
 - exact event/status enums;
-- PyTorch/JAX/TensorFlow;
-- optimizer/trainer implementation;
-- checkpoint directory/file layout;
-- `torch.save`/safetensors/DCP/Accelerate;
-- hash algorithm;
-- local/object/database storage;
-- compression;
-- container/package manager;
-- exact reproducibility level names;
-- exact deterministic flags;
-- compute/FLOP/energy profiler;
-- checkpoint retention/delta algorithm.
+- benchmark/evaluation framework;
+- concrete MicroWorld evaluation tasks;
+- metrics/statistics library;
+- t-test/bootstrap/permutation/Bayesian implementation;
+- exact seed count/alpha;
+- Brier/NLL/ECE mandatory set;
+- rliable;
+- experiment tracker/dashboard;
+- report/plot format;
+- universal composite score;
+- CI provider;
+- storage/backend implementation.
 
 ---
 
