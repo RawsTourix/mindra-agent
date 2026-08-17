@@ -14,7 +14,8 @@
 research/
 ├── README.md
 ├── literature/
-│   └── DU-10-cortex-landscape-2026-08.md
+│   ├── DU-10-cortex-landscape-2026-08.md
+│   └── DU-11-memory-landscape-2026-08.md
 ├── hypotheses.md          # появится позже
 ├── experiments/           # появится позже
 ├── results/               # появится позже
@@ -59,15 +60,16 @@ research evidence / experiment result
 - дату среза;
 - назначение;
 - первичные/официальные источники;
-- какие выводы относятся только к текущему состоянию technology landscape;
-- какие canonical design conclusions были поддержаны evidence;
+- какие выводы относятся только к текущему technology landscape;
+- какие canonical design conclusions поддержаны evidence;
 - что нужно перепроверить перед implementation/version selection.
 
-Текущий research pass:
+Текущие research pass:
 
-- [`literature/DU-10-cortex-landscape-2026-08.md`](literature/DU-10-cortex-landscape-2026-08.md) — актуальные small/open-weight Cortex candidates и tooling evidence для `DU-10`.
+- [`literature/DU-10-cortex-landscape-2026-08.md`](literature/DU-10-cortex-landscape-2026-08.md) — small/open-weight Cortex candidates и tooling evidence для `DU-10`;
+- [`literature/DU-11-memory-landscape-2026-08.md`](literature/DU-11-memory-landscape-2026-08.md) — external/neural/hybrid Memory approaches, representation drift и retrieval-index evidence для `DU-11`.
 
-Этот документ **не выбирает** canonical model/backend.
+Эти документы **не выбирают** canonical model/backend/database/index.
 
 ---
 
