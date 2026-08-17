@@ -4,9 +4,9 @@
 
 `docs/design/` — каноническое место архитектурной документации MINDRA.
 
-Здесь фиксируются принятые семантики, invariants, subsystem/data/training boundaries, contracts, ADR и будущие version plans.
+Здесь фиксируются принятые семантики, invariants, cognitive/runtime/data/training/reproducibility boundaries, contracts, ADR и будущие version plans.
 
-На текущем этапе приняты `DU-01 … DU-26`. Реализация ещё не начата.
+На текущем этапе приняты `DU-01 … DU-27`. Реализация ещё не начата.
 
 ---
 
@@ -59,14 +59,18 @@
 
 - [`training-lifecycle.md`](training-lifecycle.md) — `DU-26`: external Training Runtime, pinned base revisions, explicit objectives/gradient flow, candidate revisions, validation и atomic activation.
 
+## Checkpoint / Reproducibility / Compute Plane
+
+- [`checkpoint-reproducibility-compute.md`](checkpoint-reproducibility-compute.md) — `DU-27`: manifest-driven checkpoint, causal capture/restore, reproducibility claims, software/hardware/compute manifests.
+
 ## Decisions
 
 - [`decisions/README.md`](decisions/README.md)
-- `ADR-0001 … ADR-0026` — accepted.
+- `ADR-0001 … ADR-0027` — accepted.
 
 Последнее решение:
 
-- [`ADR-0026`](decisions/ADR-0026-candidate-revision-validated-activation-training-lifecycle.md) — Training Runtime обучает pinned base revision в candidate state; validation предшествует atomic activation новой Agent revision.
+- [`ADR-0027`](decisions/ADR-0027-manifest-driven-causal-checkpoint-restore.md) — manifest-driven causal checkpoint с explicit scope, integrity, restore profile и scoped reproducibility guarantees.
 
 ## Candidate contracts
 
@@ -74,7 +78,7 @@
 
 Последний добавленный contract:
 
-- [`contracts/training-lifecycle.md`](contracts/training-lifecycle.md).
+- [`contracts/checkpoint-reproducibility-compute.md`](contracts/checkpoint-reproducibility-compute.md).
 
 Exact Python API ещё не frozen.
 
@@ -91,38 +95,34 @@ Exact Python API ещё не frozen.
 Текущий следующий update:
 
 ```text
-DU-27 — Checkpoint / Reproducibility / Compute
+DU-28 — MINDRA-Eval
 ```
 
 ---
 
-# Ключевые инварианты после DU-26
+# Ключевые инварианты после DU-27
 
 ```text
-TraceEvent ≠ ExperienceEvent
-Experience Journal ≠ Agent runtime state
-Source Experience ≠ TrainingSample
-Training Runtime ≠ cognitive module
-Runtime State Update ≠ Learning Update
-Consolidation Event ≠ Learning Update
-Replay Selection ≠ Learning Update
-Training Objective ≠ Agent Goal ≠ ValueProfile
-runtime dependency graph ≠ gradient graph
-optimizer state ≠ CognitiveState
-CandidateRevisionBundle ≠ Active AgentRevision
-behavior revision ≠ learner revision допускается явно
+AgentSnapshot ≠ persistent Checkpoint
+Checkpoint ≠ TrainingResumeCheckpoint ≠ ExperimentManifest
+same seed ≠ same RNG state ≠ guaranteed same execution
+semantic restore ≠ bitwise reproducibility
+active revision ≠ candidate revision
+artifact identity ≠ physical path
+Agent checkpoint ≠ Environment snapshot
+infrastructure ComputeManifest ≠ CognitiveResourceEnvelope
 ```
 
-- TrainingPlan pin'ит base revisions/data/visibility/objectives/gradient policies;
-- source sample provenance доходит до LearningUpdateRecord;
-- candidate update не становится live Agent автоматически;
-- activation происходит только на explicit safe boundary;
-- in-flight cognition не меняет revision задним числом;
-- joint coupled revisions активируются атомарно;
-- privileged supervision всегда explicit;
-- representation-breaking update требует compatibility/migration semantics;
-- failed candidate не мутирует live Agent;
-- rollback не стирает историю update/activation;
-- concrete optimizer/framework/algorithm/PEFT method не выбран.
+- checkpoint имеет explicit scope и required/optional state classes;
+- capture относится к согласованной causal boundary;
+- final manifest commit происходит только после required artifact verification;
+- `execution_unknown` блокирует unsafe retry/branch semantics до reconciliation;
+- full-system restore использует causally aligned Agent/Environment state;
+- exact/compatible/portable/approximate restore различаются;
+- reproducibility claim всегда scoped и evidence-backed;
+- software/hardware/determinism manifests входят в сильные reproducibility claims;
+- training-resume state интегрирован с `DU-26`;
+- migration/delta chains имеют explicit lineage/integrity;
+- concrete serialization/hash/storage/profiler implementation не выбран.
 
 Фактический статус: [`current.md`](current.md).
