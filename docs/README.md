@@ -83,10 +83,22 @@ Research result, противоречащий design, инициирует revie
 
 ---
 
+# Experience / Data Plane
+
+Каноническая data semantics после `DU-25`:
+
+- [`design/experience-data-replay.md`](design/experience-data-replay.md);
+- [`design/contracts/experience-data-replay.md`](design/contracts/experience-data-replay.md);
+- [`design/decisions/ADR-0025-causal-experience-journal-derived-projections.md`](design/decisions/ADR-0025-causal-experience-journal-derived-projections.md).
+
+Source experience, Agent Memory, Training Samples и Training Replay считаются разными слоями.
+
+---
+
 # Текущий этап
 
 Проект находится на стадии **последовательного канонического архитектурного проектирования**.
 
-`DU-01 … DU-24` приняты. Следующий допустимый этап определяется только [`design/current.md`](design/current.md); полный порядок задан в [`design/documentation-plan.md`](design/documentation-plan.md).
+`DU-01 … DU-25` приняты. Следующий допустимый этап определяется только [`design/current.md`](design/current.md); полный порядок задан в [`design/documentation-plan.md`](design/documentation-plan.md).
 
 Production/research implementation, exact contract freeze, version roadmap и implementation sequences ещё не начаты.
