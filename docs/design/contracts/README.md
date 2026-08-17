@@ -18,7 +18,8 @@
 - [`world-model.md`](world-model.md) — WorldBelief, assimilation, WorldPrediction, imagination, uncertainty, prediction error и snapshot semantics после `DU-12`;
 - [`self-model.md`](self-model.md) — AgentCapabilityManifest, SelfEvidence, SelfBelief, competence profile, SelfPrediction/Resolution и calibration/staleness semantics после `DU-13`;
 - [`intrinsic-signals.md`](intrinsic-signals.md) — typed Signal Providers, IntrinsicSignal/Bundle, novelty/rarity/information/competence/normalization semantics после `DU-14`;
-- [`drives.md`](drives.md) — DriveSystem/DriveDescriptor/DriveStateSet, typed homeostatic/adaptive dynamics, coupling, Goal Proposal и snapshot semantics после `DU-15`.
+- [`drives.md`](drives.md) — DriveSystem/DriveDescriptor/DriveStateSet, typed homeostatic/adaptive dynamics, coupling, Goal Proposal и snapshot semantics после `DU-15`;
+- [`appraisal.md`](appraisal.md) — AppraisalTarget/Context/Profile/Record, multidimensional event assessment, reappraisal и intervention semantics после `DU-16`.
 
 Эти документы **не являются frozen Python API** и могут уточняться последующими DU до общего contract freeze.
 
@@ -56,7 +57,8 @@ Contract не должен протаскивать private implementation detai
 - World Model contract не превращает prediction/imagination в observed fact, не делает backend latent universal state и не смешивает prediction error с reward/value;
 - Self Model contract не превращает Cortex verbal confidence в canonical self-knowledge, не смешивает capability availability с competence и не даёт Self Model decision authority Executive Control/Policy;
 - Intrinsic Signals contract не превращает typed measures в universal reward/value, не смешивает signal families и требует provider/source/reference/normalization provenance;
-- Drive contract не превращает persistent state в global motivation/reward, не требует set-point для каждого drive и не даёт Drive direct Goal/Policy authority.
+- Drive contract не превращает persistent state в global motivation/reward, не требует set-point для каждого drive и не даёт Drive direct Goal/Policy authority;
+- Appraisal contract не превращает event assessment в emotion label/global utility, не смешивает controllability с coping potential и не хранит hidden persistent Affect.
 
 ---
 
@@ -75,24 +77,26 @@ Exact contract уточняет форму принятой семантики, 
 
 # Текущий статус
 
-После `DU-04` … `DU-15` приняты semantic requirements для state/scheduler/observability и subsystem boundaries Environment, Perception, Goals, Cortex, Memory, World Model, Self Model, Intrinsic Signals и Drives.
+После `DU-04` … `DU-16` приняты semantic requirements для state/scheduler/observability и subsystem boundaries Environment, Perception, Goals, Cortex, Memory, World Model, Self Model, Intrinsic Signals, Drives и Appraisal.
 
-Для Drives теперь зафиксированы:
+Для Appraisal теперь зафиксированы:
 
-- единый ownership boundary `Drive System`;
-- несколько typed drive components;
-- `DriveDescriptor`, `DriveState`, `DriveStateSet`;
-- homeostatic и adaptive motivational semantics;
-- explicit update context/proposals;
-- logical-time dynamics;
-- explicit initial/reset/persistence semantics;
-- cross-drive coupling без hidden peer mutation;
-- отсутствие обязательной global scalarization;
-- `Drive → Goal Proposal`, а не direct Goal mutation;
-- `Drive → Valuation input`, а не готовая utility;
-- versioned state/dynamics/target/coupling semantics;
-- intervention и exact snapshot obligations;
-- `NoDrives`/Dummy/Constant/Clamped/Random/Shuffled/Control distinctions.
+- `AppraisalTarget` и explicit target mode/provenance;
+- `AppraisalContext` с revisioned declared inputs;
+- `AppraisalRequest`;
+- versioned dimension descriptors/values;
+- multidimensional `AppraisalProfile`;
+- per-Goal congruence;
+- per-Drive conduciveness;
+- expectedness отдельно от novelty/surprisal/error;
+- controllability отдельно от coping potential;
+- urgency отдельно от Salience/action priority;
+- optional agency/attribution;
+- optional local polarity только как derived summary;
+- `AppraisalRecord` и reappraisal relation без historical mutation;
+- partial-profile compatibility;
+- explicit observability/intervention/failure/snapshot semantics;
+- `NoAppraisal`/Dummy/Constant/Random/Shuffled/Matched/RuleBased/OracleControl distinctions.
 
 Однако **общий exact Python contract set пока намеренно не зафиксирован**.
 
@@ -100,18 +104,20 @@ Exact contract уточняет форму принятой семантики, 
 
 `perception.md` остаётся candidate до Data/Training/Evaluation DU.
 
-`goals.md` остаётся candidate до Drives/Appraisal/Valuation/Executive/Policy/Data/Evaluation DU.
+`goals.md` остаётся candidate до Appraisal/Valuation/Executive/Policy/Data/Evaluation integration freeze.
 
 `cortex.md` остаётся candidate до Workspace/Executive/Policy/Training/Checkpoint/Evaluation DU.
 
 `memory.md` остаётся candidate до Salience/Consolidation/Workspace/Data/Checkpoint/Evaluation DU.
 
-`world-model.md` остаётся candidate до Intrinsic/Appraisal/Valuation/Executive/Policy/Data/Training/Checkpoint/Evaluation DU.
+`world-model.md` остаётся candidate до Appraisal/Valuation/Executive/Policy/Data/Training/Checkpoint/Evaluation DU.
 
-`self-model.md` остаётся candidate до Intrinsic/Appraisal/Valuation/Executive/Policy/Data/Training/Checkpoint/Evaluation DU.
+`self-model.md` остаётся candidate до Appraisal/Valuation/Executive/Policy/Data/Training/Checkpoint/Evaluation DU.
 
-`intrinsic-signals.md` остаётся candidate до Drives/Appraisal/Valuation/Salience/Policy/Data/Training/Checkpoint/Evaluation DU.
+`intrinsic-signals.md` остаётся candidate до Appraisal/Valuation/Salience/Policy/Data/Training/Checkpoint/Evaluation DU.
 
-`drives.md` остаётся candidate, поскольку `DU-16…19`, `DU-22/23`, `DU-25` … `DU-28` ещё уточнят Appraisal/Affect/Valuation/Salience/regulation/policy/data/training/checkpoint/evaluation integration.
+`drives.md` остаётся candidate, поскольку `DU-17…19`, `DU-22/23`, `DU-25` … `DU-28` ещё уточнят Affect/Valuation/Salience/regulation/policy/data/training/checkpoint/evaluation integration.
 
-До contract freeze запрещено считать конкретные `Protocol`, ABC, TensorDict, dataclass/Pydantic schemas, homeostatic equation, common pressure scale, set-point convention, drive list, coupling framework или Drive training algorithm каноническими.
+`appraisal.md` остаётся candidate, поскольку `DU-17…19`, `DU-22/23`, `DU-25` … `DU-28` ещё уточнят Affect/Valuation/Salience/executive/policy/data/training/checkpoint/evaluation integration.
+
+До contract freeze запрещено считать конкретные `Protocol`, ABC, TensorDict, dataclass/Pydantic schemas, human appraisal taxonomy, emotion-label mapping, global valence formula, concrete Appraisal neural architecture или Cortex prompt каноническими.
