@@ -25,7 +25,8 @@
 - [`salience.md`](salience.md) — SalienceTarget/Profile, AttentionBudget и AttentionAllocation после `DU-19`;
 - [`memory-regulation.md`](memory-regulation.md) — MemoryBudget, lifecycle/replay/consolidation после `DU-20`;
 - [`workspace.md`](workspace.md) — Workspace proposal/admission/items/budget/broadcast/read/snapshot semantics после `DU-21`;
-- [`executive-control.md`](executive-control.md) — MetaActionProposal/InternalOperationCatalog, CognitiveResourceEnvelope, ExecutiveDecision, stop/continue и budget ledger semantics после `DU-22`.
+- [`executive-control.md`](executive-control.md) — MetaActionProposal/InternalOperationCatalog, CognitiveResourceEnvelope, ExecutiveDecision, stop/continue и budget ledger semantics после `DU-22`;
+- [`policy-planner.md`](policy-planner.md) — BehavioralContext, ActionCandidate, PlanCandidate, PolicyCandidateSet, DecisionDeferral и SelectedActionIntent после `DU-23`.
 
 ---
 
@@ -78,43 +79,50 @@ Executive Control ≠ Policy / Planner
 Internal MetaAction ≠ Environment Action
 MetaActionProposal ≠ execution
 ExecutiveDecision ≠ direct provider/service call
-resource estimate ≠ reservation ≠ actual consumption
-Executive yield ≠ Action Commit
+Policy ≠ Planner
+Planner ≠ World Model
+Plan ≠ ImaginedTrajectory
+Valuation ≠ Policy Decision
+ActionCandidate ≠ SelectedActionIntent
+SelectedActionIntent ≠ Action Commit / Executed Action
 ```
 
-Для Executive Control дополнительно:
+Для Policy / Planner дополнительно:
 
-- optional work выбирается только из explicit proposal/catalog boundary;
-- `InternalOperationCatalog` не является runtime Service Locator;
-- hard resource envelope не создаётся/увеличивается Executive самостоятельно;
-- hidden runtime telemetry не становится cognitive resource input автоматически;
-- Scheduler остаётся owner dependency/lifecycle/commit validation;
-- Self Model/Salience/Workspace предоставляют evidence, но не control commands;
-- Cortex/retrieval/rollout/consolidation не вызываются direct ambient способом;
-- Goal focus не мутирует Goal Graph;
-- real compute imagination и simulated future budget имеют разную provenance;
-- hard budget exhaustion не разрешает hidden extra compute;
-- `NoExecutive` и equal/matched-compute controls обязательны для functional claims.
+- Policy является owner `SelectedActionIntent`;
+- Planner normal runtime способом не создаёт final selected intent;
+- Planner планирует относительно `World Belief`, а не hidden Environment state;
+- Planner subgoal проходит Goal Proposal boundary;
+- candidate sources входят в explicit `PolicyCandidateSet`;
+- stale plan/candidate set нельзя silent-rebase;
+- `incomparable` допускает deferral/tie-break, но не требует fake scalarization;
+- `DecisionDeferral` не вызывает Executive рекурсивно, а создаёт lifecycle-visible proposals;
+- Cortex/World Model/Valuation outputs не становятся action автоматически;
+- stochastic selection сохраняет causal RNG/provenance;
+- selected intent передаётся в `DU-24`, а не dispatch'ится Policy напрямую;
+- `NoPlanner`/ReactivePolicy и matched controls обязательны для claims о planning.
 
 ---
 
 # Текущий статус
 
-После `DU-04 … DU-22` semantic requirements приняты, но **общий exact Python contract set намеренно не frozen**.
+После `DU-04 … DU-23` semantic requirements приняты, но **общий exact Python contract set намеренно не frozen**.
 
-`executive-control.md` остаётся candidate до Policy/Action/Data/Training/Checkpoint/Evaluation integration.
+`policy-planner.md` остаётся candidate до Action/Data/Training/Checkpoint/Evaluation integration.
 
 До contract freeze нельзя считать каноническими:
 
 - `Protocol`/ABC/dataclass/TensorDict/Pydantic;
-- exact operation/resource enums;
-- confidence threshold;
-- Value-of-Computation formula;
-- learned controller architecture;
-- fixed default budget/cycle count;
-- exact Cortex/retrieval/rollout quotas;
-- Python dispatch/scheduler implementation;
-- Policy/Planner integration details.
+- exact action encoding;
+- Policy/Planner neural architecture;
+- MCTS/MPC/POMCP/ToT/beam search;
+- plan tree/graph/list representation;
+- candidate count;
+- horizon/replanning frequency;
+- stochastic distribution/tie-break rule;
+- value scalarization;
+- exact Action Gate integration;
+- training objective.
 
 ---
 
