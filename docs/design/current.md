@@ -10,7 +10,7 @@
 
 # 1. Общий статус
 
-**Фундамент документации создан. `DU-01` … `DU-07` завершены и приняты. Реализация ещё не начата.**
+**Фундамент документации создан. `DU-01` … `DU-08` завершены и приняты. Реализация ещё не начата.**
 
 На текущем этапе зафиксированы:
 
@@ -31,7 +31,9 @@
 - observability/intervention semantics;
 - общий Environment/MicroWorld design;
 - candidate Environment contract;
-- семь accepted ADR.
+- Perception/Canonical Percept design;
+- candidate Perception contract;
+- восемь accepted ADR.
 
 ---
 
@@ -46,79 +48,23 @@ DU-04 — CognitiveState Semantics
 DU-05 — Module Protocol & Scheduling
 DU-06 — Observability & Intervention
 DU-07 — Environment / MicroWorld Contract
+DU-08 — Perception / Canonical Representation
 ```
 
-## DU-01
+## DU-01 … DU-06
 
-Канонический документ:
+Канонические документы:
 
-- [`system-context.md`](system-context.md).
-
-Ключевой результат: MINDRA Agent определяется logical responsibility/state ownership, а не process/VM/GPU; Environment, Training Runtime, Evaluation Runtime и research infrastructure отделены от cognition.
-
-Accepted decision:
-
-- [`ADR-0001`](decisions/ADR-0001-logical-boundaries-independent-of-deployment.md).
-
-## DU-02
-
-Канонический документ:
-
-- [`dependency-rules.md`](dependency-rules.md).
-
-Ключевой результат: concrete implementations собираются через Composition Root; runtime Service Locator/shared mutable globals и concrete peer coupling запрещены.
-
-Accepted decision:
-
-- [`ADR-0002`](decisions/ADR-0002-explicit-composition-no-runtime-service-locator.md).
-
-## DU-03
-
-Канонический документ:
-
-- [`execution-model.md`](execution-model.md).
-
-Ключевой результат: canonical time является logical causal time; различаются Agent Session, Episode, Decision Window, Cognitive Cycle, Action/Outcome Commit, Learning/Replay/Consolidation events.
-
-Accepted decision:
-
-- [`ADR-0003`](decisions/ADR-0003-hierarchical-logical-time.md).
-
-## DU-04
-
-Канонический документ:
-
-- [`cognitive-state.md`](cognitive-state.md).
-
-Ключевой результат: `CognitiveState` является versioned committed shared runtime state, а не всем `Agent-owned state`; published state имеет owner/provenance/freshness/scope и semantic immutability.
-
-Accepted decision:
-
-- [`ADR-0004`](decisions/ADR-0004-versioned-committed-cognitive-state.md).
-
-## DU-05
-
-Канонический документ:
-
-- [`module-lifecycle.md`](module-lifecycle.md).
-
-Ключевой результат: module dependencies компилируются в DAG/execution waves; modules одной wave читают одну base revision, а public и causally relevant private effects commit согласованно.
-
-Accepted decision:
-
-- [`ADR-0005`](decisions/ADR-0005-wave-scheduled-module-protocol.md).
-
-## DU-06
-
-Канонический документ:
-
+- [`system-context.md`](system-context.md);
+- [`dependency-rules.md`](dependency-rules.md);
+- [`execution-model.md`](execution-model.md);
+- [`cognitive-state.md`](cognitive-state.md);
+- [`module-lifecycle.md`](module-lifecycle.md);
 - [`observability-and-intervention.md`](observability-and-intervention.md).
 
-Ключевой результат: passive `Evidence Plane` отделён от active `Intervention Gateway`; tracing сохраняет causal identities, private state наблюдается через declared probes, intervention создаёт отдельную provenance/lineage, а exact counterfactual требует полного causally relevant state.
+Accepted decisions:
 
-Accepted decision:
-
-- [`ADR-0006`](decisions/ADR-0006-separated-evidence-plane-and-intervention-gateway.md).
+- `ADR-0001` … `ADR-0006`.
 
 ## DU-07
 
@@ -132,78 +78,110 @@ Candidate contract:
 
 Главные результаты:
 
-- общий Environment contract отделён от конкретного `MicroWorld`;
-- Environment имеет отдельные `Agent Interaction Plane` и research-only control/evidence surface;
-- Hidden World State и Research Ground Truth не становятся Agent input;
-- `Raw Observation` отделена от будущего canonical representation;
-- `External Task Specification` отделена от internal Goal state;
-- `External Task Feedback`, `Objective Task Metric` и `Internal Utility` различаются;
-- structurally invalid action отделён от valid-but-ineffective world action;
-- `terminated` и `truncated` различаются;
-- partial observability является first-class capability, full observability — control condition;
-- observed appearance и hidden causal property factorized;
-- Environment stochasticity разделяется на identifiable RNG roles;
-- seed не является достаточной world identity;
-- exact `Environment Snapshot` включает hidden state, task state, pending events и causally relevant RNG state;
-- snapshot/restore/clone/fork являются privileged research/runtime operations;
-- Environment intervention создаёт отдельную provenance/lineage;
-- procedural generator должен быть factorized/versioned;
-- core benchmark instances должны иметь явную solvability/validity policy;
-- distributions должны поддерживать ID unseen, compositional holdout, rule-shift и stronger OOD conditions;
-- `MicroWorld` принят как reference 2D symbolic Environment family;
-- MicroWorld должен быть выразителен для baseline, Memory, World Model, exploration/trade-off, delayed consequence, adaptation и compositional tasks;
-- Gymnasium остаётся interoperability/adapter candidate, а не canonical dependency.
+- общий Environment contract отделён от `MicroWorld`;
+- Agent Interaction Plane отделён от Research Plane;
+- Hidden World State/Research Ground Truth не становятся Agent input;
+- `Raw Observation` отделена от internal representation;
+- External Task Specification отделена от Goal state;
+- External Task Feedback, Objective Task Metric и Internal Utility различаются;
+- exact Environment Snapshot включает hidden state/task/pending events/RNG;
+- procedural generation versioned/factorized;
+- partial observability является first-class capability;
+- `MicroWorld` принят как reference 2D symbolic Environment family.
 
 Accepted decision:
 
 - [`ADR-0007`](decisions/ADR-0007-two-plane-environment-boundary.md).
+
+## DU-08
+
+Канонический документ:
+
+- [`modules/perception.md`](modules/perception.md).
+
+Candidate contract:
+
+- [`contracts/perception.md`](contracts/perception.md).
+
+Главные результаты:
+
+- Perception является отдельной boundary между `Raw Observation` и internal representation;
+- принят `Canonical Percept`;
+- `Canonical Percept` состоит из structured `Semantic Core` и optional `Feature Views`;
+- один universal learned latent vector не является canonical inter-module representation;
+- Cortex hidden state не является canonical representation;
+- Semantic Core описывает current observation, а не hidden belief/Memory/World Model prediction;
+- External Task Specification и External Task Feedback не поглощаются Perception;
+- entity collection семантически unordered по умолчанию;
+- persistent world identity entity не выдаётся Perception бесплатно;
+- direct, normalized и perceptually inferred facts различаются provenance;
+- невидимый hidden entity не создаётся из Research Ground Truth;
+- modality availability/missingness являются explicit semantics;
+- deterministic normalization отделена от learned Perception;
+- `Feature View` имеет feature-space/encoder identity/revision;
+- равенство dimensionality не означает compatibility feature spaces;
+- representation drift считается наблюдаемым versioned явлением;
+- frozen evaluation должна pin relevant representation revisions;
+- batching/device/layout не определяют semantic identity;
+- no-Cortex configuration сохраняет полноценную Perception boundary;
+- sensor/input, semantic-percept и feature-view interventions различаются.
+
+Accepted decision:
+
+- [`ADR-0008`](decisions/ADR-0008-hybrid-canonical-percept.md).
 
 ---
 
 # 3. Следующий допустимый Design Update
 
 ```text
-DU-08 — Perception / Canonical Representation
+DU-09 — Goal System
 ```
 
-Цель `DU-08` — определить границу между `Raw Observation` Environment и стабильным внутренним representation space, которым смогут пользоваться World Model, Memory, Self Model, Policy и другие независимые модули.
+Цель `DU-09` — определить, как MINDRA представляет **что именно она стремится изменить, достичь или сохранить**, отдельно от Perception, External Task Specification, Drives, Valuation и Policy.
 
 Обязательные области:
 
 ```text
-Raw Observation ingestion
-structured vs learned encoding
-canonical representation semantics
-modality metadata
-partial/missing observation
-normalization
-representation identity/versioning
-provenance back to Environment observation
-trainable encoder boundary
-representation drift
-backend/device independence
-Cortex embedding adapter
-no-Cortex mode
-batch semantics
-research probes/interventions
+External Task Specification ingress
+internal Goal representation
+goal identity
+source/provenance
+externally assigned vs internally generated goals
+subgoals / hierarchy
+goal lifecycle
+activation / suspension
+priority
+commitment / persistence
+progress
+success / failure / abandonment
+termination condition
+goal conflict
+multiple simultaneous goals
+goal scope across Episode / Session
+Goal intervention
+Goal observability
+NoOp/baseline goal handling
 ```
 
 Нужно определить:
 
-- какие свойства representation должны быть semantic, а какие implementation-private;
-- должен ли canonical representation быть одним latent vector или структурой нескольких namespaces;
-- как сохранить observable provenance и не смешать prediction/retrieval с observation;
-- как downstream modules не привязать к exact MicroWorld encoding;
-- как representation остаётся совместимой при замене Cortex;
-- где заканчивается deterministic normalization и начинается learned Perception;
-- как version/drift representation влияет на Memory/World Model/checkpoints;
-- какие raw/latent intervention targets допустимы;
-- как no-Cortex baseline получает тот же canonical boundary.
+- является ли Goal отдельным модулем или canonical state responsibility;
+- как External Task Specification становится internal Goal без прямого alias;
+- кто имеет authority создавать/активировать/закрывать цели;
+- как различить цель и reward/utility;
+- как goal priority отличается от Value/Drive;
+- может ли Agent иметь несколько активных целей;
+- как представлять subgoal/dependency graph без циклической логики;
+- как измерять progress без использования evaluator-only metric;
+- как цель переживает Episode reset;
+- как World Model/Policy позднее читают Goal state;
+- какие Goal interventions нужны MINDRA-Eval.
 
-После принятия `DU-08` допускается:
+После принятия `DU-09` допускается:
 
 ```text
-DU-09 — Goal System
+DU-10 — Cortex Boundary
 ```
 
 ---
@@ -267,7 +245,33 @@ research-visible world ground truth
 ```text
 Raw Observation
 ≠
-canonical internal representation
+Canonical Percept
+```
+
+```text
+Canonical Percept
+≠
+Cortex hidden state
+```
+
+```text
+Semantic Core
+≠
+Feature View
+```
+
+```text
+current percept
+≠
+Memory
+≠
+World Model prediction
+```
+
+```text
+External Task Specification
+≠
+Internal Goal State
 ```
 
 ```text
@@ -279,41 +283,35 @@ Internal Utility
 ```
 
 ```text
-seed
+feature dimension equality
 ≠
-complete world identity
-```
-
-```text
-Environment Snapshot
-≠
-rendered observation
+feature-space compatibility
 ```
 
 ---
 
-# 5. Действующие Environment invariants
+# 5. Действующие Perception invariants
 
 До явного изменения canonical design запрещается:
 
-- передавать Agent hidden world state, oracle path/action или evaluator metric как normal input;
-- использовать framework `info`/debug metadata как Agent input без explicit task semantics;
-- считать split/distribution/world seed обычным observation;
-- путать External Task Feedback с research-only Objective Task Metric;
-- использовать Environment reward/feedback как определение Internal Utility MINDRA;
-- считать malformed action нормальным world-level no-op;
-- передавать privileged reason failed action Agent, если observation contract его не раскрывает;
-- сводить `terminated` и `truncated` в один неразличимый `done` внутри canonical evidence;
-- считать полный hidden world map обычной partial observation;
-- фиксировать causal meaning object по цвету/форме без сознательно принятой distribution semantics;
-- использовать один seed как полное доказательство воспроизводимости world instance;
-- называть restore exact, если не восстановлены causally relevant Environment RNG/pending state;
-- использовать Environment restore/intervention как обычное Agent action;
-- изменять natural world lineage intervention-ом без provenance;
-- смешивать train/test distributions без manifest/version identity;
-- использовать procedural instances с неизвестной solvability для claims, требующих гарантированно решаемых задач, без documented limitation;
-- терять final terminal outcome из-за autoreset/vectorization;
-- считать `MicroWorld` универсальным internal representation Agent.
+- передавать Environment-specific raw schema напрямую независимым cognitive modules;
+- использовать Research Ground Truth как normal Perception input;
+- выдавать hidden/unobserved entity только потому, что evaluator знает о его существовании;
+- использовать persistent Environment object ID как perception identity, если ID не является agent-visible;
+- считать arbitrary entity array order semantic information;
+- смешивать direct/normalized/inferred perceptual facts без provenance;
+- кодировать missing modality/property универсальным zero/NaN/None без contract;
+- включать External Task Specification/Feedback в Perception только потому, что они представлены текстом/структурой рядом с observation;
+- считать один learned vector всем Canonical Percept;
+- протаскивать model-specific Cortex hidden state в contracts независимых modules;
+- считать одинаковый vector dimension достаточным доказательством compatibility;
+- молча сравнивать/store/reuse incompatible feature revisions;
+- переписывать committed percept задним числом после encoder update;
+- выполнять hidden fallback на Cortex/privileged data при Perception failure;
+- считать padding/batch index/entity ordering частью semantic identity;
+- считать device/backend объект semantic identity representation;
+- смешивать sensor/input intervention с Environment world-state intervention;
+- интерпретировать сильный latent intervention без OOD/off-target limitations.
 
 ---
 
@@ -328,8 +326,12 @@ rendered observation
 - exact Python Environment API;
 - concrete Gymnasium adapter;
 - exact MicroWorld observation/action encoding;
-- exact grid sizes/entity enum/task grammar;
-- Perception representation;
+- exact `Canonical Percept` field paths/types;
+- exact entity/relation schema;
+- concrete Perception encoder architecture;
+- feature vector dimensions;
+- feature-space compatibility algorithm;
+- exact Cortex-derived feature adapter;
 - Goal System;
 - Cortex contract/backend;
 - Memory Core;
@@ -359,18 +361,12 @@ rendered observation
 
 - exact Python package tree;
 - `Protocol`/ABC/interface mechanism;
-- DI/config framework;
-- plugin/registry implementation;
 - TensorDict/dataclass/Pydantic state framework;
-- graphlib/NetworkX/другая scheduler graph library;
-- asyncio/Ray/другой parallel runtime;
-- OpenTelemetry;
-- PyTorch hooks как canonical mechanism;
-- pyvene или другой intervention library;
-- Gymnasium как mandatory dependency;
-- procedural-generation library;
-- artifact database/storage stack;
-- concrete architecture-test tool.
+- graph/async runtime;
+- specific Perception framework;
+- Slot Attention/GNN/Set Transformer/Perceiver/другая neural architecture;
+- concrete Cortex backend;
+- artifact database/storage stack.
 
 ---
 
@@ -397,7 +393,9 @@ rendered observation
 - module lifecycle/scheduling: [`module-lifecycle.md`](module-lifecycle.md);
 - observability/intervention: [`observability-and-intervention.md`](observability-and-intervention.md);
 - Environment/MicroWorld: [`modules/environment.md`](modules/environment.md);
+- Perception/Canonical Percept: [`modules/perception.md`](modules/perception.md);
 - candidate Environment contract: [`contracts/environment.md`](contracts/environment.md);
+- candidate Perception contract: [`contracts/perception.md`](contracts/perception.md);
 - ADR registry: [`decisions/README.md`](decisions/README.md);
 - карта областей: [`modules/README.md`](modules/README.md);
 - общие принципы: [`principles.md`](principles.md);
