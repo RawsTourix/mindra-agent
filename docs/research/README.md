@@ -18,7 +18,8 @@ research/
 │   ├── DU-11-memory-landscape-2026-08.md
 │   ├── DU-12-world-model-landscape-2026-08.md
 │   ├── DU-13-self-model-landscape-2026-08.md
-│   └── DU-14-intrinsic-signals-landscape-2026-08.md
+│   ├── DU-14-intrinsic-signals-landscape-2026-08.md
+│   └── DU-15-drives-landscape-2026-08.md
 ├── hypotheses.md          # появится позже
 ├── experiments/           # появится позже
 ├── results/               # появится позже
@@ -73,9 +74,10 @@ research evidence / experiment result
 - [`literature/DU-11-memory-landscape-2026-08.md`](literature/DU-11-memory-landscape-2026-08.md) — external/neural/hybrid Memory approaches, representation drift и retrieval-index evidence для `DU-11`;
 - [`literature/DU-12-world-model-landscape-2026-08.md`](literature/DU-12-world-model-landscape-2026-08.md) — RSSM/Dreamer, decoder-free, Transformer world models, uncertainty и TorchRL tooling evidence для `DU-12`;
 - [`literature/DU-13-self-model-landscape-2026-08.md`](literature/DU-13-self-model-landscape-2026-08.md) — confidence calibration, competence awareness, metacognition и functional self-modeling evidence для `DU-13`;
-- [`literature/DU-14-intrinsic-signals-landscape-2026-08.md`](literature/DU-14-intrinsic-signals-landscape-2026-08.md) — prediction-error, novelty, count/density, information-gain, learning-progress и modern intrinsic-exploration evidence для `DU-14`.
+- [`literature/DU-14-intrinsic-signals-landscape-2026-08.md`](literature/DU-14-intrinsic-signals-landscape-2026-08.md) — prediction-error, novelty, count/density, information-gain, learning-progress и modern intrinsic-exploration evidence для `DU-14`;
+- [`literature/DU-15-drives-landscape-2026-08.md`](literature/DU-15-drives-landscape-2026-08.md) — Homeostatic RL, continuous internal-state dynamics, curiosity/homeostasis interaction, multi-drive semantics и Active Inference comparison для `DU-15`.
 
-Эти документы **не выбирают** canonical model/backend/database/index/framework/estimator.
+Эти документы **не выбирают** canonical model/backend/database/index/framework/estimator/dynamics.
 
 ---
 
