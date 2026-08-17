@@ -2,7 +2,7 @@
 
 ## Назначение
 
-Этот каталог хранит machine-facing semantic contracts уже принятых subsystem/data/training/reproducibility/evaluation/testing boundaries.
+Этот каталог хранит machine-facing semantic contracts уже принятых subsystem/data/training/reproducibility/evaluation/testing/research-claim boundaries.
 
 До общего contract freeze документы здесь остаются **candidate contracts**: они уточняют форму принятого design, но не имеют права молча менять его смысл или превращать удобный Python choice в архитектурный invariant.
 
@@ -32,7 +32,8 @@
 - [`training-lifecycle.md`](training-lifecycle.md) — `DU-26`;
 - [`checkpoint-reproducibility-compute.md`](checkpoint-reproducibility-compute.md) — `DU-27`;
 - [`mindra-eval.md`](mindra-eval.md) — `DU-28`;
-- [`engineering-testing.md`](engineering-testing.md) — `DU-29`: VerificationObligation/Matrix, test specs, conformance/fault/state-machine/persistence evidence и CI gates.
+- [`engineering-testing.md`](engineering-testing.md) — `DU-29`;
+- [`research-claims-limitations.md`](research-claims-limitations.md) — `DU-30`: Observation/Interpretation/ResearchClaim, ClaimScope, limitations/known unknowns, negative evidence, supersession и reporting lineage.
 
 ---
 
@@ -91,45 +92,47 @@ Evaluation Runtime ≠ Agent cognition
 Task score ≠ module/causal/calibration evidence
 Engineering Testing ≠ MINDRA-Eval
 line coverage ≠ architectural invariant coverage
-skipped/quarantined ≠ verified pass
-Test Oracle ≠ Agent-visible input
+Observation ≠ Interpretation ≠ ResearchClaim
+ClaimScope ≠ universal scope
+association ≠ causation
+engineering verified ≠ functionally useful
+null/inconclusive/invalid ≠ same result class
+functional similarity ≠ phenomenological equivalence
+supersession ≠ history rewrite
 ```
 
-Для Engineering Testing дополнительно:
+Для Research Claims / Limitations дополнительно:
 
-- accepted engineering invariant имеет `VerificationObligation` или explicit non-machine-checkable status;
-- `VerificationMatrix` сохраняет coverage/evidence lineage;
-- capability-aware conformance не требует отсутствующую capability у `NoX`;
-- fault injection не создаёт hidden production path;
-- stateful tests сохраняют commit/revision/action lifecycle invariants;
-- privileged sentinel/oracle leakage проверяется across agent-visible boundaries;
-- bitwise assertion используется только при соответствующей guarantee;
-- golden update требует reviewable semantic justification;
-- flaky quarantine не считается выполненной obligation;
-- `not run`/`skipped` не становятся pass;
-- CI gate должен видеть unresolved verification gaps.
+- claim имеет stable identity/revision и explicit scope;
+- supporting/challenging evidence не удаляется при review;
+- causal/generalization/architecture claims требуют соответствующего support;
+- `unknown` не превращается в false;
+- negative/null/inconclusive/invalid/not-measured различаются;
+- limitation и known unknown first-class;
+- failed module gate не меняет architecture без design review/ADR;
+- publication statement не сильнее canonical claim;
+- Cortex/data/compute/tuning dependence входит в scope/limitations;
+- Affect/Workspace/Self Model/first-person Cortex text не считаются consciousness evidence автоматически;
+- Claim supersession сохраняет old revision lineage.
 
 ---
 
 # Текущий статус
 
-После `DU-04 … DU-29` semantic requirements приняты, но **общий exact Python contract set намеренно не frozen**.
+После `DU-04 … DU-30` semantic requirements приняты, но **общий exact Python contract set намеренно не frozen**.
 
-`engineering-testing.md` остаётся candidate до Research Claims/contract freeze integration.
+`research-claims-limitations.md` остаётся candidate до общего `DU-31 — Contract + ADR Consistency Freeze`.
 
 До contract freeze нельзя считать каноническими:
 
 - `Protocol`/ABC/dataclass/TensorDict/Pydantic;
-- exact event/status enums;
-- pytest/unittest;
-- Hypothesis;
-- Import Linter;
-- coverage/mutation tools и thresholds;
-- конкретный CI provider/YAML;
-- exact test directory layout;
-- exact test tier names/timings;
-- accelerator/provider matrix;
-- concrete test artifact storage.
+- exact event/status/claim-kind enums;
+- physical registry storage;
+- exact evidence-strength score;
+- pytest/Hypothesis/Import Linter/CI tooling;
+- paper/report/preregistration framework;
+- automatic wording/NLP linter;
+- dashboard/tracker implementation.
 
 ---
 
