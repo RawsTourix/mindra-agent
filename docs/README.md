@@ -87,6 +87,6 @@ Research result, противоречащий design, инициирует revie
 
 Проект находится на стадии **последовательного канонического архитектурного проектирования**.
 
-`DU-01 … DU-23` приняты. Следующий допустимый этап определяется только [`design/current.md`](design/current.md); полный порядок задан в [`design/documentation-plan.md`](design/documentation-plan.md).
+`DU-01 … DU-24` приняты. Следующий допустимый этап определяется только [`design/current.md`](design/current.md); полный порядок задан в [`design/documentation-plan.md`](design/documentation-plan.md).
 
 Production/research implementation, exact contract freeze, version roadmap и implementation sequences ещё не начаты.
