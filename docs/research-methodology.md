@@ -4,7 +4,14 @@
 
 Этот документ фиксирует общие правила постановки, проведения и интерпретации исследований MINDRA.
 
-Он не задаёт concrete benchmark/library/statistical implementation. После `DU-28` evaluation semantics определяется [`design/mindra-eval.md`](design/mindra-eval.md), Engineering Verification — [`design/engineering-testing.md`](design/engineering-testing.md), а конкретная discipline формирования/пересмотра claims и limitations — [`design/research-claims-limitations.md`](design/research-claims-limitations.md).
+После принятых design updates:
+
+- evaluation semantics — [`design/mindra-eval.md`](design/mindra-eval.md), `DU-28`;
+- Engineering Verification — [`design/engineering-testing.md`](design/engineering-testing.md), `DU-29`;
+- claim/limitations discipline — [`design/research-claims-limitations.md`](design/research-claims-limitations.md), `DU-30`;
+- semantic consistency baseline — [`design/contract-adr-consistency-freeze.md`](design/contract-adr-consistency-freeze.md), `DU-31`.
+
+Этот документ не задаёт concrete benchmark/library/statistical implementation.
 
 ---
 
@@ -15,7 +22,7 @@ MINDRA развивается не по схеме «добавили модул
 ```text
 гипотеза
 → контролируемый design
-→ реализация
+→ implementation + verification
 → experiment
 → evidence
 → observation / interpretation
@@ -37,25 +44,25 @@ MINDRA развивается не по схеме «добавили модул
 
 # 2. Engineering correctness ≠ research validity ≠ claim strength
 
-Корректно реализованный модуль может не подтверждать research hypothesis.
-
-Интересный единичный результат не является достаточным evidence, если implementation/protocol/reproducibility нарушены.
-
-Даже валидный result не разрешает claim шире, чем поддерживают scope/design/evidence.
-
 ```text
 Engineering Testing (DU-29)
 ≠
 MINDRA-Eval (DU-28)
 ≠
-Research Claim discipline (DU-30)
+Research Claims / Limitations (DU-30)
 ```
+
+Корректно реализованный модуль может не подтверждать research hypothesis.
+
+Интересный результат не является sufficient evidence, если implementation/protocol/reproducibility invalid.
+
+Даже валидный result не разрешает claim шире, чем поддерживают scope/design/evidence.
 
 ---
 
 # 3. Гипотеза должна быть falsifiable
 
-Перед confirmatory experiment формулируется наблюдаемый outcome, способный ослабить/опровергнуть гипотезу.
+Перед confirmatory experiment формулируется outcome, способный ослабить/опровергнуть hypothesis.
 
 Плохо:
 
@@ -63,15 +70,13 @@ Research Claim discipline (DU-30)
 
 Лучше:
 
-> При aligned external state controlled intervention в appraisal dimension систематически меняет заранее указанный downstream outcome при ограниченных off-target effects.
+> При aligned base state intervention в appraisal dimension систематически меняет заранее указанный downstream outcome при ограниченных off-target effects.
 
-Exact `HypothesisSpec`/module gates задаются `MINDRA-Eval`.
+Module gates и EvaluationStudyPlan задаются `DU-28`.
 
 ---
 
-# 4. Baseline / ablation / control
-
-Baseline отвечает на конкретный вопрос.
+# 4. Baseline / ablation / matched control
 
 Ablation:
 
@@ -81,9 +86,9 @@ vs
 Full - X
 ```
 
-важна, но может менять capacity/compute.
+полезна, но может менять capacity/compute.
 
-Поэтому, где требуется claim о **semantic contribution**, используются controls:
+Для claim о **semantic contribution** используются, где feasible:
 
 - `No*`;
 - constant/random/shuffled;
@@ -92,7 +97,7 @@ Full - X
 - context/compute/data matched;
 - oracle research controls.
 
-Matching factors и deviations описываются `EvaluationCondition/ResourceMatchProfile`.
+Matching factors/deviations описываются `EvaluationCondition/ResourceMatchProfile`.
 
 ---
 
@@ -104,20 +109,20 @@ Matching factors и deviations описываются `EvaluationCondition/Resou
 
 ```text
 verified common base state
-→ branch/control
-→ branch/treatment with Intervention X
+→ control branch
+→ treatment branch with Intervention X
 → compare target + off-target effects
 ```
 
-Paired counterfactual требует достаточного `DU-27` restore level и explicit `DU-28` intervention/analysis protocol.
+Paired counterfactual требует достаточного `DU-27` restore level и explicit `DU-28` protocol.
 
-Causal wording в отчёте затем ограничивается правилами `DU-30`.
+Causal wording затем ограничивается `DU-30`.
 
 ---
 
 # 6. Factorial interactions
 
-Если механизм полезен только совместно с другим, допускается:
+Если механизм полезен только совместно с другим, допускается hypothesis-driven subset:
 
 ```text
 none
@@ -126,15 +131,13 @@ B
 A+B
 ```
 
-Full factorial всей MINDRA практически не требуется; используется hypothesis-driven subset.
+Full factorial всей MINDRA не требуется автоматически.
 
 ---
 
 # 7. Replicates и stochasticity
 
-Серьёзный stochastic claim не опирается на один удачный run.
-
-Нужно различать:
+Различаются:
 
 ```text
 training replicate
@@ -147,13 +150,13 @@ counterfactual branch
 
 Много episodes одного checkpoint не являются independent training replicates.
 
-Количество replicates и statistical method задаются `ReplicateStructure + StatisticalAnalysisPlan` конкретного study, а не глобальным магическим числом seeds.
+Количество replicates/statistical method задаются конкретными `ReplicateStructure + StatisticalAnalysisPlan`, а не глобальным магическим числом seeds.
 
 ---
 
 # 8. Train / validation / test separation
 
-Если world/data использованы для training/model selection, confirmatory generalization evaluation включает held-out conditions.
+Если world/data использованы для training/model selection, confirmatory generalization evaluation использует held-out conditions.
 
 Различаются:
 
@@ -163,9 +166,9 @@ counterfactual branch
 - compositional/generalization shift;
 - transfer/OOD.
 
-Использование test outcome для ручной настройки превращает этот test в development evidence.
+Использование test outcome для ручной настройки превращает test в development evidence.
 
-Claim generalization scope не расширяется дальше реально поддержанного target scope.
+Claim scope не расширяется дальше реально поддержанного target scope.
 
 ---
 
@@ -182,18 +185,16 @@ stronger Cortex
 
 где feasible.
 
-Architecture gain, существующий только с одним Cortex, формулируется узко и получает соответствующую limitation/ClaimScope.
+Architecture gain, существующий только с одним Cortex, формулируется узко.
 
 ---
 
-# 10. Parameter/compute/data/tuning controls
+# 10. Parameter / compute / data / tuning controls
 
 Improvement нельзя автоматически приписывать architecture, если treatment имеет больше:
 
-- parameters;
-- state capacity;
-- context;
-- Memory/Workspace capacity;
+- parameters/state capacity;
+- context/Memory/Workspace capacity;
 - Cortex calls;
 - training data/steps;
 - runtime rollout/search;
@@ -202,7 +203,7 @@ Improvement нельзя автоматически приписывать archi
 
 Если perfect matching невозможно, показывается trade-off/frontier и limitation.
 
-Compute provenance определяется `DU-27`, comparison semantics — `DU-28`, wording/claim scope — `DU-30`.
+Compute provenance — `DU-27`, comparison — `DU-28`, wording/scope — `DU-30`.
 
 ---
 
@@ -222,17 +223,17 @@ End-task success недостаточен.
 - Planner — long-horizon contribution;
 - Action Gate — correction/false-rejection attribution.
 
-Каноническая metric architecture — `DU-28`.
+Metric architecture — `DU-28`.
 
 ---
 
 # 12. Calibration
 
-Accuracy и confidence calibration являются разными axes.
+Accuracy и confidence calibration — разные axes.
 
 Если subsystem заявляет meaningful probability, evaluation использует metric family, соответствующую probability semantics, где practically possible — proper scoring.
 
-ECE-like summaries могут быть diagnostics, но не считаются universal proof truthful probability.
+ECE-like summary не является universal proof truthful probability.
 
 ---
 
@@ -243,17 +244,14 @@ Exploratory runs разрешены для debugging/hypothesis generation/range
 Confirmatory study заранее фиксирует:
 
 - hypothesis;
-- independent variables/controls;
+- conditions/controls;
 - primary contrasts/metrics;
 - replicate/sample policy;
 - statistical analysis;
-- exclusions/censoring;
-- stopping;
+- exclusions/censoring/stopping;
 - success/falsification criterion.
 
 Post-hoc change создаёт новую revision и не masquerade как preregistered result.
-
-DU-30 дополнительно запрещает выдавать exploratory interpretation за заранее подтверждавшийся confirmatory claim.
 
 ---
 
@@ -293,9 +291,9 @@ Evaluator Ground Truth
 ≠ Agent input
 ```
 
-Использование privileged data в training разрешено только explicit privileged-supervision condition.
+Privileged data в training разрешены только explicit privileged-supervision condition.
 
-Research Claim обязан учитывать privileged condition в scope/limitations, если она material.
+Claim обязан учитывать такую condition в scope/limitations, если material.
 
 ---
 
@@ -314,15 +312,11 @@ final outcome
 
 Сильный shield не должен скрывать слабую Policy.
 
-Claim о Policy и claim о full-system behavior являются разными claims.
-
 ---
 
-# 17. Отрицательные, null и inconclusive результаты
+# 17. Negative / null / inconclusive
 
-Отрицательный result — полноценный evidence.
-
-Но различаются:
+Различаются:
 
 ```text
 negative evidence
@@ -332,34 +326,30 @@ invalid
 not measured
 ```
 
-Если module effect объясняется matched control или negative gate выполняется, это основание для `ClaimReview` и design review.
-
-Architecture меняется только через ADR.
+Negative module gate создаёт `ClaimReview` и design review. Architecture меняется только через ADR.
 
 ---
 
-# 18. Антропоморфные / phenomenological ограничения
+# 18. Phenomenological ограничения
 
 Запрещены inference leaps:
 
 ```text
-valence/Affect → доказано чувство
+Affect/valence → доказано чувство
 Self Model → доказано самосознание
 Workspace → доказано сознание
-Cortex first-person text → достоверный phenomenal self-report
+Cortex first-person text → reliable phenomenal self-report
 human-like behavior → human-like phenomenology
 functional analogy → biological identity
 ```
 
-MINDRA использует functional cognitive terms; phenomenological claims требуют отдельного bridge evidence, которого architecture сама по себе не предоставляет.
-
-Это не утверждение об отсутствии subjective experience; это ограничение допустимой научной формулировки при текущем evidence.
+Это не утверждение об отсутствии subjective experience; это ограничение допустимой формулировки при текущем evidence.
 
 ---
 
 # 19. Claim scope / limitations / known unknowns
 
-После `DU-30` substantial claim оформляется как versioned artifact с:
+Substantial claim оформляется как versioned artifact с:
 
 ```text
 ClaimScope
@@ -377,34 +367,50 @@ claim strength ≤ evidence strength
 claim generality ≤ supported scope
 ```
 
-Old claim не переписывается молча при новом evidence; используется review/weaken/narrow/supersede lifecycle.
+Old claim не переписывается молча при новом evidence.
 
 ---
 
-# 20. Текущая граница
+# 20. Semantic freeze и research design
 
-После `DU-28 … DU-30` приняты semantic requirements для:
+После `DU-31` research/version work использует `Semantic Freeze Baseline F31`.
 
-- evaluation conditions/suites/runs/units;
-- controls/matched controls;
-- causal interventions;
-- module gates;
-- metric/statistical protocol;
-- reproducibility/compute attribution;
-- engineering verification obligations/evidence;
-- scoped versioned research claims;
-- limitations/known unknowns;
-- negative evidence и claim supersession;
-- consciousness/anthropomorphic claim boundaries.
+Это означает:
 
-По-прежнему **не фиксируются до version design**:
+- research condition может включать `No*`/Dummy/control implementation frozen boundary;
+- experiment не переопределяет semantic owner/lifecycle;
+- отрицательный result может инициировать новый ADR, но не silent architecture mutation;
+- concrete implementation choice не повышается до architecture claim автоматически;
+- version roadmap обязан сохранять controls и falsifiable module gates.
 
-- конкретный benchmark suite/task catalog;
+Breaking semantic change после F31 требует нового ADR.
+
+---
+
+# 21. Что не фиксируется глобально
+
+По-прежнему не существует universal:
+
+- benchmark suite/task catalog;
 - exact number of seeds;
-- universal statistical test/threshold;
-- universal evidence-strength score;
-- universal composite score;
+- statistical test/threshold;
+- evidence-strength score;
+- composite score;
 - paper/preregistration/tracking framework;
 - implementation storage format.
 
-Следующий design scope — `DU-31 — Contract + ADR Consistency Freeze`.
+Это выбирается конкретным study/version при сохранении F31 и `DU-28…30` semantics.
+
+---
+
+# 22. Текущий design scope
+
+`DU-31` завершён; baseline `F31` принят.
+
+Следующий допустимый этап:
+
+```text
+DU-32 — Version Roadmap
+```
+
+Roadmap должен выбрать реалистичные implementation milestones, но не переопределять semantic-frozen architecture без нового ADR.
