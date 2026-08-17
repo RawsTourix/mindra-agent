@@ -32,7 +32,7 @@ Research result меняет architecture только через design review/
 
 ## Фундамент
 
-Перед subsystem/data changes обязательны:
+Перед subsystem/data/training changes обязательны:
 
 - `docs/design/system-context.md`;
 - `docs/design/dependency-rules.md`;
@@ -64,6 +64,7 @@ Research result меняет architecture только через design review/
 | Policy / Planner | `docs/design/modules/policy-planner.md` | `docs/design/contracts/policy-planner.md` | `ADR-0023` |
 | Action Boundary | `docs/design/modules/action-boundary.md` | `docs/design/contracts/action-boundary.md` | `ADR-0024` |
 | Experience / Data / Replay | `docs/design/experience-data-replay.md` | `docs/design/contracts/experience-data-replay.md` | `ADR-0025` |
+| Training Lifecycle | `docs/design/training-lifecycle.md` | `docs/design/contracts/training-lifecycle.md` | `ADR-0026` |
 
 Следующий разрешённый DU брать только из `docs/design/current.md`.
 
@@ -77,174 +78,121 @@ Research result меняет architecture только через design review/
 CognitiveState ≠ full Agent Snapshot
 Goal Proposal ≠ Committed Goal
 MemoryRecord ≠ embedding/index
-Memory ≠ trajectory/Training Replay
 World Prediction ≠ observed fact
 Intrinsic Signal ≠ Reward/Drive/Value
-Drive State ≠ Value
 Appraisal ≠ Affect ≠ Valuation
-ValueProfile ≠ ScalarizedValue ≠ Training Reward ≠ Policy Decision
+ValueProfile ≠ Training Objective ≠ Training Reward ≠ Policy Decision
 SalienceProfile ≠ AttentionAllocation
-Memory Core validation ≠ Regulation admission
-cognitive forgetting ≠ physical storage removal
 Retrieval ≠ Agent Memory Replay ≠ Training Replay
-Consolidation ≠ in-place rewrite ≠ Learning Update
+Consolidation ≠ Learning Update
 CognitiveState ≠ Workspace
-Workspace ≠ Memory ≠ Cortex context
 Executive Control ≠ Cognitive Scheduler ≠ Policy
 Policy ≠ Planner
-Planner ≠ World Model
 Plan ≠ ImaginedTrajectory
-ActionCandidate ≠ SelectedActionIntent
 SelectedActionIntent ≠ AuthorizedAction ≠ Action Commit
 Action Commit ≠ Dispatch ≠ Environment Transition
-Policy choice ≠ external override
-transport failure ≠ Environment no-effect
-execution_unknown ≠ definitely_not_sent
 TraceEvent ≠ ExperienceEvent
 Experience Journal ≠ Agent runtime state
-Experience Journal ≠ Replay Buffer ≠ Agent Memory
 Source Experience ≠ TrainingSample
 ResearchAnnotation ≠ agent-visible payload
-Agent Memory Replay ≠ Training Replay
+Training Runtime ≠ cognitive module
+Runtime State Update ≠ Learning Update
+ReplaySelection ≠ Learning Update
+runtime dependency graph ≠ gradient graph
+optimizer/trainer state ≠ CognitiveState
+CandidateRevisionBundle ≠ Active AgentRevision
+LearningUpdateRecord ≠ RevisionActivationRecord
 ```
 
-## Memory Regulation safeguards
-
-До пересмотра `DU-20`:
+## Memory / Workspace / Executive safeguards
 
 - Memory Regulation не владеет canonical Store;
-- structural validation нельзя обходить Salience/Value;
-- universal `memory_importance` не canonical;
-- retrieval/access frequency не automatic importance;
-- cognitive forgetting отделено от physical removal;
-- consolidation создаёт новый derived record и сохраняет source/support/conflict provenance;
-- source authority не повышается после summarization;
-- re-encoding/index rebuild не semantic consolidation;
-- Agent Memory Replay не равен Training Replay;
-- consolidation не выполняет optimizer/gradient update.
-
-## Workspace safeguards
-
-До пересмотра `DU-21`:
-
-- Workspace не alias `CognitiveState`;
-- producers работают через explicit proposals/candidates;
-- Salience/AttentionAllocation — evidence, а не admission decision;
-- WorkspaceItem сохраняет source/provenance/authority;
+- consolidation создаёт новый derived record и не выполняет optimizer update;
+- Workspace не alias `CognitiveState`; producers работают через proposals;
 - broadcast означает availability, а не callback/automatic invocation;
-- Memory retrieval не попадает в Workspace автоматически;
-- Workspace eviction не удаляет source memory;
-- Workspace не является Cortex prompt;
-- imagined/branch-local Workspace не мутирует real Workspace;
-- Workspace не считается evidence consciousness.
+- Executive не Service Locator, не изменяет Scheduler graph и не выбирает Environment action;
+- hard cognitive budget не увеличивается Executive самостоятельно.
 
-## Executive Control safeguards
-
-До пересмотра `DU-22`:
-
-- Executive не изменяет dependency graph/write authority/atomic commits Scheduler;
-- Executive не Service Locator и не получает direct handles на Memory/Cortex/World Model/Workspace;
-- optional work поступает через `MetaActionProposal` + `InternalOperationCatalog`;
-- `ExecutiveDecision` проходит Scheduler/runtime validation;
-- Executive не выбирает Environment action;
-- monitoring evidence не является control command;
-- hard `CognitiveResourceEnvelope` не увеличивается Executive;
-- estimate/reservation/actual consumption различаются;
-- budget exhaustion не разрешает hidden extra compute;
-- Goal focus не мутирует Goal Graph;
-- real imagination compute учитывается в real ledger;
-- fallback/degradation explicit и traced.
-
-## Policy / Planner safeguards
-
-До пересмотра `DU-23`:
+## Policy / Action safeguards
 
 - Policy — единственный normal-runtime owner `SelectedActionIntent`;
 - Planner/Cortex/Valuation/World Model не создают final intent напрямую;
-- Policy не dispatch'ит Environment action;
-- Planner не World Model и не читает hidden Environment Ground Truth;
-- candidate generation сохраняет provenance и входит в `PolicyCandidateSet`;
-- Planner subgoal проходит Goal Proposal boundary;
 - Valuation evidence не превращается автоматически в `argmax` action;
-- `incomparable` допускается без fake scalarization;
-- `DecisionDeferral` не вызывает Executive рекурсивно;
-- planning compute связан с Executive accounting;
-- stale plan/candidates не rebased молча;
-- stochastic Policy сохраняет RNG provenance;
-- hidden random/default fallback запрещён.
-
-## Action Boundary safeguards
-
-До пересмотра `DU-24`:
-
 - `SelectedActionIntent` не dispatch'ится напрямую;
-- stale/malformed/unauthorized intent не получает `ActionCommitRecord`;
-- normal Gate не hidden Policy;
-- semantics-preserving normalization имеет transformation provenance;
-- behavior-changing substitution только через explicit override record;
-- original Policy intent и committed override сохраняются раздельно;
-- Gate не читает hidden evaluator/Environment Ground Truth normal runtime способом;
+- normal Action Gate не hidden Policy/Environment oracle;
+- behavior-changing substitution имеет explicit override provenance;
 - `Action Commit` после authorization и до dispatch;
 - post-commit failure не отменяет commit;
-- Dispatcher не выбирает fallback action;
-- retry не создаёт новый Action Commit;
-- stable `dispatch_id` используется для same logical retry;
-- blind retry запрещён при `execution_unknown` без dedup/idempotency/definite-non-send evidence;
-- universal physical exactly-once не предполагается;
-- accepted receipt не означает execution success;
-- transport failure/no-effect/partial/unknown различаются;
-- terminal outcome фиксируется до reset;
-- provider-native transport payload не становится Policy semantic contract.
+- blind retry запрещён при `execution_unknown` без explicit dedup/idempotency evidence.
 
 ## Experience / Data / Replay safeguards
 
 До пересмотра `DU-25`:
 
-- source of truth записанного опыта — append-only causal `Experience Journal`, а не transition table/replay buffer;
-- event-sourced только data plane; не реконструировать ordinary Agent runtime из journal вопреки `CognitiveState`/snapshot semantics;
-- `TraceEvent` и `ExperienceEvent` не считать синонимами;
+- source of truth записанного опыта — append-only causal `Experience Journal`, не replay buffer;
+- event-sourced только data plane, не ordinary Agent runtime;
 - source `ExperienceEvent` immutable по смыслу;
-- hindsight/relabeling/target recomputation/re-encoding создают derived sample/artifact, а не rewrite source history;
-- physical append order/wall-clock не использовать как единственное causal ordering evidence;
-- causal parent refs/logical scopes/revision refs сохраняются;
-- evaluator-only/Research Ground Truth не класть в обычный agent-visible `info`/payload;
-- privileged data хранить отдельным `ResearchAnnotationRecord` и включать только через explicit `DataVisibilityPolicy`;
-- `ActionCommitRecord` без Environment transition является валидным source case;
-- при `execution_unknown` запрещено fabricatе `next_state = state_before` или `executed=false`;
-- terminated/truncated различать до explicit training transform;
-- changing `agent_revision`/component revisions не скрывать;
-- `DatasetManifest` обязан фиксировать source selection/schema/transforms/revisions/splits/quality/determinism;
-- `TrainingSample` всегда derived и имеет source + transform lineage;
-- replay buffer/table не archival source of truth;
-- replay item eviction не удаляет source experience;
-- Training Replay selection не создаёт natural experience;
-- Agent Memory Replay и Training Replay не смешивать даже при общем source episode;
-- replay priority/loss/TD-error/sampling frequency не становились Salience/Memory importance/Valuation автоматически;
-- heavy artifact loss и core causal event loss различаются;
-- lossy transform маркируется и не masquerade как исходное evidence;
-- storage technology/RLDS/Minari/Reverb/Arrow/HDF5 не принимать как canonical до version design.
+- hindsight/relabeling/re-encoding создают derived sample, не rewrite source history;
+- evaluator-only Ground Truth хранится separate `ResearchAnnotationRecord`;
+- privileged inclusion только через explicit `DataVisibilityPolicy`;
+- `execution_unknown` не получает fake next state;
+- mixed agent/component revisions не скрываются;
+- `DatasetManifest` фиксирует source/schema/transforms/revisions/splits/quality/determinism;
+- `TrainingSample` всегда derived и имеет source/transform lineage;
+- ReplayItem eviction не удаляет source experience;
+- Agent Memory Replay и Training Replay не смешивать;
+- replay priority/sampling frequency не становится Salience/Memory importance/Valuation автоматически;
+- storage technology не принимать как canonical до version design.
+
+## Training Lifecycle safeguards
+
+До пересмотра `DU-26`:
+
+- `Training Runtime` не является cognitive module и не получает ambient mutable access к live Agent;
+- ordinary module `compute()`/`observe_outcome()` не выполняет скрытый `optimizer.step()`;
+- runtime/adaptive state, trainable parameters и optimizer/trainer state не смешиваются;
+- optimizer/scheduler/scaler state не публикуется в `CognitiveState`;
+- каждый `TrainingAttempt` pin'ит explicit `BaseRevisionBundle`;
+- stale base revision не rebased молча;
+- `TrainingPlan` явно указывает target components, data visibility, objectives, optimizer ownership и gradient policy;
+- runtime dependency edge не создаёт gradient edge автоматически;
+- cross-component backprop разрешён только через `GradientFlowPolicy`;
+- shared parameter group не имеет конфликтующих независимых optimizer owners без coordination policy;
+- Training Objective не считается Agent Goal/Value/Drive/Intrinsic Signal;
+- external feedback/intrinsic/value становится training target/reward только через explicit mapping;
+- source Dataset/Replay/TrainingSample provenance сохраняется до `LearningUpdateRecord`;
+- behavior revision и learner revision не подменяются одной «current policy» revision;
+- privileged `ResearchAnnotation` используется только при explicit privileged-supervision condition;
+- `CandidateRevisionBundle` не является active Agent только потому, что training завершился;
+- candidate проходит explicit validation/acceptance;
+- activation новой Agent revision выполняется только на allowed causal boundary;
+- in-flight Decision/Cognitive segment не меняет weights/revision задним числом;
+- совместно обученные incompatible компоненты активируются атомарным compatible bundle;
+- representation-breaking update не активируется без compatibility/migration semantics;
+- update encoder/Cortex adapter требует новой representation/feature-space revision там, где меняется пространство;
+- Self Model competence после change `agent_revision` не остаётся автоматически valid;
+- new-task gain не считается training success без требуемых retention/regression checks;
+- failed/rejected candidate не мутирует live Agent;
+- rollback не удаляет historical LearningUpdate/Activation evidence;
+- training loss/accuracy/KL/gradient norm/replay priority не становятся cognitive signals автоматически;
+- concrete optimizer/PyTorch/LoRA/PPO/GRPO/SFT/etc. не превращать в architecture invariant до version design.
 
 ## Research discipline
 
-Для Experience/Data минимум проверять:
+Для Training Lifecycle минимум сравнивать, где применимо:
 
 ```text
-full causal projection
-vs transition-only projection
-
-agent-visible-only data
-vs explicit privileged supervision
-
-correct sequence
-vs shuffled sequence
-
-uniform replay
-vs prioritized/other replay
+Frozen / NoLearning
+vs Offline
+vs Interleaved Online
+vs Decoupled Online
 ```
 
-Обязательны leakage, source→derived lineage, revision attribution, unresolved execution, split leakage, schema migration и deterministic extraction tests.
+и учитывать **одновременно** новую capability и retention прежних capabilities.
 
-Training improvement нельзя приписывать algorithm, если condition получила другую source population, hidden privileged fields или дополнительный transform/relabel policy без отдельной attribution.
+При online actor/learner отдельно анализировать behavior revision, learner revision, policy lag/off-policy assumptions и фактический data/compute budget.
+
+Training improvement нельзя приписывать algorithm, если condition получила другой dataset, privileged labels, больший compute/data budget, другую replay policy или более слабую validation/retention policy.
 
 ## Implementation scope
 
