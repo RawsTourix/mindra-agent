@@ -59,6 +59,7 @@ Research result меняет architecture только через design review/
 | Valuation | `docs/design/modules/valuation.md` | `docs/design/contracts/valuation.md` | `ADR-0018` |
 | Salience | `docs/design/modules/salience.md` | `docs/design/contracts/salience.md` | `ADR-0019` |
 | Memory Regulation | `docs/design/modules/memory-regulation.md` | `docs/design/contracts/memory-regulation.md` | `ADR-0020` |
+| Workspace | `docs/design/modules/workspace.md` | `docs/design/contracts/workspace.md` | `ADR-0021` |
 
 Следующий разрешённый DU брать только из `docs/design/current.md`.
 
@@ -79,52 +80,85 @@ Drive State ≠ Value
 Appraisal ≠ Affect ≠ Valuation
 ValueProfile ≠ ScalarizedValue ≠ Training Reward ≠ Policy Decision
 SalienceProfile ≠ AttentionAllocation
-AttentionAllocation ≠ Workspace/Executive/Policy decision
 Memory Core validation ≠ Regulation admission
-SalienceProfile ≠ Memory lifecycle decision
 cognitive forgetting ≠ physical storage removal
 Retrieval ≠ Agent Memory Replay ≠ Training Replay
 Consolidation ≠ in-place rewrite ≠ Learning Update
-Representation maintenance ≠ semantic consolidation
-Derived MemoryRecord ≠ source episode
+CognitiveState ≠ Workspace
+published state ≠ Workspace admission
+SalienceProfile/AttentionAllocation ≠ Workspace admission
+WorkspaceBudget ≠ AttentionBudget ≠ MemoryBudget ≠ Executive budget
+WorkspaceItem ≠ source truth
+Workspace ≠ Memory ≠ Cortex context
+Workspace eviction ≠ Memory forgetting
+broadcast ≠ callback/module execution
+imagined Workspace ≠ real Workspace
+Workspace ≠ Policy/Executive Control
 ```
 
 ## Memory Regulation safeguards
 
 До пересмотра `DU-20`:
 
-- Memory Regulation не владеет canonical Store и публикует lifecycle/consolidation proposals через Memory Core;
-- structural validation нельзя обходить высоким Salience/Value;
-- universal `memory_importance` не является canonical state;
-- Salience — evidence, а не готовое retention/eviction решение;
-- retrieval/access frequency не является automatic importance;
-- memory aging использует logical time;
-- cognitive forgetting отделено от physical storage removal;
-- consolidation создаёт новый derived record, а не изменяет source payload задним числом;
-- derived record обязан сохранять source/support/conflict/derivation provenance;
-- source authority не повышается автоматически после summarization/consolidation;
-- contradictions не исчезают без explicit versioned policy;
-- re-encoding/index rebuild не считается semantic consolidation;
-- Agent Memory Replay не является новым natural experience и не равен Training Replay;
-- replay/consolidation выполняются только в explicit causal context;
-- consolidation не выполняет optimizer/gradient update;
-- concrete forgetting curve, FIFO/LRU/top-K, LLM summarizer, clustering и generative replay не становятся canonical только из research literature.
+- Memory Regulation не владеет canonical Store;
+- structural validation нельзя обходить Salience/Value;
+- universal `memory_importance` не canonical;
+- retrieval/access frequency не automatic importance;
+- cognitive forgetting отделено от physical removal;
+- consolidation создаёт новый derived record и сохраняет source/support/conflict provenance;
+- source authority не повышается после summarization;
+- re-encoding/index rebuild не semantic consolidation;
+- Agent Memory Replay не равен Training Replay;
+- consolidation не выполняет optimizer/gradient update.
+
+## Workspace safeguards
+
+До пересмотра `DU-21`:
+
+- Workspace не является alias `CognitiveState` и не заменяет dependency contracts;
+- Workspace работает только с explicit proposals/candidates;
+- producers не мутируют Workspace напрямую;
+- capacity/bandwidth explicit; unbounded buffer не считается эквивалентным Workspace автоматически;
+- Salience/AttentionAllocation — evidence/hint, а не готовое admission decision;
+- Workspace AdmissionPolicy versioned и отдельна;
+- `WorkspaceItem` сохраняет source ref/revision/provenance/authority;
+- admission/compression не превращает prediction/retrieval/Cortex inference в observed fact;
+- source update не переписывает admitted item задним числом;
+- consumer access должен быть declared; Workspace не ambient global dictionary;
+- broadcast означает read availability, а не callback, interrupt или automatic module invocation;
+- Workspace не меняет scheduler graph;
+- Memory retrieval не попадает в Workspace автоматически;
+- Workspace eviction не удаляет/забывает source MemoryRecord;
+- Workspace не является Cortex prompt; context packing выполняется explicit consumer/Gateway path;
+- Workspace не выбирает Environment action и не владеет Executive compute budget;
+- imagined/branch-local Workspace не мутирует real Workspace автоматически;
+- failure/unavailable нельзя маскировать fake empty Workspace без traced degradation;
+- Workspace не считается evidence consciousness.
 
 ## Research discipline
 
-Для Memory Regulation сравнивать минимум:
+Для Workspace минимум сравнивать:
 
 ```text
-Full Regulation
-vs NoRegulation
-vs FIFO/recency/random/shuffled
-
-Full Consolidation
-vs episodic-only
-vs matched/random consolidation/compression
+Full Workspace
+vs NoWorkspace / DirectReads
+vs Random/Shuffled/Fixed admission
+vs UnboundedWorkspace
+vs WorkspaceWithoutBroadcast
+vs MatchedSharedBuffer
+vs MatchedRecurrentBuffer
 ```
 
-Измерять source fidelity, contradiction preservation, false derived memories, retrieval/behavioral utility, generalization и budget efficiency; compression ratio отдельно недостаточен.
+Обязательны capacity sweep и causal checks:
+
+```text
+admission/broadcast intervention
+→ WorkspaceSnapshot/read access changed
+→ actual downstream processing changed
+→ measurable coordination/behavior effect
+```
+
+Если matched controls объясняют эффект, отдельная Workspace boundary должна быть пересмотрена.
 
 ## Implementation scope
 
