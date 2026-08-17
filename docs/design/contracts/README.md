@@ -2,7 +2,7 @@
 
 ## Назначение
 
-Этот каталог хранит machine-facing semantic contracts уже принятых subsystem/data/training boundaries.
+Этот каталог хранит machine-facing semantic contracts уже принятых subsystem/data/training/reproducibility boundaries.
 
 До общего contract freeze документы здесь остаются **candidate contracts**: они уточняют форму принятого design, но не имеют права молча менять его смысл или превращать удобный Python choice в архитектурный invariant.
 
@@ -29,7 +29,8 @@
 - [`policy-planner.md`](policy-planner.md) — BehavioralContext, ActionCandidate, PlanCandidate, PolicyCandidateSet, DecisionDeferral и SelectedActionIntent после `DU-23`;
 - [`action-boundary.md`](action-boundary.md) — authorization stages, AuthorizedAction, ActionCommitRecord, dispatch/receipt/execution/reconciliation semantics после `DU-24`;
 - [`experience-data-replay.md`](experience-data-replay.md) — ExperienceEvent/Journal, causal revisions, annotations, projections, DatasetManifest, TrainingSample и Training Replay provenance после `DU-25`;
-- [`training-lifecycle.md`](training-lifecycle.md) — TrainingPlan/Attempt, GradientFlowPolicy, CandidateRevisionBundle, LearningUpdateRecord и RevisionActivation semantics после `DU-26`.
+- [`training-lifecycle.md`](training-lifecycle.md) — TrainingPlan/Attempt, GradientFlowPolicy, CandidateRevisionBundle, LearningUpdateRecord и RevisionActivation semantics после `DU-26`;
+- [`checkpoint-reproducibility-compute.md`](checkpoint-reproducibility-compute.md) — checkpoint scope/capture/artifacts, restore profiles, reproducibility claims и software/hardware/compute manifests после `DU-27`.
 
 ---
 
@@ -76,60 +77,63 @@ CognitiveState ≠ Workspace
 Executive Control ≠ Cognitive Scheduler ≠ Policy
 Policy ≠ Planner
 Plan ≠ ImaginedTrajectory
-ActionCandidate ≠ SelectedActionIntent
 SelectedActionIntent ≠ AuthorizedAction ≠ Action Commit
 Action Commit ≠ Dispatch ≠ Environment Transition
 TraceEvent ≠ ExperienceEvent
 Experience Journal ≠ Agent runtime state
 Source Experience ≠ TrainingSample
-ResearchAnnotation ≠ agent-visible payload
 Training Runtime ≠ cognitive module
 Runtime State Update ≠ Learning Update
-Replay Selection ≠ Learning Update
 Training Objective ≠ Agent Goal ≠ ValueProfile
 runtime dependency graph ≠ gradient graph
-optimizer state ≠ CognitiveState
 CandidateRevisionBundle ≠ Active AgentRevision
+AgentSnapshot ≠ persistent Checkpoint
+Checkpoint ≠ TrainingResumeCheckpoint ≠ ExperimentManifest
+same seed ≠ same RNG state ≠ guaranteed same execution
+semantic restore ≠ bitwise reproducibility
+artifact identity ≠ physical path
+ComputeManifest ≠ CognitiveResourceEnvelope
 ```
 
-Для Training Lifecycle дополнительно:
+Для Checkpoint / Reproducibility / Compute дополнительно:
 
-- ordinary module `compute()` не выполняет hidden optimizer update;
-- `TrainingPlan` pin'ит base revisions, data, objectives, visibility и gradient policies;
-- stale base revision не rebased молча;
-- source samples/behavior revisions traceable до `LearningUpdateRecord`;
-- privileged supervision explicit;
-- shared parameters требуют explicit optimizer coordination;
-- candidate revision не активируется только потому, что loss уменьшился;
-- activation происходит только на допустимой causal boundary;
-- in-flight cognition сохраняет pinned старую revision;
-- coupled revision bundle активируется атомарно;
-- representation-breaking update требует compatibility/migration semantics;
-- failed candidate не мутирует live Agent;
-- rollback не удаляет исторический update/activation;
-- training metrics/replay priorities не становятся cognitive signals автоматически.
+- final `CheckpointManifest` commit только после verification обязательных artifacts;
+- checkpoint scope явно определяет required state;
+- content/integrity identity не зависит от storage path;
+- active/candidate revisions не смешиваются при restore;
+- `execution_unknown` не разрешает unsafe blind retry/branch;
+- full-system restore требует causally aligned Agent/Environment state;
+- exact restore не downgraded молча до approximate;
+- migration создаёт explicit lineage;
+- missing delta base fail closed;
+- weights-only не masquerade как training resume;
+- stronger reproducibility claim требует соответствующих software/hardware/RNG/determinism manifests/evidence;
+- infrastructure compute telemetry не становится cognition автоматически.
 
 ---
 
 # Текущий статус
 
-После `DU-04 … DU-26` semantic requirements приняты, но **общий exact Python contract set намеренно не frozen**.
+После `DU-04 … DU-27` semantic requirements приняты, но **общий exact Python contract set намеренно не frozen**.
 
-`training-lifecycle.md` остаётся candidate до Checkpoint/Evaluation integration.
+`checkpoint-reproducibility-compute.md` остаётся candidate до Evaluation/Engineering Testing/contract freeze integration.
 
 До contract freeze нельзя считать каноническими:
 
 - `Protocol`/ABC/dataclass/TensorDict/Pydantic;
 - exact event/status enums;
 - PyTorch/JAX/TensorFlow;
-- optimizer/scheduler/scaler implementation;
-- RL/SFT/distillation algorithm;
-- LoRA/QLoRA/full fine-tuning;
-- batch/tensor layout;
-- loss weighting/gradient surgery method;
-- distributed actor/learner topology;
-- checkpoint payload format;
-- storage/artifact backend.
+- optimizer/trainer implementation;
+- checkpoint directory/file layout;
+- `torch.save`/safetensors/DCP/Accelerate;
+- hash algorithm;
+- local/object/database storage;
+- compression;
+- container/package manager;
+- exact reproducibility level names;
+- exact deterministic flags;
+- compute/FLOP/energy profiler;
+- checkpoint retention/delta algorithm.
 
 ---
 
