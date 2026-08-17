@@ -339,7 +339,60 @@ Concrete DAG/async framework пока не выбран.
 
 ---
 
-# 13. Scope текущего этапа
+# 13. Observability и intervention discipline
+
+Обязательны [`docs/design/observability-and-intervention.md`](docs/design/observability-and-intervention.md) и `ADR-0006`.
+
+Помнить:
+
+```text
+Observability
+≠
+Intervention
+```
+
+```text
+inspection capability
+≠
+write authority
+```
+
+```text
+natural execution
+≠
+intervened execution
+```
+
+До явного изменения canonical design запрещается:
+
+- использовать logger, Artifact Collector или Evaluation Runtime как normal cognitive dependency;
+- давать passive observer возможность изменять module input/output/state;
+- объединять tracing и mutation в один неразличимый callback contract;
+- использовать произвольный mutable reference как canonical private-state probe;
+- позволять cognitive modules читать research-only private probes других modules;
+- превращать trace/experiment/profiler metadata в cognitive payload без explicit design;
+- выполнять intervention без explicit target, base causal revision и provenance;
+- менять semantic owner canonical field из-за evaluator override;
+- изменять committed natural history задним числом;
+- скрывать intervention как будто значение естественно произвёл semantic owner;
+- выдавать partial restore за exact counterfactual fork;
+- смешивать intervened trajectory с natural experience без явной provenance и training/analysis policy;
+- применять arbitrary mid-operation mutation через race/alias и называть это clean causal intervention;
+- считать raw Cortex/module activations обязательной capability общего semantic contract;
+- игнорировать OOD/divergence/off-target risk сильного latent intervention;
+- молча терять evidence-critical events и затем использовать Run как полный confirmatory evidence;
+- считать telemetry timestamp logical causal order;
+- трактовать failure telemetry exporter как module failure или наоборот без явного status separation.
+
+Для private state используется declared research probe/export boundary. Для active mutation используется отдельный `Intervention Gateway`.
+
+Confirmatory causal experiment по умолчанию должен предпочитать control/treatment fork от identifiable committed base, если snapshot capabilities достаточны. Если causally relevant state восстановлен не полностью, результат не называется exact counterfactual clone.
+
+OpenTelemetry, PyTorch hooks, pyvene и другие инструменты пока являются только кандидатами/implementation evidence, а не обязательным stack.
+
+---
+
+# 14. Scope текущего этапа
 
 Фактический текущий scope всегда определяется `docs/design/current.md`.
 
@@ -358,11 +411,12 @@ Concrete DAG/async framework пока не выбран.
 - Colab/cloud runtime;
 - DI/config/plugin framework;
 - scheduler/async/graph framework;
+- telemetry/intervention framework;
 - окончательную структуру `src/`.
 
 ---
 
-# 14. Поведение при неопределённости
+# 15. Поведение при неопределённости
 
 Если документация не определяет важное решение:
 
@@ -372,4 +426,4 @@ Concrete DAG/async framework пока не выбран.
 - при необходимости предложить варианты и trade-offs;
 - дождаться design decision до реализации зависимой части.
 
-Мелкие локальные implementation details, не влияющие на public/internal contracts, исследовательскую валидность, dependency/temporal/state/scheduler boundaries или будущую расширяемость, могут выбираться реализацией самостоятельно при сохранении принятых принципов.
+Мелкие локальные implementation details, не влияющие на public/internal contracts, исследовательскую валидность, dependency/temporal/state/scheduler/observability boundaries или будущую расширяемость, могут выбираться реализацией самостоятельно при сохранении принятых принципов.
