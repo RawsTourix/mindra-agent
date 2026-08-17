@@ -2,7 +2,7 @@
 
 ## Назначение
 
-Этот каталог хранит значимые архитектурные решения MINDRA. ADR создаётся, когда выбор влияет на module boundaries, contracts, ownership, runtime/training/evaluation semantics или исследовательскую валидность.
+Этот каталог хранит значимые архитектурные решения MINDRA. ADR создаётся, когда выбор влияет на module boundaries, contracts, ownership, runtime/training/evaluation/testing semantics или исследовательскую валидность.
 
 Статусы: `proposed`, `accepted`, `superseded`, `superseded in part`, `rejected`.
 
@@ -42,6 +42,7 @@ Research result не меняет design автоматически: снача�
 - [`ADR-0026`](ADR-0026-candidate-revision-validated-activation-training-lifecycle.md) — external Training Runtime обучает pinned base revisions в candidate state; validation предшествует атомарной activation совместимого Agent revision bundle.
 - [`ADR-0027`](ADR-0027-manifest-driven-causal-checkpoint-restore.md) — manifest-driven causal checkpoint: explicit capture boundary, content/integrity artifacts, restore profiles и scoped reproducibility guarantees.
 - [`ADR-0028`](ADR-0028-multi-layer-causal-evaluation-harness.md) — multi-layer causal Evaluation Harness с fully specified conditions, matched controls, paired interventions, typed metrics и explicit statistical plan вместо universal leaderboard score.
+- [`ADR-0029`](ADR-0029-layered-invariant-driven-engineering-verification.md) — layered invariant-driven Engineering Verification: `VerificationObligation/Matrix`, layered tests, fault/state-machine verification и obligation-aware CI gates.
 
 ## Proposed
 
