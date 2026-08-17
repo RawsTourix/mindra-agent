@@ -10,7 +10,7 @@ MINDRA не объявляет целью создание сознания ил
 
 Проект находится на стадии **канонического архитектурного и исследовательского проектирования**.
 
-Documentation foundation и `DU-01 … DU-20` приняты. Следующий допустимый Design Update всегда указан в [`docs/design/current.md`](docs/design/current.md).
+Documentation foundation и `DU-01 … DU-21` приняты. Следующий допустимый Design Update всегда указан в [`docs/design/current.md`](docs/design/current.md).
 
 Production/research implementation, software versions, exact contract freeze, конкретные algorithms/frameworks и Cortex backend ещё не зафиксированы.
 
