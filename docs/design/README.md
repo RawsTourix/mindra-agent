@@ -6,7 +6,7 @@
 
 Здесь фиксируются принятые семантики, invariants, subsystem boundaries, contracts, ADR и будущие version plans.
 
-На текущем этапе приняты `DU-01 … DU-19`. Реализация ещё не начата.
+На текущем этапе приняты `DU-01 … DU-20`. Реализация ещё не начата.
 
 ---
 
@@ -34,7 +34,7 @@
 - [`modules/perception.md`](modules/perception.md) — `DU-08`
 - [`modules/goals.md`](modules/goals.md) — `DU-09`
 - [`modules/cortex.md`](modules/cortex.md) — `DU-10`
-- [`modules/memory.md`](modules/memory.md) — `DU-11`
+- [`modules/memory.md`](modules/memory.md) — `DU-11` Memory Core
 - [`modules/world-model.md`](modules/world-model.md) — `DU-12`
 - [`modules/self-model.md`](modules/self-model.md) — `DU-13`
 - [`modules/intrinsic-signals.md`](modules/intrinsic-signals.md) — `DU-14`
@@ -42,18 +42,19 @@
 - [`modules/appraisal.md`](modules/appraisal.md) — `DU-16`
 - [`modules/affect.md`](modules/affect.md) — `DU-17`
 - [`modules/valuation.md`](modules/valuation.md) — `DU-18`
-- [`modules/salience.md`](modules/salience.md) — `DU-19`: contextual Salience Profiles, explicit budgets и Attention Allocation.
+- [`modules/salience.md`](modules/salience.md) — `DU-19`
+- [`modules/memory-regulation.md`](modules/memory-regulation.md) — `DU-20`: budget-aware retention/forgetting/replay и source-preserving consolidation поверх Memory Core.
 
 Карта областей: [`modules/README.md`](modules/README.md).
 
 ## Decisions
 
 - [`decisions/README.md`](decisions/README.md)
-- `ADR-0001 … ADR-0019` — accepted.
+- `ADR-0001 … ADR-0020` — accepted.
 
 Последнее решение:
 
-- [`ADR-0019`](decisions/ADR-0019-budgeted-contextual-salience-allocation.md) — contextual Salience Profiles + explicit budgeted Attention Allocation.
+- [`ADR-0020`](decisions/ADR-0020-source-preserving-budget-aware-memory-regulation.md) — source-preserving budget-aware Memory Regulation с gated consolidation.
 
 ## Candidate contracts
 
@@ -61,7 +62,7 @@
 
 Последний добавленный contract:
 
-- [`contracts/salience.md`](contracts/salience.md).
+- [`contracts/memory-regulation.md`](contracts/memory-regulation.md).
 
 Exact Python API ещё не frozen.
 
@@ -86,36 +87,38 @@ Exact Python API ещё не frozen.
 Текущий следующий update:
 
 ```text
-DU-20 — Memory Regulation / Consolidation
+DU-21 — Workspace
 ```
 
 ---
 
-# Ключевые инварианты после DU-19
+# Ключевые инварианты после DU-20
 
 ```text
-Appraisal relevance ≠ Salience
-Value ≠ Salience
-Intrinsic novelty ≠ Salience
-SalienceProfile ≠ AttentionAllocation
-AttentionAllocation ≠ Workspace admission
-AttentionAllocation ≠ Executive compute decision
-AttentionAllocation ≠ Policy decision
-Cortex attention weight ≠ MINDRA Salience
-Memory retrieval score ≠ Salience
+MemoryRecord ≠ embedding/index
+Memory Core validation ≠ Regulation admission
+Memory Core owner ≠ Regulation policy owner
+SalienceProfile ≠ memory lifecycle decision
+forgetting ≠ physical deletion
+retrieval ≠ Agent Memory Replay ≠ Training Replay
+consolidation ≠ in-place rewrite
+consolidation ≠ Learning Update
+representation maintenance ≠ semantic consolidation
+Derived MemoryRecord ≠ source episode
 ```
 
-- Salience работает только с explicit candidate set;
-- Salience всегда имеет explicit purpose/context;
-- scalar salience не является обязательным source of truth;
-- budget приходит от consumer/context;
-- ranking, gating и resource allocation различаются;
-- bottom-up и top-down evidence сохраняются различимыми;
-- stateful inhibition/focus persistence допустимы, но stateless baseline обязателен;
-- Memory retention остаётся `DU-20`;
-- Workspace admission остаётся `DU-21`;
-- actual compute/Cortex/retrieval strategy остаётся `DU-22`;
-- final action choice остаётся `DU-23`;
-- функциональная Salience должна менять реальное allocation/processing, а не только логировать score.
+- Memory Regulation работает через purpose-specific policies, а не universal `memory_importance`;
+- `MemoryBudget` explicit и может быть multi-dimensional;
+- access/retrieval frequency не считается automatic importance;
+- aging использует logical time;
+- consolidation gated и может быть отключена;
+- episodic-only является first-class baseline/control;
+- derived memory создаётся как новый record с `derived_from`/support/conflict provenance;
+- consolidation не повышает source authority автоматически;
+- contradictions/minority evidence не должны исчезать скрытым majority-vote;
+- source retention после consolidation регулируется отдельно;
+- re-encoding/index rebuild не создаёт semantic knowledge;
+- slow-weight/optimizer learning остаётся downstream `DU-26`;
+- compression ratio без source fidelity/behavioral benefit не доказывает полезность consolidation.
 
 Фактический статус: [`current.md`](current.md).
