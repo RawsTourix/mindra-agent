@@ -10,7 +10,7 @@
 
 # 1. Общий статус
 
-**Фундамент документации создан. `DU-01` … `DU-15` завершены и приняты. Реализация ещё не начата.**
+**Фундамент документации создан. `DU-01` … `DU-16` завершены и приняты. Реализация ещё не начата.**
 
 На текущем этапе зафиксированы:
 
@@ -25,8 +25,9 @@
 - Self Model;
 - Intrinsic Signal Layer;
 - Drive System;
-- candidate contracts Environment, Perception, Goals, Cortex, Memory, World Model, Self Model, Intrinsic Signals и Drives;
-- пятнадцать accepted ADR.
+- Appraisal System;
+- candidate contracts Environment, Perception, Goals, Cortex, Memory, World Model, Self Model, Intrinsic Signals, Drives и Appraisal;
+- шестнадцать accepted ADR.
 
 ---
 
@@ -49,94 +50,100 @@ DU-12 — World Model
 DU-13 — Self Model
 DU-14 — Intrinsic Signals
 DU-15 — Drives
+DU-16 — Appraisal
 ```
 
-## DU-15
+## DU-16
 
 Канонический документ:
 
-- [`modules/drives.md`](modules/drives.md).
+- [`modules/appraisal.md`](modules/appraisal.md).
 
 Candidate contract:
 
-- [`contracts/drives.md`](contracts/drives.md).
+- [`contracts/appraisal.md`](contracts/appraisal.md).
 
 Research pass:
 
-- [`../research/literature/DU-15-drives-landscape-2026-08.md`](../research/literature/DU-15-drives-landscape-2026-08.md).
+- [`../research/literature/DU-16-appraisal-landscape-2026-08.md`](../research/literature/DU-16-appraisal-landscape-2026-08.md).
 
 Accepted decision:
 
-- [`ADR-0015`](decisions/ADR-0015-typed-stateful-drive-system.md).
+- [`ADR-0016`](decisions/ADR-0016-multidimensional-event-centered-appraisal.md).
 
 Главные результаты:
 
-- Drive является persistent internal regulatory state, а не Intrinsic Signal/reward/value;
-- принят единый ownership boundary `Drive System` с несколькими typed drive components;
-- обязательного global motivation scalar нет;
-- `Drive State`, `Drive Pressure` и `Utility/Value` являются разными сущностями;
-- homeostatic drives имеют meaningful regulated variable + target/range semantics;
-- не-homeostatic adaptive motivational drives не обязаны иметь фиктивный set-point;
-- Intrinsic Signal является input/evidence для drive dynamics, а не готовым pressure;
-- drive dynamics использует logical time и может включать accumulation/decay/recovery/satiation;
-- отсутствие нового Environment observation не обязано замораживать Drive State;
-- wall-clock/compute latency не является implicit drive time;
-- cross-drive interaction читает предыдущую committed `DriveStateSet` revision и не создаёт hidden instantaneous cycle;
-- Drive System не выбирает `winning drive` и не scalarize конфликт;
-- Drive может участвовать в создании `Goal Proposal`, но не получает Goal Graph write authority;
-- future Valuation получает Drive State как input, но Drive не вычисляет action utility;
-- initial conditions/reset/persistence имеют explicit semantics;
-- natural regulation отделена от research intervention;
-- causally relevant dynamics/coupling/RNG state входит в exact Agent Snapshot;
-- `NoDrives`, Dummy, Constant, Clamped, Random, Shuffled и matched controls различаются.
+- Appraisal является event-level relational assessment, а не persistent Affect/Reward/Value;
+- принят explicit `Appraisal Target` с actual/predicted/imagined/retrospective/intervened provenance;
+- appraisal context versioned и строится только из declared committed sources;
+- один target может иметь разные appraisal при разных Goals/Drives/Self/World context;
+- принят typed multidimensional `Appraisal Profile` без обязательного emotion label/global valence scalar;
+- relevance отделена от Salience/novelty/utility;
+- goal congruence сохраняется per Goal и не решает Goal conflict;
+- drive conduciveness сохраняется per Drive и не мутирует Drive State;
+- expectedness отделена от novelty/prediction discrepancy/probabilistic surprisal;
+- controllability отделена от coping potential;
+- controllability относится к action-sensitivity ситуации, coping potential — к способности текущего Agent справиться/адаптироваться;
+- urgency отделена от Salience/action priority/value;
+- agency/causal attribution является optional dimension family;
+- normative compatibility не вводится до отдельной agent-owned semantics норм/стандартов;
+- mandatory global valence отклонён; optional local polarity допустим только как derived summary;
+- reappraisal создаёт новый temporally identified `AppraisalRecord`, а не переписывает историю;
+- explicit Memory retrieval/Cortex call не скрываются внутри Appraisal;
+- rule-based, learned, hybrid и Cortex-assisted estimators допускаются;
+- partial profile и per-dimension availability/failure являются first-class semantics;
+- causally relevant estimator/calibration/RNG state входит в exact Agent Snapshot;
+- `NoAppraisal`, Dummy, Constant, Random, Shuffled и matched controls различаются.
 
 ---
 
 # 3. Следующий допустимый Design Update
 
 ```text
-DU-16 — Appraisal
+DU-17 — Affect Dynamics
 ```
 
-Цель `DU-16` — определить **контекстную многомерную оценку значения конкретного события/ситуации для текущего Agent**, не смешивая её с persistent Drive/Affect state или общей decision value.
+Цель `DU-17` — проверить необходимость и, если она обоснована, спроектировать **отдельный persistent affective state**, который интегрирует последовательность Appraisal Records во времени и способен создавать history-dependent modulation, не смешиваясь с Drives или Valuation.
 
 Обязательные области:
 
 ```text
-Appraisal responsibility / ownership
-appraisal event boundary
-input context
-Goal / Drive / World / Self / Memory integration
-actual vs predicted / imagined appraisal
-multidimensional output semantics
-goal congruence
-controllability / coping potential
-novelty / expectedness boundary with Intrinsic Signals
-urgency / relevance semantics
-valence semantics
-rule-derived vs learned appraisal
-calibration / evidence
-Appraisal vs Drive vs Affect vs Valuation
-NoAppraisal / Dummy / Control
+Affect responsibility / module gate
+Appraisal → Affect integration
+persistent state semantics
+valence/arousal-like representation necessity
+multidimensional vs low-dimensional affect
+inertia / decay / recovery
+accumulation / saturation
+hysteresis / baseline
+actual vs predicted / imagined appraisal contribution
+interaction with Drives
+interaction with future Valuation / Salience / Memory
+state scope / reset / persistence
+reappraisal effect
+learning / adaptation
+NoAffect / Dummy / Control
 snapshot / observability / intervention
 failure / degradation
 ```
 
 Нужно определить:
 
-- что считается appraisal event, а что просто raw signal/state;
-- должен ли Appraisal оценивать только actual events или также predicted/imagined outcomes с отдельной provenance;
-- какие dimensions имеют самостоятельный смысл и какие нельзя вводить только ради эмоциональной аналогии;
-- чем appraisal novelty/expectedness отличается от neutral Intrinsic Signal novelty/surprisal;
-- как Drive State и Goal state меняют meaning одного и того же события;
-- где проходит граница между event-level valence и будущей общей `Valuation`;
-- как не превратить Appraisal в scalar reward model;
-- какие interventions позволяют независимо менять отдельную appraisal dimension.
+- существует ли у Affect самостоятельная functional responsibility или достаточно Appraisal + Drives;
+- что именно persistent Affect хранит сверх последних Appraisal Records;
+- должен ли Affect иметь valence/arousal-like low-dimensional state или typed/vector state;
+- как один и тот же новый Appraisal даёт разный Affect update в зависимости от предыдущего Affect;
+- как decay/inertia/recovery используют logical time;
+- следует ли predicted/imagined appraisal менять real Affect и с какой provenance;
+- где проходит граница Affect ↔ Drive;
+- где проходит граница Affect ↔ будущая Valuation;
+- какие causal interventions показывают самостоятельную роль Affect;
+- какой отрицательный результат приведёт к решению не выделять отдельный Affect module.
 
-После принятия `DU-16` допускается:
+После принятия `DU-17` допускается:
 
 ```text
-DU-17 — Affect Dynamics
+DU-18 — Valuation
 ```
 
 ---
@@ -175,6 +182,16 @@ higher Drive Pressure ≠ universally greater desirability
 homeostatic drive ≠ mandatory form of every drive
 Environment reset ≠ Drive reset
 wall-clock ≠ implicit Drive time
+Appraisal ≠ Intrinsic Signal ≠ Drive ≠ Affect ≠ Valuation
+Appraisal Target ≠ Appraisal Context
+relevance ≠ Salience ≠ novelty ≠ utility
+goal congruence ≠ global Goal priority/value
+drive conduciveness ≠ committed Drive update
+expectedness ≠ novelty ≠ prediction discrepancy ≠ predictive surprisal
+controllability ≠ coping potential
+urgency ≠ Salience ≠ action priority
+Appraisal local polarity ≠ Utility/Value/Reward
+reappraisal ≠ mutation of historical AppraisalRecord
 ```
 
 ---
@@ -183,7 +200,6 @@ wall-clock ≠ implicit Drive time
 
 Пока отсутствуют accepted решения по:
 
-- Appraisal;
 - Affect Dynamics;
 - Valuation;
 - Salience/Attention;
@@ -201,7 +217,7 @@ wall-clock ≠ implicit Drive time
 - version roadmap;
 - implementation sequences.
 
-Также пока не выбраны exact Python/package/framework решения, concrete Cortex backend, Memory backend/index, World Model architecture, Self Model estimator/calibration method, Intrinsic Signal estimators, concrete Drive list/dynamics или common normalization/scalarization policy.
+Также пока не выбраны exact Python/package/framework решения, concrete Cortex backend, Memory backend/index, World Model architecture, Self Model estimator/calibration method, Intrinsic Signal estimators, concrete Drive list/dynamics, concrete Appraisal estimator/dimension subset или common normalization/scalarization policy.
 
 ---
 
