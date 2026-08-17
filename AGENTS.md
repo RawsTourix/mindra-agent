@@ -61,6 +61,7 @@ Research result меняет architecture только через design review/
 | Memory Regulation | `docs/design/modules/memory-regulation.md` | `docs/design/contracts/memory-regulation.md` | `ADR-0020` |
 | Workspace | `docs/design/modules/workspace.md` | `docs/design/contracts/workspace.md` | `ADR-0021` |
 | Executive Control | `docs/design/modules/executive-control.md` | `docs/design/contracts/executive-control.md` | `ADR-0022` |
+| Policy / Planner | `docs/design/modules/policy-planner.md` | `docs/design/contracts/policy-planner.md` | `ADR-0023` |
 
 Следующий разрешённый DU брать только из `docs/design/current.md`.
 
@@ -94,8 +95,12 @@ Executive Control ≠ Policy / Planner
 Internal MetaAction ≠ Environment Action
 MetaActionProposal ≠ executed operation
 ExecutiveDecision ≠ direct provider/service call
-resource estimate ≠ reservation ≠ actual consumption
-Executive yield ≠ Action Commit
+Policy ≠ Planner
+Planner ≠ World Model
+Plan ≠ ImaginedTrajectory
+Valuation ≠ Policy Decision
+ActionCandidate ≠ SelectedActionIntent
+SelectedActionIntent ≠ Action Commit / Executed Action
 ```
 
 ## Memory Regulation safeguards
@@ -137,40 +142,58 @@ Executive yield ≠ Action Commit
 - Executive Control не изменяет dependency graph, write authority или atomic commit semantics Scheduler;
 - Executive не является runtime Service Locator и не получает direct handles на Memory/Cortex/World Model/Workspace services;
 - optional work поступает через explicit `MetaActionProposal` + declared `InternalOperationCatalog`;
-- `InternalOperationCatalog` содержит semantic descriptors, а не live provider objects;
 - `ExecutiveDecision` всегда проходит Scheduler/runtime validation до execution;
 - Executive не выбирает Environment action и `yield_to_policy` не является `Action Commit`;
-- Self Model, Salience, Workspace, Valuation и uncertainty являются evidence, а не готовыми control commands;
+- Self Model, Salience, Workspace, Valuation и uncertainty являются evidence, а не control commands;
 - hard `CognitiveResourceEnvelope` не увеличивается Executive самостоятельно;
 - hidden infrastructure quota/latency/GPU telemetry не становится cognitive input без explicit agent-visible contract;
 - estimate, reservation и actual resource consumption не смешиваются;
 - hard budget exhaustion не разрешает hidden extra Cortex/retrieval/rollout calls;
-- Cortex/retrieval/rollout/consolidation не вызываются direct ambient способом;
-- Executive не генерирует чужой semantic payload без proposal boundary: Memory query, Cortex request и rollout target остаются responsibility соответствующего producer/consumer;
-- Goal focus может ссылаться на committed Goals, но не мутирует Goal Graph/lifecycle;
+- Goal focus может ссылаться на committed Goals, но не мутирует Goal Graph;
 - Workspace budget/context control не заменяет Workspace AdmissionPolicy;
 - real compute, потраченный на imagination, учитывается в real ledger; simulated future budget остаётся branch-local;
-- fallback/degradation всегда explicit и traced;
-- controller не должен читать весь `CognitiveState` ambient способом — только declared `ExecutiveObservation` projection.
+- fallback/degradation всегда explicit и traced.
+
+## Policy / Planner safeguards
+
+До пересмотра `DU-23`:
+
+- `Policy System` является единственным normal-runtime owner `SelectedActionIntent`;
+- Planner/Cortex/Valuation/World Model не создают `SelectedActionIntent` напрямую;
+- Policy не dispatch'ит Environment action и не выполняет `Action Commit` до `DU-24` boundary;
+- Planner не является World Model: он запрашивает/использует predictions/rollouts через explicit boundary;
+- `Plan` не является alias `ImaginedTrajectory`;
+- Planner normal runtime способом не читает hidden Environment Ground Truth;
+- candidate generation всегда сохраняет source/provenance и входит в explicit `PolicyCandidateSet`;
+- Planner-generated subgoal проходит `Goal Proposal → Goal System`, а не мутирует Goal Graph;
+- Valuation/Comparison evidence не превращается автоматически в `argmax` action;
+- `incomparable` допускается; fake scalarization ради выбора запрещена без explicit selection policy;
+- `DecisionDeferral` не вызывает Executive напрямую/рекурсивно: дополнительное cognition оформляется `MetaActionProposal` и проходит следующий control point;
+- planning/search compute должен быть связан с Executive allocation/actual compute accounting;
+- stale candidate set/plan не rebased молча на новый state/belief/Goal revision;
+- plan persistence требует explicit assumptions/validity/invalidation semantics;
+- Cortex-assisted plan/action proposal не получает повышенную authority из-за источника;
+- stochastic Policy сохраняет causal RNG/selection provenance;
+- fallback на random/default action без явного degradation/fallback provenance запрещён;
+- imagined/counterfactual candidate provenance не становится natural/observed action evidence.
 
 ## Research discipline
 
-Для Executive Control минимум сравнивать:
+Для Policy / Planner минимум сравнивать:
 
 ```text
-Adaptive Executive
-vs NoExecutive / fixed schedule
-vs FixedBudget
-vs RandomMetaAction
-vs SimpleThreshold
-vs SalienceOnly / uncertainty-only
-vs CostUnaware
-vs MatchedLearnedRouter
+Policy + Planner
+vs ReactivePolicy / NoPlanner
+vs Depth1 / FixedLookahead
+vs Random/ShuffledPlan
+vs MatchedSearch/RecurrentControl
 ```
 
-Обязательны equal/matched actual compute accounting, budget sweeps, operation/stopping distributions, competence/uncertainty/cost interventions, capability degradation tests и controller-overhead accounting.
+Planner claims требуют matched actual compute/resource accounting, long-horizon/contingent tasks, robustness к World Model error и plan lesion/intervention tests.
 
-Positive result не считается доказанным, если adaptive configuration просто использовала больше cognitive resource.
+Для Policy отдельно разделять качество source candidates/Valuation и качество final selector; проверять sensitivity к comparison/risk/constraint interventions и stochastic RNG.
+
+Если matched controls объясняют Planner benefit, отдельная Planner boundary должна быть пересмотрена.
 
 ## Implementation scope
 
