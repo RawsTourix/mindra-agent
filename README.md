@@ -2,7 +2,7 @@
 
 **MINDRA — Modular Internal Dynamics & Reasoning Architecture** — исследовательский проект по разработке модульной когнитивной архитектуры для нейросетевых агентов.
 
-Проект исследует, можно ли построить систему, в которой поведение определяется не только внешней задачей и базовой языковой моделью, но также собственным изменяющимся внутренним состоянием, памятью, моделью мира и себя, внутренними сигналами, drives, appraisal/affect, valuation, управляемым распределением cognitive processing, adaptive Executive Control и явной Policy/Planner boundary.
+Проект исследует, можно ли построить систему, в которой поведение определяется не только внешней задачей и базовой языковой моделью, но также собственным изменяющимся внутренним состоянием, памятью, моделью мира и себя, внутренними сигналами, drives, appraisal/affect, valuation, управляемым распределением cognitive processing, adaptive Executive Control, явной Policy/Planner boundary и причинно строгой Action Boundary между выбранным намерением и внешним действием.
 
 MINDRA не объявляет целью создание сознания или доказательство субъективного опыта у искусственной системы. Исследуются функционально измеримые механизмы и их причинный вклад в поведение.
 
@@ -10,7 +10,7 @@ MINDRA не объявляет целью создание сознания ил
 
 Проект находится на стадии **канонического архитектурного и исследовательского проектирования**.
 
-Documentation foundation и `DU-01 … DU-23` приняты. Следующий допустимый Design Update всегда указан в [`docs/design/current.md`](docs/design/current.md).
+Documentation foundation и `DU-01 … DU-24` приняты. Следующий допустимый Design Update всегда указан в [`docs/design/current.md`](docs/design/current.md).
 
 Production/research implementation, software versions, exact contract freeze, конкретные algorithms/frameworks и Cortex backend ещё не зафиксированы.
 
