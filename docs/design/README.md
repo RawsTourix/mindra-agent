@@ -4,9 +4,9 @@
 
 `docs/design/` — каноническое место архитектурной документации MINDRA.
 
-Здесь фиксируются принятые семантики, invariants, cognitive/runtime/data/training/reproducibility boundaries, contracts, ADR и будущие version plans.
+Здесь фиксируются принятые семантики, invariants, cognitive/runtime/data/training/reproducibility/evaluation boundaries, contracts, ADR и будущие version plans.
 
-На текущем этапе приняты `DU-01 … DU-27`. Реализация ещё не начата.
+На текущем этапе приняты `DU-01 … DU-28`. Реализация ещё не начата.
 
 ---
 
@@ -63,14 +63,18 @@
 
 - [`checkpoint-reproducibility-compute.md`](checkpoint-reproducibility-compute.md) — `DU-27`: manifest-driven checkpoint, causal capture/restore, reproducibility claims, software/hardware/compute manifests.
 
+## Evaluation Plane
+
+- [`mindra-eval.md`](mindra-eval.md) — `DU-28`: versioned evaluation studies/conditions, matched controls, paired interventions, typed metrics, statistical protocol, module gates и compute-normalized attribution.
+
 ## Decisions
 
 - [`decisions/README.md`](decisions/README.md)
-- `ADR-0001 … ADR-0027` — accepted.
+- `ADR-0001 … ADR-0028` — accepted.
 
 Последнее решение:
 
-- [`ADR-0027`](decisions/ADR-0027-manifest-driven-causal-checkpoint-restore.md) — manifest-driven causal checkpoint с explicit scope, integrity, restore profile и scoped reproducibility guarantees.
+- [`ADR-0028`](decisions/ADR-0028-multi-layer-causal-evaluation-harness.md) — multi-layer causal Evaluation Harness вместо universal leaderboard score.
 
 ## Candidate contracts
 
@@ -78,7 +82,7 @@
 
 Последний добавленный contract:
 
-- [`contracts/checkpoint-reproducibility-compute.md`](contracts/checkpoint-reproducibility-compute.md).
+- [`contracts/mindra-eval.md`](contracts/mindra-eval.md).
 
 Exact Python API ещё не frozen.
 
@@ -95,34 +99,35 @@ Exact Python API ещё не frozen.
 Текущий следующий update:
 
 ```text
-DU-28 — MINDRA-Eval
+DU-29 — Engineering Testing
 ```
 
 ---
 
-# Ключевые инварианты после DU-27
+# Ключевые инварианты после DU-28
 
 ```text
-AgentSnapshot ≠ persistent Checkpoint
-Checkpoint ≠ TrainingResumeCheckpoint ≠ ExperimentManifest
-same seed ≠ same RNG state ≠ guaranteed same execution
-semantic restore ≠ bitwise reproducibility
-active revision ≠ candidate revision
-artifact identity ≠ physical path
-Agent checkpoint ≠ Environment snapshot
-infrastructure ComputeManifest ≠ CognitiveResourceEnvelope
+Evaluation Runtime ≠ Agent cognition
+Task score ≠ module/causal/calibration evidence
+EvaluationCondition ≠ architecture name only
+nested episode ≠ independent training replicate
+ablation ≠ matched semantic control
+Policy pre-Gate quality ≠ post-Gate system quality
+actual compute evidence ≠ nominal resource budget
+invalid/censored/execution_unknown ≠ ordinary failure
 ```
 
-- checkpoint имеет explicit scope и required/optional state classes;
-- capture относится к согласованной causal boundary;
-- final manifest commit происходит только после required artifact verification;
-- `execution_unknown` блокирует unsafe retry/branch semantics до reconciliation;
-- full-system restore использует causally aligned Agent/Environment state;
-- exact/compatible/portable/approximate restore различаются;
-- reproducibility claim всегда scoped и evidence-backed;
-- software/hardware/determinism manifests входят в сильные reproducibility claims;
-- training-resume state интегрирован с `DU-26`;
-- migration/delta chains имеют explicit lineage/integrity;
-- concrete serialization/hash/storage/profiler implementation не выбран.
+- evaluation condition pin'ит checkpoint/world/revisions/resources/data/software/hardware context;
+- confirmatory primary hypothesis/metrics/statistical plan фиксируются до просмотра outcome;
+- stochastic claims требуют distribution/uncertainty evidence;
+- experimental/statistical unit и replicate nesting explicit;
+- paired causal branches требуют достаточного `DU-27` restore level;
+- evaluator Ground Truth остаётся privileged;
+- composite score optional и сохраняет lineage source metrics;
+- `Affect`, `Workspace`, `Planner`, `Executive Control` имеют explicit negative gates;
+- Policy, Action Gate и final system behavior оцениваются раздельно;
+- compute/data/context/tuning differences входят в attribution;
+- strength research claim не превышает strength evidence;
+- concrete benchmark/statistics/plotting implementation не выбран.
 
 Фактический статус: [`current.md`](current.md).
