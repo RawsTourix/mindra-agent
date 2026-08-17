@@ -2,7 +2,7 @@
 
 ## Назначение
 
-Этот каталог хранит machine-facing semantic contracts уже принятых subsystem/data boundaries.
+Этот каталог хранит machine-facing semantic contracts уже принятых subsystem/data/training boundaries.
 
 До общего contract freeze документы здесь остаются **candidate contracts**: они уточняют форму принятого design, но не имеют права молча менять его смысл или превращать удобный Python choice в архитектурный invariant.
 
@@ -28,7 +28,8 @@
 - [`executive-control.md`](executive-control.md) — MetaActionProposal/InternalOperationCatalog, CognitiveResourceEnvelope, ExecutiveDecision, stop/continue и budget ledger semantics после `DU-22`;
 - [`policy-planner.md`](policy-planner.md) — BehavioralContext, ActionCandidate, PlanCandidate, PolicyCandidateSet, DecisionDeferral и SelectedActionIntent после `DU-23`;
 - [`action-boundary.md`](action-boundary.md) — authorization stages, AuthorizedAction, ActionCommitRecord, dispatch/receipt/execution/reconciliation semantics после `DU-24`;
-- [`experience-data-replay.md`](experience-data-replay.md) — ExperienceEvent/Journal, causal revisions, annotations, projections, DatasetManifest, TrainingSample и Training Replay provenance после `DU-25`.
+- [`experience-data-replay.md`](experience-data-replay.md) — ExperienceEvent/Journal, causal revisions, annotations, projections, DatasetManifest, TrainingSample и Training Replay provenance после `DU-25`;
+- [`training-lifecycle.md`](training-lifecycle.md) — TrainingPlan/Attempt, GradientFlowPolicy, CandidateRevisionBundle, LearningUpdateRecord и RevisionActivation semantics после `DU-26`.
 
 ---
 
@@ -69,11 +70,9 @@ Affect ≠ emotion label/Drive/value
 ValueProfile ≠ mandatory scalar/reward/Policy decision
 SalienceProfile ≠ AttentionAllocation
 Memory Core validation ≠ Regulation admission
-Forgetting ≠ physical deletion
 Memory Replay ≠ Training Replay
 Consolidation ≠ in-place rewrite ≠ Learning Update
 CognitiveState ≠ Workspace
-Workspace ≠ Memory ≠ Cortex context
 Executive Control ≠ Cognitive Scheduler ≠ Policy
 Policy ≠ Planner
 Plan ≠ ImaginedTrajectory
@@ -82,51 +81,55 @@ SelectedActionIntent ≠ AuthorizedAction ≠ Action Commit
 Action Commit ≠ Dispatch ≠ Environment Transition
 TraceEvent ≠ ExperienceEvent
 Experience Journal ≠ Agent runtime state
-Experience Journal ≠ Replay Buffer ≠ Agent Memory
 Source Experience ≠ TrainingSample
 ResearchAnnotation ≠ agent-visible payload
+Training Runtime ≠ cognitive module
+Runtime State Update ≠ Learning Update
+Replay Selection ≠ Learning Update
+Training Objective ≠ Agent Goal ≠ ValueProfile
+runtime dependency graph ≠ gradient graph
+optimizer state ≠ CognitiveState
+CandidateRevisionBundle ≠ Active AgentRevision
 ```
 
-Для Experience / Data / Replay дополнительно:
+Для Training Lifecycle дополнительно:
 
-- source Experience Events immutable по смыслу;
-- hindsight/relabel/re-encode не переписывают source events;
-- physical append/ingest order не заменяет causal parent/logical order;
-- privileged/evaluator-only data входит через separate annotation + explicit visibility policy;
-- `ActionCommitRecord` без Environment transition остаётся валидным data case;
-- `execution_unknown` не получает fake next state;
-- mixed `agent_revision` и component revisions сохраняются;
-- derived projection/sample имеет source refs + transform lineage;
-- terminated/truncated различаются до explicit training transform;
-- replay buffer/table не является archival source;
-- replay sampling metadata не становится cognitive importance;
-- Agent Memory Replay и Training Replay имеют разные owners/event kinds;
-- heavy artifacts могут отсутствовать отдельно от core causal completeness;
-- lossy data transformation маркируется как lossy;
-- dataset split/source manifest фиксируются для reproducibility.
+- ordinary module `compute()` не выполняет hidden optimizer update;
+- `TrainingPlan` pin'ит base revisions, data, objectives, visibility и gradient policies;
+- stale base revision не rebased молча;
+- source samples/behavior revisions traceable до `LearningUpdateRecord`;
+- privileged supervision explicit;
+- shared parameters требуют explicit optimizer coordination;
+- candidate revision не активируется только потому, что loss уменьшился;
+- activation происходит только на допустимой causal boundary;
+- in-flight cognition сохраняет pinned старую revision;
+- coupled revision bundle активируется атомарно;
+- representation-breaking update требует compatibility/migration semantics;
+- failed candidate не мутирует live Agent;
+- rollback не удаляет исторический update/activation;
+- training metrics/replay priorities не становятся cognitive signals автоматически.
 
 ---
 
 # Текущий статус
 
-После `DU-04 … DU-25` semantic requirements приняты, но **общий exact Python contract set намеренно не frozen**.
+После `DU-04 … DU-26` semantic requirements приняты, но **общий exact Python contract set намеренно не frozen**.
 
-`experience-data-replay.md` остаётся candidate до Training/Checkpoint/Evaluation integration.
+`training-lifecycle.md` остаётся candidate до Checkpoint/Evaluation integration.
 
 До contract freeze нельзя считать каноническими:
 
 - `Protocol`/ABC/dataclass/TensorDict/Pydantic;
-- exact event enum;
-- nullable/union encoding;
-- JSONL/Arrow/Parquet/HDF5/TFRecord/RLDS/Minari;
-- database/storage engine;
-- replay backend/table technology;
-- reward/target mapping;
-- replay priority algorithm;
-- sequence/window length;
-- training batch/tensor layout;
+- exact event/status enums;
+- PyTorch/JAX/TensorFlow;
+- optimizer/scheduler/scaler implementation;
+- RL/SFT/distillation algorithm;
+- LoRA/QLoRA/full fine-tuning;
+- batch/tensor layout;
+- loss weighting/gradient surgery method;
+- distributed actor/learner topology;
 - checkpoint payload format;
-- public export format.
+- storage/artifact backend.
 
 ---
 
