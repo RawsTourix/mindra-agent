@@ -4,19 +4,19 @@
 
 Этот документ является **картой архитектурных областей и порядка их проектирования**, а не заменой канонических subsystem design.
 
-Наличие блока в карте не гарантирует, что он останется отдельным trainable module. Соответствующий Design Update может:
+Наличие блока в карте не гарантирует, что он навсегда останется отдельным trainable module. Соответствующий Design Update может:
 
 - принять отдельный модуль;
 - разделить область;
 - объединить её с другой;
 - принять algorithmic/rule-based mechanism;
-- отложить или отклонить отдельную boundary.
+- отложить или отклонить boundary.
 
 Главное правило:
 
-> Отдельный модуль существует не из-за когнитивной аналогии, а при наличии самостоятельной вычислительной ответственности, явного контракта и независимо проверяемого функционального вклада.
+> Отдельный модуль существует не из-за когнитивной аналогии, а при наличии самостоятельной вычислительной ответственности, явного state/contract и независимо проверяемого функционального вклада.
 
-Фактический статус каждого блока определяется его каноническим документом и [`../current.md`](../current.md).
+Фактический статус определяется каноническим документом и [`../current.md`](../current.md).
 
 ---
 
@@ -54,7 +54,7 @@ Valuation
 Salience / Attention Control
 ```
 
-`Intrinsic Signal Providers` находятся здесь как источник внутренних **измерений опыта**, а не как готовая мотивация/reward.
+`Intrinsic Signal Providers` являются измерениями опыта, а не готовым reward. `Drives` являются persistent regulatory states. `Appraisal` оценивает конкретный target. `Affect` интегрирует appraisal-history во времени. `Valuation` ещё не спроектирована и будет первой boundary, где появится decision-relevant comparability/desirability.
 
 ## 1.4. Выбор и исполнение поведения
 
@@ -82,9 +82,7 @@ MINDRA-Eval
 
 ## DU-07 — Environment
 
-Канонический документ: [`environment.md`](environment.md).
-
-Главное:
+[`environment.md`](environment.md)
 
 ```text
 Agent Interaction Plane
@@ -92,13 +90,9 @@ Agent Interaction Plane
 Environment Research Plane
 ```
 
-`MicroWorld` — reference environment family, а не универсальное внутреннее представление MINDRA.
-
 ## DU-08 — Perception
 
-Канонический документ: [`perception.md`](perception.md).
-
-Главное:
+[`perception.md`](perception.md)
 
 ```text
 Raw Observation
@@ -109,9 +103,7 @@ Raw Observation
 
 ## DU-09 — Goal System
 
-Канонический документ: [`goals.md`](goals.md).
-
-Главное:
+[`goals.md`](goals.md)
 
 ```text
 Goal Proposal
@@ -119,13 +111,9 @@ Goal Proposal
 → Committed Goal Graph
 ```
 
-Goal не является reward/value/policy.
-
 ## DU-10 — Cortex
 
-Канонический документ: [`cortex.md`](cortex.md).
-
-Главное:
+[`cortex.md`](cortex.md)
 
 ```text
 semantic Cortex Request
@@ -133,13 +121,9 @@ semantic Cortex Request
 → backend-specific adapter/provider
 ```
 
-Concrete LLM не является архитектурой MINDRA.
-
 ## DU-11 — Memory Core
 
-Канонический документ: [`memory.md`](memory.md).
-
-Главное:
+[`memory.md`](memory.md)
 
 ```text
 MemoryRecord
@@ -151,9 +135,7 @@ Memory отделена от trajectory log и training replay.
 
 ## DU-12 — World Model
 
-Канонический документ: [`world-model.md`](world-model.md).
-
-Главное:
+[`world-model.md`](world-model.md)
 
 ```text
 actual evidence
@@ -163,13 +145,9 @@ World Belief + candidate action
 → prediction / imagination
 ```
 
-Prediction/imagination не является observed fact.
-
 ## DU-13 — Self Model
 
-Канонический документ: [`self-model.md`](self-model.md).
-
-Главное:
+[`self-model.md`](self-model.md)
 
 ```text
 Capability Fact
@@ -179,13 +157,9 @@ Competence Estimate
 Self Prediction
 ```
 
-Self Model оценивает собственные функциональные возможности, но не управляет cognition/behavior.
-
 ## DU-14 — Intrinsic Signals
 
-Канонический документ: [`intrinsic-signals.md`](intrinsic-signals.md).
-
-Главное:
+[`intrinsic-signals.md`](intrinsic-signals.md)
 
 ```text
 experience evidence
@@ -197,9 +171,7 @@ experience evidence
 
 ## DU-15 — Drives
 
-Канонический документ: [`drives.md`](drives.md).
-
-Главное:
+[`drives.md`](drives.md)
 
 ```text
 Intrinsic Signals / internal events / logical time
@@ -209,10 +181,6 @@ Intrinsic Signals / internal events / logical time
           DriveStateSet
 ```
 
-`Drive System` поддерживает persistent typed regulatory state.
-
-Канонически:
-
 ```text
 Intrinsic Signal ≠ Drive State
 Drive State ≠ Drive Pressure ≠ Utility/Value
@@ -220,71 +188,91 @@ homeostatic drive ≠ mandatory form of every drive
 Drive System ≠ global motivation scalar
 ```
 
-Cross-drive interaction explicit, drives не commit Goals напрямую и не выбирают actions.
+## DU-16 — Appraisal
+
+[`appraisal.md`](appraisal.md)
+
+```text
+Appraisal Target
++
+revisioned Agent context
+        ↓
+Appraisal System
+        ↓
+multidimensional AppraisalProfile
+```
+
+```text
+Appraisal ≠ Affect ≠ Valuation
+relevance ≠ Salience
+controllability ≠ coping potential
+```
+
+## DU-17 — Affect Dynamics
+
+[`affect.md`](affect.md)
+
+```text
+AffectStateSet_t
++
+eligible AppraisalRecord(s)
++
+logical time
+        ↓
+Affect Dynamics
+        ↓
+AffectStateSet_(t+1)
+```
+
+Канонически:
+
+```text
+Appraisal Record ≠ Affect State
+Affect State ≠ Drive State
+Affect State ≠ Utility/Value/Reward
+Affect State ≠ emotion label
+```
+
+Affect принят как **falsifiable** history-dependent state boundary. Его самостоятельность должна позднее проверяться против `NoAffect`, `ResetEveryEvent`, shuffled-history и matched recurrent controls.
 
 ---
 
-# 3. Первый ещё не спроектированный блок — Appraisal
+# 3. Первый ещё не спроектированный блок — Valuation
 
 Следующий Design Update:
 
 ```text
-DU-16 — Appraisal
+DU-18 — Valuation
 ```
 
 Предварительная ответственность:
 
-> оценивать значение конкретного события/ситуации для текущего Agent с учётом Goal, Drive, World/Self Model, Memory и доступного evidence.
+> формировать decision-relevant оценку candidate states/outcomes/actions/trajectories на основании разнородных Goals, Drives, Appraisal, Affect, World/Self evidence без преждевременного предположения одного universal reward scalar.
 
 Нужно будет определить:
 
-- event boundary;
-- multidimensional appraisal semantics;
-- goal congruence;
-- controllability/coping potential;
-- relevance/urgency;
-- event-level valence;
-- actual vs predicted/imagined appraisal;
-- relation to Intrinsic Signals;
-- relation to Drives;
-- relation to future Affect;
-- relation to Valuation;
-- rule-based vs learned semantics;
-- calibration/evidence;
-- intervention/control implementations.
+- valuation target boundary;
+- vector/structured/scalar semantics;
+- scalarization timing;
+- multi-Goal/multi-Drive conflicts;
+- immediate vs future value;
+- state/action/outcome/trajectory value surfaces;
+- external feedback boundary;
+- Intrinsic Signals boundary;
+- Affect modulation;
+- risk/uncertainty;
+- Self Model feasibility/cost;
+- imagined/counterfactual valuation;
+- границу с RL reward/critic;
+- controls/interventions/calibration.
 
 Ключевой gate:
 
-> Appraisal должна иметь самостоятельную event-level responsibility и не сводиться к scalar reward/value prediction.
+> Valuation должна создать самостоятельную decision-relevant comparability, но не превращаться в скрытый универсальный reward без явного решения о scalarization.
 
 ---
 
-# 4. Будущие области после Appraisal
-
-## DU-17 — Affect Dynamics
-
-Кандидат на persistent affective state, интегрирующий appraisal во времени.
-
-Сохраняется отдельным модулем только если показывает функционально отличимую роль от `Appraisal + Drives`.
-
-## DU-18 — Valuation
-
-Центральная decision-relevant система ценности.
-
-Должна развести:
-
-```text
-external feedback
-Intrinsic Signals
-Drive State
-Goal progress
-Appraisal
-Affect
-predicted future state
-risk / uncertainty
-```
-
-и только здесь решать, нужна ли scalarization.
+# 4. Будущие области после Valuation
 
 ## DU-19 — Salience / Attention
 
@@ -301,7 +289,7 @@ Salience должна иметь observable downstream effect, а не быть 
 - eviction;
 - replay priority;
 - consolidation;
-- transition от episodic опыта к более медленным learned structures.
+- переход от episodic опыта к более медленным learned structures.
 
 ## DU-21 — Workspace
 
@@ -311,7 +299,7 @@ Salience должна иметь observable downstream effect, а не быть 
 
 ## DU-22 — Metacognitive / Executive Control
 
-Использует Self Model/uncertainty и другие signals для регулирования самого cognitive process:
+Регулирует сам cognitive process:
 
 - Cortex invocation;
 - retrieval;
@@ -325,8 +313,6 @@ Salience должна иметь observable downstream effect, а не быть 
 ## DU-23 — Policy / Planner
 
 Преобразует доступное состояние, прогнозы и values в candidate action/plan.
-
-Policy не должна становиться владельцем всех остальных подсистем.
 
 ## DU-24 — Action Gate / Executor
 
@@ -363,7 +349,7 @@ DU-32 — Version Roadmap
 
 # 6. Текущий dependency graph проектирования
 
-Это **порядок семантического проектирования**, а не окончательный runtime DAG.
+Это порядок **семантического проектирования**, а не окончательный runtime DAG.
 
 ```text
 System boundaries
@@ -404,13 +390,13 @@ Perception
                      Environment
 ```
 
-Фактический runtime будет иметь temporal feedback loops; порядок выше нужен только для design dependencies.
+Runtime позже будет иметь temporal feedback loops. Порядок выше нужен только для design dependencies.
 
 ---
 
 # 7. Правило независимой диагностируемости
 
-Для каждого принятого cognitive module/subsystem нужно определить минимум:
+Для каждого принятого cognitive subsystem определить минимум:
 
 - disabled/`No*` behavior;
 - Dummy/control implementation;
@@ -431,7 +417,7 @@ Perception
 При проектировании каждого нового блока проверять:
 
 1. Не выполняет ли ответственность уже другой subsystem?
-2. Отличается ли его state семантически, а не только названием?
+2. Отличается ли state семантически, а не только названием?
 3. Есть ли уникальный downstream effect?
 4. Можно ли независимо измерить вклад?
 5. Нужен ли отдельный trainable network?
@@ -443,6 +429,7 @@ Appraisal ↔ Valuation
 Appraisal ↔ Affect
 Drives ↔ Intrinsic Signals
 Drives ↔ Affect
+Affect ↔ Valuation
 Self Model ↔ Metacognition
 Salience ↔ Workspace
 CognitiveState ↔ Workspace
@@ -461,5 +448,5 @@ Scheduler ↔ Executive Control
 Следующий допустимый этап на текущем `main`:
 
 ```text
-DU-16 — Appraisal
+DU-18 — Valuation
 ```
