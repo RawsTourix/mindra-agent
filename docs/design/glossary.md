@@ -158,7 +158,7 @@ Event-level subsystem оценки значения causally identifiable target
 
 ## Appraisal Context
 
-Versioned declared context оценки: Goals, Drives, World/Self evidence, explicit Memory retrieval, Intrinsic Signals и, после `DU-17`, при необходимости previous committed Affect.
+Versioned declared context оценки: Goals, Drives, World/Self evidence, explicit Memory retrieval, Intrinsic Signals и, при необходимости, previous committed Affect.
 
 ## AppraisalRecord
 
@@ -224,10 +224,6 @@ Typed компонент Affect с собственной state/dynamics/source 
 
 Versioned update `Affect_t + Appraisal(s) + logical time → Affect_(t+1)`.
 
-## Affect baseline
-
-Optional baseline/recovery state implementation; не обязан означать «нейтральную эмоцию».
-
 ## AffectView
 
 Derived representation AffectStateSet, например valence-arousal view. Не source of truth.
@@ -246,11 +242,59 @@ Branch-local Affect в imagination/counterfactual path; не real committed Affe
 
 ---
 
+# Valuation
+
+## Valuation System
+
+Decision-relevant subsystem, строящий typed `ValueProfile` и выполняющий explicit comparison разнородных concerns. Не Policy и не training reward generator по умолчанию.
+
+## Valuation Target
+
+State/outcome/action candidate/trajectory/counterfactual branch, относительно которого строится valuation с explicit causal provenance и horizon.
+
+## ValueComponent
+
+Typed decision-relevant contribution определённой semantics, например impact конкретного Goal/Drive, cost или external/intrinsic mapping. Не обязана иметь общие units с другими components.
+
+## ValueProfile
+
+Structured multi-objective representation ценности target до обязательной scalarization.
+
+## FeasibilityProfile
+
+Self-related evidence о возможности/стоимости выполнения target. `P(success)` и effort не являются Utility автоматически.
+
+## ConstraintProfile
+
+Explicit representation constraints/thresholds/violation evidence. Hard constraint не обязан быть большим negative reward.
+
+## RiskProfile
+
+Decision-relevant оценка downside, построенная из outcome distribution/adverse semantics/explicit risk measure. Не равна predictive uncertainty.
+
+## ComparisonPolicy
+
+Versioned rule сравнения `ValueProfile`: scalar, dominance/Pareto, lexicographic, constraint-first, nonlinear или learned semantics.
+
+## ComparisonResult
+
+Результат сравнения profiles: preference/order/dominance/tie/incomparability/constraint status и optional scalarized views.
+
+## ScalarizedValue
+
+Derived scalar из `ValueProfile` под конкретной `ComparisonPolicy`. Не canonical universal currency и не training reward автоматически.
+
+## Prospective Valuation
+
+Horizon-conditioned оценка predicted/imagined future consequences. Не observed utility.
+
+## Incomparable
+
+Нормальный multi-objective result, когда explicit comparison policy не даёт полного ordering. Не техническая ошибка.
+
+---
+
 # Будущие области
-
-## Valuation
-
-Будущая decision-relevant система ценности. Точная semantics — `DU-18`.
 
 ## Salience
 
