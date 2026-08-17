@@ -2,11 +2,11 @@
 
 ## Статус
 
-Этот документ — карта принятых cognitive/runtime boundaries и внешних data/training областей. Канонический статус определяется специализированными design docs и [`../current.md`](../current.md).
+Этот документ — карта принятых cognitive/runtime boundaries и внешних data/training/reproducibility областей. Канонический статус определяется специализированными design docs и [`../current.md`](../current.md).
 
 Отдельный cognitive module существует только при самостоятельной ответственности, явной boundary/state semantics и независимо проверяемом causal вкладе.
 
-`DU-25/26` находятся **вне cognitive module chain**: это Experience/Data и Training planes.
+`DU-25/26/27` находятся **вне cognitive module chain**: это Experience/Data, Training и Checkpoint/Reproducibility/Compute planes.
 
 ---
 
@@ -75,7 +75,7 @@ Environment
 
 ---
 
-# 3. Experience/Data и Training находятся вокруг cognition
+# 3. Внешние planes вокруг cognition
 
 ```text
 Agent / Environment / Runtime
@@ -97,12 +97,21 @@ Agent / Environment / Runtime
  Validation / Activation
           ↓
        MINDRA Agent
+
+runtime / training / environment state
+          ↓
+Checkpoint Capture
+          ↓
+Checkpoint Manifest + Artifacts
+          ↓
+Restore / Experiment / Compute Manifests
 ```
 
 Canonical owners:
 
 - [`../experience-data-replay.md`](../experience-data-replay.md) — `DU-25`;
-- [`../training-lifecycle.md`](../training-lifecycle.md) — `DU-26`.
+- [`../training-lifecycle.md`](../training-lifecycle.md) — `DU-26`;
+- [`../checkpoint-reproducibility-compute.md`](../checkpoint-reproducibility-compute.md) — `DU-27`.
 
 Ключевые различия:
 
@@ -111,65 +120,63 @@ Experience Journal ≠ Agent runtime state
 Agent Memory Replay ≠ Training Replay
 Training Runtime ≠ cognitive module
 Runtime State Update ≠ Learning Update
-Training Objective ≠ Agent Goal / ValueProfile
-runtime dependency graph ≠ gradient graph
 CandidateRevisionBundle ≠ Active AgentRevision
+AgentSnapshot ≠ persistent Checkpoint
+Checkpoint ≠ TrainingResumeCheckpoint ≠ ExperimentManifest
+same seed ≠ same RNG state ≠ guaranteed same execution
+ComputeManifest ≠ CognitiveResourceEnvelope
 ```
 
 ---
 
-# 4. DU-26 — Training Lifecycle
+# 4. DU-27 — Checkpoint / Reproducibility / Compute
 
-Training Runtime:
+Checkpoint/Reproducibility plane:
 
-- работает только по explicit `TrainingPlan`;
-- pin'ит base revisions и source datasets/samples;
-- владеет optimizer/trainer state;
-- использует explicit `GradientFlowPolicy`;
-- создаёт candidate component/agent revisions;
-- не мутирует in-flight cognition;
-- валидирует candidate до activation;
-- активирует совместимые revision bundles на explicit safe boundary;
-- сохраняет behavior/learner revision provenance;
-- требует explicit privileged-supervision status;
-- учитывает representation drift/continual retention;
-- не фиксирует конкретный optimizer/framework/algorithm.
+- фиксирует explicit causal `CaptureBoundary`;
+- различает AgentSnapshot, persistent Checkpoint, TrainingResumeCheckpoint и ExperimentManifest;
+- materializes и verifies required content-identified artifacts до final manifest commit;
+- сохраняет active/candidate revision separation;
+- интегрирует Environment/action pending state для full-system restore;
+- не считает seed заменой current RNG state;
+- различает exact/compatible/portable/approximate restore;
+- задаёт scoped ReproducibilityClaim вместо boolean;
+- сохраняет software/hardware/determinism/compute manifests;
+- не делает storage/tensor/checkpoint library частью architecture.
 
 ---
 
-# 5. Первый ещё не спроектированный блок — Checkpoint / Reproducibility / Compute
+# 5. Первый ещё не спроектированный блок — MINDRA-Eval
 
 Следующий Design Update:
 
 ```text
-DU-27 — Checkpoint / Reproducibility / Compute
+DU-28 — MINDRA-Eval
 ```
 
 Предварительная responsibility:
 
-> определить полный persistent snapshot/checkpoint, restore/reproducibility levels и compute/environment manifests для runtime и training state MINDRA.
+> определить Evaluation Runtime, benchmark/condition manifests, causal ablations/interventions, diagnostic metrics и statistical protocol, позволяющие измерять самостоятельный вклад MINDRA mechanisms при сопоставимых data/compute/base-state условиях.
 
 Особенно нужны:
 
-- Agent Snapshot vs persistent Checkpoint;
-- active/candidate revision manifests;
-- optimizer/trainer/RNG state;
-- Memory/Workspace/private module state;
-- Environment snapshot/world manifest;
-- dataset/journal/checkpoint artifact refs;
-- exact vs approximate restore;
-- content identity/integrity;
-- hardware/framework manifests;
-- compute accounting;
-- migration/compatibility;
-- resume training vs inference-only scope.
+- end-to-end и module-specific metrics;
+- No*/Dummy/random/shuffled/matched controls;
+- common checkpoint/counterfactual base state;
+- compute-normalized comparisons;
+- stochastic evaluation/statistics;
+- evaluator-only Ground Truth isolation;
+- Policy vs Action Gate attribution;
+- negative module gates Workspace/Affect/Planner/Executive;
+- training plasticity vs retention;
+- EvaluationManifest/report schema;
+- evidence threshold для causal claims.
 
 ---
 
 # 6. Оставшиеся Design Updates
 
 ```text
-DU-27 — Checkpoint / Reproducibility / Compute
 DU-28 — MINDRA-Eval
 DU-29 — Engineering Testing
 DU-30 — Research Claims / Limitations
@@ -188,5 +195,7 @@ DU-32 — Version Roadmap
 Для Experience/Data требуются lineage/leakage/schema/replay controls `DU-25`.
 
 Для Training Runtime требуются Frozen/NoLearning, offline/online controls, data/compute-matched comparisons, retention diagnostics и explicit revision activation evidence.
+
+Для Checkpoint/Reproducibility обязательны scope/integrity/restore/RNG/Environment causal-cut/compute provenance tests из `DU-27`.
 
 Следующий допустимый этап определяется только [`../current.md`](../current.md).
