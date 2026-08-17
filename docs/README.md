@@ -50,11 +50,11 @@ Concept
 → Version design
 → Implementation sequence
 → Implementation
-→ Research / engineering evidence
+→ Engineering / Research evidence
 ```
 
 ```text
-Design ≠ Implementation ≠ Research Evidence
+Design ≠ Implementation ≠ Engineering Testing ≠ Research Evidence
 ```
 
 Research result, противоречащий design, инициирует review/ADR, а не молча переписывает архитектуру.
@@ -69,7 +69,7 @@ Research result, противоречащий design, инициирует revie
 
 # Исследовательский журнал
 
-Датированные literature/research pass хранятся в [`research/`](research/). Future hypotheses/experiments/results будут храниться отдельно от canonical design.
+Датированные literature/research pass хранятся в [`research/`](research/). Future hypotheses/experiments/results хранятся отдельно от canonical design.
 
 ---
 
@@ -91,13 +91,19 @@ Research result, противоречащий design, инициирует revie
 
 # Checkpoint / Reproducibility / Compute Plane
 
-После `DU-27` snapshot/checkpoint/restore/reproducibility/compute semantics имеют отдельную manifest-driven boundary:
+После `DU-27` checkpoint является manifest-driven causal artifact set с explicit scope/restore/reproducibility/compute semantics:
 
 - [`design/checkpoint-reproducibility-compute.md`](design/checkpoint-reproducibility-compute.md);
 - [`design/contracts/checkpoint-reproducibility-compute.md`](design/contracts/checkpoint-reproducibility-compute.md);
 - [`design/decisions/ADR-0027-manifest-driven-causal-checkpoint-restore.md`](design/decisions/ADR-0027-manifest-driven-causal-checkpoint-restore.md).
 
-Ключевое правило: `same seed` не является достаточным доказательством одинакового continuation; scope/restore profile/RNG/software/hardware/compute provenance фиксируются явно.
+# Evaluation Plane
+
+После `DU-28` MINDRA-Eval отделён от Agent cognition и строит fully specified conditions, controls/interventions, typed metrics и statistical evidence:
+
+- [`design/mindra-eval.md`](design/mindra-eval.md);
+- [`design/contracts/mindra-eval.md`](design/contracts/mindra-eval.md);
+- [`design/decisions/ADR-0028-multi-layer-causal-evaluation-harness.md`](design/decisions/ADR-0028-multi-layer-causal-evaluation-harness.md).
 
 ---
 
@@ -105,6 +111,6 @@ Research result, противоречащий design, инициирует revie
 
 Проект находится на стадии **последовательного канонического архитектурного проектирования**.
 
-`DU-01 … DU-27` приняты. Следующий допустимый этап определяется только [`design/current.md`](design/current.md); полный порядок задан в [`design/documentation-plan.md`](design/documentation-plan.md).
+`DU-01 … DU-28` приняты. Следующий допустимый этап определяется только [`design/current.md`](design/current.md); полный порядок задан в [`design/documentation-plan.md`](design/documentation-plan.md).
 
 Production/research implementation, exact contract freeze, version roadmap и implementation sequences ещё не начаты.
