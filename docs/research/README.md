@@ -25,7 +25,8 @@ research/
 │   ├── DU-18-valuation-landscape-2026-08.md
 │   ├── DU-19-salience-attention-landscape-2026-08.md
 │   ├── DU-20-memory-regulation-consolidation-landscape-2026-08.md
-│   └── DU-21-workspace-landscape-2026-08.md
+│   ├── DU-21-workspace-landscape-2026-08.md
+│   └── DU-22-executive-control-landscape-2026-08.md
 ├── hypotheses.md          # появится позже
 ├── experiments/           # появится позже
 ├── results/               # появится позже
@@ -36,13 +37,13 @@ research/
 
 # Literature research pass
 
-Текущие pass `DU-10 … DU-21` находятся в [`literature/`](literature/).
+Текущие pass `DU-10 … DU-22` находятся в [`literature/`](literature/).
 
 Последние:
 
-- [`literature/DU-19-salience-attention-landscape-2026-08.md`](literature/DU-19-salience-attention-landscape-2026-08.md) — selective processing/budgeted attention;
 - [`literature/DU-20-memory-regulation-consolidation-landscape-2026-08.md`](literature/DU-20-memory-regulation-consolidation-landscape-2026-08.md) — retention/forgetting/replay/consolidation;
-- [`literature/DU-21-workspace-landscape-2026-08.md`](literature/DU-21-workspace-landscape-2026-08.md) — Global Workspace/shared bottleneck, neural/cognitive workspace implementations, capacity/broadcast controls и ограничения consciousness claims.
+- [`literature/DU-21-workspace-landscape-2026-08.md`](literature/DU-21-workspace-landscape-2026-08.md) — bounded workspace/broadcast и ограничения consciousness claims;
+- [`literature/DU-22-executive-control-landscape-2026-08.md`](literature/DU-22-executive-control-landscape-2026-08.md) — adaptive computation, metareasoning, competence-aware control, tool-use triggers, budget allocation и stopping.
 
 Эти документы **не выбирают** canonical implementation framework/algorithm.
 
@@ -63,36 +64,32 @@ research evidence / experiment result
 
 Для будущих экспериментов заранее фиксировать hypothesis, independent variables, baselines/controls, seeds, environment/data versions, metrics, success/falsification criterion и analysis policy.
 
-Для Workspace особенно важны:
+Для Executive Control особенно важны:
 
 ```text
-Full Workspace
-vs NoWorkspace / DirectReads
-vs Random/Shuffled admission
-vs UnboundedWorkspace
-vs WorkspaceWithoutBroadcast
-vs MatchedSharedBuffer
-vs MatchedRecurrentBuffer
+Adaptive Executive
+vs NoExecutive / fixed schedule
+vs FixedBudget
+vs Random allocation
+vs SimpleThreshold
+vs SalienceOnly / uncertainty-only
+vs CostUnaware
+vs Matched learned router
 ```
 
-Capacity sweep:
+Сравнение обязательно вести по:
 
 ```text
-0 → small → medium → large → unbounded
+task performance
+vs
+actual cognitive resource consumption
 ```
 
-И отдельная causal цепочка:
+а не только по accuracy.
 
-```text
-candidate/admission intervention
-→ WorkspaceSnapshot changed
-→ actual consumer reads changed
-→ downstream integration/behavior changed
-```
+Нужны budget sweeps, competence/uncertainty/cost interventions, capability degradation tests, operation-selection/stopping distributions и controller-overhead accounting.
 
-Нужно измерять coordination gain, communication overhead, noise propagation, capacity sensitivity, robustness к irrelevant candidates и generalization.
-
-Положительный Workspace result не считается evidence subjective consciousness.
+Positive result не считается доказанным, если adaptive system просто использовал больше Cortex calls/rollout steps/total compute.
 
 ---
 
