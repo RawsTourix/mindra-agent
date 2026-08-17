@@ -8,7 +8,7 @@
 
 # 1. Общий статус
 
-**`DU-01 … DU-22` завершены и приняты. Реализация ещё не начата.**
+**`DU-01 … DU-23` завершены и приняты. Реализация ещё не начата.**
 
 Приняты:
 
@@ -29,8 +29,9 @@
 - Memory Regulation / Consolidation;
 - Workspace;
 - Metacognitive / Executive Control;
-- 22 accepted ADR;
-- candidate semantic contracts для subsystem boundaries `DU-07 … DU-22`.
+- Policy / Planner;
+- 23 accepted ADR;
+- candidate semantic contracts для subsystem boundaries `DU-07 … DU-23`.
 
 ---
 
@@ -60,120 +61,114 @@ DU-19 — Salience / Attention
 DU-20 — Memory Regulation / Consolidation
 DU-21 — Workspace
 DU-22 — Metacognitive / Executive Control
+DU-23 — Policy / Planner
 ```
 
 ---
 
-# 3. DU-22
+# 3. DU-23
 
 Canonical design:
 
-- [`modules/executive-control.md`](modules/executive-control.md)
+- [`modules/policy-planner.md`](modules/policy-planner.md)
 
 Candidate contract:
 
-- [`contracts/executive-control.md`](contracts/executive-control.md)
+- [`contracts/policy-planner.md`](contracts/policy-planner.md)
 
 Accepted decision:
 
-- [`ADR-0022`](decisions/ADR-0022-proposal-driven-budget-aware-executive-control.md)
+- [`ADR-0023`](decisions/ADR-0023-policy-owned-selection-optional-planner.md)
 
 Research pass:
 
-- [`../research/literature/DU-22-executive-control-landscape-2026-08.md`](../research/literature/DU-22-executive-control-landscape-2026-08.md)
+- [`../research/literature/DU-23-policy-planner-landscape-2026-08.md`](../research/literature/DU-23-policy-planner-landscape-2026-08.md)
 
 Главные результаты:
 
 ```text
-metacognitive monitoring ≠ Executive Control
-Executive Control ≠ Cognitive Scheduler
-Executive Control ≠ Policy / Planner
-Internal MetaAction ≠ Environment Action
-MetaActionProposal ≠ executed operation
-ExecutiveDecision ≠ direct service call
-CognitiveResourceEnvelope ≠ raw runtime telemetry
-resource estimate ≠ reservation ≠ actual consumption
-Salience / Self Model ≠ controller
-Executive stop ≠ Action Commit
+Policy ≠ Planner
+Planner ≠ World Model
+Plan ≠ ImaginedTrajectory
+Valuation ≠ Policy Decision
+Executive Control ≠ Policy
+ActionCandidate ≠ SelectedActionIntent
+SelectedActionIntent ≠ Action Commit / Executed Action
 ```
 
-- Executive Control принят как proposal-driven budget-aware agent-owned control boundary;
-- отдельная boundary имеет conditional/falsifiable module gate;
-- invariant Scheduler остаётся owner допустимого execution/commit;
-- Executive выбирает только из explicit `MetaActionProposal` и declared `InternalOperationCatalog`;
-- runtime Service Locator/direct provider handles Executive не получает;
-- resource envelope предоставляется внешней/version/runtime boundary и при необходимости намеренно становится agent-visible;
-- Executive может распределять/резервировать resource только внутри предоставленного envelope;
-- budget может быть multi-dimensional;
-- hard и soft resource semantics разведены;
-- physical latency/Colab/network delay не становятся cognitive cost автоматически;
-- stop/continue решения принимаются на explicit `Executive Control Point` относительно committed state;
-- `yield_to_policy` завершает optional deliberation, но не выбирает Environment action;
-- Cortex/retrieval/World Model rollout/consolidation проходят через explicit proposal → ExecutiveDecision → Scheduler validation;
-- Executive может управлять temporary Goal focus refs, но не мутирует Goal Graph;
-- Workspace admission остаётся responsibility Workspace, даже если Executive регулирует предоставляемый Workspace budget/context;
-- Self Model и Salience предоставляют evidence, но не control commands;
-- real compute, потраченный на imagination, списывается из real budget, а simulated future budget остаётся branch-local;
-- Executive state/ledger входят в causally relevant Agent Snapshot;
-- обязательны `NoExecutive`, fixed schedule/budget, random, threshold, Salience-only, cost-unaware и matched learned-router controls;
-- полезность Executive оценивается по performance/resource frontier и equal/matched compute comparisons;
-- если fixed/matched controls объясняют эффект, отдельная Executive boundary должна быть пересмотрена.
+- `Policy System` принят как обязательный semantic owner final behavioral selection;
+- `Planner` принят как optional/falsifiable provider планов/action candidates;
+- reactive/no-Planner Policy остаётся first-class configuration;
+- Planner использует `World Belief`, а не hidden Environment state;
+- Planner может строить contingent plans по будущим observations/beliefs;
+- World Model предоставляет prediction/imagination primitives, но не владеет Plan;
+- `Plan` является agent-owned prescriptive/conditional structure и не равен одному rollout;
+- candidate generation допускает reactive, Planner, Cortex-assisted, scripted/control и другие explicit sources;
+- все sources входят в explicit `PolicyCandidateSet`;
+- Valuation предоставляет `ValueProfile`/`ComparisonResult`, но final selection остаётся Policy;
+- `incomparable` является валидным состоянием и не требует fake scalarization;
+- Policy может вернуть `DecisionDeferral` + `MetaActionProposal`, если требуется дополнительное cognition;
+- возврат к Executive происходит через lifecycle/control point, не recursive direct call;
+- Planner-generated subgoal проходит `Goal Proposal → Goal System`;
+- planning compute/horizon/branching ограничиваются Executive resource semantics;
+- Planner может хранить `PlanState`, но plan имеет revision/assumptions/stale/invalidation/replanning semantics;
+- `SelectedActionIntent` является результатом Policy до Action Gate и не означает, что action уже разрешён/committed/executed;
+- stochastic Policy должна сохранять selection/RNG provenance;
+- обязательны ReactivePolicy/NoPlanner, random/shuffled/depth-1/matched search controls;
+- benefit Planner должен проверяться при matched actual compute и на задачах, действительно требующих multi-step/contingent planning;
+- если matched controls объясняют эффект, отдельная Planner boundary должна быть пересмотрена.
 
 ---
 
 # 4. Следующий допустимый Design Update
 
 ```text
-DU-23 — Policy / Planner
+DU-24 — Action Boundary / Gate / Executor
 ```
 
-Цель `DU-23` — спроектировать **границу формирования behavioral candidates, planning и final action-selection intention** после того, как MINDRA уже умеет регулировать объём внутреннего compute.
+Цель `DU-24` — спроектировать **границу между выбранным Policy намерением, проверкой/разрешением action, причинным `Action Commit`, dispatch в Environment и фактически наблюдаемым outcome**.
 
 Обязательные вопросы:
 
 ```text
-Policy module gate
-Planner module gate
-Policy ≠ Executive Control
-Planner ≠ World Model
-plan ≠ imagined trajectory
-Action Candidate ≠ selected action ≠ executed action
-reactive policy vs explicit planning
-candidate generation
-candidate evaluation через Valuation
-Goal / Workspace / Memory / World / Self inputs
-Cortex-assisted planning boundary
-subgoal proposal → Goal System
-planning under partial observability
-risk/constraints/incomparability
-stochastic policy semantics
-planning horizon / search tree ownership
-Executive budget → Planner compute boundary
-plan persistence / replanning
-failure/degradation
-branch provenance
+SelectedActionIntent ≠ AuthorizedAction ≠ Action Commit ≠ Dispatch ≠ Executed Action ≠ Outcome
+Action Gate responsibility/module gate
+semantic action validation
+capability/availability checks
+stale selected intent
+final precondition validation
+hard constraints / safety-policy boundary без evaluator oracle leakage
+Action rejection / modification / substitution semantics
+who may transform an intent
+NoOp / abort / retry semantics
+Action Commit exact point
+idempotency / duplicate dispatch
+Environment acknowledgement
+partial execution / execution failure
+asynchronous dispatch boundary?
+termination/truncation interaction
+action/outcome correlation IDs
 observability/intervention
-NoPlanner / reactive / random / oracle controls
+Action Gate controls
 snapshot/revision
 ```
 
 Нужно особенно определить:
 
-- является ли `Policy` единым owner final behavioral choice или Planner отдельный provider candidates/plans;
-- где заканчивается Executive решение «ещё считать» и начинается решение «какое поведение выбрать»;
-- как World Model предоставляет rollout, но не выбирает план;
-- как Valuation сравнивает candidates, но не делает final choice автоматически;
-- как incomparability/constraints обрабатываются Policy;
-- как Planner предлагает subgoal через Goal System, а не мутирует Goal Graph;
-- как Cortex может помогать generation/planning, не становясь owner Policy;
-- что считается committed selected-action intention до `DU-24 Action Gate`;
-- какой causal evidence нужен, чтобы доказать пользу Planner сверх reactive Policy;
-- при каком отрицательном результате отдельный Planner должен быть отключён/удалён.
+- где именно находится канонический `Action Commit` из `DU-03`;
+- кто имеет authority превратить `SelectedActionIntent` в действие, допустимое для Environment adapter;
+- может ли Gate изменить действие или только accept/reject, и как это отражается в provenance;
+- как не использовать hidden evaluator/Environment Ground Truth как обычный safety oracle;
+- как stale intent обнаруживается после изменения state/action capability;
+- как различить malformed action, semantically invalid action, rejected action, dispatch failure и Environment-level no-effect;
+- как избежать двойного выполнения при retry/transport error;
+- как terminal outcome сохраняется до reset;
+- какой causal evidence нужен для связи `intent → authorization → commit → dispatch → outcome`.
 
-После принятия `DU-23` допускается:
+После принятия `DU-24` допускается:
 
 ```text
-DU-24 — Action Boundary / Gate / Executor
+DU-25 — Experience / Data / Replay
 ```
 
 ---
@@ -182,7 +177,6 @@ DU-24 — Action Boundary / Gate / Executor
 
 Пока отсутствуют accepted решения по:
 
-- Policy / Planner;
 - Action Gate / Executor;
 - Experience / Data / Replay schema;
 - Training Lifecycle;
