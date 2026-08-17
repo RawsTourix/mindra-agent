@@ -8,7 +8,7 @@
 
 # 1. Общий статус
 
-**`DU-01 … DU-21` завершены и приняты. Реализация ещё не начата.**
+**`DU-01 … DU-22` завершены и приняты. Реализация ещё не начата.**
 
 Приняты:
 
@@ -28,8 +28,9 @@
 - Salience / Attention;
 - Memory Regulation / Consolidation;
 - Workspace;
-- 21 accepted ADR;
-- candidate semantic contracts для subsystem boundaries `DU-07 … DU-21`.
+- Metacognitive / Executive Control;
+- 22 accepted ADR;
+- candidate semantic contracts для subsystem boundaries `DU-07 … DU-22`.
 
 ---
 
@@ -58,120 +59,121 @@ DU-18 — Valuation
 DU-19 — Salience / Attention
 DU-20 — Memory Regulation / Consolidation
 DU-21 — Workspace
+DU-22 — Metacognitive / Executive Control
 ```
 
 ---
 
-# 3. DU-21
+# 3. DU-22
 
 Canonical design:
 
-- [`modules/workspace.md`](modules/workspace.md)
+- [`modules/executive-control.md`](modules/executive-control.md)
 
 Candidate contract:
 
-- [`contracts/workspace.md`](contracts/workspace.md)
+- [`contracts/executive-control.md`](contracts/executive-control.md)
 
 Accepted decision:
 
-- [`ADR-0021`](decisions/ADR-0021-bounded-broadcast-workspace-overlay.md)
+- [`ADR-0022`](decisions/ADR-0022-proposal-driven-budget-aware-executive-control.md)
 
 Research pass:
 
-- [`../research/literature/DU-21-workspace-landscape-2026-08.md`](../research/literature/DU-21-workspace-landscape-2026-08.md)
+- [`../research/literature/DU-22-executive-control-landscape-2026-08.md`](../research/literature/DU-22-executive-control-landscape-2026-08.md)
 
 Главные результаты:
 
 ```text
-CognitiveState ≠ Workspace
-published state ≠ Workspace admission
-SalienceProfile ≠ Workspace admission
-WorkspaceBudget ≠ AttentionBudget ≠ MemoryBudget ≠ Executive budget
-WorkspaceItem ≠ source truth
-Workspace ≠ Memory
-Workspace eviction ≠ Memory forgetting
-Memory retrieval ≠ Workspace admission
-Workspace ≠ Cortex context
-broadcast ≠ callback/module execution
-imagined Workspace ≠ real Workspace
-Workspace ≠ Policy
-Workspace ≠ proof of consciousness
+metacognitive monitoring ≠ Executive Control
+Executive Control ≠ Cognitive Scheduler
+Executive Control ≠ Policy / Planner
+Internal MetaAction ≠ Environment Action
+MetaActionProposal ≠ executed operation
+ExecutiveDecision ≠ direct service call
+CognitiveResourceEnvelope ≠ raw runtime telemetry
+resource estimate ≠ reservation ≠ actual consumption
+Salience / Self Model ≠ controller
+Executive stop ≠ Action Commit
 ```
 
-- Workspace принят как bounded temporary shared broadcast overlay;
+- Executive Control принят как proposal-driven budget-aware agent-owned control boundary;
 - отдельная boundary имеет conditional/falsifiable module gate;
-- Workspace работает только с explicit proposals/candidates;
-- capacity/bandwidth являются частью functional hypothesis;
-- Workspace AdmissionPolicy отделена от Salience;
-- admitted item сохраняет source revision/provenance/authority;
-- global availability означает доступ declared eligible consumers;
-- broadcast не запускает consumers push/callback способом;
-- Workspace может поддерживать multi-cycle persistence, но не заменяет long-term Memory;
-- Memory retrieval должен отдельно пройти Workspace proposal/admission;
-- Cortex context packing остаётся отдельной semantic operation;
-- imagined/counterfactual branches используют branch-local Workspace;
-- Workspace state входит в causally relevant Agent Snapshot;
-- обязательны `NoWorkspace`, DirectReads, Random/Shuffled, Unbounded, no-broadcast и matched buffer controls;
-- capacity sweep и broadcast lesions являются обязательными evaluation families;
-- если matched controls объясняют эффект, отдельная Workspace boundary должна быть пересмотрена;
-- Workspace functionality не является evidence subjective consciousness.
+- invariant Scheduler остаётся owner допустимого execution/commit;
+- Executive выбирает только из explicit `MetaActionProposal` и declared `InternalOperationCatalog`;
+- runtime Service Locator/direct provider handles Executive не получает;
+- resource envelope предоставляется внешней/version/runtime boundary и при необходимости намеренно становится agent-visible;
+- Executive может распределять/резервировать resource только внутри предоставленного envelope;
+- budget может быть multi-dimensional;
+- hard и soft resource semantics разведены;
+- physical latency/Colab/network delay не становятся cognitive cost автоматически;
+- stop/continue решения принимаются на explicit `Executive Control Point` относительно committed state;
+- `yield_to_policy` завершает optional deliberation, но не выбирает Environment action;
+- Cortex/retrieval/World Model rollout/consolidation проходят через explicit proposal → ExecutiveDecision → Scheduler validation;
+- Executive может управлять temporary Goal focus refs, но не мутирует Goal Graph;
+- Workspace admission остаётся responsibility Workspace, даже если Executive регулирует предоставляемый Workspace budget/context;
+- Self Model и Salience предоставляют evidence, но не control commands;
+- real compute, потраченный на imagination, списывается из real budget, а simulated future budget остаётся branch-local;
+- Executive state/ledger входят в causally relevant Agent Snapshot;
+- обязательны `NoExecutive`, fixed schedule/budget, random, threshold, Salience-only, cost-unaware и matched learned-router controls;
+- полезность Executive оценивается по performance/resource frontier и equal/matched compute comparisons;
+- если fixed/matched controls объясняют эффект, отдельная Executive boundary должна быть пересмотрена.
 
 ---
 
 # 4. Следующий допустимый Design Update
 
 ```text
-DU-22 — Metacognitive / Executive Control
+DU-23 — Policy / Planner
 ```
 
-Цель `DU-22` — спроектировать agent-owned regulation cognitive process: **какие внутренние операции выполнять, сколько вычислительного ресурса им выделять и когда прекращать/продолжать cognition**, не смешивая это с invariant Scheduler и final Policy/Action selection.
+Цель `DU-23` — спроектировать **границу формирования behavioral candidates, planning и final action-selection intention** после того, как MINDRA уже умеет регулировать объём внутреннего compute.
 
 Обязательные вопросы:
 
 ```text
-Executive module gate
-metacognitive monitoring ≠ control
-Executive Control ≠ Cognitive Scheduler
-Executive Control ≠ Policy / Planner
-internal/meta action ≠ Environment action
-compute/resource budget model
-continue / stop Cognitive Cycles
-Cortex invocation decision
-Memory retrieval decision
-planning/imagination depth
-consolidation initiation
-Workspace budget/admission context control?
-Goal focus control
-Salience / Workspace / Self Model inputs
-uncertainty / competence / cost evidence
-resource exhaustion
-latency/cost semantics without wall-clock leakage
-policy for optional capabilities
-fallback/degradation
-branch/imagination executive state
+Policy module gate
+Planner module gate
+Policy ≠ Executive Control
+Planner ≠ World Model
+plan ≠ imagined trajectory
+Action Candidate ≠ selected action ≠ executed action
+reactive policy vs explicit planning
+candidate generation
+candidate evaluation через Valuation
+Goal / Workspace / Memory / World / Self inputs
+Cortex-assisted planning boundary
+subgoal proposal → Goal System
+planning under partial observability
+risk/constraints/incomparability
+stochastic policy semantics
+planning horizon / search tree ownership
+Executive budget → Planner compute boundary
+plan persistence / replanning
+failure/degradation
+branch provenance
 observability/intervention
-NoExecutive / fixed-budget / random / matched controls
+NoPlanner / reactive / random / oracle controls
 snapshot/revision
 ```
 
 Нужно особенно определить:
 
-- кто владеет global agent compute/resource budgets;
-- является ли Executive Control отдельным module или набором control policies;
-- как Scheduler остаётся механикой допустимого исполнения и не принимает cognitive decisions;
-- как Executive выбирает **разрешённые** операции, не обходя dependency/ownership invariants;
-- когда Agent может решить «мне нужно ещё подумать» до `Action Commit`;
-- как выбирать между `Cortex`, retrieval, World Model rollout, Workspace processing и непосредственным действием;
-- как Self Model competence/uncertainty и expected costs влияют на control без превращения Self Model в controller;
-- как Salience даёт priority evidence, но не сама запускает compute;
-- как отделить internal meta-actions от будущих Environment actions;
-- какой causal evidence нужен, чтобы доказать пользу adaptive control сверх fixed compute budget;
-- при каком отрицательном результате отдельная Executive boundary должна быть упрощена/удалена.
+- является ли `Policy` единым owner final behavioral choice или Planner отдельный provider candidates/plans;
+- где заканчивается Executive решение «ещё считать» и начинается решение «какое поведение выбрать»;
+- как World Model предоставляет rollout, но не выбирает план;
+- как Valuation сравнивает candidates, но не делает final choice автоматически;
+- как incomparability/constraints обрабатываются Policy;
+- как Planner предлагает subgoal через Goal System, а не мутирует Goal Graph;
+- как Cortex может помогать generation/planning, не становясь owner Policy;
+- что считается committed selected-action intention до `DU-24 Action Gate`;
+- какой causal evidence нужен, чтобы доказать пользу Planner сверх reactive Policy;
+- при каком отрицательном результате отдельный Planner должен быть отключён/удалён.
 
-После принятия `DU-22` допускается:
+После принятия `DU-23` допускается:
 
 ```text
-DU-23 — Policy / Planner
+DU-24 — Action Boundary / Gate / Executor
 ```
 
 ---
@@ -180,7 +182,6 @@ DU-23 — Policy / Planner
 
 Пока отсутствуют accepted решения по:
 
-- Metacognitive / Executive Control;
 - Policy / Planner;
 - Action Gate / Executor;
 - Experience / Data / Replay schema;
