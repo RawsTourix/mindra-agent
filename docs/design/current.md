@@ -8,7 +8,7 @@
 
 # 1. Общий статус
 
-**`DU-01 … DU-26` завершены и приняты. Реализация ещё не начата.**
+**`DU-01 … DU-27` завершены и приняты. Реализация ещё не начата.**
 
 Приняты:
 
@@ -16,8 +16,9 @@
 - cognitive/runtime boundaries `DU-07 … DU-24`;
 - Experience / Data / Replay `DU-25`;
 - Training Lifecycle `DU-26`;
-- 26 accepted ADR;
-- candidate semantic contracts для boundaries `DU-07 … DU-26`.
+- Checkpoint / Reproducibility / Compute `DU-27`;
+- 27 accepted ADR;
+- candidate semantic contracts для boundaries `DU-07 … DU-27`.
 
 ---
 
@@ -51,121 +52,126 @@ DU-23 — Policy / Planner
 DU-24 — Action Boundary / Gate / Executor
 DU-25 — Experience / Data / Replay
 DU-26 — Training Lifecycle
+DU-27 — Checkpoint / Reproducibility / Compute
 ```
 
 ---
 
-# 3. DU-26
+# 3. DU-27
 
 Canonical design:
 
-- [`training-lifecycle.md`](training-lifecycle.md)
+- [`checkpoint-reproducibility-compute.md`](checkpoint-reproducibility-compute.md)
 
 Candidate contract:
 
-- [`contracts/training-lifecycle.md`](contracts/training-lifecycle.md)
+- [`contracts/checkpoint-reproducibility-compute.md`](contracts/checkpoint-reproducibility-compute.md)
 
 Accepted decision:
 
-- [`ADR-0026`](decisions/ADR-0026-candidate-revision-validated-activation-training-lifecycle.md)
+- [`ADR-0027`](decisions/ADR-0027-manifest-driven-causal-checkpoint-restore.md)
 
 Research pass:
 
-- [`../research/literature/DU-26-training-lifecycle-landscape-2026-08.md`](../research/literature/DU-26-training-lifecycle-landscape-2026-08.md)
+- [`../research/literature/DU-27-checkpoint-reproducibility-compute-landscape-2026-08.md`](../research/literature/DU-27-checkpoint-reproducibility-compute-landscape-2026-08.md)
 
 Главные результаты:
 
 ```text
-Runtime State Update
-≠ Consolidation Event
-≠ Replay Step
-≠ Learning Update
+AgentSnapshot
+≠ persistent Checkpoint
+≠ TrainingResumeCheckpoint
+≠ ExperimentManifest
 
-Training Objective
-≠ Agent Goal
-≠ ValueProfile
+same seed
+≠ same RNG state
+≠ guaranteed same execution
 
-CandidateRevisionBundle
-≠ Active AgentRevision
+semantic restore
+≠ bitwise reproducibility
 ```
 
-- `Training Runtime` находится вне agent-owned cognition;
-- ordinary module `compute()` не выполняет hidden optimizer update;
-- runtime mutable state, trainable parameters и optimizer/trainer state имеют разные ownership semantics;
-- `TrainingPlan` явно pin'ит target components, base revisions, data, visibility, objectives, optimizer и gradient-flow policy;
-- runtime dependency graph не определяет gradient graph;
-- source `TrainingSample`/Replay provenance сохраняется до `LearningUpdateRecord`;
-- Training Objective является внешней optimization semantics и не равен internal Utility/Drive/Intrinsic Signal автоматически;
-- joint и separate optimization оба допустимы, но shared parameter ownership/gradient coupling explicit;
-- frozen Cortex, adapters и частично/полностью trainable Cortex укладываются в одну lifecycle boundary;
-- training создаёт `CandidateRevisionBundle`, который проходит validation до activation;
-- activation новой `agent_revision` происходит на explicit safe causal boundary;
-- in-flight Decision/Cognitive segment сохраняет pinned старую revision;
-- behavior revision и learner revision могут различаться при decoupled online learning;
-- privileged supervision требует explicit training condition;
-- representation drift/Memory downstream compatibility проверяются до activation;
-- continual learning обязан отдельно учитывать forgetting/retention;
-- failed candidate не мутирует live Agent;
-- rollback сохраняет causal history плохого update/activation;
-- concrete optimizer/framework/algorithm/PEFT method намеренно не выбран.
+- checkpoint является manifest-driven набором content-identified artifacts, а не обязательным одним файлом;
+- checkpoint scope явно определяет required/optional state;
+- training-resume scope включает causally relevant optimizer/scheduler/scaler/trainer/replay/data-cursor state;
+- consistent checkpoint относится к explicit causal `CaptureBoundary`;
+- используется conceptual prepare/pin → materialize/verify → final manifest commit;
+- incomplete artifact set не является valid checkpoint;
+- active и candidate revisions сохраняются раздельно, restore candidate не активирует её автоматически;
+- full-system restore требует causally aligned Agent + Environment state;
+- `execution_unknown`/unresolved external effect может блокировать safe branch/retry до reconciliation;
+- `seed` не заменяет current RNG state;
+- reproducibility задаётся scoped `ReproducibilityClaim`, а не boolean;
+- exact/compatible/portable/approximate restore различаются;
+- software/hardware/determinism manifests являются частью сильных reproducibility claims;
+- artifact content identity отделена от physical path/storage location;
+- full и delta/incremental checkpoint допустимы, но delta dependency chain обязана быть integrity-complete;
+- migration создаёт explicit lineage и не переписывает source checkpoint;
+- infrastructure `ComputeManifest`/usage отделены от agent-visible `CognitiveResourceEnvelope`;
+- concrete serialization/hash/storage/profiler framework намеренно не выбран.
 
 ---
 
 # 4. Следующий допустимый Design Update
 
 ```text
-DU-27 — Checkpoint / Reproducibility / Compute
+DU-28 — MINDRA-Eval
 ```
 
-Цель `DU-27` — спроектировать **полный воспроизводимый snapshot/checkpoint и compute manifest MINDRA**, способный восстановить не только active Agent, но и causally relevant training/runtime state.
+Цель `DU-28` — спроектировать **канонический Evaluation Harness и measurement protocol MINDRA**, позволяющий измерять не только task performance, но и самостоятельный причинный вклад модулей/границ при сопоставимых условиях и compute.
 
 Обязательные вопросы:
 
 ```text
-Agent Snapshot vs Checkpoint vs Training Checkpoint
-active/candidate AgentRevision manifests
-component/private state capture
-Memory / Workspace / Executive / Planner / Action Boundary pending state
-World/Self/Drive/Affect/provider RNG states
-optimizer/scheduler/scaler/trainer state
-TrainingPlan/Attempt resume state
-replay/sample cursors
-Environment snapshot/world manifest
-Experience Journal / DatasetManifest refs
-artifact identity / content hashes
-schema/contract/version manifests
-exact vs approximate restore
-full vs incremental/delta checkpoint
-portable vs hardware-specific state
-CPU/GPU/dtype/device migration
-randomness / deterministic algorithms
-framework/library/CUDA/driver/environment manifests
-compute accounting
-Colab/local/remote topology
-checkpoint consistency / two-phase capture
-in-flight action/dispatch/execution_unknown
-checkpoint corruption/integrity
-migration/backward compatibility
-retention/garbage collection
-resume-training vs inference-only checkpoints
-reproducibility claim levels
+Evaluation Runtime ownership
+benchmark/task suite structure
+train/validation/test world distributions
+evaluation episode/run/condition identity
+configuration matrix / ablation matrix
+No*/Dummy/control/matched-control semantics
+paired counterfactual evaluation
+checkpoint/base-state alignment
+intervention-based causal tests
+module-specific functional metrics
+end-to-end task metrics
+calibration metrics
+world/self-model metrics
+memory/retrieval metrics
+intrinsic/drive/appraisal/affect/valuation/salience diagnostics
+Executive performance-vs-compute frontier
+Planner matched-compute controls
+Policy vs Action Gate attribution
+workspace/affect negative module gates
+training plasticity vs retention
+reproducibility claim requirements
+compute-normalized comparison
+stochastic evaluation / seeds
+confidence intervals / statistical tests
+multiple comparisons / preregistered analysis where needed
+oracle/evaluator-only data separation
+failure/unknown/unresolved outcomes
+report schema / EvaluationManifest
+research claim evidence threshold
 ```
 
 Особенно нужно определить:
 
-- `Agent Snapshot ≠ persistent Checkpoint`;
-- exact counterfactual restore требует всех causally relevant private/RNG states;
-- checkpoint активного Agent и training-resume checkpoint могут иметь разный scope;
-- `DU-26` optimizer/trainer/candidate/activation state должен быть сохраняемым, если заявлен resumable training;
-- content identity и manifests важнее physical file path;
-- hardware/framework nondeterminism не маскируется утверждением «seed одинаковый»;
-- compute budget/usage становится воспроизводимым research metadata, но raw infrastructure telemetry не становится cognition автоматически;
-- concrete serialization/storage backend остаётся implementation choice.
+- `Evaluation Runtime` остаётся вне Agent и не передаёт evaluator score в cognition normal runtime способом;
+- one-number leaderboard score не должен заменять diagnostic causal evaluation;
+- baseline/ablation/control должны отличаться по semantic intervention, а не скрытому compute/data budget;
+- matched compute/state/parameter controls обязательны там, где иначе эффект объясняется дополнительной capacity;
+- Policy quality измеряется до Action Gate отдельно от system-level post-Gate outcome;
+- causal intervention требует common verified checkpoint/base state нужного `DU-27` restore level;
+- stochastic result требует statistical protocol, а не одного seed;
+- evaluation condition обязан ссылаться на exact Agent/Environment/data/checkpoint/revision/software/hardware/compute manifests;
+- privileged Ground Truth доступен evaluator'у, но не Agent;
+- `DU-28` должен определить falsification criteria для условно принятых Workspace/Affect/Planner/Executive mechanisms;
+- конкретный benchmark framework/library остаётся implementation choice.
 
-После принятия `DU-27` допускается:
+После принятия `DU-28` допускается:
 
 ```text
-DU-28 — MINDRA-Eval
+DU-29 — Engineering Testing
 ```
 
 ---
@@ -174,7 +180,6 @@ DU-28 — MINDRA-Eval
 
 Пока отсутствуют accepted решения по:
 
-- Checkpoint / Reproducibility / Compute;
 - MINDRA-Eval;
 - Engineering Testing;
 - Research Claims / Limitations;
@@ -182,7 +187,7 @@ DU-28 — MINDRA-Eval
 - Version Roadmap;
 - implementation sequences.
 
-Также не выбраны concrete Python/framework/model/algorithm/storage implementations.
+Также не выбраны concrete Python/framework/model/algorithm/storage/checkpoint implementations.
 
 ---
 
