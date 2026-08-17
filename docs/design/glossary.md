@@ -54,7 +54,7 @@ Privileged internal state Environment, недоступный Agent без expli
 
 ---
 
-# Goals / Cortex / Memory
+# Goals / Cortex / Memory Core
 
 ## Goal Proposal
 
@@ -74,7 +74,7 @@ Privileged internal state Environment, недоступный Agent без expli
 
 ## RetrievalResult
 
-Результат явного Memory retrieval event.
+Результат явного query-driven Memory retrieval event.
 
 ---
 
@@ -298,7 +298,7 @@ Agent-owned subsystem, строящий purpose-dependent priority profiles дл
 
 ## Salience Target
 
-Causally identifiable semantic object, которому может назначаться processing priority: percept/event, Goal, Memory candidate, World hypothesis, ValueProfile, plan/action candidate и т. п.
+Causally identifiable semantic object, которому может назначаться processing priority.
 
 ## SalienceCandidateSet
 
@@ -306,11 +306,11 @@ Explicit набор targets для конкретного purpose/base revision.
 
 ## Salience Purpose
 
-Контекст того, **для какого вида processing** строится priority, например Workspace admission hint, Memory regulation hint или planning inspection. Exact enum не frozen.
+Контекст того, для какого вида processing строится priority.
 
 ## Salience Evidence
 
-Typed evidence, влияющее на processing priority: novelty, relevance, urgency, risk, value, uncertainty, Drive/Affect context и другие разрешённые sources. Не общая числовая валюта автоматически.
+Typed evidence, влияющее на processing priority. Не общая числовая валюта автоматически.
 
 ## SalienceProfile
 
@@ -322,35 +322,71 @@ Explicit ограничение ресурса, предоставляемое c
 
 ## AllocationPolicy
 
-Versioned policy преобразования `SalienceProfile[] + AttentionBudget` в конкретный ranking/gating/allocation.
+Versioned policy преобразования `SalienceProfile[] + AttentionBudget` в ranking/gating/allocation.
 
 ## AttentionAllocation
 
 Результат распределения budget между candidates. Сам по себе не выполняет Workspace admission, Cortex invocation, retrieval или Action Commit.
 
-## Ranking
-
-Относительный порядок candidates.
-
-## Gating
-
-Решение, проходит ли candidate дальше в рамках allocation policy.
-
-## Inhibition of return
-
-Optional stateful mechanism временного снижения priority недавно выбранного target; candidate для Salience dynamics, не обязательная реализация.
-
 ## NoSalience
 
-Конфигурация отсутствующей Salience capability. Не fake `salience=0` для всех targets.
+Конфигурация отсутствующей Salience capability. Не fake `salience=0`.
+
+---
+
+# Memory Regulation / Consolidation
+
+## Memory Regulation
+
+Agent-owned policy responsibility поверх Memory Core, управляющая admission/retention/forgetting/eviction/replay/consolidation при explicit budget. Не второй owner canonical Memory Store.
+
+## MemoryRegulationProfile
+
+Typed purpose-specific representation memory-management evidence для proposal/record/group. Не universal `memory_importance` scalar.
+
+## MemoryBudget
+
+Explicit resource constraints Memory subsystem: record/payload/active-tier/representation или другие versioned budget dimensions. Не global Executive compute budget.
+
+## RegulationPolicy
+
+Versioned policy конкретного purpose: admission, retention, eviction, replay selection, consolidation и т.п.
+
+## Cognitive forgetting
+
+Изменение agent-accessibility/retention state memory. Не обязательно physical deletion payload.
+
+## Physical deletion
+
+Фактическое уничтожение/удаление stored payload. Отличается от reversible/deprioritized cognitive forgetting.
+
+## Memory Replay / Reactivation
+
+Explicit agent-owned re-presentation существующего `MemoryRecord` в consolidation/maintenance context. Не query-driven retrieval, не новый natural experience и не Training Replay.
+
+## Consolidation Event
+
+Отдельное causal событие logical runtime, в котором выбираются/replay'ятся source memories и могут создаваться derived memory proposals. Не Cognitive Cycle и не Learning Update.
+
+## ConsolidationProposal
+
+Source-linked предложение вывести новое derived memory из explicit source set. Ещё не committed `MemoryRecord`.
+
+## Derived MemoryRecord
+
+Новый canonical record, полученный derivation/consolidation из source records и сохраняющий `derived_from`/support/conflict/provenance. Не переписанный source episode и не privileged truth.
+
+## Representation maintenance
+
+Re-encoding/reindexing уже существующего MemoryRecord под новую feature-space/index revision. Не semantic consolidation.
+
+## NoConsolidation
+
+First-class конфигурация, в которой raw/episodic memory может регулироваться без создания derived semantic records.
 
 ---
 
 # Будущие области
-
-## Memory Regulation / Consolidation
-
-Будущая admission/retention/forgetting/replay/consolidation semantics поверх Memory Core. `DU-20`.
 
 ## Workspace
 
