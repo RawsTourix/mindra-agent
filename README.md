@@ -4,7 +4,7 @@
 
 Проект исследует, можно ли построить систему, в которой поведение определяется не только внешней задачей и базовой языковой моделью, но также собственным изменяющимся внутренним состоянием, памятью, моделью мира и себя, внутренними сигналами, drives, appraisal/affect, valuation, управляемым распределением cognitive processing, adaptive Executive Control, явной Policy/Planner boundary и причинно строгой Action Boundary между выбранным намерением и внешним действием.
 
-Отдельный Experience/Data plane сохраняет причинную историю работы системы и позволяет строить воспроизводимые research/training datasets без смешивания Agent Memory, source experience и Training Replay.
+Отдельные Experience/Data и Training planes сохраняют причинную историю, строят воспроизводимые datasets/replay inputs и изменяют trainable revisions через explicit candidate → validation → activation lifecycle, не смешиваясь с ordinary cognition.
 
 MINDRA не объявляет целью создание сознания или доказательство субъективного опыта у искусственной системы. Исследуются функционально измеримые механизмы и их причинный вклад в поведение.
 
@@ -12,7 +12,7 @@ MINDRA не объявляет целью создание сознания ил
 
 Проект находится на стадии **канонического архитектурного и исследовательского проектирования**.
 
-Documentation foundation и `DU-01 … DU-25` приняты. Следующий допустимый Design Update всегда указан в [`docs/design/current.md`](docs/design/current.md).
+Documentation foundation и `DU-01 … DU-26` приняты. Следующий допустимый Design Update всегда указан в [`docs/design/current.md`](docs/design/current.md).
 
 Production/research implementation, software versions, exact contract freeze, конкретные algorithms/frameworks, storage backend и Cortex backend ещё не зафиксированы.
 
@@ -23,6 +23,8 @@ Production/research implementation, software versions, exact contract freeze, к
 - явные contracts/ownership/provenance;
 - versioned committed state и causal execution;
 - immutable source experience + explicit derived data lineage;
+- Training Runtime отдельно от cognition;
+- candidate/validated/activated revisions вместо скрытой live mutation;
 - ablation/control/intervention для каждого существенного механизма;
 - воспроизводимость;
 - разделение Design / Implementation / Research Evidence;
