@@ -28,7 +28,7 @@ accepted ADR + canonical design
 → engineering/research evidence
 ```
 
-Research evidence меняет architecture только через design review/ADR.
+Research/engineering evidence меняет architecture только через design review/ADR.
 
 ## Принятые boundaries
 
@@ -56,6 +56,7 @@ Research evidence меняет architecture только через design revie
 | Training Lifecycle | `docs/design/training-lifecycle.md` | `contracts/training-lifecycle.md` | `ADR-0026` |
 | Checkpoint/Reproducibility/Compute | `docs/design/checkpoint-reproducibility-compute.md` | `contracts/checkpoint-reproducibility-compute.md` | `ADR-0027` |
 | MINDRA-Eval | `docs/design/mindra-eval.md` | `contracts/mindra-eval.md` | `ADR-0028` |
+| Engineering Testing | `docs/design/engineering-testing.md` | `contracts/engineering-testing.md` | `ADR-0029` |
 
 `contracts/...` выше означает `docs/design/contracts/...`. Следующий DU — только из `docs/design/current.md`.
 
@@ -86,9 +87,10 @@ same seed ≠ same RNG state ≠ guaranteed same execution
 ComputeManifest ≠ CognitiveResourceEnvelope
 Evaluation Runtime ≠ Agent cognition
 Task score ≠ module/causal/calibration evidence
-nested episode ≠ independent training replicate
-Policy pre-Gate quality ≠ post-Gate system quality
 Engineering Testing ≠ MINDRA-Eval
+line coverage ≠ architectural invariant coverage
+skipped/quarantined ≠ verified pass
+Test Oracle ≠ Agent-visible input
 ```
 
 ## Cognitive/runtime safeguards
@@ -104,77 +106,68 @@ Engineering Testing ≠ MINDRA-Eval
 - post-commit failure не отменяет commit;
 - blind retry при `execution_unknown` запрещён без dedup/idempotency evidence.
 
-## Data/training safeguards
+## Data/training/checkpoint safeguards
 
 - `Experience Journal` append-only source; replay buffer не source truth;
 - evaluator-only Ground Truth хранится отдельно;
 - hindsight/relabel/re-encode создают derived sample, не rewrite source;
-- Training Runtime не имеет ambient mutable access к live Agent;
 - ordinary cognition не выполняет hidden `optimizer.step()`;
-- `TrainingPlan` pin'ит base revisions/data/objectives/gradient policy;
 - runtime edge не создаёт gradient edge;
-- privileged supervision только explicit;
 - candidate revision проходит validation до activation;
-- activation только на causal boundary; in-flight decision не меняет revision;
+- activation только на causal boundary;
 - failed candidate не мутирует live Agent;
-- training metrics/replay priority не становятся cognitive signals автоматически.
-
-## Checkpoint safeguards
-
 - weights-only не называть full/training-resume checkpoint;
 - seed не заменяет current RNG state;
-- final manifest commit только после verification required artifacts;
-- content identity не равна physical path;
+- final checkpoint manifest commit только после verification required artifacts;
 - active/candidate revisions restore'ятся раздельно;
-- full-system exact restore требует aligned Agent + Environment state;
 - exact restore не downgraded молча;
-- `execution_unknown` блокирует unsafe retry/branch;
-- migration/delta dependency имеют explicit lineage/integrity;
-- raw infrastructure telemetry не публикуется в cognition автоматически.
+- `execution_unknown` блокирует unsafe retry/branch.
 
 ## MINDRA-Eval safeguards
 
 - evaluator score/Ground Truth не писать в `CognitiveState` normal runtime способом;
 - `EvaluationCondition` pin'ит checkpoint/world/Cortex/composition/interventions/data/resources/software/hardware context;
-- confirmatory hypothesis/primary metrics/contrasts/statistical plan фиксируются до confirmatory outcome;
-- exploratory result не выдавать за preregistered confirmatory;
+- confirmatory hypothesis/metrics/contrasts/statistical plan фиксируются до confirmatory outcome;
 - experimental/statistical unit и replicate nesting explicit;
 - episodes одного checkpoint не считать independent training replicates;
-- stochastic aggregate claim требует uncertainty/distribution evidence, не только point estimate;
+- stochastic aggregate claim требует uncertainty/distribution evidence;
 - `NoX` не называть matched control, если изменились capacity/compute/context/data;
-- baseline/treatment tuning budget match либо deviation explicit;
 - paired counterfactual only from sufficient verified DU-27 base state;
-- evaluator intervention только через declared Intervention Gateway;
 - Policy quality измерять до Gate отдельно от Gate/post-Gate outcome;
-- strong Gate не является evidence хорошей Policy;
 - `execution_unknown`/censored/invalid/unavailable не сворачивать в failure/0 без MetricSpec policy;
-- probability claim оценивать metric, соответствующей probability semantics; ECE alone не universal proof;
-- actual compute/data/context/parameter differences входят в attribution;
+- actual compute/data/context/parameter/tuning differences входят в attribution;
 - composite score derived и не удаляет source metrics;
-- oracle conditions privileged;
 - Affect/Workspace/Planner/Executive имеют explicit negative module gates;
-- strength research claim не превышает supporting evidence level;
-- benchmark/rliable/t-test/bootstrap/Brier/tracker/plot stack не architecture invariant до version design.
+- strength research claim не превышает supporting evidence level.
+
+## Engineering Testing safeguards
+
+- для изменяемого accepted invariant определить/обновить соответствующий `VerificationObligation`;
+- `VerificationMatrix` не заменять списком случайных tests;
+- architecture/import rules проверять статически там, где package structure позволяет;
+- replaceable implementation должна проходить capability-aware contract/conformance suite;
+- sequence-heavy lifecycle (`state/commit/action/training/checkpoint`) проверять property/state-machine подходом, где practically возможно;
+- failure semantics намеренно fault-inject'ить; happy path недостаточен;
+- test oracle/privileged sentinel не должен пересекать Agent-visible boundaries;
+- fault injector/test double не может требовать production Service Locator/global `TEST_MODE`;
+- `NoX` не считать broken implementation за честное отсутствие capability;
+- stochastic neural output не фиксировать exact golden без соответствующего deterministic contract;
+- golden update не делать автоматически: нужен reviewable semantic reason;
+- flaky rerun/`xfail`/quarantine не считать выполненной verification obligation;
+- `skip`/`not run`/capability unavailable не считать pass;
+- bitwise assertion применять только для заявленного exact profile; иначе semantic/tolerance/invariant assertion;
+- corrupted checkpoint, illegal write, privileged leakage, unsafe `execution_unknown` retry и unauthorized revision activation должны fail closed;
+- line coverage не использовать как замену invariant/failure/contract coverage;
+- concrete pytest/Hypothesis/Import Linter/CI/coverage/mutation tool не считать architecture invariant до version design.
 
 ## Research discipline
 
-Сильный result после `DU-28` должен ссылаться на:
+Сильный research result после `DU-28` должен ссылаться на EvaluationStudy/Condition, checkpoint/restore, distributions, controls/interventions, ReplicateStructure, metrics/statistics и compute provenance.
 
-```text
-EvaluationStudyPlan / EvaluationCondition
-checkpoint + RestoreProfile
-world/task distribution
-controls/interventions
-ReplicateStructure
-MetricSpec(s)
-StatisticalAnalysisPlan
-software/hardware/RNG/compute provenance
-```
+Engineering claim после `DU-29` должен ссылаться на relevant `VerificationObligation`, test spec/environment и verification evidence.
 
-Improvement нельзя приписывать module/algorithm, если treatment получил другой dataset, privileged labels, больший compute/data/tuning budget, другой restore state или более сильный Action Gate без отдельной attribution.
-
-Отрицательный module-gate result инициирует interpretation/design review; architecture меняется только через ADR.
+Research utility и engineering correctness не подменяют друг друга.
 
 ## Implementation scope
 
-До `DU-32` detailed design не является разрешением начинать production/research implementation. Не превращать research candidates в implicit contracts.
+До `DU-32` detailed design не является разрешением начинать production/research implementation. Не превращать research/tool candidates в implicit contracts.
