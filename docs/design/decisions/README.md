@@ -66,6 +66,7 @@ Research experiment сам по себе не становится ADR: снач
 - [`ADR-0006 — Разделить passive Evidence Plane и explicit Intervention Gateway`](ADR-0006-separated-evidence-plane-and-intervention-gateway.md) — observability остаётся однонаправленной passive evidence boundary, а active research mutation проходит только через отдельный explicit Intervention Gateway с target/base/provenance и experimental lineage.
 - [`ADR-0007 — Разделить agent-visible Environment interaction и research-only world control`](ADR-0007-two-plane-environment-boundary.md) — общий Environment contract имеет отдельные Agent Interaction Plane и Research Plane; `MicroWorld` является reference family, а privileged world state/snapshot/intervention не становятся обычным Agent input.
 - [`ADR-0008 — Гибридный Canonical Percept: structured semantic core + optional feature views`](ADR-0008-hybrid-canonical-percept.md) — Perception публикует structured Semantic Core с provenance/missingness и optional revisioned Feature Views; один universal latent и Cortex hidden space не являются canonical inter-module representation.
+- [`ADR-0009 — Committed Goal Graph с явной proposal/adoption boundary`](ADR-0009-committed-goal-graph.md) — внешние, внутренние, planner и research sources создают Goal Proposal; только Goal System принимает committed Goal state и владеет lifecycle/Goal Graph, не смешивая цель с reward/value/policy.
 
 ## Proposed
 
