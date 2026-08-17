@@ -35,6 +35,7 @@ Research result не меняет design автоматически: снача�
 - [`ADR-0019`](ADR-0019-budgeted-contextual-salience-allocation.md) — contextual Salience Profiles + explicit budgeted Attention Allocation.
 - [`ADR-0020`](ADR-0020-source-preserving-budget-aware-memory-regulation.md) — source-preserving budget-aware Memory Regulation с gated consolidation.
 - [`ADR-0021`](ADR-0021-bounded-broadcast-workspace-overlay.md) — bounded source-preserving broadcast Workspace overlay с first-class `NoWorkspace`, matched controls и explicit negative module gate.
+- [`ADR-0022`](ADR-0022-proposal-driven-budget-aware-executive-control.md) — proposal-driven budget-aware Executive Control поверх invariant Scheduler, с explicit MetaAction proposals, resource envelope и equal-compute negative gate.
 
 ## Proposed
 
