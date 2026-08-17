@@ -8,7 +8,7 @@
 
 # 1. Общий статус
 
-**`DU-01 … DU-20` завершены и приняты. Реализация ещё не начата.**
+**`DU-01 … DU-21` завершены и приняты. Реализация ещё не начата.**
 
 Приняты:
 
@@ -27,8 +27,9 @@
 - Valuation;
 - Salience / Attention;
 - Memory Regulation / Consolidation;
-- 20 accepted ADR;
-- candidate semantic contracts для subsystem boundaries `DU-07 … DU-20`.
+- Workspace;
+- 21 accepted ADR;
+- candidate semantic contracts для subsystem boundaries `DU-07 … DU-21`.
 
 ---
 
@@ -56,117 +57,121 @@ DU-17 — Affect Dynamics
 DU-18 — Valuation
 DU-19 — Salience / Attention
 DU-20 — Memory Regulation / Consolidation
+DU-21 — Workspace
 ```
 
 ---
 
-# 3. DU-20
+# 3. DU-21
 
 Canonical design:
 
-- [`modules/memory.md`](modules/memory.md) — нейтральный Memory Core `DU-11`;
-- [`modules/memory-regulation.md`](modules/memory-regulation.md) — regulation/consolidation extension `DU-20`.
+- [`modules/workspace.md`](modules/workspace.md)
 
-Candidate contracts:
+Candidate contract:
 
-- [`contracts/memory.md`](contracts/memory.md);
-- [`contracts/memory-regulation.md`](contracts/memory-regulation.md).
+- [`contracts/workspace.md`](contracts/workspace.md)
 
 Accepted decision:
 
-- [`ADR-0020`](decisions/ADR-0020-source-preserving-budget-aware-memory-regulation.md).
+- [`ADR-0021`](decisions/ADR-0021-bounded-broadcast-workspace-overlay.md)
 
 Research pass:
 
-- [`../research/literature/DU-20-memory-regulation-consolidation-landscape-2026-08.md`](../research/literature/DU-20-memory-regulation-consolidation-landscape-2026-08.md).
+- [`../research/literature/DU-21-workspace-landscape-2026-08.md`](../research/literature/DU-21-workspace-landscape-2026-08.md)
 
 Главные результаты:
 
 ```text
-Memory Core validation ≠ Regulation admission
-Memory Core owner ≠ Memory Regulation policy owner
-SalienceProfile ≠ retention/eviction decision
-forgetting ≠ physical deletion
-retrieval ≠ Agent Memory Replay ≠ Training Replay
-consolidation ≠ in-place rewrite
-consolidation ≠ Learning Update
-representation maintenance ≠ semantic consolidation
+CognitiveState ≠ Workspace
+published state ≠ Workspace admission
+SalienceProfile ≠ Workspace admission
+WorkspaceBudget ≠ AttentionBudget ≠ MemoryBudget ≠ Executive budget
+WorkspaceItem ≠ source truth
+Workspace ≠ Memory
+Workspace eviction ≠ Memory forgetting
+Memory retrieval ≠ Workspace admission
+Workspace ≠ Cortex context
+broadcast ≠ callback/module execution
+imagined Workspace ≠ real Workspace
+Workspace ≠ Policy
+Workspace ≠ proof of consciousness
 ```
 
-- Memory Core остаётся единственным owner canonical Store и lifecycle commit;
-- Memory Regulation является отдельной policy responsibility, но не вторым Store owner;
-- admission/retention/eviction/replay/consolidation имеют разные purpose-specific policies;
-- принят explicit multi-dimensional `MemoryBudget`;
-- universal `memory_importance` scalar не является canonical representation;
-- Salience является одним из evidence sources, но не final memory authority;
-- retrieval/access history не становится importance автоматически;
-- aging использует logical time, а не GPU/network/Colab latency;
-- cognitive forgetting отделено от physical deletion;
-- replay/reactivation запускается только в explicit causal context и не считается новым natural experience;
-- Agent Memory Replay не является Training Runtime replay;
-- consolidation gated и может быть полностью отключена;
-- derived/semantic memory создаётся как новый `MemoryRecord`;
-- source episodes не переписываются inplace;
-- `derived_from`, support/conflict и derivation provenance сохраняются;
-- consolidation не повышает source authority/trust автоматически;
-- contradiction/minority evidence должно быть представимо без hidden majority-vote;
-- representation re-encoding/index rebuild не создаёт semantic memory;
-- optimizer/slow-weight update отложен до `DU-26`;
-- episodic-only/`NoConsolidation` является обязательным control;
-- compression ratio сам по себе не считается evidence полезной consolidation.
+- Workspace принят как bounded temporary shared broadcast overlay;
+- отдельная boundary имеет conditional/falsifiable module gate;
+- Workspace работает только с explicit proposals/candidates;
+- capacity/bandwidth являются частью functional hypothesis;
+- Workspace AdmissionPolicy отделена от Salience;
+- admitted item сохраняет source revision/provenance/authority;
+- global availability означает доступ declared eligible consumers;
+- broadcast не запускает consumers push/callback способом;
+- Workspace может поддерживать multi-cycle persistence, но не заменяет long-term Memory;
+- Memory retrieval должен отдельно пройти Workspace proposal/admission;
+- Cortex context packing остаётся отдельной semantic operation;
+- imagined/counterfactual branches используют branch-local Workspace;
+- Workspace state входит в causally relevant Agent Snapshot;
+- обязательны `NoWorkspace`, DirectReads, Random/Shuffled, Unbounded, no-broadcast и matched buffer controls;
+- capacity sweep и broadcast lesions являются обязательными evaluation families;
+- если matched controls объясняют эффект, отдельная Workspace boundary должна быть пересмотрена;
+- Workspace functionality не является evidence subjective consciousness.
 
 ---
 
 # 4. Следующий допустимый Design Update
 
 ```text
-DU-21 — Workspace
+DU-22 — Metacognitive / Executive Control
 ```
 
-Цель `DU-21` — проверить, нужен ли MINDRA отдельный ограниченный temporary global-access mechanism сверх versioned `CognitiveState`, Salience allocation и обычных explicit module dependencies.
+Цель `DU-22` — спроектировать agent-owned regulation cognitive process: **какие внутренние операции выполнять, сколько вычислительного ресурса им выделять и когда прекращать/продолжать cognition**, не смешивая это с invariant Scheduler и final Policy/Action selection.
 
 Обязательные вопросы:
 
 ```text
-Workspace module gate
-Workspace candidate/admission boundary
-Workspace ≠ CognitiveState
-Workspace ≠ Salience
-Workspace ≠ Cortex context
-Workspace ≠ Memory
-capacity / slots / token-like budget?
-persistence / replacement
-broadcast/read semantics
-consumer eligibility
-producer authority
-competition/admission
-Salience integration
-Goal/Affect/Valuation relation
-Cortex context packing boundary
-Memory retrieval → Workspace boundary
-multi-cycle persistence
-branch/imagination workspace
+Executive module gate
+metacognitive monitoring ≠ control
+Executive Control ≠ Cognitive Scheduler
+Executive Control ≠ Policy / Planner
+internal/meta action ≠ Environment action
+compute/resource budget model
+continue / stop Cognitive Cycles
+Cortex invocation decision
+Memory retrieval decision
+planning/imagination depth
+consolidation initiation
+Workspace budget/admission context control?
+Goal focus control
+Salience / Workspace / Self Model inputs
+uncertainty / competence / cost evidence
+resource exhaustion
+latency/cost semantics without wall-clock leakage
+policy for optional capabilities
+fallback/degradation
+branch/imagination executive state
 observability/intervention
-NoWorkspace / matched control
-snapshot/revision/degradation
+NoExecutive / fixed-budget / random / matched controls
+snapshot/revision
 ```
 
 Нужно особенно определить:
 
-- существует ли measurable функция Workspace сверх общего committed state;
-- должен ли Workspace хранить ограниченный subset уже доступного information;
-- является ли global availability отдельной capability или достаточно declared reads `CognitiveState`;
-- как Salience предлагает priority, но Workspace сам принимает admission;
-- могут ли modules читать Workspace только через declared dependency;
-- должен ли Workspace переживать несколько Cognitive Cycles/Decision Window;
-- как избежать превращения Workspace в giant prompt Cortex;
-- как сравнить Workspace с parameter/state-capacity-matched recurrent/shared-state control;
-- при каком отрицательном результате отдельный Workspace должен быть отклонён.
+- кто владеет global agent compute/resource budgets;
+- является ли Executive Control отдельным module или набором control policies;
+- как Scheduler остаётся механикой допустимого исполнения и не принимает cognitive decisions;
+- как Executive выбирает **разрешённые** операции, не обходя dependency/ownership invariants;
+- когда Agent может решить «мне нужно ещё подумать» до `Action Commit`;
+- как выбирать между `Cortex`, retrieval, World Model rollout, Workspace processing и непосредственным действием;
+- как Self Model competence/uncertainty и expected costs влияют на control без превращения Self Model в controller;
+- как Salience даёт priority evidence, но не сама запускает compute;
+- как отделить internal meta-actions от будущих Environment actions;
+- какой causal evidence нужен, чтобы доказать пользу adaptive control сверх fixed compute budget;
+- при каком отрицательном результате отдельная Executive boundary должна быть упрощена/удалена.
 
-После принятия `DU-21` допускается:
+После принятия `DU-22` допускается:
 
 ```text
-DU-22 — Metacognitive / Executive Control
+DU-23 — Policy / Planner
 ```
 
 ---
@@ -175,7 +180,6 @@ DU-22 — Metacognitive / Executive Control
 
 Пока отсутствуют accepted решения по:
 
-- Workspace;
 - Metacognitive / Executive Control;
 - Policy / Planner;
 - Action Gate / Executor;
