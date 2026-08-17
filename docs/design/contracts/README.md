@@ -18,7 +18,7 @@
 - observability event/trace schema;
 - module research probe contract;
 - intervention request/result contract;
-- Cortex backend contract;
+- Cortex Gateway/backend contract;
 - Environment API;
 - Perception/Canonical Percept contract;
 - Goal System/Goal Graph contract;
@@ -35,7 +35,8 @@
 
 - [`environment.md`](environment.md) — candidate semantic machine-facing contract после `DU-07`: agent-facing/research-facing Environment operations, snapshot/clone/fork/intervention и transition-evidence requirements;
 - [`perception.md`](perception.md) — candidate semantic contract после `DU-08`: Perception input, `Canonical Percept`, Semantic Core, Feature Views, representation identity/versioning и research capabilities;
-- [`goals.md`](goals.md) — candidate semantic contract после `DU-09`: Goal Proposal, Committed Goal, Goal Graph, lifecycle/scope, transition authority, progress/priority/commitment и research capabilities.
+- [`goals.md`](goals.md) — candidate semantic contract после `DU-09`: Goal Proposal, Committed Goal, Goal Graph, lifecycle/scope, transition authority, progress/priority/commitment и research capabilities;
+- [`cortex.md`](cortex.md) — candidate semantic contract после `DU-10`: Cortex descriptor, capability negotiation, semantic request/context/result, backend adapter/provider provenance, optional research/adaptation capabilities и failure/resource semantics.
 
 Эти документы **не** являются frozen Python API и могут уточняться последующими DU до общего contract freeze.
 
@@ -73,6 +74,15 @@ Perception contract не должен превращать конкретный 
 
 Goal contract не должен давать Cortex/Planner/Drives прямую mutation authority committed Goal Graph или смешивать structural priority с future dynamic valuation.
 
+Cortex contract не должен:
+
+- фиксировать конкретную model family/provider как architecture requirement;
+- давать Gateway ambient access ко всему Agent state;
+- требовать hidden states/gradients/CoT от любого backend;
+- протаскивать model-specific chat template/tokenizer в cognitive consumers;
+- превращать Cortex result в direct Goal/Memory/Action write;
+- скрывать fallback/context truncation/provider substitution.
+
 ---
 
 # Иерархия
@@ -90,7 +100,7 @@ Exact contract уточняет форму принятой семантики, 
 
 # Текущий статус
 
-После `DU-04` … `DU-09` уже приняты semantic requirements для:
+После `DU-04` … `DU-10` уже приняты semantic requirements для:
 
 - versioned committed `CognitiveState`;
 - state ownership/provenance/scopes;
@@ -99,38 +109,32 @@ Exact contract уточняет форму принятой семантики, 
 - staged public/private effects;
 - lifecycle/failure semantics;
 - causal execution tracing;
-- passive Evidence Plane;
-- declared private-state research probes;
-- explicit Intervention Gateway;
-- intervention lineage/provenance;
-- exact-vs-approximate counterfactual distinction;
-- agent-visible vs research-only Environment boundaries;
-- Environment snapshot/clone/fork/intervention semantics;
-- procedural world identity/version/RNG provenance;
-- External Task Feedback vs Objective Task Metric vs Internal Utility distinction;
-- `Raw Observation` vs `Canonical Percept` boundary;
-- hybrid Semantic Core + optional Feature Views;
-- Perception provenance/missingness/entity ordering semantics;
-- learned representation identity/version/drift;
-- no-Cortex-compatible Perception boundary;
-- `External Task Specification` vs internal Goal boundary;
-- Goal Proposal vs Committed Goal;
-- Goal System semantic ownership;
+- passive Evidence Plane и explicit Intervention Gateway;
+- Environment/Perception/Goal boundaries;
 - Goal Graph/lifecycle/scope/dependency/conflict semantics;
-- structural priority vs future dynamic value;
-- commitment vs focus/value;
-- progress provenance и запрет evaluator-only metric как hidden runtime progress source.
+- Cortex как agent-owned shared pretrained capability;
+- backend-neutral Cortex Gateway;
+- semantic Request/Context/Result boundary;
+- backend-specific prompt/chat-template/tokenizer/provider isolation;
+- local/remote provider compatibility с explicit capability/provenance;
+- optional hidden-state/embedding/gradient/multimodal/adapter capabilities;
+- `NoCortex`/Dummy/Control distinctions;
+- model/adapter/template behavior-revision provenance;
+- explicit context overflow/truncation/failure/degradation semantics;
+- Goal Proposal и Feature View boundaries для Cortex-derived outputs.
 
 Однако **общий exact Python contract set пока намеренно не зафиксирован**.
 
 `environment.md` остаётся candidate, поскольку `DU-24`, `DU-25`, `DU-27` и `DU-28` ещё могут уточнить exact action/data/snapshot forms.
 
-`perception.md` остаётся candidate, поскольку `DU-10` … `DU-13`, `DU-25` … `DU-28` могут уточнить exact Cortex/Memory/World Model representation потребности, persistence и evaluation contracts.
+`perception.md` остаётся candidate, поскольку `DU-11` … `DU-13`, `DU-25` … `DU-28` могут уточнить exact Memory/World Model representation потребности, persistence и evaluation contracts.
 
-`goals.md` остаётся candidate, поскольку `DU-10`, `DU-12` … `DU-18`, `DU-22`, `DU-23`, `DU-25` … `DU-28` ещё уточнят grounding, feasibility, autonomous proposal, valuation, focus/planning, data и evaluation semantics.
+`goals.md` остаётся candidate, поскольку `DU-12` … `DU-18`, `DU-22`, `DU-23`, `DU-25` … `DU-28` ещё уточнят feasibility, autonomous proposal, valuation, focus/planning, data и evaluation semantics.
+
+`cortex.md` остаётся candidate, поскольку `DU-11`, `DU-21` … `DU-23`, `DU-26` … `DU-28` ещё уточнят Memory/Workspace context, invocation control, Policy usage, adaptation, checkpoint и evaluation requirements.
 
 Будущие module-specific Design Updates должны продолжать проверять semantic protocol реальными требованиями.
 
-До contract freeze запрещено считать обсуждавшиеся `Protocol`, ABC, TensorDict `in_keys/out_keys`, dataclass schemas, OpenTelemetry span model, PyTorch hooks, pyvene API, Gymnasium `Env`, конкретный Perception encoder, graph library или scheduler/intervention result type каноническими.
+До contract freeze запрещено считать обсуждавшиеся `Protocol`, ABC, TensorDict `in_keys/out_keys`, dataclass schemas, OpenTelemetry span model, PyTorch hooks, pyvene API, Gymnasium `Env`, Transformers/vLLM/SGLang, конкретный Cortex backend, PEFT method или scheduler/intervention result type каноническими.
 
 Exact contracts создаются тогда, когда соответствующая семантика достаточно устойчива и есть основания зафиксировать machine-facing форму.
