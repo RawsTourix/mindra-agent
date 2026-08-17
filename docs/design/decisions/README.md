@@ -71,6 +71,7 @@ Research experiment сам по себе не становится ADR: снач
 - [`ADR-0011 — Canonical Memory Records отдельно от derived representations/indexes`](ADR-0011-canonical-memory-records-derived-indexes.md) — Memory Store хранит stable source-preserving records; embeddings и retrieval indexes являются versioned derived structures и не определяют semantic identity памяти.
 - [`ADR-0012 — Belief-state World Model с раздельными assimilation, prediction и imagination semantics`](ADR-0012-belief-state-world-model.md) — partial observability выражается через World Belief; actual evidence update отделён от action-conditioned prediction/imagination, а backend latent не становится universal representation.
 - [`ADR-0013 — Гибридная функциональная Self Model: capability facts + learned competence + calibrated predictions`](ADR-0013-hybrid-functional-self-model.md) — self-observable capability facts отделены от learned context-conditioned competence; Self Prediction имеет explicit target/calibration semantics и не заменяется Cortex self-report.
+- [`ADR-0014 — Многопровайдерный Intrinsic Signal Layer без обязательной scalarization`](ADR-0014-multi-provider-intrinsic-signal-layer.md) — novelty, prediction discrepancy, information gain, competence change и другие signal families остаются typed independent outputs; общий intrinsic reward не является canonical boundary.
 
 ## Proposed
 
