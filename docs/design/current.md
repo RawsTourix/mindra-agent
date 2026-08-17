@@ -8,7 +8,7 @@
 
 # 1. Общий статус
 
-**`DU-01 … DU-28` завершены и приняты. Реализация ещё не начата.**
+**`DU-01 … DU-29` завершены и приняты. Реализация ещё не начата.**
 
 Приняты:
 
@@ -18,8 +18,9 @@
 - Training Lifecycle `DU-26`;
 - Checkpoint / Reproducibility / Compute `DU-27`;
 - MINDRA-Eval `DU-28`;
-- 28 accepted ADR;
-- candidate semantic contracts для boundaries `DU-07 … DU-28`.
+- Engineering Testing `DU-29`;
+- 29 accepted ADR;
+- candidate semantic contracts для boundaries `DU-07 … DU-29`.
 
 ---
 
@@ -55,121 +56,110 @@ DU-25 — Experience / Data / Replay
 DU-26 — Training Lifecycle
 DU-27 — Checkpoint / Reproducibility / Compute
 DU-28 — MINDRA-Eval
+DU-29 — Engineering Testing
 ```
 
 ---
 
-# 3. DU-28
+# 3. DU-29
 
 Canonical design:
 
-- [`mindra-eval.md`](mindra-eval.md)
+- [`engineering-testing.md`](engineering-testing.md)
 
 Candidate contract:
 
-- [`contracts/mindra-eval.md`](contracts/mindra-eval.md)
+- [`contracts/engineering-testing.md`](contracts/engineering-testing.md)
 
 Accepted decision:
 
-- [`ADR-0028`](decisions/ADR-0028-multi-layer-causal-evaluation-harness.md)
+- [`ADR-0029`](decisions/ADR-0029-layered-invariant-driven-engineering-verification.md)
 
-Research pass:
+Research/tool pass:
 
-- [`../research/literature/DU-28-mindra-eval-landscape-2026-08.md`](../research/literature/DU-28-mindra-eval-landscape-2026-08.md)
+- [`../research/literature/DU-29-engineering-testing-landscape-2026-08.md`](../research/literature/DU-29-engineering-testing-landscape-2026-08.md)
 
 Главные результаты:
 
 ```text
-Task score
-≠ module evidence
-≠ causal evidence
-≠ calibration evidence
-≠ compute-efficiency evidence
+Engineering Testing
+≠
+MINDRA-Eval
 
-Evaluation Runtime
-≠ Agent cognition
+line coverage
+≠
+architectural invariant coverage
 
-Policy quality before Gate
-≠ post-Gate system quality
+seed
+≠
+deterministic equality contract
 ```
 
-- `EvaluationStudy → Suite → Condition → Run → Unit → Metric/Contrast → Report` является основной evaluation hierarchy;
-- `EvaluationCondition` pin'ит Agent/checkpoint/world/Cortex/interventions/data/resources/software/hardware context;
-- experimental/statistical unit и replicate axes объявляются явно;
-- nested episodes одного checkpoint не считаются independent training replicates;
-- stochastic aggregate claim требует distribution/interval uncertainty evidence;
-- confirmatory study заранее фиксирует primary hypothesis/metric/contrast/statistical plan;
-- `No*`/Dummy/random/shuffled и matched-capacity/compute controls first-class;
-- paired counterfactual interventions используют только проверенный DU-27 causal base state;
-- evaluator Ground Truth остаётся privileged и не попадает в Agent Interaction Plane;
-- proper scoring/calibration diagnostics отделены от task accuracy;
-- actual compute/data/context/tuning differences входят в attribution;
-- Policy, Action Gate и post-Gate system outcome оцениваются отдельно;
-- `Affect`, `Workspace`, `Planner`, `Executive Control` имеют explicit negative module gates;
-- `execution_unknown`, censored и invalid conditions не превращаются молча в обычный failure;
-- optional composite score не заменяет typed metric/causal evidence;
-- strength of research claim bounded by evidence/design strength;
-- concrete benchmark/statistics/plotting framework не выбран.
+- каждый accepted engineering invariant получает `VerificationObligation` либо explicit статус manual/non-machine-checkable/research-only;
+- `VerificationMatrix` связывает ADR/design/contracts с test specs, CI tiers и evidence;
+- static architecture, unit, contract/conformance, property, state-machine, integration, fault/recovery, persistence/migration/backend/system tests являются разными слоями;
+- заменяемые implementations проходят shared conformance suites по заявленным capabilities;
+- ownership/write authority, scheduler/waves/atomic commit/staleness проверяются явно;
+- privileged Ground Truth/test oracle leakage должен обнаруживаться автоматически;
+- `Action Commit → dispatch → execution_unknown → reconciliation` получает отдельную state-machine/fault suite;
+- Training Runtime проверяется на candidate/activation/rollback и отсутствие hidden live mutation;
+- checkpoint tests следуют заявленному scope/restore/reproducibility profile, а не universal bitwise oracle;
+- golden tests ограничены stable deterministic contract surfaces;
+- flaky rerun/quarantine не считается satisfied VerificationObligation;
+- `No*`/Dummy/control implementations имеют declared conformance profiles;
+- CI tiers различают static/CPU/stateful-fault/accelerator/remote-provider classes без выбора конкретного CI provider;
+- skipped/not-run/quarantined не превращаются в pass;
+- concrete pytest/Hypothesis/Import Linter/coverage/mutation/CI implementations не выбраны.
 
 ---
 
 # 4. Следующий допустимый Design Update
 
 ```text
-DU-29 — Engineering Testing
+DU-30 — Research Claims / Limitations
 ```
 
-Цель `DU-29` — спроектировать **инженерную систему проверки реализации MINDRA**, отделённую от research evaluation.
-
-Нужно определить, как автоматически проверять contracts/invariants/failure semantics на уровне modules, runtime, data, training, checkpoints и evaluation infrastructure.
+Цель `DU-30` — определить **какие утверждения MINDRA вообще имеет право делать о своих результатах и архитектуре**, как strength of claim связывается с evidence `DU-28`, и как документируются отрицательные результаты, ограничения, неизвестность и антропоморфные пределы интерпретации.
 
 Обязательные вопросы:
 
 ```text
-unit tests vs contract tests vs research evaluation
-architecture/dependency tests
-schema/serialization tests
-property/invariant tests
-state ownership/read-write tests
-scheduler/DAG/wave/atomic commit tests
-logical-time and stale-state tests
-snapshot/restore/checkpoint round-trip tests
-RNG/determinism tests
-Environment clone/restore/action idempotency tests
-execution_unknown/reconciliation tests
-failure injection / fault tolerance
-Cortex backend contract tests
-No*/Dummy/control conformance
-representation revision compatibility
-Memory provenance/index rebuild tests
-training candidate/activation/rollback tests
-data lineage / evaluator leakage tests
-EvaluationCondition/metric/statistics manifest validation
-migration/backward-compatibility tests
-fuzz/property-based testing
-resource/timeout/OOM behavior
-CI test tiers
-fast vs slow vs accelerator-required suites
-golden tests and their update policy
-flaky-test policy
-coverage of architectural invariants
+observation vs interpretation vs claim
+engineering evidence vs research evidence
+claim strength / evidence ladder
+causal claim requirements
+generalization scope
+reproducibility vs replicability
+negative / null results
+failed module gates
+limitations registry
+known unknowns
+unsupported claims
+anthropomorphic / consciousness claims
+subjective experience claims
+capability vs architecture attribution
+Cortex/provider dependence
+compute/data/tuning limitations
+statistical uncertainty
+post-hoc vs preregistered evidence
+claim versioning / supersession
+paper/report language discipline
 ```
 
 Особенно нужно определить:
 
-- `Engineering Testing ≠ MINDRA-Eval`;
-- research hypothesis не заменяет contract/invariant test;
-- unit test не является evidence функциональной полезности модуля;
-- каждый accepted invariant должен иметь, где возможно, machine-checkable enforcement/test;
-- failure semantics должны тестироваться намеренно, а не только happy path;
-- oracle leakage и illegal dependency должны обнаруживаться автоматически;
-- checkpoints/data/manifests должны проверяться на corruption/staleness/incompatibility;
-- конкретный testing framework/CI provider пока implementation choice.
+- наличие Drives/Appraisal/Affect/Self Model/Workspace не является evidence сознания или субъективных чувств;
+- функциональное сходство с человеческим механизмом не доказывает феноменологическое равенство;
+- strong causal wording требует соответствующего intervention/matched evidence;
+- result scope не расширяется с одного checkpoint/task family на «AGI» автоматически;
+- отрицательный module gate должен быть reportable и может инициировать ADR/design review;
+- limitations должны быть versioned first-class artifacts, а не примечанием в конце статьи;
+- конкретный paper/template/publication venue пока не выбирается.
 
-После принятия `DU-29` допускается:
+После принятия `DU-30` допускается:
 
 ```text
-DU-30 — Research Claims / Limitations
+DU-31 — Contract + ADR Consistency Freeze
 ```
 
 ---
@@ -178,7 +168,6 @@ DU-30 — Research Claims / Limitations
 
 Пока отсутствуют accepted решения по:
 
-- Engineering Testing;
 - Research Claims / Limitations;
 - Contract + ADR Consistency Freeze;
 - Version Roadmap;
