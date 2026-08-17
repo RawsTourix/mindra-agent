@@ -26,9 +26,10 @@ accepted ADR + canonical design
 → implementation sequence
 → implementation
 → engineering/research evidence
+→ versioned research claims
 ```
 
-Research/engineering evidence меняет architecture только через design review/ADR.
+Research/engineering evidence меняет architecture только через design review/ADR. Research claim не заменяет evidence source.
 
 ## Принятые boundaries
 
@@ -57,6 +58,7 @@ Research/engineering evidence меняет architecture только через 
 | Checkpoint/Reproducibility/Compute | `docs/design/checkpoint-reproducibility-compute.md` | `contracts/checkpoint-reproducibility-compute.md` | `ADR-0027` |
 | MINDRA-Eval | `docs/design/mindra-eval.md` | `contracts/mindra-eval.md` | `ADR-0028` |
 | Engineering Testing | `docs/design/engineering-testing.md` | `contracts/engineering-testing.md` | `ADR-0029` |
+| Research Claims / Limitations | `docs/design/research-claims-limitations.md` | `contracts/research-claims-limitations.md` | `ADR-0030` |
 
 `contracts/...` выше означает `docs/design/contracts/...`. Следующий DU — только из `docs/design/current.md`.
 
@@ -89,8 +91,11 @@ Evaluation Runtime ≠ Agent cognition
 Task score ≠ module/causal/calibration evidence
 Engineering Testing ≠ MINDRA-Eval
 line coverage ≠ architectural invariant coverage
-skipped/quarantined ≠ verified pass
-Test Oracle ≠ Agent-visible input
+Observation ≠ Interpretation ≠ ResearchClaim
+ClaimScope ≠ universal scope
+association ≠ causation
+functional similarity ≠ phenomenological equivalence
+publication prose ≠ claim source of truth
 ```
 
 ## Cognitive/runtime safeguards
@@ -146,27 +151,59 @@ Test Oracle ≠ Agent-visible input
 - `VerificationMatrix` не заменять списком случайных tests;
 - architecture/import rules проверять статически там, где package structure позволяет;
 - replaceable implementation должна проходить capability-aware contract/conformance suite;
-- sequence-heavy lifecycle (`state/commit/action/training/checkpoint`) проверять property/state-machine подходом, где practically возможно;
+- sequence-heavy lifecycle проверять property/state-machine подходом, где practically возможно;
 - failure semantics намеренно fault-inject'ить; happy path недостаточен;
 - test oracle/privileged sentinel не должен пересекать Agent-visible boundaries;
 - fault injector/test double не может требовать production Service Locator/global `TEST_MODE`;
-- `NoX` не считать broken implementation за честное отсутствие capability;
 - stochastic neural output не фиксировать exact golden без соответствующего deterministic contract;
-- golden update не делать автоматически: нужен reviewable semantic reason;
 - flaky rerun/`xfail`/quarantine не считать выполненной verification obligation;
 - `skip`/`not run`/capability unavailable не считать pass;
-- bitwise assertion применять только для заявленного exact profile; иначе semantic/tolerance/invariant assertion;
 - corrupted checkpoint, illegal write, privileged leakage, unsafe `execution_unknown` retry и unauthorized revision activation должны fail closed;
 - line coverage не использовать как замену invariant/failure/contract coverage;
-- concrete pytest/Hypothesis/Import Linter/CI/coverage/mutation tool не считать architecture invariant до version design.
+- concrete testing/CI tools не считать architecture invariant до version design.
+
+## Research Claims / Limitations safeguards
+
+- substantial claim оформлять как versioned `ResearchClaim`, а не только prose;
+- Observation/MetricRecord не повышать молча до Interpretation/Causal Claim;
+- каждый claim имеет explicit `ClaimScope`; отсутствие поля не означает `universal`;
+- supporting и challenging evidence сохранять одновременно;
+- causal wording использовать только при соответствующем intervention/control evidence;
+- `NoX` degradation не называть доказательством semantic necessity без проверки confounders;
+- effect одной implementation не выдавать автоматически за architecture-level effect;
+- Cortex/provider/data/compute/tuning dependence отражать в scope/limitations;
+- `negative evidence`, `null`, `inconclusive`, `invalid`, `not measured` не смешивать;
+- низкая sensitivity/широкая uncertainty не превращаются в доказательство отсутствия effect;
+- failed module gate создаёт ClaimReview/design review, но не silent ADR mutation;
+- limitations и known unknowns не удалять ради красивого report;
+- old claim weaken/narrow/supersede с сохранением historical lineage;
+- public/report statement не должен быть сильнее canonical claim revision;
+- `Self Model` не считать proof self-awareness/consciousness;
+- `Affect`/Appraisal/Drives не считать proof subjective emotions;
+- `Workspace` не считать proof consciousness;
+- first-person Cortex text не считать reliable phenomenal self-report;
+- human-like behavior/function не считать biological/phenomenological equivalence;
+- один benchmark/result не называть доказательством AGI;
+- `unknown` разрешён и предпочтительнее выдуманной уверенности.
 
 ## Research discipline
 
-Сильный research result после `DU-28` должен ссылаться на EvaluationStudy/Condition, checkpoint/restore, distributions, controls/interventions, ReplicateStructure, metrics/statistics и compute provenance.
+Сильный research result должен ссылаться на EvaluationStudy/Condition, checkpoint/restore, distributions, controls/interventions, ReplicateStructure, metrics/statistics и compute provenance.
 
-Engineering claim после `DU-29` должен ссылаться на relevant `VerificationObligation`, test spec/environment и verification evidence.
+Engineering claim должен ссылаться на relevant `VerificationObligation`, test spec/environment и verification evidence.
 
-Research utility и engineering correctness не подменяют друг друга.
+Published/scoped research claim должен быть traceable через:
+
+```text
+Evidence
+→ Observation
+→ Interpretation
+→ ResearchClaim revision
+→ Limitations / KnownUnknowns
+→ report/publication statement
+```
+
+Research utility, engineering correctness и phenomenological interpretation не подменяют друг друга.
 
 ## Implementation scope
 
