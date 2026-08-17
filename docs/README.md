@@ -89,12 +89,22 @@ Research result, противоречащий design, инициирует revie
 - [`design/contracts/training-lifecycle.md`](design/contracts/training-lifecycle.md);
 - [`design/decisions/ADR-0026-candidate-revision-validated-activation-training-lifecycle.md`](design/decisions/ADR-0026-candidate-revision-validated-activation-training-lifecycle.md).
 
+# Checkpoint / Reproducibility / Compute Plane
+
+После `DU-27` snapshot/checkpoint/restore/reproducibility/compute semantics имеют отдельную manifest-driven boundary:
+
+- [`design/checkpoint-reproducibility-compute.md`](design/checkpoint-reproducibility-compute.md);
+- [`design/contracts/checkpoint-reproducibility-compute.md`](design/contracts/checkpoint-reproducibility-compute.md);
+- [`design/decisions/ADR-0027-manifest-driven-causal-checkpoint-restore.md`](design/decisions/ADR-0027-manifest-driven-causal-checkpoint-restore.md).
+
+Ключевое правило: `same seed` не является достаточным доказательством одинакового continuation; scope/restore profile/RNG/software/hardware/compute provenance фиксируются явно.
+
 ---
 
 # Текущий этап
 
 Проект находится на стадии **последовательного канонического архитектурного проектирования**.
 
-`DU-01 … DU-26` приняты. Следующий допустимый этап определяется только [`design/current.md`](design/current.md); полный порядок задан в [`design/documentation-plan.md`](design/documentation-plan.md).
+`DU-01 … DU-27` приняты. Следующий допустимый этап определяется только [`design/current.md`](design/current.md); полный порядок задан в [`design/documentation-plan.md`](design/documentation-plan.md).
 
 Production/research implementation, exact contract freeze, version roadmap и implementation sequences ещё не начаты.
