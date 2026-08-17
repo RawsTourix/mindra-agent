@@ -93,12 +93,12 @@ Research evidence
 
 Перед изменением соответствующей области обязательны:
 
-- [`docs/design/system-context.md`](docs/design/system-context.md) — logical boundaries;
-- [`docs/design/dependency-rules.md`](docs/design/dependency-rules.md) — dependencies/composition;
-- [`docs/design/execution-model.md`](docs/design/execution-model.md) — temporal/causal model;
-- [`docs/design/cognitive-state.md`](docs/design/cognitive-state.md) — committed state semantics;
-- [`docs/design/module-lifecycle.md`](docs/design/module-lifecycle.md) — scheduler/module lifecycle;
-- [`docs/design/observability-and-intervention.md`](docs/design/observability-and-intervention.md) — evidence/intervention.
+- [`docs/design/system-context.md`](docs/design/system-context.md);
+- [`docs/design/dependency-rules.md`](docs/design/dependency-rules.md);
+- [`docs/design/execution-model.md`](docs/design/execution-model.md);
+- [`docs/design/cognitive-state.md`](docs/design/cognitive-state.md);
+- [`docs/design/module-lifecycle.md`](docs/design/module-lifecycle.md);
+- [`docs/design/observability-and-intervention.md`](docs/design/observability-and-intervention.md).
 
 Accepted foundation decisions: `ADR-0001` … `ADR-0006`.
 
@@ -118,6 +118,7 @@ Accepted foundation decisions: `ADR-0001` … `ADR-0006`.
 | World Model | `docs/design/modules/world-model.md` | `contracts/world-model.md` | `ADR-0012` |
 | Self Model | `docs/design/modules/self-model.md` | `contracts/self-model.md` | `ADR-0013` |
 | Intrinsic Signals | `docs/design/modules/intrinsic-signals.md` | `contracts/intrinsic-signals.md` | `ADR-0014` |
+| Drives | `docs/design/modules/drives.md` | `contracts/drives.md` | `ADR-0015` |
 
 Номер текущего разрешённого Design Update всегда брать из `docs/design/current.md`, а не из старых chat/prompt сообщений.
 
@@ -172,6 +173,12 @@ prediction discrepancy ≠ predictive surprisal ≠ novelty
 novelty ≠ visitation rarity
 information gain ≠ arbitrary uncertainty reduction
 higher intrinsic signal ≠ greater desirability
+Intrinsic Signal ≠ Drive State
+Drive State ≠ Drive Pressure ≠ Utility/Value
+homeostatic drive ≠ mandatory form of every drive
+Drive System ≠ global motivation scalar
+Environment reset ≠ Drive reset
+wall-clock ≠ implicit Drive time
 ```
 
 ---
@@ -271,7 +278,6 @@ higher intrinsic signal ≠ greater desirability
 - называть arbitrary variance `epistemic`/`aleatoric` без estimator/evaluation semantics;
 - выполнять hidden Memory lookup или hidden Cortex call без declared causal operation;
 - обучать baseline на evaluator-only oracle state и описывать это как agent-experience-only learning;
-- использовать один `None`/zero-vector для разных failure/uncertainty states;
 - фиксировать RSSM/Dreamer/Transformer/TorchRL обязательными из-за research evidence.
 
 ---
@@ -290,8 +296,7 @@ higher intrinsic signal ≠ greater desirability
 - считать старый competence profile автоматически валидным после behavior-relevant `agent_revision`/Cortex/module change;
 - давать Self Model authority выбирать action, goal, Cortex/Memory invocation или compute policy;
 - смешивать Self Model competence с World Model external dynamics;
-- использовать `0.5`/`None` как неразличимый sentinel для unknown, unavailable, out-of-domain и реальной вероятности 0.5;
-- считать `NoSelfModel` implementation, возвращающую фиктивную успешную self-estimate.
+- использовать `0.5`/`None` как неразличимый sentinel для unknown/unavailable/out-of-domain и реальной вероятности 0.5.
 
 ---
 
@@ -310,13 +315,37 @@ higher intrinsic signal ≠ greater desirability
 - выдавать imagined/predicted signal за actual experienced signal;
 - использовать evaluator/world ground truth в natural provider без explicit research supervision/intervention;
 - смешивать несовместимые representation/provider/normalizer revisions;
-- использовать zero/`None` как неразличимый sentinel для unavailable, insufficient-history, incompatible и настоящего zero signal;
+- использовать zero/`None` как неразличимый sentinel для unavailable/insufficient-history/incompatible и настоящего zero signal;
 - скрывать adaptive normalization/history update из snapshot/provenance;
 - делать RND/ICM/VIME/RIDE/NGU/Plan2Explore обязательным algorithm из-за research evidence.
 
 ---
 
-# 17. Research discipline
+# 17. Drives discipline
+
+До изменения `DU-15/16/18/23` запрещается:
+
+- превращать `DriveStateSet` в обязательный global `motivation` scalar;
+- считать `Drive Pressure` готовым reward/value/action score;
+- требовать homeostatic target/set-point от каждого drive;
+- добавлять фиктивный target только ради общего API;
+- считать высокий Intrinsic Signal прямым высоким Drive Pressure;
+- обновлять drive по wall-clock/GPU/network latency без explicit agent-visible time semantics;
+- запускать hidden background mutation Drive State вне scheduler/commit boundaries;
+- сбрасывать все drives автоматически на `Environment.reset()`;
+- разрешать direct private mutation между drives;
+- разрешать physical completion order определять cross-drive dynamics;
+- скрыто выбирать `winning_drive` через `argmax`/sum внутри Drive System;
+- давать Drive direct write authority Goal Graph;
+- позволять Drive выбирать action/strategy вместо будущих Valuation/Policy;
+- считать natural Drive update и research intervention одним типом события;
+- использовать zero pressure как sentinel failure/unavailable;
+- объявлять конкретный curiosity/resource drive обязательным только из-за примеров design;
+- делать HRRL/Active Inference/конкретную drive equation обязательной implementation из-за research evidence.
+
+---
+
+# 18. Research discipline
 
 Обязателен [`docs/research-methodology.md`](docs/research-methodology.md).
 
@@ -337,7 +366,7 @@ higher intrinsic signal ≠ greater desirability
 
 ---
 
-# 18. Scope implementation
+# 19. Scope implementation
 
 Пока `docs/design/current.md` не разрешает implementation/version work, подробный design **не является разрешением писать production architecture**.
 
@@ -348,6 +377,7 @@ higher intrinsic signal ≠ greater desirability
 - RSSM/Dreamer/TD-MPC/Transformer world model;
 - конкретный Self Model/calibration estimator;
 - RND/ICM/VIME/RIDE/NGU/Plan2Explore или common intrinsic-reward formula;
+- конкретный Drive list/homeostatic equation/coupling model;
 - TensorDict/DI/config/scheduler framework;
 - PPO и другие learning algorithms;
 - Colab/cloud runtime;
@@ -355,7 +385,7 @@ higher intrinsic signal ≠ greater desirability
 
 ---
 
-# 19. Поведение при неопределённости
+# 20. Поведение при неопределённости
 
 Если документация не определяет существенное решение:
 
