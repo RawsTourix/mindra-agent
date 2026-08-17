@@ -1,14 +1,28 @@
-# Candidate / exact internal contracts MINDRA
+# Semantic internal contracts MINDRA
 
 ## Назначение
 
-Этот каталог хранит machine-facing semantic contracts уже принятых subsystem/data/training/reproducibility/evaluation/testing/research-claim boundaries.
+Этот каталог хранит machine-facing semantic contracts принятых subsystem/data/training/reproducibility/evaluation/testing/research-claim boundaries.
 
-До общего contract freeze документы здесь остаются **candidate contracts**: они уточняют форму принятого design, но не имеют права молча менять его смысл или превращать удобный Python choice в архитектурный invariant.
+После `DU-31 — Contract + ADR Consistency Freeze` contracts `DU-07 … DU-30` считаются **semantic-frozen for roadmap baseline F31**.
+
+Это означает:
+
+- responsibility/ownership/lifecycle/source/provenance meaning frozen;
+- exact Python/API/serialization representation **не frozen**;
+- version specification может конкретизировать representation без нового ADR, если semantic meaning сохраняется.
+
+Freeze manifest:
+
+- [`semantic-freeze-manifest.md`](semantic-freeze-manifest.md).
+
+Canonical consistency owner:
+
+- [`../contract-adr-consistency-freeze.md`](../contract-adr-consistency-freeze.md).
 
 ---
 
-# Текущие candidate contracts
+# Semantic-frozen contract set F31
 
 - [`environment.md`](environment.md) — `DU-07`;
 - [`perception.md`](perception.md) — `DU-08`;
@@ -33,27 +47,49 @@
 - [`checkpoint-reproducibility-compute.md`](checkpoint-reproducibility-compute.md) — `DU-27`;
 - [`mindra-eval.md`](mindra-eval.md) — `DU-28`;
 - [`engineering-testing.md`](engineering-testing.md) — `DU-29`;
-- [`research-claims-limitations.md`](research-claims-limitations.md) — `DU-30`: Observation/Interpretation/ResearchClaim, ClaimScope, limitations/known unknowns, negative evidence, supersession и reporting lineage.
+- [`research-claims-limitations.md`](research-claims-limitations.md) — `DU-30`.
+
+Количество: **24 semantic boundary contracts**.
+
+Foundation `DU-01 … DU-06` входит в F31 через canonical design/ADR и не дублируется отдельными contract files.
 
 ---
 
-# Общие требования
+# Общие frozen requirements
 
-Contract должен фиксировать, где применимо:
+Contract должен сохранять, где применимо:
 
-- required/optional semantic fields;
-- ownership/read/write boundaries;
+- semantic owner/read/write boundary;
+- source-of-truth entity;
+- required/optional semantic information;
 - revision/freshness/availability;
-- causal provenance;
-- lifecycle;
-- public/private/visibility state;
-- snapshot/restore references;
+- causal provenance/lineage;
+- lifecycle/commit boundary;
+- public/private/visibility/trust semantics;
+- snapshot/restore causally relevant state;
 - observability/intervention;
 - failure/degradation;
-- compatibility/serialization;
-- автоматически проверяемые invariants.
+- compatibility/migration meaning;
+- control/No*/Dummy semantics;
+- machine-checkable invariants, где practically возможно.
 
-Exact implementation detail одного backend не должен протекать в canonical contract без design justification.
+Exact implementation detail одного backend не должен протекать в contract meaning без нового design justification/ADR.
+
+---
+
+# Freeze consistency resolutions
+
+Baseline F31 применяет:
+
+```text
+CR-01 Action lifecycle
+CR-02 Memory admission ownership
+CR-03 Replay taxonomy
+CR-04 Consolidation vs Learning Update
+CR-05 candidate/validated/activated revision lifecycle
+```
+
+Полное описание — [`../contract-adr-consistency-freeze.md`](../contract-adr-consistency-freeze.md).
 
 ---
 
@@ -65,6 +101,7 @@ Canonical Percept ≠ concrete encoder latent
 Goal Proposal ≠ direct Goal mutation
 Cortex ≠ ambient Agent-state owner
 MemoryRecord ≠ embedding/index
+Memory Core ≠ Memory Regulation
 World Prediction ≠ observed fact
 Self Prediction ≠ Policy decision
 Intrinsic Signal ≠ reward/value
@@ -73,7 +110,7 @@ Appraisal ≠ emotion/value/Affect
 Affect ≠ emotion label/Drive/value
 ValueProfile ≠ mandatory scalar/reward/Policy decision
 SalienceProfile ≠ AttentionAllocation
-Memory Replay ≠ Training Replay
+Retrieval ≠ Memory Replay ≠ Training Replay
 Consolidation ≠ Learning Update
 CognitiveState ≠ Workspace
 Executive Control ≠ Scheduler ≠ Policy
@@ -91,57 +128,59 @@ ComputeManifest ≠ CognitiveResourceEnvelope
 Evaluation Runtime ≠ Agent cognition
 Task score ≠ module/causal/calibration evidence
 Engineering Testing ≠ MINDRA-Eval
-line coverage ≠ architectural invariant coverage
 Observation ≠ Interpretation ≠ ResearchClaim
 ClaimScope ≠ universal scope
 association ≠ causation
 engineering verified ≠ functionally useful
-null/inconclusive/invalid ≠ same result class
 functional similarity ≠ phenomenological equivalence
-supersession ≠ history rewrite
 ```
 
-Для Research Claims / Limitations дополнительно:
-
-- claim имеет stable identity/revision и explicit scope;
-- supporting/challenging evidence не удаляется при review;
-- causal/generalization/architecture claims требуют соответствующего support;
-- `unknown` не превращается в false;
-- negative/null/inconclusive/invalid/not-measured различаются;
-- limitation и known unknown first-class;
-- failed module gate не меняет architecture без design review/ADR;
-- publication statement не сильнее canonical claim;
-- Cortex/data/compute/tuning dependence входит в scope/limitations;
-- Affect/Workspace/Self Model/first-person Cortex text не считаются consciousness evidence автоматически;
-- Claim supersession сохраняет old revision lineage.
-
 ---
 
-# Текущий статус
+# Что всё ещё НЕ frozen
 
-После `DU-04 … DU-30` semantic requirements приняты, но **общий exact Python contract set намеренно не frozen**.
+До concrete version specification не считать canonical implementation choice:
 
-`research-claims-limitations.md` остаётся candidate до общего `DU-31 — Contract + ADR Consistency Freeze`.
-
-До contract freeze нельзя считать каноническими:
-
-- `Protocol`/ABC/dataclass/TensorDict/Pydantic;
-- exact event/status/claim-kind enums;
-- physical registry storage;
-- exact evidence-strength score;
+- `Protocol`/ABC/dataclass/TypedDict/Pydantic/TensorDict;
+- exact field names/enum strings/status codes;
+- exact tensor dimensions/dtypes;
+- package/file layout;
+- concrete model/backend/algorithm;
+- storage/index/checkpoint format;
+- optimizer/training library;
 - pytest/Hypothesis/Import Linter/CI tooling;
-- paper/report/preregistration framework;
-- automatic wording/NLP linter;
-- dashboard/tracker implementation.
+- benchmark/statistical package/threshold;
+- report/preregistration/tracker framework;
+- deployment/provider/hardware topology.
 
 ---
 
-# Иерархия
+# Breaking semantic change
+
+После F31 изменение semantic owner/lifecycle/source/visibility/causal ordering требует:
+
+```text
+design review
+→ new ADR
+→ canonical owner update
+→ contract update
+→ freeze baseline revision
+→ VerificationObligation update
+→ version plan/code
+```
+
+Version specification не может молча переопределить F31.
+
+---
+
+# Иерархия после DU-31
 
 ```text
 accepted ADR + canonical design
-→ candidate/exact contract
-→ version specification
+→ Semantic Freeze Baseline F31
+→ semantic-frozen contracts
+→ version specification / exact contracts
 → implementation sequence
 → implementation
+→ engineering/research evidence
 ```
