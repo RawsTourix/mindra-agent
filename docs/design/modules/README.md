@@ -2,11 +2,11 @@
 
 ## Статус
 
-Этот документ — карта принятых cognitive/runtime boundaries и внешних data/training/reproducibility/evaluation/testing областей. Канонический статус определяется специализированными design docs и [`../current.md`](../current.md).
+Этот документ — карта принятых cognitive/runtime boundaries и внешних data/training/reproducibility/evaluation/testing/research-claim областей. Канонический статус определяется специализированными design docs и [`../current.md`](../current.md).
 
 Отдельный cognitive module существует только при самостоятельной ответственности, явной boundary/state semantics и независимо проверяемом causal вкладе.
 
-`DU-25 … DU-29` находятся **вне cognitive module chain**.
+`DU-25 … DU-30` находятся **вне cognitive module chain**.
 
 ---
 
@@ -89,10 +89,14 @@ Agent / Environment / Runtime
           ├──→ Checkpoint / Reproducibility / Compute (DU-27)
           │
           ├──→ Evaluation Plane (DU-28)
-          │       research questions / causal evidence
+          │       research evidence
           │
-          └──→ Engineering Verification Plane (DU-29)
-                  contracts / invariants / faults / CI evidence
+          ├──→ Engineering Verification Plane (DU-29)
+          │       contract/invariant evidence
+          │
+          └──→ Research Claims / Limitations Plane (DU-30)
+                  interpretation / scoped claims /
+                  limitations / known unknowns
 ```
 
 Canonical owners:
@@ -101,7 +105,8 @@ Canonical owners:
 - [`../training-lifecycle.md`](../training-lifecycle.md) — `DU-26`;
 - [`../checkpoint-reproducibility-compute.md`](../checkpoint-reproducibility-compute.md) — `DU-27`;
 - [`../mindra-eval.md`](../mindra-eval.md) — `DU-28`;
-- [`../engineering-testing.md`](../engineering-testing.md) — `DU-29`.
+- [`../engineering-testing.md`](../engineering-testing.md) — `DU-29`;
+- [`../research-claims-limitations.md`](../research-claims-limitations.md) — `DU-30`.
 
 Ключевые различия:
 
@@ -111,64 +116,57 @@ Training Runtime ≠ cognitive module
 Checkpoint ≠ ExperimentManifest
 Evaluation Runtime ≠ Agent cognition
 Engineering Testing ≠ MINDRA-Eval
+ResearchClaim ≠ Evaluation metric
+Observation ≠ Interpretation ≠ Claim
 Test Oracle ≠ Agent-visible input
-line coverage ≠ architectural invariant coverage
+functional similarity ≠ phenomenological equivalence
 ```
 
 ---
 
-# 4. Engineering Verification Plane
+# 4. Research evidence → claims
 
-`DU-29` задаёт:
+После `DU-30` scientific reporting chain conceptually:
 
 ```text
-accepted invariant
-      ↓
-VerificationObligation
-      ↓
-VerificationMatrix
-      ↓
-static / unit / conformance /
-property / state-machine /
-integration / fault / migration tests
-      ↓
-VerificationEvidence
-      ↓
-CI / merge gate
+Evaluation / Verification Evidence
+          ↓
+      Observation
+          ↓
+     Interpretation
+          ↓
+      ResearchClaim
+      + ClaimScope
+      + Limitations
+      + KnownUnknowns
+          ↓
+      ClaimReview /
+      supersession
 ```
 
-Особенно важны:
-
-- architecture/import restrictions `DU-02`;
-- ownership/write/stale/atomicity `DU-03…05`;
-- evaluator/test oracle leakage;
-- action commit/dispatch/retry/reconciliation lifecycle;
-- Training candidate/activation/rollback;
-- checkpoint corruption/restore/migration;
-- capability-aware backend/control conformance.
-
-Testing plane не измеряет functional research utility subsystem — это ответственность `DU-28`.
+Engineering Testing и Research Claims не входят в cognition и не получают write authority Agent state.
 
 ---
 
-# 5. Первый ещё не спроектированный блок — Research Claims / Limitations
+# 5. Следующий блок — общий consistency freeze
 
 Следующий Design Update:
 
 ```text
-DU-30 — Research Claims / Limitations
+DU-31 — Contract + ADR Consistency Freeze
 ```
 
-Предварительная responsibility:
+Это не новый subsystem.
 
-> определить допустимый язык научных/инженерных утверждений MINDRA, scope claims, evidence requirements, limitations/known-unknowns и запрет необоснованного антропоморфного/сознательного вывода.
+Задача:
+
+> проверить всю архитектуру `DU-01 … DU-30` как единый непротиворечивый набор, определить semantic-frozen candidate contracts и правила breaking change перед созданием version roadmap.
 
 ---
 
 # 6. Оставшиеся Design Updates
 
 ```text
-DU-30 — Research Claims / Limitations
 DU-31 — Contract + ADR Consistency Freeze
 DU-32 — Version Roadmap
 ```
@@ -190,5 +188,7 @@ DU-32 — Version Roadmap
 Для Evaluation — condition/replicate/statistics/attribution validity `DU-28`.
 
 Для Engineering Testing — explicit VerificationObligation/Matrix, failure paths и environment-scoped evidence `DU-29`.
+
+Для Research Claims — scope/evidence/limitations/known-unknowns/supersession discipline `DU-30`.
 
 Следующий допустимый этап определяется только [`../current.md`](../current.md).
