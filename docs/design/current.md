@@ -8,7 +8,7 @@
 
 # 1. Общий статус
 
-**`DU-01 … DU-27` завершены и приняты. Реализация ещё не начата.**
+**`DU-01 … DU-28` завершены и приняты. Реализация ещё не начата.**
 
 Приняты:
 
@@ -17,8 +17,9 @@
 - Experience / Data / Replay `DU-25`;
 - Training Lifecycle `DU-26`;
 - Checkpoint / Reproducibility / Compute `DU-27`;
-- 27 accepted ADR;
-- candidate semantic contracts для boundaries `DU-07 … DU-27`.
+- MINDRA-Eval `DU-28`;
+- 28 accepted ADR;
+- candidate semantic contracts для boundaries `DU-07 … DU-28`.
 
 ---
 
@@ -53,125 +54,122 @@ DU-24 — Action Boundary / Gate / Executor
 DU-25 — Experience / Data / Replay
 DU-26 — Training Lifecycle
 DU-27 — Checkpoint / Reproducibility / Compute
+DU-28 — MINDRA-Eval
 ```
 
 ---
 
-# 3. DU-27
+# 3. DU-28
 
 Canonical design:
 
-- [`checkpoint-reproducibility-compute.md`](checkpoint-reproducibility-compute.md)
+- [`mindra-eval.md`](mindra-eval.md)
 
 Candidate contract:
 
-- [`contracts/checkpoint-reproducibility-compute.md`](contracts/checkpoint-reproducibility-compute.md)
+- [`contracts/mindra-eval.md`](contracts/mindra-eval.md)
 
 Accepted decision:
 
-- [`ADR-0027`](decisions/ADR-0027-manifest-driven-causal-checkpoint-restore.md)
+- [`ADR-0028`](decisions/ADR-0028-multi-layer-causal-evaluation-harness.md)
 
 Research pass:
 
-- [`../research/literature/DU-27-checkpoint-reproducibility-compute-landscape-2026-08.md`](../research/literature/DU-27-checkpoint-reproducibility-compute-landscape-2026-08.md)
+- [`../research/literature/DU-28-mindra-eval-landscape-2026-08.md`](../research/literature/DU-28-mindra-eval-landscape-2026-08.md)
 
 Главные результаты:
 
 ```text
-AgentSnapshot
-≠ persistent Checkpoint
-≠ TrainingResumeCheckpoint
-≠ ExperimentManifest
+Task score
+≠ module evidence
+≠ causal evidence
+≠ calibration evidence
+≠ compute-efficiency evidence
 
-same seed
-≠ same RNG state
-≠ guaranteed same execution
+Evaluation Runtime
+≠ Agent cognition
 
-semantic restore
-≠ bitwise reproducibility
+Policy quality before Gate
+≠ post-Gate system quality
 ```
 
-- checkpoint является manifest-driven набором content-identified artifacts, а не обязательным одним файлом;
-- checkpoint scope явно определяет required/optional state;
-- training-resume scope включает causally relevant optimizer/scheduler/scaler/trainer/replay/data-cursor state;
-- consistent checkpoint относится к explicit causal `CaptureBoundary`;
-- используется conceptual prepare/pin → materialize/verify → final manifest commit;
-- incomplete artifact set не является valid checkpoint;
-- active и candidate revisions сохраняются раздельно, restore candidate не активирует её автоматически;
-- full-system restore требует causally aligned Agent + Environment state;
-- `execution_unknown`/unresolved external effect может блокировать safe branch/retry до reconciliation;
-- `seed` не заменяет current RNG state;
-- reproducibility задаётся scoped `ReproducibilityClaim`, а не boolean;
-- exact/compatible/portable/approximate restore различаются;
-- software/hardware/determinism manifests являются частью сильных reproducibility claims;
-- artifact content identity отделена от physical path/storage location;
-- full и delta/incremental checkpoint допустимы, но delta dependency chain обязана быть integrity-complete;
-- migration создаёт explicit lineage и не переписывает source checkpoint;
-- infrastructure `ComputeManifest`/usage отделены от agent-visible `CognitiveResourceEnvelope`;
-- concrete serialization/hash/storage/profiler framework намеренно не выбран.
+- `EvaluationStudy → Suite → Condition → Run → Unit → Metric/Contrast → Report` является основной evaluation hierarchy;
+- `EvaluationCondition` pin'ит Agent/checkpoint/world/Cortex/interventions/data/resources/software/hardware context;
+- experimental/statistical unit и replicate axes объявляются явно;
+- nested episodes одного checkpoint не считаются independent training replicates;
+- stochastic aggregate claim требует distribution/interval uncertainty evidence;
+- confirmatory study заранее фиксирует primary hypothesis/metric/contrast/statistical plan;
+- `No*`/Dummy/random/shuffled и matched-capacity/compute controls first-class;
+- paired counterfactual interventions используют только проверенный DU-27 causal base state;
+- evaluator Ground Truth остаётся privileged и не попадает в Agent Interaction Plane;
+- proper scoring/calibration diagnostics отделены от task accuracy;
+- actual compute/data/context/tuning differences входят в attribution;
+- Policy, Action Gate и post-Gate system outcome оцениваются отдельно;
+- `Affect`, `Workspace`, `Planner`, `Executive Control` имеют explicit negative module gates;
+- `execution_unknown`, censored и invalid conditions не превращаются молча в обычный failure;
+- optional composite score не заменяет typed metric/causal evidence;
+- strength of research claim bounded by evidence/design strength;
+- concrete benchmark/statistics/plotting framework не выбран.
 
 ---
 
 # 4. Следующий допустимый Design Update
 
 ```text
-DU-28 — MINDRA-Eval
+DU-29 — Engineering Testing
 ```
 
-Цель `DU-28` — спроектировать **канонический Evaluation Harness и measurement protocol MINDRA**, позволяющий измерять не только task performance, но и самостоятельный причинный вклад модулей/границ при сопоставимых условиях и compute.
+Цель `DU-29` — спроектировать **инженерную систему проверки реализации MINDRA**, отделённую от research evaluation.
+
+Нужно определить, как автоматически проверять contracts/invariants/failure semantics на уровне modules, runtime, data, training, checkpoints и evaluation infrastructure.
 
 Обязательные вопросы:
 
 ```text
-Evaluation Runtime ownership
-benchmark/task suite structure
-train/validation/test world distributions
-evaluation episode/run/condition identity
-configuration matrix / ablation matrix
-No*/Dummy/control/matched-control semantics
-paired counterfactual evaluation
-checkpoint/base-state alignment
-intervention-based causal tests
-module-specific functional metrics
-end-to-end task metrics
-calibration metrics
-world/self-model metrics
-memory/retrieval metrics
-intrinsic/drive/appraisal/affect/valuation/salience diagnostics
-Executive performance-vs-compute frontier
-Planner matched-compute controls
-Policy vs Action Gate attribution
-workspace/affect negative module gates
-training plasticity vs retention
-reproducibility claim requirements
-compute-normalized comparison
-stochastic evaluation / seeds
-confidence intervals / statistical tests
-multiple comparisons / preregistered analysis where needed
-oracle/evaluator-only data separation
-failure/unknown/unresolved outcomes
-report schema / EvaluationManifest
-research claim evidence threshold
+unit tests vs contract tests vs research evaluation
+architecture/dependency tests
+schema/serialization tests
+property/invariant tests
+state ownership/read-write tests
+scheduler/DAG/wave/atomic commit tests
+logical-time and stale-state tests
+snapshot/restore/checkpoint round-trip tests
+RNG/determinism tests
+Environment clone/restore/action idempotency tests
+execution_unknown/reconciliation tests
+failure injection / fault tolerance
+Cortex backend contract tests
+No*/Dummy/control conformance
+representation revision compatibility
+Memory provenance/index rebuild tests
+training candidate/activation/rollback tests
+data lineage / evaluator leakage tests
+EvaluationCondition/metric/statistics manifest validation
+migration/backward-compatibility tests
+fuzz/property-based testing
+resource/timeout/OOM behavior
+CI test tiers
+fast vs slow vs accelerator-required suites
+golden tests and their update policy
+flaky-test policy
+coverage of architectural invariants
 ```
 
 Особенно нужно определить:
 
-- `Evaluation Runtime` остаётся вне Agent и не передаёт evaluator score в cognition normal runtime способом;
-- one-number leaderboard score не должен заменять diagnostic causal evaluation;
-- baseline/ablation/control должны отличаться по semantic intervention, а не скрытому compute/data budget;
-- matched compute/state/parameter controls обязательны там, где иначе эффект объясняется дополнительной capacity;
-- Policy quality измеряется до Action Gate отдельно от system-level post-Gate outcome;
-- causal intervention требует common verified checkpoint/base state нужного `DU-27` restore level;
-- stochastic result требует statistical protocol, а не одного seed;
-- evaluation condition обязан ссылаться на exact Agent/Environment/data/checkpoint/revision/software/hardware/compute manifests;
-- privileged Ground Truth доступен evaluator'у, но не Agent;
-- `DU-28` должен определить falsification criteria для условно принятых Workspace/Affect/Planner/Executive mechanisms;
-- конкретный benchmark framework/library остаётся implementation choice.
+- `Engineering Testing ≠ MINDRA-Eval`;
+- research hypothesis не заменяет contract/invariant test;
+- unit test не является evidence функциональной полезности модуля;
+- каждый accepted invariant должен иметь, где возможно, machine-checkable enforcement/test;
+- failure semantics должны тестироваться намеренно, а не только happy path;
+- oracle leakage и illegal dependency должны обнаруживаться автоматически;
+- checkpoints/data/manifests должны проверяться на corruption/staleness/incompatibility;
+- конкретный testing framework/CI provider пока implementation choice.
 
-После принятия `DU-28` допускается:
+После принятия `DU-29` допускается:
 
 ```text
-DU-29 — Engineering Testing
+DU-30 — Research Claims / Limitations
 ```
 
 ---
@@ -180,14 +178,13 @@ DU-29 — Engineering Testing
 
 Пока отсутствуют accepted решения по:
 
-- MINDRA-Eval;
 - Engineering Testing;
 - Research Claims / Limitations;
-- Contract + ADR Freeze;
+- Contract + ADR Consistency Freeze;
 - Version Roadmap;
 - implementation sequences.
 
-Также не выбраны concrete Python/framework/model/algorithm/storage/checkpoint implementations.
+Также не выбраны concrete Python/framework/model/algorithm/storage/evaluation/testing implementations.
 
 ---
 
