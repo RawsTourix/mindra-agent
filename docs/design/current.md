@@ -10,7 +10,7 @@
 
 # 1. Общий статус
 
-**Фундамент документации создан. `DU-01` … `DU-09` завершены и приняты. Реализация ещё не начата.**
+**Фундамент документации создан. `DU-01` … `DU-10` завершены и приняты. Реализация ещё не начата.**
 
 На текущем этапе зафиксированы:
 
@@ -20,8 +20,9 @@
 - Environment/MicroWorld contract;
 - Perception/Canonical Percept;
 - Goal System/Goal Graph;
-- candidate contracts Environment, Perception и Goals;
-- девять accepted ADR.
+- Cortex semantic capability boundary;
+- candidate contracts Environment, Perception, Goals и Cortex;
+- десять accepted ADR.
 
 ---
 
@@ -38,6 +39,7 @@ DU-06 — Observability & Intervention
 DU-07 — Environment / MicroWorld Contract
 DU-08 — Perception / Canonical Representation
 DU-09 — Goal System
+DU-10 — Cortex Boundary
 ```
 
 ## DU-01 … DU-06
@@ -65,8 +67,6 @@ Candidate contract:
 
 - [`contracts/environment.md`](contracts/environment.md).
 
-Ключевой результат: общий Environment contract отделён от `MicroWorld`, а Agent Interaction Plane — от research-only hidden world/control plane.
-
 Accepted decision:
 
 - [`ADR-0007`](decisions/ADR-0007-two-plane-environment-boundary.md).
@@ -80,8 +80,6 @@ Accepted decision:
 Candidate contract:
 
 - [`contracts/perception.md`](contracts/perception.md).
-
-Ключевой результат: принят `Canonical Percept = structured Semantic Core + optional Feature Views`; Cortex hidden space и один universal latent не являются canonical inter-module representation.
 
 Accepted decision:
 
@@ -97,79 +95,101 @@ Candidate contract:
 
 - [`contracts/goals.md`](contracts/goals.md).
 
-Главные результаты:
-
-- Goal отделена от External Task Specification, Reward, Drives, Valuation и Policy;
-- принят `Goal Proposal → Goal System → Committed Goal` pipeline;
-- Goal System является единственным semantic owner canonical Goal state;
-- внешние/internal/planner/research sources могут предлагать goals, но не мутировать Goal Graph напрямую;
-- принят `Goal Graph`, а не обязательный LIFO stack;
-- поддерживаются несколько committed/active goals;
-- parent/subgoal/dependency/conflict semantics различаются;
-- dependency relation должна быть ацикличной;
-- lifecycle различает `pending`, `active`, `suspended`, `achieved`, `failed`, `abandoned`, `expired`, `invalidated` semantics;
-- `failed` не равно `expired`, `suspended` не равно `abandoned`;
-- goals могут быть episode/session/agent-long-lived;
-- structural/declarative priority отделена от будущей dynamic Valuation;
-- commitment отделён от priority/value/focus;
-- progress не обязан быть scalar `[0,1]` и не получает hidden evaluator metric;
-- Natural-language instruction не является canonical Goal без grounding/proposal boundary;
-- Goal intervention/observability semantics определены.
-
 Accepted decision:
 
 - [`ADR-0009`](decisions/ADR-0009-committed-goal-graph.md).
+
+## DU-10
+
+Канонический документ:
+
+- [`modules/cortex.md`](modules/cortex.md).
+
+Candidate contract:
+
+- [`contracts/cortex.md`](contracts/cortex.md).
+
+Research pass:
+
+- [`../research/literature/DU-10-cortex-landscape-2026-08.md`](../research/literature/DU-10-cortex-landscape-2026-08.md).
+
+Главные результаты:
+
+- Cortex является заменяемой agent-owned pretrained capability, а не всей MINDRA;
+- принят backend-neutral `Cortex Gateway`;
+- semantic `Cortex Request/Context/Result` отделены от model-specific prompt/messages/tokens;
+- tokenizer/processor/chat template/provider mapping принадлежат backend adapter;
+- local и remote providers допустимы за одной logical boundary;
+- Cortex не получает ambient access ко всему `CognitiveState`/Memory/private state;
+- Cortex может быть shared injected capability, а не обязательный отдельный scheduler module;
+- Cortex invocation является traceable sub-operation cognitive consumer;
+- canonical effects публикует semantic owner, а не Cortex backend;
+- core semantic inference отделена от optional capabilities;
+- hidden states, attentions, logits, embeddings, multimodal/latent input, gradients и adapter management являются optional;
+- chain-of-thought не является required Cortex output;
+- Cortex Result не становится Goal/Memory/Action/observed fact автоматически;
+- Goal grounding через Cortex заканчивается `Goal Proposal` boundary;
+- Cortex representation становится Perception Feature View только через explicit versioned adapter;
+- `NoCortex`, `DummyCortex` и research `ControlCortex` различаются;
+- hidden fallback/model substitution запрещены;
+- context overflow/truncation/degradation должны быть observable;
+- base model/adaptation/template/provider identity входят в provenance настолько, насколько влияют на поведение;
+- language capability должна быть explicit и проверяемой;
+- при language-based experiments baseline проверяется минимум для русского и английского согласно будущему evaluation/version design.
+
+Accepted decision:
+
+- [`ADR-0010`](decisions/ADR-0010-capability-negotiated-cortex-gateway.md).
 
 ---
 
 # 3. Следующий допустимый Design Update
 
 ```text
-DU-10 — Cortex Boundary
+DU-11 — Memory Core
 ```
 
-Цель `DU-10` — спроектировать заменяемую pretrained capability `Cortex`, не превращая конкретную LLM в центр архитектуры MINDRA.
+Цель `DU-11` — спроектировать **нейтральную базовую Memory subsystem** до появления Salience/Consolidation: что считается memory item, как хранится provenance/identity, как происходит retrieval и как Memory отделяется от текущего `CognitiveState`, Cortex context и будущего replay/training pipeline.
 
 Обязательные области:
 
 ```text
-Cortex semantic capabilities
-backend-neutral contract
-text / structured / latent inputs and outputs
-context construction boundary
-reasoning / generation capabilities
-Goal Proposal / grounding boundary
-Perception Feature View integration
-hidden-state / embedding access as optional research capability
-local vs remote execution provider
-frozen / adapted mode
-Cortex identity and revision
-NoCortex / DummyCortex
-backend switching
-multilingual requirements
-resource / latency / context reporting
-failure / timeout / degradation semantics
+Memory ownership
+memory item / record identity
+content vs representation
+observed / derived / Cortex-produced provenance
+write / store boundary
+retrieval request / result
+query semantics
+structured vs vector indexing
+representation revisions
+capacity
+forgetting/eviction baseline semantics
+session vs persistent Memory
+snapshot/restore
+Memory consistency across Agent revisions
+Cortex context integration
+NoMemory / Dummy / Control Memory
 observability / intervention
-checkpoint / experiment provenance implications
+failure / degradation
 ```
 
 Нужно определить:
 
-- какие возможности обязательны для любого Cortex, а какие optional;
-- может ли Cortex быть remote black-box backend;
-- где заканчивается canonical MINDRA context и начинается model-specific prompt/tokenization;
-- как Cortex получает `Canonical Percept`, Goal state и позже Memory без direct peer coupling;
-- как Cortex может создавать Goal Proposal, не получая Goal write authority;
-- какие hidden/embedding capabilities нельзя требовать от общего contract;
-- как `NoCortex` остаётся полноценной конфигурацией;
-- как сравнивать/заменять backends без изменения независимых модулей;
-- какие требования к русскому/мультиязычности и reasoning нужны исследовательскому baseline;
-- какие конкретные open-weight models являются актуальными кандидатами, но не canonical architecture.
+- является ли Memory одним модулем или storage+retrieval capability с отдельным owner;
+- что именно можно записывать в Memory и кто имеет право предложить запись;
+- чем Memory record отличается от trajectory/replay item;
+- хранится ли original semantic source отдельно от embedding/index representation;
+- как пережить representation drift после Perception/Cortex adaptation;
+- как retrieval не превращается в скрытый ambient context Cortex;
+- как Memory не получает Salience/"эмоциональное забывание" раньше `DU-19/20`;
+- как сделать честные `NoMemory`, shuffled/random retrieval controls;
+- как snapshot/restore Memory участвует в exact counterfactual Agent clone.
 
-После принятия `DU-10` допускается:
+После принятия `DU-11` допускается:
 
 ```text
-DU-11 — Memory Core
+DU-12 — World Model
 ```
 
 ---
@@ -185,8 +205,10 @@ Raw Observation ≠ Canonical Percept
 External Task Specification ≠ Committed Goal
 Goal Proposal ≠ Committed Goal
 Goal ≠ Reward ≠ Drive ≠ Utility/Value ≠ Policy
-structural goal priority ≠ dynamic goal value
-commitment ≠ focus ≠ priority ≠ value
+MINDRA Agent ≠ Cortex ≠ concrete LLM
+semantic Cortex context ≠ model-specific prompt/tokens
+Cortex Result ≠ canonical truth/state effect
+NoCortex ≠ DummyCortex ≠ ControlCortex
 ```
 
 ---
@@ -195,7 +217,6 @@ commitment ≠ focus ≠ priority ≠ value
 
 Пока отсутствуют accepted решения по:
 
-- Cortex contract/backend;
 - Memory Core;
 - World Model;
 - Self Model;
@@ -219,7 +240,7 @@ commitment ≠ focus ≠ priority ≠ value
 - version roadmap;
 - implementation sequences.
 
-Также пока не выбраны exact Python/package/framework решения.
+Также пока не выбраны exact Python/package/framework решения и concrete Cortex backend.
 
 ---
 
@@ -233,18 +254,3 @@ commitment ≠ focus ≠ priority ≠ value
 ```
 
 Наличие detailed design не является разрешением Codex начинать implementation до появления version roadmap и implementation sequence.
-
----
-
-# 7. Канонические ссылки
-
-- порядок Design Updates: [`documentation-plan.md`](documentation-plan.md);
-- Environment/MicroWorld: [`modules/environment.md`](modules/environment.md);
-- Perception: [`modules/perception.md`](modules/perception.md);
-- Goal System: [`modules/goals.md`](modules/goals.md);
-- candidate Environment contract: [`contracts/environment.md`](contracts/environment.md);
-- candidate Perception contract: [`contracts/perception.md`](contracts/perception.md);
-- candidate Goal contract: [`contracts/goals.md`](contracts/goals.md);
-- ADR registry: [`decisions/README.md`](decisions/README.md);
-- термины: [`glossary.md`](glossary.md);
-- правила coding agents: [`../../AGENTS.md`](../../AGENTS.md).
