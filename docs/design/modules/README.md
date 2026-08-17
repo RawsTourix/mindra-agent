@@ -25,6 +25,7 @@ DU-17  Affect Dynamics
 DU-18  Valuation
 DU-19  Salience / Attention
 DU-20  Memory Regulation / Consolidation
+DU-21  Workspace
 ```
 
 Канонические документы находятся рядом в `docs/design/modules/`.
@@ -53,103 +54,85 @@ Salience
 → purpose-dependent priority ограниченного processing
 
 Memory Regulation
-→ budget-aware lifecycle/replay/consolidation policy поверх canonical Memory Core
+→ budget-aware lifecycle/replay/consolidation policy
+
+Workspace
+→ bounded temporary shared availability/broadcast admitted content
 ```
 
 Ключевые различия:
 
 ```text
-relevance ≠ value ≠ salience
-SalienceProfile ≠ AttentionAllocation
-AttentionAllocation ≠ Memory lifecycle decision
-Memory Core ≠ Memory Regulation
-forgetting ≠ physical deletion
-Memory Replay ≠ Training Replay
-consolidation ≠ rewrite ≠ Learning Update
+CognitiveState ≠ Workspace
+SalienceProfile ≠ Workspace admission
+Workspace ≠ Memory ≠ Cortex context
+broadcast ≠ module execution
+Workspace ≠ Policy / Executive Control
 ```
 
 ---
 
-# 3. DU-20 — Memory Regulation / Consolidation
+# 3. DU-21 — Workspace
 
-[`memory-regulation.md`](memory-regulation.md) расширяет [`memory.md`](memory.md).
+[`workspace.md`](workspace.md)
 
 Каноническая форма:
 
 ```text
-Memory Core
-→ canonical Store / validation / commit
-
-Memory Regulation
-→ profiles + purpose-specific policies
-→ admission/retention/eviction/replay/consolidation decisions
-→ proposals back to Memory Core
+explicit producers
+→ WorkspaceCandidateSet
+→ optional Salience evidence
+→ Workspace admission under explicit budget
+→ bounded WorkspaceSnapshot
+→ declared eligible consumers
 ```
 
-Consolidation:
+Workspace:
 
-```text
-source episodic MemoryRecords
-→ explicit Consolidation Event
-→ gated derivation
-→ new derived MemoryRecord
-→ derived_from/support/conflict provenance
-```
-
-Memory Regulation:
-
-- не является вторым Store owner;
-- не использует universal `memory_importance` scalar как canonical truth;
-- принимает explicit `MemoryBudget`;
-- использует Salience только как один из evidence sources;
-- различает logical forgetting и physical deletion;
-- не считает retrieval count automatic importance;
-- не запускает hidden background replay;
-- не смешивает Agent Memory Replay с Training Replay;
-- не делает optimizer/slow-weight update;
-- сохраняет raw/source evidence и contradictions;
-- должна сравниваться с episodic-only/FIFO/random/shuffled/matched controls.
+- не является вторым `CognitiveState`;
+- имеет реальный capacity/bandwidth bottleneck;
+- сохраняет source revision/provenance;
+- поддерживает temporary multi-cycle persistence;
+- использует broadcast как availability, а не callback;
+- не выполняет Memory retrieval;
+- не является Cortex prompt;
+- не выбирает Environment action;
+- поддерживает branch-local simulated Workspace;
+- имеет first-class `NoWorkspace` и matched controls;
+- должен быть пересмотрен, если matched shared/recurrent buffers объясняют эффект.
 
 ---
 
-# 4. Первый ещё не спроектированный блок — Workspace
+# 4. Первый ещё не спроектированный блок — Executive Control
 
 Следующий Design Update:
 
 ```text
-DU-21 — Workspace
+DU-22 — Metacognitive / Executive Control
 ```
 
 Предварительная responsibility:
 
-> проверить, нужен ли MINDRA отдельный ограниченный temporary global-access surface сверх committed `CognitiveState`, explicit dependencies и Salience allocation.
+> выбирать допустимые internal cognitive operations и распределять global compute/resource budget без подмены Scheduler или final Policy.
 
 Нужно определить:
 
 - module gate;
-- Workspace candidate/admission;
-- capacity/budget;
-- `Workspace ≠ CognitiveState`;
-- `Workspace ≠ Salience`;
-- `Workspace ≠ Memory`;
-- `Workspace ≠ Cortex context`;
-- producer/consumer authority;
-- global-read/broadcast semantics;
-- persistence/replacement;
-- Salience integration;
-- retrieval → Workspace boundary;
-- Cortex context packing;
-- imagined/branch-local Workspace;
-- interventions/controls;
-- negative gate, при котором отдельный Workspace отклоняется.
+- monitoring vs control;
+- compute/resource budgets;
+- continue/stop Cognitive Cycles;
+- Cortex/retrieval/planning/consolidation decisions;
+- Workspace budget/focus control;
+- Goal focus;
+- Self Model/uncertainty/cost evidence;
+- meta-action semantics;
+- Scheduler boundary;
+- Policy boundary;
+- controls/interventions/snapshot.
 
 ---
 
 # 5. Будущие cognitive areas
-
-## DU-22 — Metacognitive / Executive Control
-
-Реальный выбор Cortex/retrieval/planning depth/compute budget/goal focus. Не scheduler.
 
 ## DU-23 — Policy / Planner
 
