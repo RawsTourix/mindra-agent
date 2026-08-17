@@ -6,7 +6,7 @@
 
 Здесь фиксируются принятые семантики, invariants, subsystem boundaries, contracts, ADR и будущие version plans.
 
-На текущем этапе приняты `DU-01 … DU-20`. Реализация ещё не начата.
+На текущем этапе приняты `DU-01 … DU-21`. Реализация ещё не начата.
 
 ---
 
@@ -34,7 +34,7 @@
 - [`modules/perception.md`](modules/perception.md) — `DU-08`
 - [`modules/goals.md`](modules/goals.md) — `DU-09`
 - [`modules/cortex.md`](modules/cortex.md) — `DU-10`
-- [`modules/memory.md`](modules/memory.md) — `DU-11` Memory Core
+- [`modules/memory.md`](modules/memory.md) — `DU-11`
 - [`modules/world-model.md`](modules/world-model.md) — `DU-12`
 - [`modules/self-model.md`](modules/self-model.md) — `DU-13`
 - [`modules/intrinsic-signals.md`](modules/intrinsic-signals.md) — `DU-14`
@@ -43,18 +43,19 @@
 - [`modules/affect.md`](modules/affect.md) — `DU-17`
 - [`modules/valuation.md`](modules/valuation.md) — `DU-18`
 - [`modules/salience.md`](modules/salience.md) — `DU-19`
-- [`modules/memory-regulation.md`](modules/memory-regulation.md) — `DU-20`: budget-aware retention/forgetting/replay и source-preserving consolidation поверх Memory Core.
+- [`modules/memory-regulation.md`](modules/memory-regulation.md) — `DU-20`
+- [`modules/workspace.md`](modules/workspace.md) — `DU-21`: bounded temporary shared broadcast Workspace с explicit admission/budget и falsifiable module gate.
 
 Карта областей: [`modules/README.md`](modules/README.md).
 
 ## Decisions
 
 - [`decisions/README.md`](decisions/README.md)
-- `ADR-0001 … ADR-0020` — accepted.
+- `ADR-0001 … ADR-0021` — accepted.
 
 Последнее решение:
 
-- [`ADR-0020`](decisions/ADR-0020-source-preserving-budget-aware-memory-regulation.md) — source-preserving budget-aware Memory Regulation с gated consolidation.
+- [`ADR-0021`](decisions/ADR-0021-bounded-broadcast-workspace-overlay.md) — bounded broadcast Workspace overlay с first-class `NoWorkspace`, matched controls и negative gate.
 
 ## Candidate contracts
 
@@ -62,7 +63,7 @@
 
 Последний добавленный contract:
 
-- [`contracts/memory-regulation.md`](contracts/memory-regulation.md).
+- [`contracts/workspace.md`](contracts/workspace.md).
 
 Exact Python API ещё не frozen.
 
@@ -72,53 +73,45 @@ Exact Python API ещё не frozen.
 
 `DU-xx` — самостоятельный архитектурный documentation update, а не software version.
 
-Каждый DU должен:
-
-- закрывать ограниченный design scope;
-- исследовать реальные альтернативы;
-- фиксировать responsibilities/non-goals/invariants;
-- создавать ADR при существенном выборе;
-- обновлять canonical owner/contracts/status;
-- не протаскивать downstream decisions;
-- завершаться consistency review.
+Каждый DU должен закрывать ограниченный scope, исследовать реальные альтернативы, фиксировать responsibilities/invariants, создавать ADR при существенном выборе, синхронизировать contracts/status и завершаться consistency review.
 
 Канонический порядок: [`documentation-plan.md`](documentation-plan.md).
 
 Текущий следующий update:
 
 ```text
-DU-21 — Workspace
+DU-22 — Metacognitive / Executive Control
 ```
 
 ---
 
-# Ключевые инварианты после DU-20
+# Ключевые инварианты после DU-21
 
 ```text
-MemoryRecord ≠ embedding/index
-Memory Core validation ≠ Regulation admission
-Memory Core owner ≠ Regulation policy owner
-SalienceProfile ≠ memory lifecycle decision
-forgetting ≠ physical deletion
-retrieval ≠ Agent Memory Replay ≠ Training Replay
-consolidation ≠ in-place rewrite
-consolidation ≠ Learning Update
-representation maintenance ≠ semantic consolidation
-Derived MemoryRecord ≠ source episode
+CognitiveState ≠ Workspace
+published state ≠ Workspace admission
+SalienceProfile ≠ Workspace admission
+WorkspaceBudget ≠ AttentionBudget ≠ MemoryBudget ≠ Executive budget
+WorkspaceItem ≠ source truth
+Workspace ≠ Memory
+Workspace eviction ≠ Memory forgetting
+Memory retrieval ≠ Workspace admission
+Workspace ≠ Cortex context
+broadcast ≠ callback/module execution
+imagined Workspace ≠ real Workspace
+Workspace ≠ Policy
+Workspace ≠ proof of consciousness
 ```
 
-- Memory Regulation работает через purpose-specific policies, а не universal `memory_importance`;
-- `MemoryBudget` explicit и может быть multi-dimensional;
-- access/retrieval frequency не считается automatic importance;
-- aging использует logical time;
-- consolidation gated и может быть отключена;
-- episodic-only является first-class baseline/control;
-- derived memory создаётся как новый record с `derived_from`/support/conflict provenance;
-- consolidation не повышает source authority автоматически;
-- contradictions/minority evidence не должны исчезать скрытым majority-vote;
-- source retention после consolidation регулируется отдельно;
-- re-encoding/index rebuild не создаёт semantic knowledge;
-- slow-weight/optimizer learning остаётся downstream `DU-26`;
-- compression ratio без source fidelity/behavioral benefit не доказывает полезность consolidation.
+- Workspace работает только с explicit proposals/candidates;
+- capacity/bandwidth должны быть реальными и наблюдаемыми;
+- Salience даёт evidence/hint, но не владеет admission;
+- admitted content сохраняет source revision/provenance/authority;
+- global availability означает доступ declared consumers, а не unrestricted ambient input;
+- Workspace может переживать несколько Cognitive Cycles, но не становится долговременной Memory;
+- Cortex context packing остаётся отдельной explicit operation;
+- branch/imagination используют branch-local Workspace;
+- `NoWorkspace`, DirectReads и matched buffer controls обязательны;
+- отрицательный результат может привести к удалению отдельной Workspace boundary.
 
 Фактический статус: [`current.md`](current.md).
