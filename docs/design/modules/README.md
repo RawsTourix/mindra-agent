@@ -24,6 +24,7 @@ DU-16  Appraisal
 DU-17  Affect Dynamics
 DU-18  Valuation
 DU-19  Salience / Attention
+DU-20  Memory Regulation / Consolidation
 ```
 
 Канонические документы находятся рядом в `docs/design/modules/`.
@@ -50,6 +51,9 @@ Valuation
 
 Salience
 → purpose-dependent priority ограниченного processing
+
+Memory Regulation
+→ budget-aware lifecycle/replay/consolidation policy поверх canonical Memory Core
 ```
 
 Ключевые различия:
@@ -57,83 +61,91 @@ Salience
 ```text
 relevance ≠ value ≠ salience
 SalienceProfile ≠ AttentionAllocation
-AttentionAllocation ≠ Workspace admission
-AttentionAllocation ≠ Executive compute decision
+AttentionAllocation ≠ Memory lifecycle decision
+Memory Core ≠ Memory Regulation
+forgetting ≠ physical deletion
+Memory Replay ≠ Training Replay
+consolidation ≠ rewrite ≠ Learning Update
 ```
 
 ---
 
-# 3. DU-19 — Salience / Attention
+# 3. DU-20 — Memory Regulation / Consolidation
 
-[`salience.md`](salience.md)
+[`memory-regulation.md`](memory-regulation.md) расширяет [`memory.md`](memory.md).
 
 Каноническая форма:
 
 ```text
-Explicit Candidate Set
-+
-Typed Evidence
-+
-Purpose
-→ SalienceProfile[]
+Memory Core
+→ canonical Store / validation / commit
 
-SalienceProfile[]
-+
-AttentionBudget
-+
-AllocationPolicy
-→ AttentionAllocation
+Memory Regulation
+→ profiles + purpose-specific policies
+→ admission/retention/eviction/replay/consolidation decisions
+→ proposals back to Memory Core
 ```
 
-Salience:
+Consolidation:
 
-- не владеет Memory retrieval/retention;
-- не является Workspace;
-- не вызывает Cortex;
-- не меняет scheduler;
-- не выбирает action;
-- не считает Transformer attention weights canonical salience;
-- может иметь optional persistence/inhibition state;
-- должна иметь measurable downstream allocation effect.
+```text
+source episodic MemoryRecords
+→ explicit Consolidation Event
+→ gated derivation
+→ new derived MemoryRecord
+→ derived_from/support/conflict provenance
+```
+
+Memory Regulation:
+
+- не является вторым Store owner;
+- не использует universal `memory_importance` scalar как canonical truth;
+- принимает explicit `MemoryBudget`;
+- использует Salience только как один из evidence sources;
+- различает logical forgetting и physical deletion;
+- не считает retrieval count automatic importance;
+- не запускает hidden background replay;
+- не смешивает Agent Memory Replay с Training Replay;
+- не делает optimizer/slow-weight update;
+- сохраняет raw/source evidence и contradictions;
+- должна сравниваться с episodic-only/FIFO/random/shuffled/matched controls.
 
 ---
 
-# 4. Первый ещё не спроектированный блок — Memory Regulation / Consolidation
+# 4. Первый ещё не спроектированный блок — Workspace
 
 Следующий Design Update:
 
 ```text
-DU-20 — Memory Regulation / Consolidation
+DU-21 — Workspace
 ```
 
-Предварительная ответственность:
+Предварительная responsibility:
 
-> расширить нейтральный Memory Core политиками admission/retention/forgetting/eviction/replay/consolidation, используя explicit Salience и другой разрешённый evidence без превращения Memory в скрытую Valuation или Training Runtime.
+> проверить, нужен ли MINDRA отдельный ограниченный temporary global-access surface сверх committed `CognitiveState`, explicit dependencies и Salience allocation.
 
-Нужно будет определить:
+Нужно определить:
 
-- memory admission;
-- retention/aging;
-- forgetting/eviction;
-- replay candidate priority;
-- consolidation boundary;
-- episodic → derived/semantic abstraction;
+- module gate;
+- Workspace candidate/admission;
+- capacity/budget;
+- `Workspace ≠ CognitiveState`;
+- `Workspace ≠ Salience`;
+- `Workspace ≠ Memory`;
+- `Workspace ≠ Cortex context`;
+- producer/consumer authority;
+- global-read/broadcast semantics;
+- persistence/replacement;
 - Salience integration;
-- capacity/resource policy;
-- conflict между recency/salience/diversity/value;
-- representation drift при consolidation;
-- training replay vs Agent memory replay;
-- catastrophic forgetting;
-- snapshot/revision/intervention;
-- controls `NoRegulation`, random/recency/shuffled/matched.
+- retrieval → Workspace boundary;
+- Cortex context packing;
+- imagined/branch-local Workspace;
+- interventions/controls;
+- negative gate, при котором отдельный Workspace отклоняется.
 
 ---
 
 # 5. Будущие cognitive areas
-
-## DU-21 — Workspace
-
-Ограниченная temporary global-access surface, если module gate подтвердит отдельную роль сверх `CognitiveState`.
 
 ## DU-22 — Metacognitive / Executive Control
 
@@ -177,7 +189,7 @@ Environment
    ↓
 Perception
    ↓
-Goals / Cortex / Memory
+Goals / Cortex / Memory Core
    ↓
 World + Self
    ↓
@@ -193,7 +205,7 @@ Valuation
    ↓
 Salience
    ↓
-Memory Regulation
+Memory Regulation / Consolidation
    ↓
 Workspace
    ↓
