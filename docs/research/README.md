@@ -24,7 +24,8 @@ research/
 │   ├── DU-17-affect-dynamics-landscape-2026-08.md
 │   ├── DU-18-valuation-landscape-2026-08.md
 │   ├── DU-19-salience-attention-landscape-2026-08.md
-│   └── DU-20-memory-regulation-consolidation-landscape-2026-08.md
+│   ├── DU-20-memory-regulation-consolidation-landscape-2026-08.md
+│   └── DU-21-workspace-landscape-2026-08.md
 ├── hypotheses.md          # появится позже
 ├── experiments/           # появится позже
 ├── results/               # появится позже
@@ -35,19 +36,13 @@ research/
 
 # Literature research pass
 
-Текущие pass:
+Текущие pass `DU-10 … DU-21` находятся в [`literature/`](literature/).
 
-- [`literature/DU-10-cortex-landscape-2026-08.md`](literature/DU-10-cortex-landscape-2026-08.md) — Cortex candidates/tooling;
-- [`literature/DU-11-memory-landscape-2026-08.md`](literature/DU-11-memory-landscape-2026-08.md) — Memory/retrieval/indexes;
-- [`literature/DU-12-world-model-landscape-2026-08.md`](literature/DU-12-world-model-landscape-2026-08.md) — world models/uncertainty;
-- [`literature/DU-13-self-model-landscape-2026-08.md`](literature/DU-13-self-model-landscape-2026-08.md) — competence/calibration;
-- [`literature/DU-14-intrinsic-signals-landscape-2026-08.md`](literature/DU-14-intrinsic-signals-landscape-2026-08.md) — novelty/information/learning progress;
-- [`literature/DU-15-drives-landscape-2026-08.md`](literature/DU-15-drives-landscape-2026-08.md) — drive/homeostatic dynamics;
-- [`literature/DU-16-appraisal-landscape-2026-08.md`](literature/DU-16-appraisal-landscape-2026-08.md) — multidimensional appraisal;
-- [`literature/DU-17-affect-dynamics-landscape-2026-08.md`](literature/DU-17-affect-dynamics-landscape-2026-08.md) — persistent Affect;
-- [`literature/DU-18-valuation-landscape-2026-08.md`](literature/DU-18-valuation-landscape-2026-08.md) — multi-objective valuation/risk;
-- [`literature/DU-19-salience-attention-landscape-2026-08.md`](literature/DU-19-salience-attention-landscape-2026-08.md) — salience, selective processing, adaptive compute, budgeted attention и routing;
-- [`literature/DU-20-memory-regulation-consolidation-landscape-2026-08.md`](literature/DU-20-memory-regulation-consolidation-landscape-2026-08.md) — episodic retention, forgetting/eviction, replay, source-preserving consolidation и retain-vs-consolidate trade-offs.
+Последние:
+
+- [`literature/DU-19-salience-attention-landscape-2026-08.md`](literature/DU-19-salience-attention-landscape-2026-08.md) — selective processing/budgeted attention;
+- [`literature/DU-20-memory-regulation-consolidation-landscape-2026-08.md`](literature/DU-20-memory-regulation-consolidation-landscape-2026-08.md) — retention/forgetting/replay/consolidation;
+- [`literature/DU-21-workspace-landscape-2026-08.md`](literature/DU-21-workspace-landscape-2026-08.md) — Global Workspace/shared bottleneck, neural/cognitive workspace implementations, capacity/broadcast controls и ограничения consciousness claims.
 
 Эти документы **не выбирают** canonical implementation framework/algorithm.
 
@@ -66,42 +61,38 @@ research evidence / experiment result
 → implementation/version update
 ```
 
-Для будущих экспериментов заранее фиксировать:
+Для будущих экспериментов заранее фиксировать hypothesis, independent variables, baselines/controls, seeds, environment/data versions, metrics, success/falsification criterion и analysis policy.
 
-- hypothesis;
-- independent variables;
-- baseline/control;
-- seeds;
-- environment/data versions;
-- metrics;
-- success/falsification criterion;
-- analysis policy.
-
-Для Memory Regulation особенно важны:
+Для Workspace особенно важны:
 
 ```text
-Full Regulation
-vs FIFO/recency/random/shuffled
-vs NoRegulation
-
-Full Consolidation
-vs episodic-only
-vs random/matched compression
+Full Workspace
+vs NoWorkspace / DirectReads
+vs Random/Shuffled admission
+vs UnboundedWorkspace
+vs WorkspaceWithoutBroadcast
+vs MatchedSharedBuffer
+vs MatchedRecurrentBuffer
 ```
 
-и раздельные метрики:
+Capacity sweep:
 
 ```text
-behavioral utility
-retention efficiency
-source fidelity
-contradiction preservation
-false derived-memory rate
-budget efficiency
-generalization
+0 → small → medium → large → unbounded
 ```
 
-Compression ratio без functional correctness не считается достаточным evidence полезной consolidation.
+И отдельная causal цепочка:
+
+```text
+candidate/admission intervention
+→ WorkspaceSnapshot changed
+→ actual consumer reads changed
+→ downstream integration/behavior changed
+```
+
+Нужно измерять coordination gain, communication overhead, noise propagation, capacity sensitivity, robustness к irrelevant candidates и generalization.
+
+Положительный Workspace result не считается evidence subjective consciousness.
 
 ---
 
