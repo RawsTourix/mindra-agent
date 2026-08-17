@@ -4,7 +4,7 @@
 
 Проект исследует, можно ли построить систему, в которой поведение определяется не только внешней задачей и базовой языковой моделью, но также собственным изменяющимся внутренним состоянием, памятью, моделью мира и себя, внутренними сигналами, drives, appraisal/affect, valuation, управляемым распределением cognitive processing, adaptive Executive Control, явной Policy/Planner boundary и причинно строгой Action Boundary между выбранным намерением и внешним действием.
 
-Отдельные Experience/Data, Training, Checkpoint/Reproducibility/Compute и Evaluation planes сохраняют причинную историю, изменяют trainable revisions через explicit candidate → validation → activation lifecycle, обеспечивают scoped restore/reproducibility и проверяют функциональный причинный вклад механизмов при контроле data/compute/base-state условий — не смешиваясь с ordinary cognition.
+Отдельные Experience/Data, Training, Checkpoint/Reproducibility/Compute, Evaluation и Engineering Verification planes сохраняют причинную историю, изменяют trainable revisions через explicit candidate → validation → activation lifecycle, обеспечивают scoped restore/reproducibility, проверяют функциональный причинный вклад механизмов и машинно контролируют соблюдение contracts/invariants — не смешиваясь с ordinary cognition.
 
 MINDRA не объявляет целью создание сознания или доказательство субъективного опыта у искусственной системы. Исследуются функционально измеримые механизмы и их причинный вклад в поведение.
 
@@ -12,7 +12,7 @@ MINDRA не объявляет целью создание сознания ил
 
 Проект находится на стадии **канонического архитектурного и исследовательского проектирования**.
 
-Documentation foundation и `DU-01 … DU-28` приняты. Следующий допустимый Design Update всегда указан в [`docs/design/current.md`](docs/design/current.md).
+Documentation foundation и `DU-01 … DU-29` приняты. Следующий допустимый Design Update всегда указан в [`docs/design/current.md`](docs/design/current.md).
 
 Production/research implementation, software versions, exact contract freeze, конкретные algorithms/frameworks, storage/evaluation/testing backends и Cortex backend ещё не зафиксированы.
 
@@ -27,6 +27,7 @@ Production/research implementation, software versions, exact contract freeze, к
 - candidate/validated/activated revisions вместо скрытой live mutation;
 - manifest-driven checkpoints и scoped reproducibility claims;
 - typed evaluation evidence вместо одного universal score;
+- invariant-driven Engineering Verification вместо одной метрики line coverage;
 - ablation/control/matched-control/intervention для существенных механизмов;
 - compute/data/context attribution;
 - разделение Design / Implementation / Engineering Testing / Research Evidence;
