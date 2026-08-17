@@ -28,6 +28,7 @@ DU-20  Memory Regulation / Consolidation
 DU-21  Workspace
 DU-22  Metacognitive / Executive Control
 DU-23  Policy / Planner
+DU-24  Action Boundary / Gate / Executor
 ```
 
 Канонические документы находятся рядом в `docs/design/modules/`.
@@ -69,6 +70,9 @@ Policy
 
 Planner
 → optional explicit multi-step/contingent plan/action candidate provider
+
+Action Boundary
+→ validation/authorization → Action Commit → dispatch/execution correlation
 ```
 
 Ключевые различия:
@@ -80,90 +84,85 @@ Policy ≠ Planner
 Planner ≠ World Model
 Plan ≠ ImaginedTrajectory
 Valuation ≠ Policy Decision
-SelectedActionIntent ≠ Action Commit / Executed Action
+SelectedActionIntent ≠ AuthorizedAction ≠ Action Commit
+Action Commit ≠ Dispatch ≠ Environment Transition
+Policy choice ≠ external override
 ```
 
 ---
 
-# 3. DU-23 — Policy / Planner
+# 3. DU-24 — Action Boundary / Gate / Executor
 
-[`policy-planner.md`](policy-planner.md)
+[`action-boundary.md`](action-boundary.md)
 
 Каноническая форма:
 
 ```text
-BehavioralContext
-      ↓
-explicit candidate sources
-      ↓
-PolicyCandidateSet
-      +
-Valuation/Comparison evidence
-      ↓
-Policy
-      ├── SelectedActionIntent
-      └── DecisionDeferral
+SelectedActionIntent
+        ↓
+Action Gate / Authorization
+        ↓
+AuthorizedAction
+        ↓
+Action Commit
+        ↓
+Dispatch
+        ↓
+Environment acceptance/execution
+        ↓
+Environment Transition
+        ↓
+Outcome Commit
 ```
 
-Optional Planner:
+Action Boundary:
 
-```text
-WorldBelief + Goals + Executive planning budget
-      ↓
-Planner
-      ↓
-PlanCandidate / ActionCandidate
-      ↓
-PolicyCandidateSet
-```
+- обязательна как semantic boundary между Policy и Environment;
+- базовый Gate не является второй Policy;
+- проверяет schema/freshness/capability/preconditions/explicit constraints;
+- не использует hidden evaluator/Environment Ground Truth normal runtime способом;
+- по умолчанию accept/reject + semantics-preserving normalization;
+- behavior-changing replacement допускается только как explicit override с отдельной provenance;
+- фиксирует `Action Commit` после authorization, но до dispatch;
+- сохраняет commit даже при последующем dispatch/execution failure;
+- различает `definitely_not_sent`, `execution_unknown`, Environment `no_effect` и partial execution;
+- использует stable dispatch identity и explicit retry/idempotency capability;
+- не обещает universal physical exactly-once execution.
 
-Policy:
+Dispatcher:
 
-- является единственным owner selected-action intention;
-- не исполняет Environment action;
-- может быть reactive/direct без Planner;
-- может использовать Planner, Cortex-assisted или scripted candidates;
-- корректно обрабатывает constraints/risk/incomparability;
-- может вернуть `DecisionDeferral` вместо fake scalarization/random implicit fallback;
-- сохраняет stochastic selection/RNG provenance.
-
-Planner:
-
-- optional/falsifiable;
-- использует World Belief и agent-visible evidence;
-- не читает hidden Environment state normal runtime способом;
-- не владеет final selection;
-- не мутирует Goal Graph;
-- может поддерживать PlanState/replanning;
-- должен доказывать пользу против reactive/matched controls.
+- execution infrastructure, не cognitive Policy;
+- не меняет committed semantic action;
+- управляет transport/retry/reconciliation;
+- Environment остаётся владельцем transition/outcome.
 
 ---
 
-# 4. Первый ещё не спроектированный блок — Action Boundary
+# 4. Первый ещё не спроектированный блок — Experience / Data / Replay
 
 Следующий Design Update:
 
 ```text
-DU-24 — Action Boundary / Gate / Executor
+DU-25 — Experience / Data / Replay
 ```
 
 Предварительная responsibility:
 
-> превратить `SelectedActionIntent` в причинно идентифицируемое разрешённое/committed/dispatchable действие и связать его с фактическим Environment outcome.
+> зафиксировать canonical causal experience/data schema, из которой можно получать research trajectories и training replay samples без смешивания natural experience, Memory, imagination и derived training data.
 
 Нужно определить:
 
-- Action Gate module/responsibility gate;
-- semantic validation;
-- stale intent handling;
-- action capability/precondition checks;
-- accept/reject/modify/substitute semantics;
-- exact `Action Commit` boundary;
-- dispatch/idempotency/retry;
-- execution/acknowledgement/failure;
-- outcome correlation;
-- termination/truncation/reset;
-- controls/interventions/snapshot.
+- event/transition/trajectory hierarchy;
+- action candidate→intent→commit→dispatch→outcome linkage;
+- natural/replayed/imagined/intervened/counterfactual provenance;
+- evaluator-only vs agent-visible data;
+- agent/model/state revision refs;
+- failed-dispatch/no-transition representation;
+- sequence/window extraction;
+- derived training sample/relabeling semantics;
+- replay sample provenance;
+- schema/version/storage tiers;
+- quality/completeness flags.
 
 ---
 
@@ -239,5 +238,7 @@ Environment
 - module-specific causal metrics.
 
 Для Planner отрицательный gate обязателен: если matched reactive/search controls объясняют эффект, отдельную boundary нужно пересмотреть.
+
+Для сложного Action Gate/override также обязателен simpler pass-through/schema/capability control и отдельная Policy-vs-override attribution.
 
 Следующий допустимый этап определяется только [`../current.md`](../current.md).
