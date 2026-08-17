@@ -10,7 +10,7 @@
 
 # 1. Общий статус
 
-**Фундамент документации создан. `DU-01` … `DU-13` завершены и приняты. Реализация ещё не начата.**
+**Фундамент документации создан. `DU-01` … `DU-14` завершены и приняты. Реализация ещё не начата.**
 
 На текущем этапе зафиксированы:
 
@@ -23,8 +23,9 @@
 - Memory Core;
 - World Model;
 - Self Model;
-- candidate contracts Environment, Perception, Goals, Cortex, Memory, World Model и Self Model;
-- тринадцать accepted ADR.
+- Intrinsic Signal Layer;
+- candidate contracts Environment, Perception, Goals, Cortex, Memory, World Model, Self Model и Intrinsic Signals;
+- четырнадцать accepted ADR.
 
 ---
 
@@ -45,92 +46,94 @@ DU-10 — Cortex Boundary
 DU-11 — Memory Core
 DU-12 — World Model
 DU-13 — Self Model
+DU-14 — Intrinsic Signals
 ```
 
-## DU-13
+## DU-14
 
 Канонический документ:
 
-- [`modules/self-model.md`](modules/self-model.md).
+- [`modules/intrinsic-signals.md`](modules/intrinsic-signals.md).
 
 Candidate contract:
 
-- [`contracts/self-model.md`](contracts/self-model.md).
+- [`contracts/intrinsic-signals.md`](contracts/intrinsic-signals.md).
 
 Research pass:
 
-- [`../research/literature/DU-13-self-model-landscape-2026-08.md`](../research/literature/DU-13-self-model-landscape-2026-08.md).
+- [`../research/literature/DU-14-intrinsic-signals-landscape-2026-08.md`](../research/literature/DU-14-intrinsic-signals-landscape-2026-08.md).
 
 Accepted decision:
 
-- [`ADR-0013`](decisions/ADR-0013-hybrid-functional-self-model.md).
+- [`ADR-0014`](decisions/ADR-0014-multi-provider-intrinsic-signal-layer.md).
 
 Главные результаты:
 
-- Self Model является agent-owned functional cognitive subsystem, а не personality/self-awareness claim;
-- self-observable `Agent Capability Manifest` отделён от learned competence;
-- capability availability не означает фактическую competence;
-- `Self Evidence` имеет явную provenance и не получает evaluator-only truth normal runtime способом;
-- `Self Belief` context/domain-conditioned и не сводится к одному global scalar;
-- Self Prediction имеет explicit target/context/horizon;
-- `P(success)` имеет смысл только относительно формального outcome;
-- probability of success отделена от uncertainty/support самой оценки;
-- SelfPredictionResolution связывает forecast с фактическим outcome для calibration evidence;
-- старые competence estimates могут стать stale после behavior-relevant `agent_revision`/capability-manifest change;
-- internal resource/cost channels должны быть explicit agent-visible semantics, а не произвольная host telemetry;
-- Self Model отделена от World Model, Valuation и Executive Control;
-- Cortex self-report является optional derived evidence, а не canonical self-knowledge;
-- Self Model оценивает собственную capability/competence, но не решает, как действовать на основании оценки;
-- exact Agent snapshot обязан учитывать causally relevant Self Model state;
-- `NoSelfModel`, Dummy и Control configurations различаются;
-- accurate/miscalibrated/shuffled/NoSelfModel comparison является будущим causal evaluation pattern.
+- Intrinsic Signal является измеряемым свойством опыта, а не reward/Drive/Utility;
+- принят multi-provider layer вместо одного `IntrinsicRewardModule`;
+- provider outputs остаются typed и не обязаны scalarize в одно число;
+- prediction discrepancy отделён от probabilistic predictive surprisal;
+- novelty отделена от prediction error и visitation rarity;
+- persistent prediction error не трактуется автоматически как learnable opportunity;
+- information gain допустим только при meaningful before/after knowledge semantics;
+- uncertainty change имеет explicit signed convention и compatible estimator revisions;
+- competence change основан на temporal Self Model evidence и сохраняет знак improvement/degradation;
+- novelty/rarity имеют reference history/scope и representation identity;
+- representation drift/normalization/provider revisions входят в signal provenance;
+- raw и normalized measure различаются;
+- online normalization обязана быть causal и versioned;
+- actual/replayed/imagined/intervened/offline signal provenance различается;
+- replay sample не считается новым посещением normal runtime способом;
+- evaluator-only ground truth не используется natural providers;
+- stateful provider history/count/baseline/normalizer/RNG входит в exact Agent snapshot;
+- `NoIntrinsicSignals`, Dummy, Constant, Random, Shuffled и Control providers различаются.
 
 ---
 
 # 3. Следующий допустимый Design Update
 
 ```text
-DU-14 — Intrinsic Signals
+DU-15 — Drives
 ```
 
-Цель `DU-14` — определить **нейтральные внутренние сигналы, выводимые из структуры собственного опыта Agent**, до появления Drives/Valuation: novelty, prediction surprise/error, information gain, uncertainty reduction, competence progress и visitation rarity как возможные измеряемые свойства опыта.
+Цель `DU-15` — определить **долгоживущие внутренние регуляторные переменные**, которые превращают нейтральные properties опыта в контекстно зависимое внутреннее давление, не смешивая Drive с Goal, signal, utility или action policy.
 
 Обязательные области:
 
 ```text
-Intrinsic Signal responsibility / ownership
-signal vs reward / drive / utility boundary
-prediction-error source from World Model
-novelty semantics
-information gain / uncertainty reduction
-competence-progress source from Self Model
-state/event visitation rarity
-normalization / scale / stationarity
-per-step vs event/window aggregation
-representation dependence / drift
-source provenance
-online computability without evaluator leakage
-NoSignal / Dummy / Control variants
-observability / intervention
+Drive responsibility / ownership
+Drive state vs Intrinsic Signal boundary
+homeostatic / set-point semantics
+need / deficit / pressure representation
+state dynamics over time
+sources of update
+saturation / decay / recovery
+cross-drive interaction
+Drive scope / persistence
+Drive → Goal Proposal boundary
+Drive → Valuation boundary
+external manipulation vs natural regulation
+NoDrive / Dummy / Control variants
+snapshot / observability / intervention
 failure / degradation
 ```
 
 Нужно определить:
 
-- нужен ли один `Intrinsic Signal` module или несколько provider capabilities;
-- какие signals являются свойствами события/обновления, а какие требуют temporal baseline/history;
-- чем raw prediction error отличается от surprise и novelty;
-- когда information gain можно оценивать корректно;
-- как competence progress использует Self Model predictions/resolutions, не становясь self-reward автоматически;
-- как representation drift влияет на novelty/distance signals;
-- как избежать нестационарной шкалы, делающей разные signals несопоставимыми;
-- как не превратить intrinsic signal сразу в reward/utility;
-- какие random/shuffled/constant controls нужны для causal evaluation.
+- нужен ли общий `Drive System` или независимые typed drives;
+- какие drives имеют true homeostatic target, а какие лучше моделировать как adaptive motivational state;
+- может ли novelty-seeking быть Drive, если novelty уже signal;
+- как Drive state меняется при отсутствии нового внешнего события;
+- как не превратить Drive в скрытый scalar reward;
+- как несколько drives конфликтуют/насыщаются;
+- должен ли Drive напрямую создавать Goal или только `Goal Proposal`;
+- как causal intervention одного drive проверяет specificity downstream эффекта;
+- какие controls отличают meaningful drive dynamics от дополнительного state/noise.
 
-После принятия `DU-14` допускается:
+После принятия `DU-15` допускается:
 
 ```text
-DU-15 — Drives
+DU-16 — Appraisal
 ```
 
 ---
@@ -157,6 +160,11 @@ predictive uncertainty ≠ risk / value
 Agent Capability Fact ≠ Learned Competence Estimate ≠ Self Prediction
 P(success) ≠ uncertainty/support самой self-estimate
 Self Model ≠ Cortex self-report ≠ Executive Control
+Intrinsic Signal ≠ Reward ≠ Drive ≠ Utility/Value
+prediction discrepancy ≠ predictive surprisal ≠ novelty
+novelty ≠ visitation rarity
+information gain ≠ arbitrary uncertainty reduction
+higher intrinsic signal ≠ greater desirability
 ```
 
 ---
@@ -165,7 +173,6 @@ Self Model ≠ Cortex self-report ≠ Executive Control
 
 Пока отсутствуют accepted решения по:
 
-- intrinsic signals;
 - Drives;
 - Appraisal;
 - Affect Dynamics;
@@ -185,7 +192,7 @@ Self Model ≠ Cortex self-report ≠ Executive Control
 - version roadmap;
 - implementation sequences.
 
-Также пока не выбраны exact Python/package/framework решения, concrete Cortex backend, Memory backend/index, World Model architecture, Self Model estimator/calibration method или uncertainty estimator.
+Также пока не выбраны exact Python/package/framework решения, concrete Cortex backend, Memory backend/index, World Model architecture, Self Model estimator/calibration method, Intrinsic Signal estimators или common normalization/scalarization policy.
 
 ---
 
