@@ -6,7 +6,7 @@
 
 Здесь фиксируются принятые семантики, invariants, границы модулей, internal contracts, архитектурные решения и будущие version plans.
 
-На текущем этапе сформирован documentation foundation и приняты `DU-01` … `DU-16`. Детальные subsystem design добавляются последовательно после отдельного исследования вариантов.
+На текущем этапе сформирован documentation foundation и приняты `DU-01` … `DU-17`. Детальные subsystem design добавляются последовательно после отдельного исследования вариантов.
 
 ---
 
@@ -53,24 +53,25 @@ Research evidence не переписывает design напрямую: про�
 - [`modules/memory.md`](modules/memory.md) — `DU-11`: canonical Memory Store, MemoryRecord, derived representations/indexes и explicit retrieval boundary;
 - [`modules/world-model.md`](modules/world-model.md) — `DU-12`: World Belief, assimilation, action-conditioned prediction, imagination, uncertainty и prediction-error boundary;
 - [`modules/self-model.md`](modules/self-model.md) — `DU-13`: capability facts, context-conditioned competence, calibrated Self Prediction и self-change semantics;
-- [`modules/intrinsic-signals.md`](modules/intrinsic-signals.md) — `DU-14`: typed multi-provider Intrinsic Signal Layer без обязательного intrinsic reward/scalarization;
+- [`modules/intrinsic-signals.md`](modules/intrinsic-signals.md) — `DU-14`: typed multi-provider Intrinsic Signal Layer без mandatory intrinsic reward/scalarization;
 - [`modules/drives.md`](modules/drives.md) — `DU-15`: typed persistent Drive System, homeostatic/adaptive dynamics и explicit Goal/Valuation boundaries;
-- [`modules/appraisal.md`](modules/appraisal.md) — `DU-16`: event-centered multidimensional Appraisal Profile, context/reappraisal semantics и границы с Intrinsic Signals/Drives/Affect/Valuation.
+- [`modules/appraisal.md`](modules/appraisal.md) — `DU-16`: event-centered multidimensional Appraisal Profile, context/reappraisal semantics и границы с Intrinsic Signals/Drives/Affect/Valuation;
+- [`modules/affect.md`](modules/affect.md) — `DU-17`: typed persistent history-dependent Affect State, temporal feedback и falsifiable module gate.
 
 ## Карта модулей
 
-- [`modules/README.md`](modules/README.md) — предварительная карта архитектурных областей.
+- [`modules/README.md`](modules/README.md) — карта принятых boundaries, будущих областей и design dependency graph.
 
-`Environment`, `Perception`, `Goal System`, `Cortex`, `Memory Core`, `World Model`, `Self Model`, `Intrinsic Signals`, `Drive System` и `Appraisal System` уже имеют accepted semantic design. Остальные области проектируются последовательно.
+`Environment`, `Perception`, `Goal System`, `Cortex`, `Memory Core`, `World Model`, `Self Model`, `Intrinsic Signals`, `Drive System`, `Appraisal System` и `Affect System` уже имеют accepted semantic design.
 
 ## Decision records
 
 - [`decisions/README.md`](decisions/README.md);
-- `ADR-0001` … `ADR-0016` — accepted.
+- `ADR-0001` … `ADR-0017` — accepted.
 
 Последнее решение:
 
-- [`ADR-0016`](decisions/ADR-0016-multidimensional-event-centered-appraisal.md) — event-centered typed multidimensional Appraisal без mandatory emotion label/global utility scalar.
+- [`ADR-0017`](decisions/ADR-0017-typed-persistent-affect-state.md) — typed persistent Affect State с explicit history-dependent dynamics, optional low-dimensional views и обязательным falsification/matched-control gate.
 
 ## Candidate / exact internal contracts
 
@@ -84,7 +85,8 @@ Research evidence не переписывает design напрямую: про�
 - [`contracts/self-model.md`](contracts/self-model.md);
 - [`contracts/intrinsic-signals.md`](contracts/intrinsic-signals.md);
 - [`contracts/drives.md`](contracts/drives.md);
-- [`contracts/appraisal.md`](contracts/appraisal.md).
+- [`contracts/appraisal.md`](contracts/appraisal.md);
+- [`contracts/affect.md`](contracts/affect.md).
 
 Candidate contracts определяют semantic machine-facing requirements, но exact Python API ещё не frozen.
 
@@ -111,7 +113,7 @@ Candidate contracts определяют semantic machine-facing requirements, �
 
 Канонический порядок: [`documentation-plan.md`](documentation-plan.md).
 
-Текущий следующий update: `DU-17 — Affect Dynamics`.
+Текущий следующий update: `DU-18 — Valuation`.
 
 ---
 
@@ -128,41 +130,35 @@ Candidate contracts определяют semantic machine-facing requirements, �
 5. diagnostic/evaluation strategy;
 6. функциональную роль, не дублирующую соседнюю.
 
-`Cortex` принят как shared capability boundary. `Intrinsic Signals` приняты как семейство independently configurable providers. `Drive System` принят как единый ownership boundary persistent typed drive states с pluggable drive components. `Appraisal System` принят как event-centered multidimensional evaluation boundary, а не emotion-label/reward classifier.
+`Cortex` принят как shared capability boundary. `Intrinsic Signals` — как семейство independently configurable providers. `Drive System` — как единый owner persistent typed regulatory states. `Appraisal System` — как event-centered multidimensional evaluation boundary. `Affect System` — как falsifiable persistent temporal-integration boundary, который должен быть пересмотрен, если matched controls не покажут специфической causal роли.
 
 ---
 
-# 5. Текущие ключевые инварианты
-
-В дополнение к предыдущим DU теперь зафиксировано:
+# 5. Новые ключевые инварианты DU-17
 
 ```text
-Appraisal ≠ Intrinsic Signal ≠ Drive ≠ Affect ≠ Valuation
-Appraisal Target ≠ Appraisal Context
-relevance ≠ Salience ≠ novelty ≠ utility
-goal congruence ≠ global Goal priority/value
-drive conduciveness ≠ committed Drive update
-expectedness ≠ novelty ≠ prediction discrepancy ≠ predictive surprisal
-controllability ≠ coping potential
-urgency ≠ Salience ≠ action priority
-Appraisal local polarity ≠ Utility/Value/Reward
-reappraisal ≠ mutation of historical AppraisalRecord
+Appraisal Record ≠ Affect State
+Affect State ≠ Drive State
+Affect State ≠ Utility/Value/Reward
+Affect State ≠ emotion label
+Affect history integration ≠ Memory Store
+Affect_t → Appraisal_t → Affect_(t+1)
+imagined Affect ≠ real committed Affect
+Environment reset ≠ Affect reset
 ```
 
-- Appraisal оценивает causally identifiable target относительно explicit committed context;
-- actual/predicted/imagined/retrospective/intervened targets сохраняют разную provenance;
-- Appraisal Profile многомерный и не имеет mandatory emotion label/global scalar;
-- relevance не становится attention allocation;
-- per-goal congruence не решает Goal conflict;
-- per-drive conduciveness не меняет Drive State;
-- controllability относится к возможности влиять действиями на ситуацию, coping potential — к способности текущего Agent справиться/адаптироваться;
-- expectedness использует prior expectation evidence, а не переименовывает novelty/surprise;
-- normative dimension не существует без отдельной agent-owned norm semantics;
-- reappraisal создаёт новый historical record;
-- Memory retrieval/Cortex usage остаются explicit causal operations;
-- partial/unknown dimensions и failure являются first-class states;
-- Appraisal не хранит hidden persistent Affect и не выполняет Valuation/Policy.
+- Affect интегрирует appraisal-history во времени, но не заменяет Appraisal history/Memory;
+- нет обязательного valence/arousal/PAD или discrete emotion representation;
+- previous committed Affect может быть input будущего Appraisal, но same-wave recursive cycle запрещён;
+- predicted appraisal влияет на current Affect только через explicit anticipatory source policy;
+- imagined appraisal по умолчанию изменяет branch-local simulated Affect;
+- retrospective current reappraisal может менять current Affect без переписывания прошлого;
+- Affect не мутирует Goals/Drives и не вычисляет decision utility;
+- будущие Valuation/Salience/Memory Regulation получают Affect только через explicit boundaries;
+- logical time используется вместо wall-clock;
+- causally relevant private/recurrent/baseline/RNG state включается в Agent Snapshot;
+- самостоятельность Affect проверяется через `NoAffect`, `ResetEveryEvent`, shuffled-history и matched recurrent controls.
 
-Human appraisal theories, emotion taxonomies и конкретные LLM appraisal frameworks являются research evidence/candidate approaches, но не canonical implementation requirements.
+Valence/arousal/PAD, discrete emotion taxonomies и конкретные neural affect models являются research evidence/candidate approaches, а не canonical implementation requirements.
 
 Фактический статус: [`current.md`](current.md).
