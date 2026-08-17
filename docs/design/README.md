@@ -6,7 +6,7 @@
 
 Здесь фиксируются принятые семантики, invariants, границы модулей, internal contracts, архитектурные решения и будущие version plans.
 
-На текущем этапе сформирован documentation foundation и приняты `DU-01` … `DU-11`. Детальные subsystem design добавляются последовательно после отдельного исследования вариантов.
+На текущем этапе сформирован documentation foundation и приняты `DU-01` … `DU-12`. Детальные subsystem design добавляются последовательно после отдельного исследования вариантов.
 
 ---
 
@@ -50,22 +50,23 @@ Research evidence не переписывает design напрямую: про�
 - [`modules/perception.md`](modules/perception.md) — `DU-08`: Perception/Canonical Percept;
 - [`modules/goals.md`](modules/goals.md) — `DU-09`: Goal System/Goal Graph;
 - [`modules/cortex.md`](modules/cortex.md) — `DU-10`: Cortex Gateway и backend-neutral capability boundary;
-- [`modules/memory.md`](modules/memory.md) — `DU-11`: canonical Memory Store, MemoryRecord, derived representations/indexes и explicit retrieval boundary.
+- [`modules/memory.md`](modules/memory.md) — `DU-11`: canonical Memory Store, MemoryRecord, derived representations/indexes и explicit retrieval boundary;
+- [`modules/world-model.md`](modules/world-model.md) — `DU-12`: World Belief, assimilation, action-conditioned prediction, imagination, uncertainty и prediction-error boundary.
 
 ## Карта модулей
 
 - [`modules/README.md`](modules/README.md) — предварительная карта архитектурных областей.
 
-`Environment`, `Perception`, `Goal System`, `Cortex` и `Memory Core` уже имеют accepted semantic design. Остальные области проектируются последовательно.
+`Environment`, `Perception`, `Goal System`, `Cortex`, `Memory Core` и `World Model` уже имеют accepted semantic design. Остальные области проектируются последовательно.
 
 ## Decision records
 
 - [`decisions/README.md`](decisions/README.md);
-- `ADR-0001` … `ADR-0011` — accepted.
+- `ADR-0001` … `ADR-0012` — accepted.
 
 Последнее решение:
 
-- [`ADR-0011`](decisions/ADR-0011-canonical-memory-records-derived-indexes.md) — canonical Memory Records отдельно от derived representations/indexes.
+- [`ADR-0012`](decisions/ADR-0012-belief-state-world-model.md) — belief-state World Model с раздельными assimilation, prediction и imagination semantics.
 
 ## Candidate / exact internal contracts
 
@@ -74,7 +75,8 @@ Research evidence не переписывает design напрямую: про�
 - [`contracts/perception.md`](contracts/perception.md);
 - [`contracts/goals.md`](contracts/goals.md);
 - [`contracts/cortex.md`](contracts/cortex.md);
-- [`contracts/memory.md`](contracts/memory.md).
+- [`contracts/memory.md`](contracts/memory.md);
+- [`contracts/world-model.md`](contracts/world-model.md).
 
 Candidate contracts определяют semantic machine-facing requirements, но exact Python API ещё не frozen.
 
@@ -101,7 +103,7 @@ Candidate contracts определяют semantic machine-facing requirements, �
 
 Канонический порядок: [`documentation-plan.md`](documentation-plan.md).
 
-Текущий следующий update: `DU-12 — World Model`.
+Текущий следующий update: `DU-13 — Self Model`.
 
 ---
 
@@ -118,7 +120,7 @@ Candidate contracts определяют semantic machine-facing requirements, �
 5. diagnostic/evaluation strategy;
 6. функциональную роль, не дублирующую соседнюю.
 
-`Cortex` принят как shared capability boundary, а `Memory Core` — как agent-owned stateful subsystem с canonical store и explicit read/write boundaries.
+`Cortex` принят как shared capability boundary. `Memory Core` и `World Model` являются agent-owned stateful subsystems с отдельными source-of-truth и prediction boundaries.
 
 ---
 
@@ -127,23 +129,27 @@ Candidate contracts определяют semantic machine-facing requirements, �
 В дополнение к предыдущим DU теперь зафиксировано:
 
 ```text
-MemoryRecord ≠ CognitiveState ≠ trajectory/replay item
 MemoryRecord ≠ embedding/index entry
-Memory retrieval ≠ ambient Cortex context
-retrieval relevance ≠ utility/salience/importance
+Canonical Percept ≠ World Belief ≠ World Prediction
+World Prediction ≠ observed fact
+Imagined Transition ≠ Environment Transition
+prediction error ≠ reward / intrinsic utility
+predictive uncertainty ≠ risk / value
 ```
 
-- Memory Store является agent-owned state;
-- canonical MemoryRecord сохраняет source/provenance и stable identity;
-- learned representations/indexes являются derived и versioned;
-- representation drift не должен уничтожать semantic memory;
-- retrieval выполняется через explicit `RetrievalRequest → RetrievalResult`;
-- Cortex Gateway не имеет hidden Memory lookup;
-- Memory Core до `DU-19/20` не использует emotional/salience-driven forgetting;
-- Memory отличается от внешнего trajectory log и training replay;
-- exact Agent snapshot обязан учитывать causally relevant Memory state;
-- `NoMemory`, Dummy и Control configurations различаются.
+- World Model поддерживает belief semantics для partial observability;
+- assimilation фактического evidence отделена от prior/prediction;
+- candidate-action query не является Action Commit;
+- multi-step imagination имеет отдельную causal provenance;
+- backend latent может быть private/optional feature surface, но не universal representation;
+- Goal не является обязательной физической dynamics input;
+- Memory используется только через explicit retrieval boundary;
+- Cortex assistance не становится authoritative world truth;
+- epistemic/aleatoric labels требуют обоснованного estimator/evaluation;
+- hidden Environment ground truth не используется baseline World Model молча;
+- exact Agent snapshot обязан учитывать causally relevant World Model belief/private/RNG state;
+- `NoWorldModel`, Dummy и Control configurations различаются.
 
-Обсуждавшиеся FAISS, HNSW, SQLite/vector databases, embedding models и neural memory architectures являются candidate implementations/evidence, но не canonical requirements.
+RSSM, Dreamer, TD-MPC2, Transformer world models, TorchRL и конкретные uncertainty estimators являются candidate implementations/evidence, но не canonical requirements.
 
 Фактический статус: [`current.md`](current.md).
