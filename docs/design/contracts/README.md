@@ -2,7 +2,7 @@
 
 ## Назначение
 
-Этот каталог хранит machine-facing semantic contracts уже принятых subsystem boundaries.
+Этот каталог хранит machine-facing semantic contracts уже принятых subsystem/data boundaries.
 
 До общего contract freeze документы здесь остаются **candidate contracts**: они уточняют форму принятого design, но не имеют права молча менять его смысл или превращать удобный Python choice в архитектурный invariant.
 
@@ -27,7 +27,8 @@
 - [`workspace.md`](workspace.md) — Workspace proposal/admission/items/budget/broadcast/read/snapshot semantics после `DU-21`;
 - [`executive-control.md`](executive-control.md) — MetaActionProposal/InternalOperationCatalog, CognitiveResourceEnvelope, ExecutiveDecision, stop/continue и budget ledger semantics после `DU-22`;
 - [`policy-planner.md`](policy-planner.md) — BehavioralContext, ActionCandidate, PlanCandidate, PolicyCandidateSet, DecisionDeferral и SelectedActionIntent после `DU-23`;
-- [`action-boundary.md`](action-boundary.md) — authorization stages, AuthorizedAction, ActionCommitRecord, dispatch/receipt/execution/reconciliation semantics после `DU-24`.
+- [`action-boundary.md`](action-boundary.md) — authorization stages, AuthorizedAction, ActionCommitRecord, dispatch/receipt/execution/reconciliation semantics после `DU-24`;
+- [`experience-data-replay.md`](experience-data-replay.md) — ExperienceEvent/Journal, causal revisions, annotations, projections, DatasetManifest, TrainingSample и Training Replay provenance после `DU-25`.
 
 ---
 
@@ -40,8 +41,8 @@ Contract должен фиксировать, где применимо:
 - revision/freshness/availability;
 - causal provenance;
 - lifecycle;
-- public/private state;
-- snapshot/restore;
+- public/private/visibility state;
+- snapshot/restore references;
 - observability/intervention;
 - failure/degradation;
 - compatibility/serialization;
@@ -73,62 +74,59 @@ Memory Replay ≠ Training Replay
 Consolidation ≠ in-place rewrite ≠ Learning Update
 CognitiveState ≠ Workspace
 Workspace ≠ Memory ≠ Cortex context
-Workspace broadcast ≠ callback/module execution
-WorkspaceItem ≠ new factual authority
-Executive Control ≠ Cognitive Scheduler
-Executive Control ≠ Policy / Planner
-Internal MetaAction ≠ Environment Action
-MetaActionProposal ≠ execution
-ExecutiveDecision ≠ direct provider/service call
+Executive Control ≠ Cognitive Scheduler ≠ Policy
 Policy ≠ Planner
-Planner ≠ World Model
 Plan ≠ ImaginedTrajectory
-Valuation ≠ Policy Decision
 ActionCandidate ≠ SelectedActionIntent
 SelectedActionIntent ≠ AuthorizedAction ≠ Action Commit
 Action Commit ≠ Dispatch ≠ Environment Transition
-Policy choice ≠ external override
-transport failure ≠ Environment no-effect
+TraceEvent ≠ ExperienceEvent
+Experience Journal ≠ Agent runtime state
+Experience Journal ≠ Replay Buffer ≠ Agent Memory
+Source Experience ≠ TrainingSample
+ResearchAnnotation ≠ agent-visible payload
 ```
 
-Для Action Boundary дополнительно:
+Для Experience / Data / Replay дополнительно:
 
-- stale/malformed/rejected intent не получает `ActionCommitRecord`;
-- normal Gate не выбирает replacement behavior скрыто;
-- semantics-preserving normalization сохраняет отдельную transformation provenance;
-- behavior-changing override имеет explicit `ActionOverrideRecord`;
-- `Action Commit` происходит после final authorization и до dispatch;
-- post-commit dispatch/execution failure не отменяет commit;
-- retry не создаёт новый commit и использует stable logical dispatch identity;
-- retry требует explicit idempotency/dedup semantics либо definite-non-send evidence;
-- `execution_unknown` не считается `not_executed`;
-- Environment receipt `accepted` не считается success;
-- partial/no-effect/transport failure остаются разными causal classes;
-- hidden evaluator truth не становится normal Gate input;
-- provider-native payload не протекает обратно в Policy semantic contract.
+- source Experience Events immutable по смыслу;
+- hindsight/relabel/re-encode не переписывают source events;
+- physical append/ingest order не заменяет causal parent/logical order;
+- privileged/evaluator-only data входит через separate annotation + explicit visibility policy;
+- `ActionCommitRecord` без Environment transition остаётся валидным data case;
+- `execution_unknown` не получает fake next state;
+- mixed `agent_revision` и component revisions сохраняются;
+- derived projection/sample имеет source refs + transform lineage;
+- terminated/truncated различаются до explicit training transform;
+- replay buffer/table не является archival source;
+- replay sampling metadata не становится cognitive importance;
+- Agent Memory Replay и Training Replay имеют разные owners/event kinds;
+- heavy artifacts могут отсутствовать отдельно от core causal completeness;
+- lossy data transformation маркируется как lossy;
+- dataset split/source manifest фиксируются для reproducibility.
 
 ---
 
 # Текущий статус
 
-После `DU-04 … DU-24` semantic requirements приняты, но **общий exact Python contract set намеренно не frozen**.
+После `DU-04 … DU-25` semantic requirements приняты, но **общий exact Python contract set намеренно не frozen**.
 
-`action-boundary.md` остаётся candidate до Data/Training/Checkpoint/Evaluation integration.
+`experience-data-replay.md` остаётся candidate до Training/Checkpoint/Evaluation integration.
 
 До contract freeze нельзя считать каноническими:
 
 - `Protocol`/ABC/dataclass/TensorDict/Pydantic;
-- exact Environment action enum/schema;
-- exact authorization stage ordering;
-- constraint DSL;
-- shielding/RTA implementation;
-- idempotency token format;
-- ROS/gRPC/HTTP transport;
-- retry/backoff policy;
-- cancellation state machine;
-- timeout values;
-- exact dispatch runtime library;
-- exact experience serialization.
+- exact event enum;
+- nullable/union encoding;
+- JSONL/Arrow/Parquet/HDF5/TFRecord/RLDS/Minari;
+- database/storage engine;
+- replay backend/table technology;
+- reward/target mapping;
+- replay priority algorithm;
+- sequence/window length;
+- training batch/tensor layout;
+- checkpoint payload format;
+- public export format.
 
 ---
 
