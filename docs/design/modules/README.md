@@ -2,11 +2,11 @@
 
 ## Статус
 
-Этот документ — карта принятых cognitive/runtime boundaries и внешних data/training/reproducibility/evaluation/testing/research-claim областей. Канонический статус определяется специализированными design docs и [`../current.md`](../current.md).
+Этот документ — карта принятых cognitive/runtime boundaries и внешних data/training/reproducibility/evaluation/testing/research-claim областей. Канонический статус определяется специализированными design docs, [`../contract-adr-consistency-freeze.md`](../contract-adr-consistency-freeze.md) и [`../current.md`](../current.md).
 
 Отдельный cognitive module существует только при самостоятельной ответственности, явной boundary/state semantics и независимо проверяемом causal вкладе.
 
-`DU-25 … DU-30` находятся **вне cognitive module chain**.
+`DU-25 … DU-30` находятся **вне cognitive module chain**. `DU-31` — governance/consistency freeze, а не module/plane.
 
 ---
 
@@ -124,9 +124,39 @@ functional similarity ≠ phenomenological equivalence
 
 ---
 
-# 4. Research evidence → claims
+# 4. Semantic Freeze Baseline F31
 
-После `DU-30` scientific reporting chain conceptually:
+После `DU-31` вся карта читается через:
+
+- [`../contract-adr-consistency-freeze.md`](../contract-adr-consistency-freeze.md);
+- [`../contracts/semantic-freeze-manifest.md`](../contracts/semantic-freeze-manifest.md);
+- [`../decisions/ADR-0031-semantic-contract-consistency-freeze.md`](../decisions/ADR-0031-semantic-contract-consistency-freeze.md).
+
+Frozen смысл:
+
+```text
+semantic owner / lifecycle / source / causal boundary
+= frozen for roadmap
+
+exact Python/API/algorithm/storage
+= version choice
+```
+
+Особенно обязательны consistency resolutions:
+
+```text
+CR-01 Action lifecycle
+CR-02 Memory admission ownership
+CR-03 Replay taxonomy
+CR-04 Consolidation vs Learning Update
+CR-05 candidate/validated/activated revision lifecycle
+```
+
+---
+
+# 5. Research evidence → claims
+
+Scientific reporting chain:
 
 ```text
 Evaluation / Verification Evidence
@@ -148,30 +178,17 @@ Engineering Testing и Research Claims не входят в cognition и не п
 
 ---
 
-# 5. Следующий блок — общий consistency freeze
-
-Следующий Design Update:
+# 6. Следующий Design Update
 
 ```text
-DU-31 — Contract + ADR Consistency Freeze
-```
-
-Это не новый subsystem.
-
-Задача:
-
-> проверить всю архитектуру `DU-01 … DU-30` как единый непротиворечивый набор, определить semantic-frozen candidate contracts и правила breaking change перед созданием version roadmap.
-
----
-
-# 6. Оставшиеся Design Updates
-
-```text
-DU-31 — Contract + ADR Consistency Freeze
 DU-32 — Version Roadmap
 ```
 
-Только после `DU-32` появляются concrete software versions и `implementation-sequence.md`.
+Это не новая cognitive subsystem.
+
+Задача:
+
+> разбить semantic-frozen baseline `F31` на dependency-complete, вертикально проверяемые software versions и определить, какие frozen boundaries реализуются на каждом milestone, а какие временно представлены `No*`/Dummy/control implementations.
 
 ---
 
@@ -190,5 +207,7 @@ DU-32 — Version Roadmap
 Для Engineering Testing — explicit VerificationObligation/Matrix, failure paths и environment-scoped evidence `DU-29`.
 
 Для Research Claims — scope/evidence/limitations/known-unknowns/supersession discipline `DU-30`.
+
+Для version planning — semantic baseline `F31` не переопределяется без нового ADR.
 
 Следующий допустимый этап определяется только [`../current.md`](../current.md).
