@@ -18,7 +18,7 @@ Committed versioned shared-state surface между модулями. Не по�
 
 ## Agent Snapshot
 
-Полный causally relevant снимок Agent: shared/private state, Memory, parameters, RNG, Workspace и другие stateful mechanisms.
+Полный causally relevant снимок Agent: shared/private state, Memory, Workspace, Executive state/budgets, parameters, RNG и другие stateful mechanisms.
 
 ## Cognitive Scheduler
 
@@ -250,7 +250,7 @@ Explicit capacity/bandwidth constraint Workspace. Не `AttentionBudget`, `Memor
 
 ## Workspace AdmissionPolicy
 
-Versioned policy, принимающая решения admission/retain/replace/expire при текущем budget/context. Salience может быть evidence, но не является самой policy.
+Versioned policy admission/retain/replace/expire при текущем budget/context. Salience может быть evidence, но не является самой policy.
 
 ## WorkspaceItem
 
@@ -262,11 +262,7 @@ Committed immutable по смыслу состояние Workspace на конк
 
 ## Broadcast
 
-В контексте MINDRA — доступность admitted Workspace content всем declared eligible consumers при их обычном scheduled compute. Не callback, interrupt или automatic module execution.
-
-## WorkspaceReadCapability
-
-Declared contract consumer, определяющий какие Workspace content kinds/projections он имеет право читать.
+Доступность admitted Workspace content всем declared eligible consumers при их обычном scheduled compute. Не callback, interrupt или automatic module execution.
 
 ## Branch-local Workspace
 
@@ -276,17 +272,73 @@ Declared contract consumer, определяющий какие Workspace conten
 
 Конфигурация отсутствующей Workspace capability; consumers используют ordinary declared inputs/direct reads.
 
-## Matched Workspace control
+---
 
-Control с сопоставимой state/parameter/compute capacity, но без целевой competition/broadcast semantics; нужен для проверки отдельного causal вклада Workspace.
+# Metacognitive / Executive Control
+
+## Executive Control
+
+Agent-owned control responsibility, выбирающая допустимые optional internal operations, распределяющая предоставленный cognitive resource envelope и решающая continue/yield cognition. Не Cognitive Scheduler и не Policy/Planner.
+
+## Metacognitive monitoring
+
+Declared evidence о состоянии собственного cognition — competence, uncertainty, progress, failures, resource state и т.п. Monitoring само по себе не является control decision.
+
+## Internal MetaAction
+
+Решение инициировать/разрешить внутреннюю cognitive operation. Не Environment Action.
+
+## MetaActionProposal
+
+Explicit предложение выполнить optional internal operation с semantic payload ref, prerequisites, cost/evidence и provenance. Ещё не reservation и не execution.
+
+## InternalOperationCatalog
+
+Versioned declarative описание доступных Executive semantic operations и constraints. Не runtime Service Locator и не набор live service handles.
+
+## CognitiveResourceEnvelope
+
+Явно предоставленный Executive набор hard/soft cognitive resource limits. Не raw runtime/GPU telemetry и не ресурс, который Executive может увеличить самостоятельно.
+
+## ExecutiveBudgetLedger
+
+Agent-owned учёт granted/reserved/consumed/remaining cognitive resources внутри `CognitiveResourceEnvelope`.
+
+## ResourceCostProfile
+
+Versioned estimate стоимости proposed internal operation. Не actual consumption.
+
+## ActualResourceCost
+
+Фактически зарегистрированное resource consumption выполненной internal operation.
+
+## ExecutiveObservation
+
+Declared read-only projection monitoring evidence для Executive. Не ambient dump всего `CognitiveState`.
+
+## Executive Control Point
+
+Явная causal boundary относительно committed state, на которой Executive принимает следующее control decision.
+
+## ExecutiveDecision
+
+Versioned решение Executive: выбранные `MetaActionRequest`, budget reservations, optional Goal focus и deliberation disposition. Само по себе не исполняет operation.
+
+## Deliberation disposition
+
+Semantic результат control point: продолжать optional cognition, yield to Policy, budget exhausted/degraded/blocked и т.п. `yield_to_policy` не является `Action Commit`.
+
+## GoalFocusDirective
+
+Temporary Executive-owned focus refs на уже committed Goals. Не изменяет Goal objective/lifecycle/commitment и не заменяет `Goal Proposal`.
+
+## NoExecutive
+
+First-class конфигурация без adaptive agent-owned meta-control: optional cognition определяется fixed version/runtime schedule.
 
 ---
 
 # Будущие области
-
-## Executive Control
-
-Будущая agent-owned regulation cognitive process: выбор допустимых internal operations и allocation global compute/resource budget. Не Cognitive Scheduler. `DU-22`.
 
 ## Policy / Planner
 
