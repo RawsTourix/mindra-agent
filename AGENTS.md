@@ -160,8 +160,6 @@ Agent + external runtimes
 
 Registry допустим как composition-time каталог factories/providers, но не как runtime Service Locator.
 
-Если будущая реализация требует исключения из этих правил, сначала нужен design review и, при значимом выборе, новый/изменяющий ADR.
-
 ---
 
 # 9. System boundary discipline
@@ -171,15 +169,8 @@ Registry допустим как composition-time каталог factories/provi
 Помнить:
 
 ```text
-logical architecture boundary
-≠
-process / device / machine boundary
-```
-
-```text
-Agent Memory
-≠
-Artifact Storage
+logical architecture boundary ≠ process / device / machine boundary
+Agent Memory ≠ Artifact Storage
 ```
 
 Нельзя считать компонент когнитивным только потому, что он находится в том же процессе или на том же GPU.
@@ -195,27 +186,10 @@ Artifact Storage
 Помнить:
 
 ```text
-logical causal time
-≠
-wall-clock
-```
-
-```text
-Agent Session
-≠
-Environment Episode
-```
-
-```text
-Cognitive Cycle
-≠
-Environment Transition
-```
-
-```text
-runtime state update
-≠
-Learning Update
+logical causal time ≠ wall-clock
+Agent Session ≠ Environment Episode
+Cognitive Cycle ≠ Environment Transition
+runtime state update ≠ Learning Update
 ```
 
 До явного изменения canonical design запрещается:
@@ -240,23 +214,9 @@ Async execution допустим только при сохранении одн
 Помнить:
 
 ```text
-CognitiveState
-≠
-full Agent-owned state
-```
-
-```text
-committed snapshot
-≠
-mutable shared bus
-```
-
-```text
-semantic lifetime
-≠
-historical retention
-≠
-checkpoint inclusion
+CognitiveState ≠ full Agent-owned state
+committed snapshot ≠ mutable shared bus
+semantic lifetime ≠ historical retention ≠ checkpoint inclusion
 ```
 
 До явного изменения canonical design запрещается:
@@ -268,14 +228,14 @@ checkpoint inclusion
 - разрешать conflict через скрытый `last-write-wins`;
 - применять proposed update из stale base revision как будто base не изменилась;
 - начинать зависеть от произвольного state field только потому, что оно присутствует в container;
-- кодировать `unknown`/`unavailable` универсальными magic sentinel вроде `0`, `-1`, `NaN` или `None` без contract;
-- смешивать observed, predicted, retrieved и intervened значения без достаточного provenance;
-- протаскивать model-specific hidden state, provider clients или live infrastructure objects в canonical shared state;
-- считать clone одного `CognitiveState` полным Agent clone, если существует другое causally relevant private state.
+- кодировать `unknown`/`unavailable` magic sentinel без contract;
+- смешивать observed, predicted, retrieved и intervened значения без provenance;
+- протаскивать model-specific hidden state/provider clients/live infrastructure objects в canonical shared state;
+- считать clone одного `CognitiveState` полным Agent clone при наличии другого causally relevant private state.
 
 Каждый future canonical field должен иметь declared semantic owner, scope/lifetime, availability/freshness semantics и provenance requirements.
 
-Concrete container (`TensorDict`, dataclass и т. п.) пока не выбран и не должен фиксироваться implementation раньше соответствующего version design.
+Concrete container пока не выбран.
 
 ---
 
@@ -286,20 +246,7 @@ Concrete container (`TensorDict`, dataclass и т. п.) пока не выбра
 Помнить:
 
 ```text
-execution order
-=
-declared dependencies + freshness + lifecycle constraints
-```
-
-а не:
-
-```text
-registration/import/completion order
-```
-
-И:
-
-```text
+execution order = declared dependencies + freshness + lifecycle constraints
 instantaneous scheduler graph = DAG
 ```
 
@@ -313,29 +260,24 @@ modules одной wave
 
 До явного изменения canonical design запрещается:
 
-- вызывать cognitive modules специальными ad-hoc вызовами из central main loop вместо общего lifecycle;
-- строить ordering на случайном порядке списка/registry/import;
-- создавать instantaneous dependency cycle и разрывать его произвольным порядком;
-- давать module compute доступ к undeclared state fields;
-- позволять module запускать peer/scheduler recursively для получения hidden dependency;
-- делать public output одного module видимым соседу той же wave до commit;
+- ad-hoc central main-loop ordering cognitive modules;
+- строить ordering на случайном registry/import order;
+- создавать instantaneous dependency cycle;
+- читать undeclared state fields;
+- recursively вызывать peer/scheduler для hidden dependency;
+- публиковать output соседу той же wave до commit;
 - использовать physical completion order как cognitive semantics;
-- применять overlapping canonical writes без отдельного owner/reducer;
-- commit causally relevant private state раньше связанного accepted wave effect;
-- оставлять private state изменённым после rejected/failed wave без explicit rollback/transactional semantics;
-- молча rebase/apply stale-base result;
-- менять trainable `agent_revision` внутри in-flight wave;
-- публиковать partial wave state после failure required module;
+- overlapping canonical writes без owner/reducer;
+- commit causally relevant private state раньше связанного accepted effect;
+- оставлять private state изменённым после rejected wave;
+- молча rebase stale-base result;
+- менять `agent_revision` внутри in-flight wave;
+- публиковать partial required-wave state;
 - выполнять hidden optimizer update внутри обычного `compute`;
-- скрыто переключаться на fallback implementation при runtime failure;
-- считать `disabled` и `NoOp` одним и тем же состоянием;
-- совершать необратимые causally visible side effects до explicit commit/boundary без отдельного design.
+- скрыто переключаться на fallback implementation;
+- считать `disabled` и `NoOp` одним состоянием.
 
-`Cognitive Scheduler` относится к Agent runtime core, но не является когнитивным модулем и не выбирает task-level решения.
-
-Future Executive Control может управлять допустимым количеством cycles/optional compute только внутри scheduler/contracts semantics и не имеет права bypass ownership/commit/dependency rules.
-
-Concrete DAG/async framework пока не выбран.
+`Cognitive Scheduler` относится к Agent runtime core, но не является когнитивным модулем.
 
 ---
 
@@ -346,49 +288,28 @@ Concrete DAG/async framework пока не выбран.
 Помнить:
 
 ```text
-Observability
-≠
-Intervention
-```
-
-```text
-inspection capability
-≠
-write authority
-```
-
-```text
-natural execution
-≠
-intervened execution
+Observability ≠ Intervention
+inspection capability ≠ write authority
+natural execution ≠ intervened execution
 ```
 
 До явного изменения canonical design запрещается:
 
-- использовать logger, Artifact Collector или Evaluation Runtime как normal cognitive dependency;
-- давать passive observer возможность изменять module input/output/state;
-- объединять tracing и mutation в один неразличимый callback contract;
-- использовать произвольный mutable reference как canonical private-state probe;
-- позволять cognitive modules читать research-only private probes других modules;
-- превращать trace/experiment/profiler metadata в cognitive payload без explicit design;
-- выполнять intervention без explicit target, base causal revision и provenance;
-- менять semantic owner canonical field из-за evaluator override;
-- изменять committed natural history задним числом;
-- скрывать intervention как будто значение естественно произвёл semantic owner;
-- выдавать partial restore за exact counterfactual fork;
-- смешивать intervened trajectory с natural experience без явной provenance и training/analysis policy;
-- применять arbitrary mid-operation mutation через race/alias и называть это clean causal intervention;
-- считать raw Cortex/module activations обязательной capability общего semantic contract;
-- игнорировать OOD/divergence/off-target risk сильного latent intervention;
-- молча терять evidence-critical events и затем использовать Run как полный confirmatory evidence;
-- считать telemetry timestamp logical causal order;
-- трактовать failure telemetry exporter как module failure или наоборот без явного status separation.
-
-Для private state используется declared research probe/export boundary. Для active mutation используется отдельный `Intervention Gateway`.
-
-Confirmatory causal experiment по умолчанию должен предпочитать control/treatment fork от identifiable committed base, если snapshot capabilities достаточны. Если causally relevant state восстановлен не полностью, результат не называется exact counterfactual clone.
-
-OpenTelemetry, PyTorch hooks, pyvene и другие инструменты пока являются только кандидатами/implementation evidence, а не обязательным stack.
+- использовать logger/Artifact Collector/Evaluation Runtime как normal cognitive dependency;
+- давать passive observer mutation authority;
+- объединять tracing и mutation в неразличимый callback contract;
+- использовать mutable reference как canonical private-state probe;
+- делать research-only probe cognitive dependency;
+- превращать profiler/experiment metadata в cognitive payload;
+- выполнять intervention без explicit target/base/provenance;
+- менять semantic owner из-за evaluator override;
+- переписывать committed natural history;
+- скрывать intervention как natural output;
+- выдавать partial restore за exact counterfactual;
+- смешивать intervened trajectory с natural experience без provenance;
+- считать raw activation access обязательной capability общего contract;
+- игнорировать OOD/off-target risk latent intervention;
+- молча терять evidence-critical telemetry и использовать Run как полный confirmatory evidence.
 
 ---
 
@@ -399,56 +320,31 @@ OpenTelemetry, PyTorch hooks, pyvene и другие инструменты по
 Помнить:
 
 ```text
-Agent Interaction Plane
-≠
-Environment Research Plane
-```
-
-```text
-Raw Observation
-≠
-Hidden World State
-≠
-Research Ground Truth
-```
-
-```text
-External Task Feedback
-≠
-Objective Task Metric
-≠
-Internal Utility
-```
-
-```text
-seed
-≠
-complete world identity
+Agent Interaction Plane ≠ Environment Research Plane
+Raw Observation ≠ Hidden World State ≠ Research Ground Truth
+External Task Feedback ≠ Objective Task Metric ≠ Internal Utility
+seed ≠ complete world identity
 ```
 
 До явного изменения canonical design запрещается:
 
-- передавать hidden world state, oracle action/path, solver result или evaluator metric в normal Agent input;
-- передавать framework `info`/debug payload Agent целиком без explicit agent-visible schema;
-- считать split/distribution label или generator seed частью observation по умолчанию;
-- использовать research-only Objective Task Metric как External Task Feedback без отдельного task design;
-- использовать External Task Feedback как каноническое определение Internal Utility;
-- сводить malformed action и valid-but-ineffective world action к одному неразличимому случаю;
-- раскрывать privileged reason world-action failure, если task observation contract его не предусматривает;
-- терять различие `terminated`/`truncated`;
+- передавать hidden world state/oracle/evaluator metric в normal Agent input;
+- передавать framework `info` Agent целиком без explicit schema;
+- считать split/distribution/seed частью observation по умолчанию;
+- использовать research-only metric как feedback;
+- использовать External Task Feedback как определение Internal Utility;
+- смешивать malformed action и valid-but-ineffective action;
+- раскрывать privileged failure reason без task semantics;
+- терять `terminated`/`truncated`;
 - считать full hidden map обычной partial observation;
-- жёстко кодировать appearance shortcut вроде `red = danger` как универсальную causal semantics MicroWorld;
-- считать одного seed достаточным для exact world reproducibility без version/generator/manifest identity;
-- называть restore/fork exact, если не восстановлены causally relevant Environment hidden state, pending events и RNG states;
-- выполнять snapshot/restore/fork или Environment intervention как будто это обычные Agent actions;
-- изменять natural Environment lineage intervention-ом без provenance;
-- смешивать natural/intervened world histories без явной маркировки;
-- использовать procedural benchmark instances с неизвестной solvability для claims, требующих гарантированно решаемых задач, без documented limitation;
-- допускать autoreset/vectorization, который теряет final outcome/terminal observation evidence;
-- считать `MicroWorld` universal Environment или canonical internal representation Agent;
-- фиксировать Gymnasium, MiniGrid, Procgen или другой framework как обязательную реализацию только потому, что он использовался как research evidence.
-
-`MicroWorld` является reference 2D symbolic Environment family. Общий Environment boundary должен оставаться пригодным для будущих других сред.
+- жёстко кодировать appearance shortcut как causal semantics;
+- считать один seed достаточным для exact reproduction;
+- называть restore/fork exact без hidden/pending/RNG state;
+- использовать research restore/intervention как Agent action;
+- смешивать natural/intervened world histories;
+- терять terminal outcome при autoreset;
+- считать `MicroWorld` universal internal representation;
+- фиксировать Gymnasium/MiniGrid/Procgen обязательными только из-за research evidence.
 
 ---
 
@@ -459,64 +355,87 @@ complete world identity
 Помнить:
 
 ```text
-Raw Observation
-≠
-Canonical Percept
-```
-
-```text
-Canonical Percept
-=
-structured Semantic Core + optional Feature Views
-```
-
-```text
-Canonical Percept
-≠
-Cortex hidden state
-```
-
-```text
-current percept
-≠
-Memory / hidden-world belief / World Model prediction
-```
-
-```text
-feature dimension equality
-≠
-feature-space compatibility
+Raw Observation ≠ Canonical Percept
+Canonical Percept = structured Semantic Core + optional Feature Views
+Canonical Percept ≠ Cortex hidden state
+current percept ≠ Memory / hidden-world belief / World Model prediction
+feature dimension equality ≠ feature-space compatibility
 ```
 
 До явного изменения canonical design запрещается:
 
-- передавать raw Environment-specific observation schema напрямую независимым cognitive modules вместо Perception boundary;
-- использовать Environment Research Ground Truth как normal Perception input;
-- добавлять unseen hidden entity в Semantic Core только потому, что evaluator знает о его существовании;
-- использовать hidden persistent Environment object ID как percept entity identity, если ID не agent-visible;
-- приписывать semantic meaning произвольному порядку entity array или padding;
-- смешивать direct, deterministic-derived и perceptually inferred fields без provenance;
-- маскировать learned perceptual inference как Environment ground truth;
-- кодировать missing modality/property универсальным zero/NaN/None без contract;
-- поглощать External Task Specification или External Task Feedback в Perception только потому, что они представлены текстом/структурой;
-- делать один learned latent vector единственным canonical inter-module representation;
-- протаскивать model-specific Cortex embedding/hidden state как обязательный Semantic Core или universal Feature View;
-- делать Cortex обязательным условием работы Perception;
-- считать одинаковые shape/dimension двух feature tensors доказательством compatibility;
-- молча сравнивать, смешивать или reuse embeddings несовместимых `feature_space_revision`;
-- переписывать уже committed percept после encoder update;
-- выполнять скрытый fallback на Cortex/другой encoder/privileged data при Perception failure;
-- использовать device id, Python object identity или memory address как semantic representation identity;
-- смешивать sensor/input intervention с Environment world-state intervention;
-- называть сильный latent intervention причинно специфичным без проверки OOD/off-target effects.
+- передавать raw Environment-specific schema независимым cognitive modules;
+- использовать Research Ground Truth как normal Perception input;
+- добавлять unseen hidden entity в Semantic Core из evaluator knowledge;
+- использовать hidden persistent Environment object ID как percept identity;
+- приписывать смысл порядку entity array/padding;
+- смешивать direct/derived/inferred fields без provenance;
+- маскировать learned inference как Environment ground truth;
+- кодировать missing modality/property universal zero/NaN/None без contract;
+- поглощать Task Specification/Feedback в Perception из-за их текстовой формы;
+- делать один learned latent единственным canonical inter-module representation;
+- протаскивать Cortex embedding/hidden state как mandatory representation;
+- делать Cortex обязательным для Perception;
+- считать одинаковый shape доказательством compatibility;
+- молча смешивать несовместимые `feature_space_revision`;
+- переписывать committed percept после encoder update;
+- hidden fallback на Cortex/privileged data;
+- считать device/object identity semantic representation identity.
 
-`NoCortex` configuration обязана оставаться архитектурно допустимой. Learned Feature Views являются optional capabilities, а structured Semantic Core остаётся отдельной semantic surface.
-
-Slot Attention, Set Transformer, GNN/Graph Networks, Perceiver и другие representation architectures пока являются только candidate implementations/research evidence.
+`NoCortex` configuration обязана оставаться архитектурно допустимой.
 
 ---
 
-# 16. Scope текущего этапа
+# 16. Goal System discipline
+
+Обязательны [`docs/design/modules/goals.md`](docs/design/modules/goals.md), [`docs/design/contracts/goals.md`](docs/design/contracts/goals.md) и `ADR-0009`.
+
+Помнить:
+
+```text
+External Task Specification ≠ Goal Proposal ≠ Committed Goal
+```
+
+```text
+Goal ≠ Reward ≠ Drive ≠ Utility / Value ≠ Policy
+```
+
+```text
+structural goal priority ≠ dynamic goal value
+commitment ≠ focus ≠ priority ≠ value
+```
+
+До явного изменения canonical design запрещается:
+
+- использовать `External Task Specification` как прямой mutable alias canonical Goal state;
+- хранить единственный authoritative `current_goal` только внутри Policy/Cortex hidden state;
+- давать Cortex, Planner, Drives или другим proposal sources direct write authority committed Goal Graph;
+- выдавать Goal Proposal за уже принятую цель;
+- использовать prompt text как canonical Goal representation без grounding/proposal boundary;
+- сводить Goal к scalar reward или reward function;
+- сводить Goal Graph к обязательному LIFO stack;
+- считать смену focus удалением/abandonment остальных active goals;
+- создавать cyclic dependency relation внутри committed Goal Graph;
+- считать достижение subgoal автоматическим достижением parent без explicit decomposition semantics;
+- сводить `suspended`, `failed`, `expired`, `abandoned`, `invalidated` в один `done`;
+- считать truncation автоматическим goal failure;
+- очищать session/agent-long-lived goals при каждом `Environment.reset()`;
+- использовать structural priority как hidden universal utility;
+- использовать commitment как synonym reward weight/value;
+- требовать universal scalar progress `[0,1]` для каждой цели;
+- вычислять runtime progress/success из research-only `Objective Task Metric` без agent-visible contract;
+- позволять consumer мутировать Goal record/graph через retained reference;
+- скрыто менять goal objective/lifecycle без proposal/transition provenance;
+- использовать hidden Environment task ID как canonical `goal_id`;
+- смешивать research Goal intervention с natural lifecycle transition без provenance.
+
+Источники goals должны создавать proposal/transition proposal через declared boundary. Goal System остаётся semantic owner canonical Goal state.
+
+Exact Goal DSL, internal goal generation, dynamic valuation, focus arbitration, planner decomposition algorithm и конкретный graph framework пока не выбраны.
+
+---
+
+# 17. Scope текущего этапа
 
 Фактический текущий scope всегда определяется `docs/design/current.md`.
 
@@ -538,11 +457,12 @@ Slot Attention, Set Transformer, GNN/Graph Networks, Perceiver и другие r
 - telemetry/intervention framework;
 - Gymnasium/другой Environment framework;
 - конкретный Perception/feature encoder;
+- Goal graph/DSL library;
 - окончательную структуру `src/`.
 
 ---
 
-# 17. Поведение при неопределённости
+# 18. Поведение при неопределённости
 
 Если документация не определяет важное решение:
 
@@ -552,4 +472,4 @@ Slot Attention, Set Transformer, GNN/Graph Networks, Perceiver и другие r
 - при необходимости предложить варианты и trade-offs;
 - дождаться design decision до реализации зависимой части.
 
-Мелкие локальные implementation details, не влияющие на public/internal contracts, исследовательскую валидность, dependency/temporal/state/scheduler/observability/Environment/Perception boundaries или будущую расширяемость, могут выбираться реализацией самостоятельно при сохранении принятых принципов.
+Мелкие локальные implementation details, не влияющие на public/internal contracts, исследовательскую валидность или принятые boundaries, могут выбираться реализацией самостоятельно при сохранении принятых принципов.
