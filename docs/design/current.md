@@ -8,7 +8,7 @@
 
 # 1. Общий статус
 
-**`DU-01 … DU-29` завершены и приняты. Реализация ещё не начата.**
+**`DU-01 … DU-30` завершены и приняты. Реализация ещё не начата.**
 
 Приняты:
 
@@ -19,8 +19,9 @@
 - Checkpoint / Reproducibility / Compute `DU-27`;
 - MINDRA-Eval `DU-28`;
 - Engineering Testing `DU-29`;
-- 29 accepted ADR;
-- candidate semantic contracts для boundaries `DU-07 … DU-29`.
+- Research Claims / Limitations `DU-30`;
+- 30 accepted ADR;
+- candidate semantic contracts для boundaries `DU-07 … DU-30`.
 
 ---
 
@@ -57,109 +58,108 @@ DU-26 — Training Lifecycle
 DU-27 — Checkpoint / Reproducibility / Compute
 DU-28 — MINDRA-Eval
 DU-29 — Engineering Testing
+DU-30 — Research Claims / Limitations
 ```
 
 ---
 
-# 3. DU-29
+# 3. DU-30
 
 Canonical design:
 
-- [`engineering-testing.md`](engineering-testing.md)
+- [`research-claims-limitations.md`](research-claims-limitations.md)
 
 Candidate contract:
 
-- [`contracts/engineering-testing.md`](contracts/engineering-testing.md)
+- [`contracts/research-claims-limitations.md`](contracts/research-claims-limitations.md)
 
 Accepted decision:
 
-- [`ADR-0029`](decisions/ADR-0029-layered-invariant-driven-engineering-verification.md)
+- [`ADR-0030`](decisions/ADR-0030-versioned-evidence-bounded-research-claims.md)
 
-Research/tool pass:
+Research pass:
 
-- [`../research/literature/DU-29-engineering-testing-landscape-2026-08.md`](../research/literature/DU-29-engineering-testing-landscape-2026-08.md)
+- [`../research/literature/DU-30-research-claims-limitations-landscape-2026-08.md`](../research/literature/DU-30-research-claims-limitations-landscape-2026-08.md)
 
 Главные результаты:
 
 ```text
-Engineering Testing
-≠
-MINDRA-Eval
+Observation
+≠ Interpretation
+≠ ResearchClaim
 
-line coverage
-≠
-architectural invariant coverage
+claim strength ≤ evidence strength
+claim generality ≤ supported ClaimScope
 
-seed
-≠
-deterministic equality contract
+functional similarity
+≠ phenomenological equivalence
 ```
 
-- каждый accepted engineering invariant получает `VerificationObligation` либо explicit статус manual/non-machine-checkable/research-only;
-- `VerificationMatrix` связывает ADR/design/contracts с test specs, CI tiers и evidence;
-- static architecture, unit, contract/conformance, property, state-machine, integration, fault/recovery, persistence/migration/backend/system tests являются разными слоями;
-- заменяемые implementations проходят shared conformance suites по заявленным capabilities;
-- ownership/write authority, scheduler/waves/atomic commit/staleness проверяются явно;
-- privileged Ground Truth/test oracle leakage должен обнаруживаться автоматически;
-- `Action Commit → dispatch → execution_unknown → reconciliation` получает отдельную state-machine/fault suite;
-- Training Runtime проверяется на candidate/activation/rollback и отсутствие hidden live mutation;
-- checkpoint tests следуют заявленному scope/restore/reproducibility profile, а не universal bitwise oracle;
-- golden tests ограничены stable deterministic contract surfaces;
-- flaky rerun/quarantine не считается satisfied VerificationObligation;
-- `No*`/Dummy/control implementations имеют declared conformance profiles;
-- CI tiers различают static/CPU/stateful-fault/accelerator/remote-provider classes без выбора конкретного CI provider;
-- skipped/not-run/quarantined не превращаются в pass;
-- concrete pytest/Hypothesis/Import Linter/coverage/mutation/CI implementations не выбраны.
+- `ResearchClaim` является versioned first-class artifact с explicit `ClaimScope`;
+- supporting и challenging evidence сохраняются одновременно;
+- causal, generalization, efficiency и architecture-contribution claims имеют разные support requirements;
+- `null`, `negative evidence`, `inconclusive`, `invalid` и `not measured` не смешиваются;
+- `LimitationRecord` и `KnownUnknownRecord` first-class;
+- failed module gate создаёт claim/design review, но не меняет accepted architecture автоматически;
+- old claim weakening/supersession сохраняет historical lineage;
+- publication/report wording traceable до canonical claim revision;
+- Cortex/data/compute/tuning/provider dependence входит в scope/limitations;
+- engineering verification не заменяет evidence функциональной полезности;
+- `Self Model`, Drives, Appraisal, Affect, Workspace и first-person Cortex text не являются сами по себе evidence consciousness/subjective experience;
+- `AGI` не выводится из одного benchmark/module result;
+- concrete paper format, preregistration service и evidence-score taxonomy не выбраны.
 
 ---
 
 # 4. Следующий допустимый Design Update
 
 ```text
-DU-30 — Research Claims / Limitations
+DU-31 — Contract + ADR Consistency Freeze
 ```
 
-Цель `DU-30` — определить **какие утверждения MINDRA вообще имеет право делать о своих результатах и архитектуре**, как strength of claim связывается с evidence `DU-28`, и как документируются отрицательные результаты, ограничения, неизвестность и антропоморфные пределы интерпретации.
+Цель `DU-31` — выполнить **общий consistency/freeze pass по всей принятой архитектуре `DU-01 … DU-30`** перед проектированием software version roadmap.
+
+Это не новый subsystem design. Нужно проверить, что canonical design, ADR, glossary, candidate contracts, dependency/ownership/temporal semantics, Evaluation/Verification/Claims planes и status/index документы образуют один непротиворечивый набор.
 
 Обязательные вопросы:
 
 ```text
-observation vs interpretation vs claim
-engineering evidence vs research evidence
-claim strength / evidence ladder
-causal claim requirements
-generalization scope
-reproducibility vs replicability
-negative / null results
-failed module gates
-limitations registry
-known unknowns
-unsupported claims
-anthropomorphic / consciousness claims
-subjective experience claims
-capability vs architecture attribution
-Cortex/provider dependence
-compute/data/tuning limitations
-statistical uncertainty
-post-hoc vs preregistered evidence
-claim versioning / supersession
-paper/report language discipline
+ADR registry completeness/status
+canonical owner uniqueness
+contract ↔ design ↔ ADR consistency
+terminology/glossary consistency
+cross-module ownership conflicts
+read/write/dependency graph conflicts
+temporal/commit boundary consistency
+snapshot/checkpoint completeness
+source/provenance/visibility consistency
+No*/Dummy/control semantics consistency
+module negative-gate consistency
+Evaluation ↔ Engineering Testing ↔ Claims boundaries
+claim/evidence/verification lineage
+candidate contract field naming/revision conventions
+unknown/missing/stale/unavailable semantics
+error/failure/status taxonomy conflicts
+implementation leakage in canonical contracts
+orphan docs/obsolete statements
+verification obligations required before implementation
+freeze status and allowed change procedure
 ```
 
 Особенно нужно определить:
 
-- наличие Drives/Appraisal/Affect/Self Model/Workspace не является evidence сознания или субъективных чувств;
-- функциональное сходство с человеческим механизмом не доказывает феноменологическое равенство;
-- strong causal wording требует соответствующего intervention/matched evidence;
-- result scope не расширяется с одного checkpoint/task family на «AGI» автоматически;
-- отрицательный module gate должен быть reportable и может инициировать ADR/design review;
-- limitations должны быть versioned first-class artifacts, а не примечанием в конце статьи;
-- конкретный paper/template/publication venue пока не выбирается.
+- какие candidate contracts после consistency pass считаются **semantic-frozen** для первого roadmap;
+- какие поля/enum/API детали остаются implementation/version choices;
+- какие open questions блокируют `DU-32`, а какие допустимо перенести в version design;
+- нет ли двух владельцев одной canonical state/action/data responsibility;
+- нет ли contradiction между early DU и поздними уточнениями;
+- как после freeze вносится breaking semantic change: только через новый ADR/design update;
+- нельзя начинать implementation только потому, что individual contracts уже подробны — сначала требуется общий freeze.
 
-После принятия `DU-30` допускается:
+После принятия `DU-31` допускается:
 
 ```text
-DU-31 — Contract + ADR Consistency Freeze
+DU-32 — Version Roadmap
 ```
 
 ---
@@ -168,10 +168,9 @@ DU-31 — Contract + ADR Consistency Freeze
 
 Пока отсутствуют accepted решения по:
 
-- Research Claims / Limitations;
 - Contract + ADR Consistency Freeze;
 - Version Roadmap;
-- implementation sequences.
+- implementation sequences конкретных software versions.
 
 Также не выбраны concrete Python/framework/model/algorithm/storage/evaluation/testing implementations.
 
