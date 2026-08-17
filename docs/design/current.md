@@ -2,34 +2,32 @@
 
 ## Назначение
 
-Краткий фактический статус проекта.
-
-Этот файл не переопределяет канонический design. Он показывает, что уже спроектировано и какой следующий шаг допустим.
+Краткий фактический статус проекта. Этот файл не переопределяет canonical design; он определяет, что уже принято и какой следующий Design Update допустим.
 
 ---
 
 # 1. Общий статус
 
-**Фундамент документации создан. `DU-01` … `DU-18` завершены и приняты. Реализация ещё не начата.**
+**`DU-01 … DU-19` завершены и приняты. Реализация ещё не начата.**
 
-На текущем этапе зафиксированы:
+Приняты:
 
-- системные/dependency/runtime/state/scheduler boundaries;
-- observability/intervention discipline;
+- foundation/system boundaries `DU-01 … DU-06`;
 - Environment/MicroWorld;
-- Perception/Canonical Percept;
-- Goal System/Goal Graph;
-- Cortex semantic capability boundary;
+- Perception;
+- Goal System;
+- Cortex boundary;
 - Memory Core;
 - World Model;
 - Self Model;
-- Intrinsic Signal Layer;
-- Drive System;
-- Appraisal System;
-- Affect System;
-- Valuation System;
-- candidate contracts Environment, Perception, Goals, Cortex, Memory, World Model, Self Model, Intrinsic Signals, Drives, Appraisal, Affect и Valuation;
-- восемнадцать accepted ADR.
+- Intrinsic Signals;
+- Drives;
+- Appraisal;
+- Affect;
+- Valuation;
+- Salience / Attention;
+- 19 accepted ADR;
+- candidate semantic contracts для subsystem boundaries `DU-07 … DU-19`.
 
 ---
 
@@ -55,207 +53,142 @@ DU-15 — Drives
 DU-16 — Appraisal
 DU-17 — Affect Dynamics
 DU-18 — Valuation
-```
-
-## DU-18
-
-Канонический документ:
-
-- [`modules/valuation.md`](modules/valuation.md).
-
-Candidate contract:
-
-- [`contracts/valuation.md`](contracts/valuation.md).
-
-Research pass:
-
-- [`../research/literature/DU-18-valuation-landscape-2026-08.md`](../research/literature/DU-18-valuation-landscape-2026-08.md).
-
-Accepted decision:
-
-- [`ADR-0018`](decisions/ADR-0018-typed-multi-objective-valuation.md).
-
-Главные результаты:
-
-- `Valuation System` принят как отдельная decision-relevant boundary, но не владеет final action selection;
-- `ValueProfile ≠ ScalarizedValue ≠ Training Reward ≠ Critic Value ≠ Policy Decision`;
-- принят typed multi-objective `ValueProfile`, сохраняющий Goal/Drive/cost/risk/feedback/intrinsic-source semantics;
-- scalarization вынесена в explicit versioned `ComparisonPolicy`;
-- mandatory weighted sum отклонён как canonical representation, но сохранён как baseline/policy family;
-- допускаются scalar/nonlinear, Pareto/dominance, lexicographic, constraint-first и learned comparison families;
-- `incomparable` является валидным ComparisonResult;
-- hard/structural constraints не обязаны превращаться в большие отрицательные reward weights;
-- Goal conflicts и Drive conflicts сохраняются до explicit comparison stage;
-- External Task Feedback не становится internal utility автоматически;
-- Intrinsic Signal magnitude не становится desirability автоматически;
-- Appraisal dimensions используются как evidence, но Appraisal не дублируется внутри Valuation;
-- Affect может модулировать comparison только через explicit versioned mapping;
-- Self Model feasibility/`P(success)`/cost отделены от value и могут использоваться как constraints/components/modulators;
-- predictive uncertainty отделена от risk/downside;
-- `RiskProfile` требует outcome distribution/adverse semantics/risk measure;
-- immediate/local и prospective/horizon-conditioned valuation различаются;
-- universal discount factor не принят;
-- state/outcome/action/trajectory value surfaces поддерживаются без обязательного `V(s)`/`Q(s,a)` API;
-- predicted/imagined/counterfactual valuation сохраняет branch provenance и не становится experienced utility;
-- branch-local simulated Drives/Affect могут использоваться только в explicit simulation mode;
-- RL reward и critic остаются downstream training/estimator choices;
-- normalization/units/revisions являются first-class provenance;
-- `NoValuation`, weighted-scalar, shuffled, matched-linear, lexicographic и oracle research controls различаются.
-
----
-
-# 3. Следующий допустимый Design Update
-
-```text
 DU-19 — Salience / Attention
 ```
 
-Цель `DU-19` — спроектировать **ограниченный механизм приоритизации информации и cognitive processing**, который преобразует relevance/novelty/urgency/value/uncertainty и другие разрешённые signals в явные allocation/prioritization decisions, не смешивая Salience с Appraisal, Utility или Workspace.
+---
 
-Обязательные области:
+# 3. DU-19
+
+Canonical design:
+
+- [`modules/salience.md`](modules/salience.md)
+
+Candidate contract:
+
+- [`contracts/salience.md`](contracts/salience.md)
+
+Accepted decision:
+
+- [`ADR-0019`](decisions/ADR-0019-budgeted-contextual-salience-allocation.md)
+
+Research pass:
+
+- [`../research/literature/DU-19-salience-attention-landscape-2026-08.md`](../research/literature/DU-19-salience-attention-landscape-2026-08.md)
+
+Главные результаты:
 
 ```text
-Salience responsibility / module gate
-salience target identity
-feature/event/memory/goal/action-candidate salience
-input evidence model
-Appraisal relevance / urgency
-Valuation relation
-Intrinsic novelty / information signals
-Affect / Drive modulation
-bottom-up vs top-down salience
-attention budget / resource semantics
-ranking vs gating vs allocation
-soft vs hard selection
-persistence / inhibition / hysteresis
-competition / normalization
-query-dependent salience
-Memory retrieval / retention boundary
-Workspace admission boundary
-Executive Control boundary
-Policy boundary
-NoSalience / Dummy / Control
-observability / intervention
-snapshot / revision / degradation
+Appraisal relevance ≠ Salience
+Value ≠ Salience
+Intrinsic novelty ≠ Salience
+SalienceProfile ≠ AttentionAllocation
+AttentionAllocation ≠ Workspace admission
+AttentionAllocation ≠ Executive compute decision
+AttentionAllocation ≠ Policy decision
+Cortex attention weight ≠ MINDRA Salience
 ```
 
-Нужно определить:
+- принят отдельный `Salience System` как boundary priority/allocation;
+- Salience работает только с explicit `SalienceCandidateSet`;
+- Salience является purpose/context dependent;
+- canonical intermediate — typed `SalienceProfile`, а не обязательный scalar;
+- budget приходит от explicit consumer/context;
+- `AllocationPolicy` versioned и отделена от profile;
+- ranking, gating и allocation различаются;
+- bottom-up/signal-driven и top-down/concern-driven evidence остаются различимыми;
+- optional focus persistence/inhibition/habituation state допустим;
+- Salience не выполняет Memory retention, Workspace admission, Cortex invocation, scheduler mutation или final action selection;
+- actual/predicted/imagined/intervened provenance сохраняется;
+- functional gate требует реального downstream allocation/processing effect;
+- обязательны `NoSalience`, uniform/random/shuffled/source-only и matched controls.
 
-- что именно является `Salience Target`;
-- является ли Salience scalar score, ranking, allocation distribution или structured policy;
-- где проходит граница relevance ↔ salience;
-- как high novelty может быть salient без высокой utility и наоборот;
-- где проходит граница Valuation ↔ Salience;
-- может ли Salience влиять на Memory retrieval/admission до `DU-20` и в какой форме;
-- как выражать ограниченный compute/attention budget;
-- нужен ли persistent salience/inhibition state;
-- как избежать hidden attention внутри Cortex/Policy;
-- как Salience передаёт кандидатов будущему Workspace, не становясь самим Workspace;
-- какие interventions доказывают causal role priority allocation.
+---
 
-После принятия `DU-19` допускается:
+# 4. Следующий допустимый Design Update
 
 ```text
 DU-20 — Memory Regulation / Consolidation
 ```
 
----
+Цель `DU-20` — расширить нейтральный `Memory Core` механизмами управляемого сохранения, забывания, eviction, replay selection и consolidation, используя explicit evidence вроде Salience без превращения Memory в скрытую Valuation или Training Runtime.
 
-# 4. Действующие фундаментальные отношения
+Обязательные вопросы:
 
 ```text
-logical architecture boundary ≠ deployment topology
-Cognitive Cycle ≠ Environment Transition
-CognitiveState ≠ full Agent-owned state
-Observability ≠ Intervention
-Raw Observation ≠ Canonical Percept
-External Task Specification ≠ Committed Goal
-Goal Proposal ≠ Committed Goal
-Goal ≠ Reward ≠ Drive ≠ Utility/Value ≠ Policy
-MINDRA Agent ≠ Cortex ≠ concrete LLM
-MemoryRecord ≠ embedding/index entry
-Memory ≠ trajectory/replay
-Canonical Percept ≠ World Belief ≠ World Prediction
-World Prediction ≠ observed fact
-Imagined Transition ≠ Environment Transition
-prediction error ≠ reward / intrinsic utility
-predictive uncertainty ≠ risk / value
-Agent Capability Fact ≠ Learned Competence Estimate ≠ Self Prediction
-P(success) ≠ uncertainty/support самой self-estimate
-Self Model ≠ Cortex self-report ≠ Executive Control
-Intrinsic Signal ≠ Reward ≠ Drive ≠ Utility/Value
-prediction discrepancy ≠ predictive surprisal ≠ novelty
-novelty ≠ visitation rarity
-information gain ≠ arbitrary uncertainty reduction
-higher intrinsic signal ≠ greater desirability
-Intrinsic Signal ≠ Drive State
-Drive State ≠ Drive Pressure ≠ Utility/Value
-Drive ≠ Goal ≠ Policy
-higher Drive Pressure ≠ universally greater desirability
-homeostatic drive ≠ mandatory form of every drive
-Environment reset ≠ Drive reset
-wall-clock ≠ implicit Drive time
-Appraisal ≠ Intrinsic Signal ≠ Drive ≠ Affect ≠ Valuation
-Appraisal Target ≠ Appraisal Context
-relevance ≠ Salience ≠ novelty ≠ utility
-goal congruence ≠ global Goal priority/value
-drive conduciveness ≠ committed Drive update
-expectedness ≠ novelty ≠ prediction discrepancy ≠ predictive surprisal
-controllability ≠ coping potential
-urgency ≠ Salience ≠ action priority
-Appraisal local polarity ≠ Utility/Value/Reward
-reappraisal ≠ mutation of historical AppraisalRecord
-Appraisal Record ≠ Affect State
-Affect State ≠ Drive State
-Affect State ≠ Utility/Value/Reward
-Affect State ≠ emotion label
-Affect history integration ≠ Memory Store
-Affect_t → Appraisal_t → Affect_(t+1)
-imagined Affect ≠ real committed Affect
-Environment reset ≠ Affect reset
-ValueProfile ≠ ScalarizedValue
-ValueProfile ≠ Training Reward
-ValueProfile ≠ Critic Value
-ValueProfile ≠ Policy Decision
-predictive uncertainty ≠ RiskProfile
-P(success) ≠ Utility/Value
-External Task Feedback ≠ internal utility
-Intrinsic Signal ≠ decision value
-incomparable valuation ≠ technical failure
+memory admission
+retention
+aging / forgetting
+eviction
+capacity pressure
+salience integration
+recency/diversity/value conflicts
+retrieval-history influence?
+replay candidate selection
+Agent memory replay ≠ Training replay
+consolidation event semantics
+episodic → derived/semantic memory
+source preservation / provenance
+contradiction/supersession
+representation drift / re-encoding
+slow learned structures boundary
+catastrophic forgetting
+logical time
+snapshot/revision
+failure/degradation
+NoRegulation / random / recency / shuffled / matched controls
+```
+
+Нужно особенно определить:
+
+- где заканчивается Memory Core и начинается regulation;
+- кто принимает `MemoryWriteProposal` при ограниченной capacity;
+- может ли Salience быть одним из signals, но не единственным определением retention;
+- чем forgetting отличается от physical deletion;
+- когда derived summary/semantic record становится новым `MemoryRecord`;
+- как сохраняется lineage исходного episodic evidence;
+- чем internal memory replay/consolidation отличается от `Training Runtime Replay`;
+- допускаются ли learned slow-weight updates в DU-20 или только создаётся evidence для `DU-26`;
+- как проверить, что regulation лучше random/recency baseline и не создаёт confirmation bias.
+
+После принятия `DU-20` допускается:
+
+```text
+DU-21 — Workspace
 ```
 
 ---
 
-# 5. Что ещё не принято
+# 5. Ещё не приняты
 
 Пока отсутствуют accepted решения по:
 
-- Salience/Attention;
-- Memory Regulation/Consolidation;
+- Memory Regulation / Consolidation;
 - Workspace;
-- Metacognitive/Executive Control;
-- Policy/Planner;
-- Action boundary;
-- trajectory/data/replay schema;
-- training lifecycle;
-- checkpointing/reproducibility;
-- exact evaluation harness;
-- testing strategy;
-- research claims/limitations;
-- version roadmap;
+- Metacognitive / Executive Control;
+- Policy / Planner;
+- Action Gate / Executor;
+- Experience / Data / Replay schema;
+- Training Lifecycle;
+- Checkpoint / Reproducibility / Compute;
+- MINDRA-Eval;
+- Engineering Testing;
+- Research Claims / Limitations;
+- Contract + ADR Freeze;
+- Version Roadmap;
 - implementation sequences.
 
-Также пока не выбраны exact Python/package/framework решения, concrete Cortex backend, Memory backend/index, World Model architecture, Self Model estimator/calibration method, Intrinsic Signal estimators, concrete Drive list/dynamics, Appraisal dimension subset/estimator, Affect channels/dynamics, ValueComponent subset, ComparisonPolicy/scalarization, risk measure или training reward/critic.
+Также не выбраны concrete Python/framework/model/algorithm implementations.
 
 ---
 
-# 6. Статус реализации
+# 6. Implementation status
 
 ```text
-Исследовательская и программная реализация: не начата
+Исследовательская/production реализация: не начата
 Дорожная карта версий: не спроектирована
-Текущая software version: отсутствует
-Принятый implementation HEAD: отсутствует
+Software version: отсутствует
+Implementation HEAD: отсутствует
 ```
 
-Наличие detailed design не является разрешением Codex начинать implementation до появления version roadmap и implementation sequence.
+Detailed design сам по себе не разрешает Codex начинать implementation до `DU-32` и соответствующего version/implementation sequence.
