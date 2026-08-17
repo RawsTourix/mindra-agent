@@ -65,6 +65,7 @@ Research experiment сам по себе не становится ADR: снач
 - [`ADR-0005 — DAG scheduling с execution waves и атомарным module commit`](ADR-0005-wave-scheduled-module-protocol.md) — module dependencies компилируются в DAG/waves; modules одной wave читают одну committed revision, а public/private effects становятся видимыми только через согласованный atomic commit.
 - [`ADR-0006 — Разделить passive Evidence Plane и explicit Intervention Gateway`](ADR-0006-separated-evidence-plane-and-intervention-gateway.md) — observability остаётся однонаправленной passive evidence boundary, а active research mutation проходит только через отдельный explicit Intervention Gateway с target/base/provenance и experimental lineage.
 - [`ADR-0007 — Разделить agent-visible Environment interaction и research-only world control`](ADR-0007-two-plane-environment-boundary.md) — общий Environment contract имеет отдельные Agent Interaction Plane и Research Plane; `MicroWorld` является reference family, а privileged world state/snapshot/intervention не становятся обычным Agent input.
+- [`ADR-0008 — Гибридный Canonical Percept: structured semantic core + optional feature views`](ADR-0008-hybrid-canonical-percept.md) — Perception публикует structured Semantic Core с provenance/missingness и optional revisioned Feature Views; один universal latent и Cortex hidden space не являются canonical inter-module representation.
 
 ## Proposed
 
