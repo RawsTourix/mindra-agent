@@ -73,6 +73,7 @@ Research experiment сам по себе не становится ADR: снач
 - [`ADR-0013 — Гибридная функциональная Self Model: capability facts + learned competence + calibrated predictions`](ADR-0013-hybrid-functional-self-model.md) — self-observable capability facts отделены от learned context-conditioned competence; Self Prediction имеет explicit target/calibration semantics и не заменяется Cortex self-report.
 - [`ADR-0014 — Многопровайдерный Intrinsic Signal Layer без обязательной scalarization`](ADR-0014-multi-provider-intrinsic-signal-layer.md) — novelty, prediction discrepancy, information gain, competence change и другие signal families остаются typed independent outputs; общий intrinsic reward не является canonical boundary.
 - [`ADR-0015 — Typed stateful Drive System без global motivation scalar`](ADR-0015-typed-stateful-drive-system.md) — persistent typed drive states имеют единый owner, homeostatic и adaptive dynamics остаются разными semantics, cross-drive coupling explicit, а Drive не scalarize мотивацию и не получает Goal/Policy authority.
+- [`ADR-0016 — Event-centered multidimensional Appraisal без обязательной emotion/utility scalarization`](ADR-0016-multidimensional-event-centered-appraisal.md) — Appraisal оценивает causally identified target относительно revisioned Agent context через typed dimensions; emotion label/global valence/utility не являются canonical output.
 
 ## Proposed
 
