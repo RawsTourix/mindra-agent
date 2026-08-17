@@ -114,17 +114,17 @@ Research evidence
 
 # 7. Модульность
 
-Модуль должен быть заменяемым и диагностируемым настолько, насколько это определено design.
+Модуль/способность должны быть заменяемыми и диагностируемыми настолько, насколько это определено design.
 
-В частности, будущая архитектура должна позволять:
+Будущая архитектура должна позволять:
 
-- включать и отключать модуль через явную composition/configuration boundary;
+- включать и отключать capability через явную composition/configuration boundary;
 - использовать baseline/no-op/dummy/control реализации, когда это нужно для оценки;
 - заменять Cortex backend без переписывания независимых подсистем;
 - проводить ablation без специальных одноразовых веток кода;
 - сохранять наблюдаемость входов, выходов и relevant internal state для экспериментов.
 
-Точные module contracts определяются соответствующими Design Updates и не должны угадываться заранее.
+Точные contracts определяются соответствующими Design Updates и не должны угадываться заранее.
 
 ---
 
@@ -227,7 +227,7 @@ semantic lifetime ≠ historical retention ≠ checkpoint inclusion
 - писать в namespace/field, которым компонент семантически не владеет;
 - разрешать conflict через скрытый `last-write-wins`;
 - применять proposed update из stale base revision как будто base не изменилась;
-- начинать зависеть от произвольного state field только потому, что оно присутствует в container;
+- читать undeclared state field только потому, что он присутствует в container;
 - кодировать `unknown`/`unavailable` magic sentinel без contract;
 - смешивать observed, predicted, retrieved и intervened значения без provenance;
 - протаскивать model-specific hidden state/provider clients/live infrastructure objects в canonical shared state;
@@ -372,7 +372,7 @@ feature dimension equality ≠ feature-space compatibility
 - смешивать direct/derived/inferred fields без provenance;
 - маскировать learned inference как Environment ground truth;
 - кодировать missing modality/property universal zero/NaN/None без contract;
-- поглощать Task Specification/Feedback в Perception из-за их текстовой формы;
+- поглощать Task Specification/Feedback в Perception из-за текстовой формы;
 - делать один learned latent единственным canonical inter-module representation;
 - протаскивать Cortex embedding/hidden state как mandatory representation;
 - делать Cortex обязательным для Perception;
@@ -394,48 +394,94 @@ feature dimension equality ≠ feature-space compatibility
 
 ```text
 External Task Specification ≠ Goal Proposal ≠ Committed Goal
-```
-
-```text
 Goal ≠ Reward ≠ Drive ≠ Utility / Value ≠ Policy
-```
-
-```text
 structural goal priority ≠ dynamic goal value
 commitment ≠ focus ≠ priority ≠ value
 ```
 
 До явного изменения canonical design запрещается:
 
-- использовать `External Task Specification` как прямой mutable alias canonical Goal state;
-- хранить единственный authoritative `current_goal` только внутри Policy/Cortex hidden state;
-- давать Cortex, Planner, Drives или другим proposal sources direct write authority committed Goal Graph;
+- использовать `External Task Specification` как mutable alias canonical Goal state;
+- хранить authoritative `current_goal` только внутри Policy/Cortex hidden state;
+- давать Cortex/Planner/Drives direct write authority committed Goal Graph;
 - выдавать Goal Proposal за уже принятую цель;
-- использовать prompt text как canonical Goal representation без grounding/proposal boundary;
-- сводить Goal к scalar reward или reward function;
+- использовать prompt text как canonical Goal без grounding/proposal boundary;
+- сводить Goal к scalar reward/reward function;
 - сводить Goal Graph к обязательному LIFO stack;
-- считать смену focus удалением/abandonment остальных active goals;
-- создавать cyclic dependency relation внутри committed Goal Graph;
-- считать достижение subgoal автоматическим достижением parent без explicit decomposition semantics;
+- считать смену focus удалением остальных active goals;
+- создавать cyclic goal dependency relation;
+- считать достижение subgoal автоматическим достижением parent без explicit semantics;
 - сводить `suspended`, `failed`, `expired`, `abandoned`, `invalidated` в один `done`;
 - считать truncation автоматическим goal failure;
 - очищать session/agent-long-lived goals при каждом `Environment.reset()`;
 - использовать structural priority как hidden universal utility;
 - использовать commitment как synonym reward weight/value;
-- требовать universal scalar progress `[0,1]` для каждой цели;
-- вычислять runtime progress/success из research-only `Objective Task Metric` без agent-visible contract;
+- требовать universal scalar progress `[0,1]`;
+- вычислять runtime progress/success из research-only `Objective Task Metric`;
 - позволять consumer мутировать Goal record/graph через retained reference;
-- скрыто менять goal objective/lifecycle без proposal/transition provenance;
+- скрыто менять goal objective/lifecycle без provenance;
 - использовать hidden Environment task ID как canonical `goal_id`;
-- смешивать research Goal intervention с natural lifecycle transition без provenance.
+- смешивать research Goal intervention с natural lifecycle transition.
 
-Источники goals должны создавать proposal/transition proposal через declared boundary. Goal System остаётся semantic owner canonical Goal state.
-
-Exact Goal DSL, internal goal generation, dynamic valuation, focus arbitration, planner decomposition algorithm и конкретный graph framework пока не выбраны.
+Источники goals создают proposal/transition request через declared boundary. Goal System остаётся semantic owner committed Goal state.
 
 ---
 
-# 17. Scope текущего этапа
+# 17. Cortex discipline
+
+Обязательны [`docs/design/modules/cortex.md`](docs/design/modules/cortex.md), [`docs/design/contracts/cortex.md`](docs/design/contracts/cortex.md) и `ADR-0010`.
+
+Помнить:
+
+```text
+MINDRA Agent ≠ Cortex ≠ concrete LLM
+semantic Cortex context ≠ model-specific prompt/messages/tokens
+Cortex Result ≠ canonical truth/state effect
+NoCortex ≠ DummyCortex ≠ ControlCortex
+```
+
+Канонический путь:
+
+```text
+cognitive consumer
+→ semantic Cortex Request
+→ Cortex Gateway
+→ backend adapter
+→ local/remote provider
+→ normalized Cortex Result
+→ consumer-owned semantic effect
+```
+
+До явного изменения canonical design запрещается:
+
+- импортировать concrete model/provider SDK в независимый cognitive consumer;
+- делать `generate(raw_prompt) -> str` единственным architecture contract Cortex;
+- строить Qwen/Gemma/Llama-specific chat template внутри Goal/Memory/Policy/другого consumer;
+- давать Cortex Gateway ambient access ко всему `CognitiveState`, Memory или private state;
+- позволять Gateway самостоятельно добывать context, не объявленный consumer dependency;
+- считать Cortex отдельным central orchestrator/semantic owner всего cognition;
+- превращать Cortex output автоматически в observed fact, Goal, Memory или Action;
+- позволять Cortex direct mutation `Goal Graph` вместо `Goal Proposal` boundary;
+- считать raw hidden tensor автоматически совместимым `Feature View` без feature-space identity/revision;
+- делать hidden states, attentions, logits, gradients, soft/latent input или chain-of-thought обязательной capability любого backend;
+- делать local-only research capability обязательной для remote black-box backend;
+- считать model-card label `multilingual` доказательством требуемого качества русского/английского;
+- молча обрезать semantic context при context overflow;
+- скрыто переключаться на другой model/provider после timeout/failure;
+- возвращать пустую строку как универсальный failure sentinel;
+- скрывать provider/model/adapter/template change из behavior provenance;
+- считать `NoCortex` implementation, которая возвращает фиктивный успешный result;
+- отправлять Environment Research Ground Truth в multimodal Cortex только потому, что backend умеет принимать image/input;
+- считать wall-clock latency Cortex cognitive time;
+- считать opaque remote provider строго воспроизводимым без достаточной revision evidence.
+
+Cortex может использоваться как явно injected shared capability внутри cognitive `Module Attempt`; invocation при этом должен быть traceable, а canonical state effect публикует semantic owner вызывающего/последующего механизма.
+
+Concrete Cortex backend, inference engine, provider, quantization и PEFT method пока не выбраны.
+
+---
+
+# 18. Scope текущего этапа
 
 Фактический текущий scope всегда определяется `docs/design/current.md`.
 
@@ -445,7 +491,9 @@ Exact Goal DSL, internal goal generation, dynamic valuation, focus arbitration, 
 
 До соответствующих Design Updates не превращать обсуждавшиеся кандидаты в обязательные implementation choices, включая:
 
-- конкретный Cortex backend;
+- конкретный Cortex backend/model size;
+- Transformers/vLLM/SGLang/llama.cpp/provider;
+- quantization/PEFT method;
 - размер canonical latent/state representations;
 - state framework;
 - RL/world-model/curiosity algorithms;
@@ -462,7 +510,7 @@ Exact Goal DSL, internal goal generation, dynamic valuation, focus arbitration, 
 
 ---
 
-# 18. Поведение при неопределённости
+# 19. Поведение при неопределённости
 
 Если документация не определяет важное решение:
 
