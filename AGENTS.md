@@ -2,9 +2,11 @@
 
 ## Назначение
 
-Этот файл содержит обязательные правила для Codex, ChatGPT и других coding agents, работающих с репозиторием MINDRA.
+Этот файл — **карта обязательного контекста** для Codex, ChatGPT и других coding agents.
 
-Краткий task prompt не заменяет repository design context. Перед изменением кода или канонической документации agent обязан восстановить актуальный контекст проекта из `docs/`.
+Он не дублирует всю архитектурную документацию. Канонические знания проекта находятся в `docs/`.
+
+Краткий task prompt не заменяет repository design context.
 
 ---
 
@@ -18,41 +20,54 @@
 - технические идентификаторы остаются на английском: имена переменных, классов, функций, методов, протоколов, типов, модулей, package names, API names и другие machine-facing identifiers;
 - общепринятый технический термин допустимо оставить на английском, если перевод ухудшает точность или создаёт двусмысленность.
 
-Не переводить технические идентификаторы ради формального соблюдения русскоязычности.
-
 ---
 
 # 2. Перед любой работой
 
-Перед изменением production/research-кода или canonical design:
+Перед изменением production/research-кода или canonical design обязательно:
 
 1. проверить фактический HEAD/status/diff;
-2. прочитать `docs/README.md`;
-3. прочитать `docs/design/current.md`;
-4. определить, является ли задача documentation, design, implementation или research change;
-5. прочитать релевантный canonical design;
+2. прочитать [`docs/README.md`](docs/README.md);
+3. прочитать [`docs/design/current.md`](docs/design/current.md);
+4. определить тип задачи: documentation, design, implementation или research;
+5. прочитать релевантный canonical design owner;
 6. прочитать все релевантные accepted/non-superseded ADR;
-7. прочитать релевантные candidate/exact internal contracts, если они уже существуют;
+7. прочитать релевантные candidate/exact contracts;
 8. проверить границы текущего разрешённого scope;
-9. только после этого изменять код или документацию.
+9. только после этого вносить изменение.
 
-Если нужное архитектурное решение ещё не принято, agent не должен молча выбирать удобный вариант и превращать его в фактический стандарт.
+Если документация не определяет значимое решение, не превращать удобный implementation choice в implicit architecture contract.
 
 ---
 
-# 3. Главный принцип
+# 3. Иерархия source of truth
 
-> Реализовывать принятую архитектуру и проверяемую исследовательскую гипотезу, а не переизобретать MINDRA из одного task prompt.
+```text
+accepted non-superseded ADR
++
+canonical design semantics
+        ↓
+candidate/exact contracts
+        ↓
+future version specification
+        ↓
+implementation sequence
+        ↓
+implementation
+        ↓
+engineering/research evidence
+```
 
-Нельзя без explicit design change:
+При противоречии experimental result и design:
 
-- менять границы модулей;
-- создавать скрытые зависимости между модулями;
-- связывать архитектуру с конкретной LLM, если контракт требует заменяемый Cortex backend;
-- добавлять функциональность будущих этапов «заодно»;
-- заменять исследовательский механизм более простым shortcut только потому, что он быстрее реализуется;
-- скрывать unresolved design question внутри implementation detail;
-- менять экспериментальную методологию после просмотра результата без фиксации причины.
+```text
+result
+→ interpretation/design review
+→ ADR/design update
+→ только затем implementation change
+```
+
+Нельзя молча менять архитектуру по одному результату эксперимента.
 
 ---
 
@@ -68,456 +83,234 @@ Implementation
 Research evidence
 ```
 
-- **Design** — что решено построить и какие инварианты приняты.
-- **Implementation** — что фактически реализовано в конкретном commit.
-- **Research evidence** — что показали измерения и эксперименты.
+Наличие реализации не является подтверждением исследовательской гипотезы.
 
-Нельзя выдавать design intention за работающий механизм.
-
-Нельзя выдавать наличие реализации за подтверждение исследовательской гипотезы.
-
-Нельзя по одному поведенческому результату делать вывод о наличии сознания, субъективного опыта, эмоций или иных феноменальных состояний.
+Поведенческий результат не является доказательством сознания, субъективного опыта или феноменальных эмоций.
 
 ---
 
-# 5. Документация как source of truth
+# 5. Фундаментальные документы
 
-Канонические знания проекта должны жить в `docs/`, а не только в чатах, issue или prompt history.
+Перед изменением соответствующей области обязательны:
 
-Если принято новое существенное решение:
+- [`docs/design/system-context.md`](docs/design/system-context.md) — logical boundaries;
+- [`docs/design/dependency-rules.md`](docs/design/dependency-rules.md) — dependencies/composition;
+- [`docs/design/execution-model.md`](docs/design/execution-model.md) — temporal/causal model;
+- [`docs/design/cognitive-state.md`](docs/design/cognitive-state.md) — committed state semantics;
+- [`docs/design/module-lifecycle.md`](docs/design/module-lifecycle.md) — scheduler/module lifecycle;
+- [`docs/design/observability-and-intervention.md`](docs/design/observability-and-intervention.md) — evidence/intervention.
 
-1. оформить или обновить ADR, если существовало несколько реалистичных вариантов;
-2. обновить канонический документ-владелец темы;
-3. обновить candidate/exact contracts, если решение меняет интерфейс;
-4. обновить current/status и будущий implementation plan, если они затронуты;
-5. только после consistency patch реализовывать изменение.
-
-Не оставлять два одновременно действующих противоречащих описания.
-
----
-
-# 6. Research discipline
-
-Исследовательские изменения должны следовать `docs/research-methodology.md`.
-
-Обязательные принципы:
-
-- заранее формулировать проверяемую гипотезу;
-- иметь baseline/control, когда это применимо;
-- использовать ablation и causal intervention для утверждений о вкладе модулей;
-- фиксировать seed/config/environment/checkpoint;
-- отделять exploratory run от подтверждающего эксперимента;
-- не подбирать критерий успеха после просмотра результата без явной пометки post-hoc;
-- сохранять отрицательные результаты, если они информативны.
+Accepted foundation decisions: `ADR-0001` … `ADR-0006`.
 
 ---
 
-# 7. Модульность
+# 6. Принятые subsystem boundaries
 
-Модуль/способность должны быть заменяемыми и диагностируемыми настолько, насколько это определено design.
+Для subsystem-specific работы читать соответствующий design + contract + ADR:
 
-Будущая архитектура должна позволять:
+| Область | Design | Contract | ADR |
+|---|---|---|---|
+| Environment | `docs/design/modules/environment.md` | `contracts/environment.md` | `ADR-0007` |
+| Perception | `docs/design/modules/perception.md` | `contracts/perception.md` | `ADR-0008` |
+| Goal System | `docs/design/modules/goals.md` | `contracts/goals.md` | `ADR-0009` |
+| Cortex | `docs/design/modules/cortex.md` | `contracts/cortex.md` | `ADR-0010` |
+| Memory Core | `docs/design/modules/memory.md` | `contracts/memory.md` | `ADR-0011` |
+| World Model | `docs/design/modules/world-model.md` | `contracts/world-model.md` | `ADR-0012` |
 
-- включать и отключать capability через явную composition/configuration boundary;
-- использовать baseline/no-op/dummy/control реализации, когда это нужно для оценки;
-- заменять Cortex backend без переписывания независимых подсистем;
-- проводить ablation без специальных одноразовых веток кода;
-- сохранять наблюдаемость входов, выходов и relevant internal state для экспериментов.
-
-Точные contracts определяются соответствующими Design Updates и не должны угадываться заранее.
+Номер текущего разрешённого Design Update всегда брать из `docs/design/current.md`, а не из старых chat/prompt сообщений.
 
 ---
 
-# 8. Dependency и composition discipline
+# 7. Общие архитектурные запреты
 
-Обязательны [`docs/design/dependency-rules.md`](docs/design/dependency-rules.md) и `ADR-0002`.
+Без explicit design change запрещается:
 
-До их явного изменения запрещается:
-
-- cognitive module → concrete peer dependency;
-- Agent/core → Training Runtime или Evaluation Runtime dependency;
-- независимый consumer → concrete Cortex/provider SDK dependency;
-- runtime Service Locator вида `registry.get(...)`/`container.resolve(...)` внутри cognitive/runtime code;
-- shared mutable globals как средство межмодульной коммуникации;
-- direct mutation чужого module-private state;
-- scattered `disable_x`/`ablation_x` branches по независимым потребителям вместо composition substitution;
+- concrete peer dependency между независимыми cognitive modules;
+- runtime Service Locator внутри cognition/runtime code;
+- shared mutable globals как межмодульный state bus;
+- hidden direct mutation чужого state;
+- зависимость Agent от Training/Evaluation Runtime;
+- скрытый evaluator/oracle input;
 - hidden behavior-changing fallback;
-- dynamic plugin discovery внутри cognitive step.
-
-Принятый принцип:
-
-```text
-configuration
-    ↓
-Composition Root
-    ↓
-concrete factories/providers
-    ↓
-explicit assembly / dependency passing
-    ↓
-Agent + external runtimes
-```
-
-Registry допустим как composition-time каталог factories/providers, но не как runtime Service Locator.
+- ad-hoc module ordering вместо declared scheduler semantics;
+- partial commit causally relevant public/private state;
+- silent stale-result rebase;
+- смешивание natural/replayed/imagined/intervened/counterfactual provenance;
+- реализация downstream-функциональности «заодно» до соответствующего DU.
 
 ---
 
-# 9. System boundary discipline
-
-Обязателен [`docs/design/system-context.md`](docs/design/system-context.md).
-
-Помнить:
+# 8. Ключевые действующие отношения
 
 ```text
-logical architecture boundary ≠ process / device / machine boundary
-Agent Memory ≠ Artifact Storage
-```
-
-Нельзя считать компонент когнитивным только потому, что он находится в том же процессе или на том же GPU.
-
-Нельзя превращать evaluator/trainer/experiment metadata в normal agent input без явной experimental semantics.
-
----
-
-# 10. Temporal discipline
-
-Обязательны [`docs/design/execution-model.md`](docs/design/execution-model.md) и `ADR-0003`.
-
-Помнить:
-
-```text
-logical causal time ≠ wall-clock
-Agent Session ≠ Environment Episode
+logical architecture boundary ≠ deployment topology
 Cognitive Cycle ≠ Environment Transition
-runtime state update ≠ Learning Update
-```
-
-До явного изменения canonical design запрещается:
-
-- использовать elapsed wall-clock как неявный cognitive clock;
-- считать внутренний reasoning/retrieval cycle новым Environment step;
-- ретроактивно менять уже committed action или outcome;
-- смешивать observed, replayed, imagined и counterfactual transitions без provenance;
-- считать `Environment.reset()` полным reset Agent;
-- использовать порядок завершения async workers/batch как causal order независимых trajectories;
-- скрывать изменение trainable parameters внутри якобы frozen/normal execution;
-- считать partial physical computation committed event без logical commit boundary.
-
-Async execution допустим только при сохранении однозначного causal order и достаточного provenance Agent revision/trajectory.
-
----
-
-# 11. CognitiveState discipline
-
-Обязательны [`docs/design/cognitive-state.md`](docs/design/cognitive-state.md) и `ADR-0004`.
-
-Помнить:
-
-```text
 CognitiveState ≠ full Agent-owned state
-committed snapshot ≠ mutable shared bus
-semantic lifetime ≠ historical retention ≠ checkpoint inclusion
-```
-
-До явного изменения canonical design запрещается:
-
-- напрямую мутировать уже committed `CognitiveState`;
-- изменять canonical tensor/value inplace через retained reference;
-- использовать общий mutable dict/singleton как неформальный state bus;
-- писать в namespace/field, которым компонент семантически не владеет;
-- разрешать conflict через скрытый `last-write-wins`;
-- применять proposed update из stale base revision как будто base не изменилась;
-- читать undeclared state field только потому, что он присутствует в container;
-- кодировать `unknown`/`unavailable` magic sentinel без contract;
-- смешивать observed, predicted, retrieved и intervened значения без provenance;
-- протаскивать model-specific hidden state/provider clients/live infrastructure objects в canonical shared state;
-- считать clone одного `CognitiveState` полным Agent clone при наличии другого causally relevant private state.
-
-Каждый future canonical field должен иметь declared semantic owner, scope/lifetime, availability/freshness semantics и provenance requirements.
-
-Concrete container пока не выбран.
-
----
-
-# 12. Module protocol и scheduler discipline
-
-Обязательны [`docs/design/module-lifecycle.md`](docs/design/module-lifecycle.md) и `ADR-0005`.
-
-Помнить:
-
-```text
-execution order = declared dependencies + freshness + lifecycle constraints
-instantaneous scheduler graph = DAG
-```
-
-```text
-modules одной wave
-→ читают одну base state_revision
-→ исполняются под одной agent_revision
-→ публикуют staged effects
-→ commit согласованно
-```
-
-До явного изменения canonical design запрещается:
-
-- ad-hoc central main-loop ordering cognitive modules;
-- строить ordering на случайном registry/import order;
-- создавать instantaneous dependency cycle;
-- читать undeclared state fields;
-- recursively вызывать peer/scheduler для hidden dependency;
-- публиковать output соседу той же wave до commit;
-- использовать physical completion order как cognitive semantics;
-- overlapping canonical writes без owner/reducer;
-- commit causally relevant private state раньше связанного accepted effect;
-- оставлять private state изменённым после rejected wave;
-- молча rebase stale-base result;
-- менять `agent_revision` внутри in-flight wave;
-- публиковать partial required-wave state;
-- выполнять hidden optimizer update внутри обычного `compute`;
-- скрыто переключаться на fallback implementation;
-- считать `disabled` и `NoOp` одним состоянием.
-
-`Cognitive Scheduler` относится к Agent runtime core, но не является когнитивным модулем.
-
----
-
-# 13. Observability и intervention discipline
-
-Обязательны [`docs/design/observability-and-intervention.md`](docs/design/observability-and-intervention.md) и `ADR-0006`.
-
-Помнить:
-
-```text
+committed state ≠ mutable shared bus
 Observability ≠ Intervention
-inspection capability ≠ write authority
-natural execution ≠ intervened execution
+Agent Interaction Plane ≠ Environment Research Plane
+Raw Observation ≠ Canonical Percept
+Canonical Percept ≠ hidden world belief
+External Task Specification ≠ Goal Proposal ≠ Committed Goal
+Goal ≠ Reward ≠ Drive ≠ Utility/Value ≠ Policy
+MINDRA Agent ≠ Cortex ≠ concrete LLM
+MemoryRecord ≠ embedding/index entry
+Memory ≠ trajectory/replay
+Memory retrieval ≠ ambient Cortex context
+Canonical Percept ≠ World Belief ≠ World Prediction
+World Prediction ≠ observed fact
+Imagined Transition ≠ Environment Transition
+prediction error ≠ reward / intrinsic utility
+predictive uncertainty ≠ risk / value
 ```
 
-До явного изменения canonical design запрещается:
+---
 
-- использовать logger/Artifact Collector/Evaluation Runtime как normal cognitive dependency;
+# 9. State/scheduler discipline
+
+До изменения `DU-03…05` запрещается:
+
+- мутировать committed `CognitiveState` inplace;
+- писать в namespace без semantic ownership;
+- использовать hidden `last-write-wins`;
+- публиковать peer output до commit текущей wave;
+- строить instantaneous dependency cycle;
+- использовать physical completion order как causal semantics;
+- оставлять causally relevant private state изменённым после rejected commit;
+- менять `agent_revision` внутри in-flight wave;
+- использовать wall-clock как неявное cognitive time.
+
+---
+
+# 10. Observability/intervention discipline
+
+До изменения `DU-06` запрещается:
+
 - давать passive observer mutation authority;
-- объединять tracing и mutation в неразличимый callback contract;
-- использовать mutable reference как canonical private-state probe;
-- делать research-only probe cognitive dependency;
-- превращать profiler/experiment metadata в cognitive payload;
-- выполнять intervention без explicit target/base/provenance;
-- менять semantic owner из-за evaluator override;
-- переписывать committed natural history;
+- превращать research probe в runtime dependency;
+- выполнять intervention без target/base/provenance;
 - скрывать intervention как natural output;
 - выдавать partial restore за exact counterfactual;
-- смешивать intervened trajectory с natural experience без provenance;
-- считать raw activation access обязательной capability общего contract;
-- игнорировать OOD/off-target risk latent intervention;
-- молча терять evidence-critical telemetry и использовать Run как полный confirmatory evidence.
+- считать raw activation access обязательной capability всех backends;
+- смешивать intervened experience с natural experience без provenance.
 
 ---
 
-# 14. Environment discipline
+# 11. Environment/Perception discipline
 
-Обязательны [`docs/design/modules/environment.md`](docs/design/modules/environment.md), [`docs/design/contracts/environment.md`](docs/design/contracts/environment.md) и `ADR-0007`.
+До изменения `DU-07/08` запрещается:
 
-Помнить:
-
-```text
-Agent Interaction Plane ≠ Environment Research Plane
-Raw Observation ≠ Hidden World State ≠ Research Ground Truth
-External Task Feedback ≠ Objective Task Metric ≠ Internal Utility
-seed ≠ complete world identity
-```
-
-До явного изменения canonical design запрещается:
-
-- передавать hidden world state/oracle/evaluator metric в normal Agent input;
-- передавать framework `info` Agent целиком без explicit schema;
-- считать split/distribution/seed частью observation по умолчанию;
-- использовать research-only metric как feedback;
-- использовать External Task Feedback как определение Internal Utility;
-- смешивать malformed action и valid-but-ineffective action;
-- раскрывать privileged failure reason без task semantics;
-- терять `terminated`/`truncated`;
-- считать full hidden map обычной partial observation;
-- жёстко кодировать appearance shortcut как causal semantics;
-- считать один seed достаточным для exact reproduction;
-- называть restore/fork exact без hidden/pending/RNG state;
-- использовать research restore/intervention как Agent action;
-- смешивать natural/intervened world histories;
-- терять terminal outcome при autoreset;
+- передавать Environment Research Ground Truth Agent как normal input;
+- использовать evaluator metric как task feedback;
+- считать seed полным world identity;
 - считать `MicroWorld` universal internal representation;
-- фиксировать Gymnasium/MiniGrid/Procgen обязательными только из-за research evidence.
+- передавать raw Environment-specific schema независимым modules;
+- делать один learned latent единственным canonical percept;
+- использовать hidden persistent object ID как бесплатную percept identity;
+- смешивать direct observation, perceptual inference, Memory и World Model prediction;
+- молча смешивать несовместимые feature-space revisions.
 
 ---
 
-# 15. Perception и representation discipline
+# 12. Goal/Cortex discipline
 
-Обязательны [`docs/design/modules/perception.md`](docs/design/modules/perception.md), [`docs/design/contracts/perception.md`](docs/design/contracts/perception.md) и `ADR-0008`.
+До изменения `DU-09/10` запрещается:
 
-Помнить:
-
-```text
-Raw Observation ≠ Canonical Percept
-Canonical Percept = structured Semantic Core + optional Feature Views
-Canonical Percept ≠ Cortex hidden state
-current percept ≠ Memory / hidden-world belief / World Model prediction
-feature dimension equality ≠ feature-space compatibility
-```
-
-До явного изменения canonical design запрещается:
-
-- передавать raw Environment-specific schema независимым cognitive modules;
-- использовать Research Ground Truth как normal Perception input;
-- добавлять unseen hidden entity в Semantic Core из evaluator knowledge;
-- использовать hidden persistent Environment object ID как percept identity;
-- приписывать смысл порядку entity array/padding;
-- смешивать direct/derived/inferred fields без provenance;
-- маскировать learned inference как Environment ground truth;
-- кодировать missing modality/property universal zero/NaN/None без contract;
-- поглощать Task Specification/Feedback в Perception из-за текстовой формы;
-- делать один learned latent единственным canonical inter-module representation;
-- протаскивать Cortex embedding/hidden state как mandatory representation;
-- делать Cortex обязательным для Perception;
-- считать одинаковый shape доказательством compatibility;
-- молча смешивать несовместимые `feature_space_revision`;
-- переписывать committed percept после encoder update;
-- hidden fallback на Cortex/privileged data;
-- считать device/object identity semantic representation identity.
-
-`NoCortex` configuration обязана оставаться архитектурно допустимой.
+- давать Cortex/Planner/Drives direct write authority Goal Graph;
+- хранить authoritative Goal только в Policy/Cortex hidden state;
+- превращать Goal в scalar reward/value;
+- делать model-specific prompt/tokenizer/provider API частью cognitive consumer;
+- давать Cortex Gateway ambient access ко всему Agent state;
+- превращать Cortex output автоматически в Goal/Memory/Action/observed fact;
+- требовать hidden states/CoT/gradients от любого Cortex backend;
+- скрывать context truncation/model fallback/provider substitution;
+- делать конкретную LLM частью canonical architecture.
 
 ---
 
-# 16. Goal System discipline
+# 13. Memory discipline
 
-Обязательны [`docs/design/modules/goals.md`](docs/design/modules/goals.md), [`docs/design/contracts/goals.md`](docs/design/contracts/goals.md) и `ADR-0009`.
+До изменения `DU-11/19/20` запрещается:
 
-Помнить:
-
-```text
-External Task Specification ≠ Goal Proposal ≠ Committed Goal
-Goal ≠ Reward ≠ Drive ≠ Utility / Value ≠ Policy
-structural goal priority ≠ dynamic goal value
-commitment ≠ focus ≠ priority ≠ value
-```
-
-До явного изменения canonical design запрещается:
-
-- использовать `External Task Specification` как mutable alias canonical Goal state;
-- хранить authoritative `current_goal` только внутри Policy/Cortex hidden state;
-- давать Cortex/Planner/Drives direct write authority committed Goal Graph;
-- выдавать Goal Proposal за уже принятую цель;
-- использовать prompt text как canonical Goal без grounding/proposal boundary;
-- сводить Goal к scalar reward/reward function;
-- сводить Goal Graph к обязательному LIFO stack;
-- считать смену focus удалением остальных active goals;
-- создавать cyclic goal dependency relation;
-- считать достижение subgoal автоматическим достижением parent без explicit semantics;
-- сводить `suspended`, `failed`, `expired`, `abandoned`, `invalidated` в один `done`;
-- считать truncation автоматическим goal failure;
-- очищать session/agent-long-lived goals при каждом `Environment.reset()`;
-- использовать structural priority как hidden universal utility;
-- использовать commitment как synonym reward weight/value;
-- требовать universal scalar progress `[0,1]`;
-- вычислять runtime progress/success из research-only `Objective Task Metric`;
-- позволять consumer мутировать Goal record/graph через retained reference;
-- скрыто менять goal objective/lifecycle без provenance;
-- использовать hidden Environment task ID как canonical `goal_id`;
-- смешивать research Goal intervention с natural lifecycle transition.
-
-Источники goals создают proposal/transition request через declared boundary. Goal System остаётся semantic owner committed Goal state.
+- считать vector database или embedding каноническим Memory Store;
+- использовать index slot/row/object id как `memory_id`;
+- молча переписывать source payload старого MemoryRecord;
+- смешивать несовместимые representation revisions;
+- давать consumer direct write authority Memory Store;
+- выполнять hidden Memory retrieval внутри Cortex Gateway/другого consumer;
+- считать retrieval score utility/salience/importance/truth probability;
+- смешивать Agent Memory с trajectory log или training replay;
+- добавлять salience/emotional forgetting до соответствующих DU;
+- называть `NoMemory` implementation, возвращающую fake successful retrieval.
 
 ---
 
-# 17. Cortex discipline
+# 14. World Model discipline
 
-Обязательны [`docs/design/modules/cortex.md`](docs/design/modules/cortex.md), [`docs/design/contracts/cortex.md`](docs/design/contracts/cortex.md) и `ADR-0010`.
+До изменения `DU-12` запрещается:
 
-Помнить:
-
-```text
-MINDRA Agent ≠ Cortex ≠ concrete LLM
-semantic Cortex context ≠ model-specific prompt/messages/tokens
-Cortex Result ≠ canonical truth/state effect
-NoCortex ≠ DummyCortex ≠ ControlCortex
-```
-
-Канонический путь:
-
-```text
-cognitive consumer
-→ semantic Cortex Request
-→ Cortex Gateway
-→ backend adapter
-→ local/remote provider
-→ normalized Cortex Result
-→ consumer-owned semantic effect
-```
-
-До явного изменения canonical design запрещается:
-
-- импортировать concrete model/provider SDK в независимый cognitive consumer;
-- делать `generate(raw_prompt) -> str` единственным architecture contract Cortex;
-- строить Qwen/Gemma/Llama-specific chat template внутри Goal/Memory/Policy/другого consumer;
-- давать Cortex Gateway ambient access ко всему `CognitiveState`, Memory или private state;
-- позволять Gateway самостоятельно добывать context, не объявленный consumer dependency;
-- считать Cortex отдельным central orchestrator/semantic owner всего cognition;
-- превращать Cortex output автоматически в observed fact, Goal, Memory или Action;
-- позволять Cortex direct mutation `Goal Graph` вместо `Goal Proposal` boundary;
-- считать raw hidden tensor автоматически совместимым `Feature View` без feature-space identity/revision;
-- делать hidden states, attentions, logits, gradients, soft/latent input или chain-of-thought обязательной capability любого backend;
-- делать local-only research capability обязательной для remote black-box backend;
-- считать model-card label `multilingual` доказательством требуемого качества русского/английского;
-- молча обрезать semantic context при context overflow;
-- скрыто переключаться на другой model/provider после timeout/failure;
-- возвращать пустую строку как универсальный failure sentinel;
-- скрывать provider/model/adapter/template change из behavior provenance;
-- считать `NoCortex` implementation, которая возвращает фиктивный успешный result;
-- отправлять Environment Research Ground Truth в multimodal Cortex только потому, что backend умеет принимать image/input;
-- считать wall-clock latency Cortex cognitive time;
-- считать opaque remote provider строго воспроизводимым без достаточной revision evidence.
-
-Cortex может использоваться как явно injected shared capability внутри cognitive `Module Attempt`; invocation при этом должен быть traceable, а canonical state effect публикует semantic owner вызывающего/последующего механизма.
-
-Concrete Cortex backend, inference engine, provider, quantization и PEFT method пока не выбраны.
+- использовать Environment hidden ground truth как normal World Model belief/input;
+- считать текущий `Canonical Percept` полным World Belief при partial observability без explicit baseline semantics;
+- превращать backend latent в universal inter-module representation;
+- считать action prediction фактом выбора/commit действия;
+- записывать imagined rollout как observed Environment trajectory;
+- делать imagined state natural MemoryRecord автоматически;
+- позволять World Model выбирать preferred action вместо Policy/Planner;
+- смешивать world dynamics с Goal/Valuation;
+- считать prediction error reward/intrinsic utility автоматически;
+- называть arbitrary variance `epistemic`/`aleatoric` без estimator/evaluation semantics;
+- выполнять hidden Memory lookup или hidden Cortex call без declared causal operation;
+- обучать baseline на evaluator-only oracle state и описывать это как agent-experience-only learning;
+- использовать один `None`/zero-vector для разных failure/uncertainty states;
+- фиксировать RSSM/Dreamer/Transformer/TorchRL обязательными из-за research evidence.
 
 ---
 
-# 18. Scope текущего этапа
+# 15. Research discipline
 
-Фактический текущий scope всегда определяется `docs/design/current.md`.
+Обязателен [`docs/research-methodology.md`](docs/research-methodology.md).
 
-Не полагаться на старые prompt/chat сообщения или на этот файл для определения номера текущего `DU`.
+Для утверждений о функциональном вкладе использовать, где применимо:
 
-Пока не появились version roadmap и implementation sequence, наличие подробного design само по себе **не разрешает начинать реализацию**.
+- baseline;
+- `No*` configuration;
+- Dummy/Control implementation;
+- shuffled/random control;
+- parameter/compute-matched control;
+- ablation;
+- controlled intervention;
+- несколько seeds;
+- held-out world distributions;
+- заранее определённый criterion.
 
-До соответствующих Design Updates не превращать обсуждавшиеся кандидаты в обязательные implementation choices, включая:
+Не подбирать success criterion после просмотра результата без явной post-hoc маркировки.
+
+---
+
+# 16. Scope implementation
+
+Пока `docs/design/current.md` не разрешает implementation/version work, подробный design **не является разрешением писать production architecture**.
+
+До соответствующих Design Updates нельзя превращать обсуждавшиеся candidates в обязательные choices, включая:
 
 - конкретный Cortex backend/model size;
-- Transformers/vLLM/SGLang/llama.cpp/provider;
-- quantization/PEFT method;
-- размер canonical latent/state representations;
-- state framework;
-- RL/world-model/curiosity algorithms;
-- Memory backend;
-- training framework;
+- конкретный Memory backend/index/embedding model;
+- RSSM/Dreamer/TD-MPC/Transformer world model;
+- TensorDict/DI/config/scheduler framework;
+- PPO/RND/ICM и другие learning algorithms;
 - Colab/cloud runtime;
-- DI/config/plugin framework;
-- scheduler/async/graph framework;
-- telemetry/intervention framework;
-- Gymnasium/другой Environment framework;
-- конкретный Perception/feature encoder;
-- Goal graph/DSL library;
-- окончательную структуру `src/`.
+- конкретную структуру `src/`.
 
 ---
 
-# 19. Поведение при неопределённости
+# 17. Поведение при неопределённости
 
-Если документация не определяет важное решение:
+Если документация не определяет существенное решение:
 
 - не скрывать неопределённость;
 - не создавать implicit contract;
 - зафиксировать вопрос как design blocker/open question;
-- при необходимости предложить варианты и trade-offs;
-- дождаться design decision до реализации зависимой части.
+- предложить варианты/trade-offs, если это часть задачи;
+- не реализовывать зависимую архитектуру до design decision.
 
-Мелкие локальные implementation details, не влияющие на public/internal contracts, исследовательскую валидность или принятые boundaries, могут выбираться реализацией самостоятельно при сохранении принятых принципов.
+Мелкие локальные implementation details могут выбираться самостоятельно только если они не меняют contracts, research validity и принятые boundaries.
