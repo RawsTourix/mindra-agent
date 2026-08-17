@@ -8,7 +8,7 @@
 
 # 1. Общий статус
 
-**`DU-01 … DU-30` завершены и приняты. Реализация ещё не начата.**
+**`DU-01 … DU-31` завершены и приняты. Реализация ещё не начата.**
 
 Приняты:
 
@@ -20,8 +20,16 @@
 - MINDRA-Eval `DU-28`;
 - Engineering Testing `DU-29`;
 - Research Claims / Limitations `DU-30`;
-- 30 accepted ADR;
-- candidate semantic contracts для boundaries `DU-07 … DU-30`.
+- Contract + ADR Consistency Freeze `DU-31`;
+- 31 accepted ADR;
+- semantic contracts `DU-07 … DU-30` frozen по смыслу как baseline `F31`;
+- exact Python/API representation contracts ещё не frozen.
+
+Архитектурная линия имеет статус:
+
+```text
+ready for version planning
+```
 
 ---
 
@@ -59,130 +67,150 @@ DU-27 — Checkpoint / Reproducibility / Compute
 DU-28 — MINDRA-Eval
 DU-29 — Engineering Testing
 DU-30 — Research Claims / Limitations
-```
-
----
-
-# 3. DU-30
-
-Canonical design:
-
-- [`research-claims-limitations.md`](research-claims-limitations.md)
-
-Candidate contract:
-
-- [`contracts/research-claims-limitations.md`](contracts/research-claims-limitations.md)
-
-Accepted decision:
-
-- [`ADR-0030`](decisions/ADR-0030-versioned-evidence-bounded-research-claims.md)
-
-Research pass:
-
-- [`../research/literature/DU-30-research-claims-limitations-landscape-2026-08.md`](../research/literature/DU-30-research-claims-limitations-landscape-2026-08.md)
-
-Главные результаты:
-
-```text
-Observation
-≠ Interpretation
-≠ ResearchClaim
-
-claim strength ≤ evidence strength
-claim generality ≤ supported ClaimScope
-
-functional similarity
-≠ phenomenological equivalence
-```
-
-- `ResearchClaim` является versioned first-class artifact с explicit `ClaimScope`;
-- supporting и challenging evidence сохраняются одновременно;
-- causal, generalization, efficiency и architecture-contribution claims имеют разные support requirements;
-- `null`, `negative evidence`, `inconclusive`, `invalid` и `not measured` не смешиваются;
-- `LimitationRecord` и `KnownUnknownRecord` first-class;
-- failed module gate создаёт claim/design review, но не меняет accepted architecture автоматически;
-- old claim weakening/supersession сохраняет historical lineage;
-- publication/report wording traceable до canonical claim revision;
-- Cortex/data/compute/tuning/provider dependence входит в scope/limitations;
-- engineering verification не заменяет evidence функциональной полезности;
-- `Self Model`, Drives, Appraisal, Affect, Workspace и first-person Cortex text не являются сами по себе evidence consciousness/subjective experience;
-- `AGI` не выводится из одного benchmark/module result;
-- concrete paper format, preregistration service и evidence-score taxonomy не выбраны.
-
----
-
-# 4. Следующий допустимый Design Update
-
-```text
 DU-31 — Contract + ADR Consistency Freeze
 ```
 
-Цель `DU-31` — выполнить **общий consistency/freeze pass по всей принятой архитектуре `DU-01 … DU-30`** перед проектированием software version roadmap.
+---
 
-Это не новый subsystem design. Нужно проверить, что canonical design, ADR, glossary, candidate contracts, dependency/ownership/temporal semantics, Evaluation/Verification/Claims planes и status/index документы образуют один непротиворечивый набор.
+# 3. DU-31
 
-Обязательные вопросы:
+Canonical freeze design:
+
+- [`contract-adr-consistency-freeze.md`](contract-adr-consistency-freeze.md)
+
+Accepted decision:
+
+- [`ADR-0031`](decisions/ADR-0031-semantic-contract-consistency-freeze.md)
+
+Machine-facing freeze manifest:
+
+- [`contracts/semantic-freeze-manifest.md`](contracts/semantic-freeze-manifest.md)
+
+Freeze identity:
 
 ```text
-ADR registry completeness/status
-canonical owner uniqueness
-contract ↔ design ↔ ADR consistency
-terminology/glossary consistency
-cross-module ownership conflicts
-read/write/dependency graph conflicts
-temporal/commit boundary consistency
-snapshot/checkpoint completeness
-source/provenance/visibility consistency
-No*/Dummy/control semantics consistency
-module negative-gate consistency
-Evaluation ↔ Engineering Testing ↔ Claims boundaries
-claim/evidence/verification lineage
-candidate contract field naming/revision conventions
-unknown/missing/stale/unavailable semantics
-error/failure/status taxonomy conflicts
-implementation leakage in canonical contracts
-orphan docs/obsolete statements
-verification obligations required before implementation
-freeze status and allowed change procedure
+Semantic Freeze Baseline F31
+scope: DU-01 … DU-30
+semantic boundary contracts: 24
+status: ready_for_version_planning
 ```
 
-Особенно нужно определить:
+Главные результаты audit:
 
-- какие candidate contracts после consistency pass считаются **semantic-frozen** для первого roadmap;
-- какие поля/enum/API детали остаются implementation/version choices;
-- какие open questions блокируют `DU-32`, а какие допустимо перенести в version design;
-- нет ли двух владельцев одной canonical state/action/data responsibility;
-- нет ли contradiction между early DU и поздними уточнениями;
-- как после freeze вносится breaking semantic change: только через новый ADR/design update;
-- нельзя начинать implementation только потому, что individual contracts уже подробны — сначала требуется общий freeze.
+```text
+ADR completeness: PASS
+canonical owner uniqueness: PASS
+semantic contract coverage DU-07…30: PASS
+ownership consistency: PASS
+runtime/temporal consistency: PASS
+source/provenance/visibility consistency: PASS
+snapshot/checkpoint consistency: PASS
+Evaluation/Verification/Claims separation: PASS
+blocking architectural TODO: NONE FOUND
+```
 
-После принятия `DU-31` допускается:
+Explicit consistency resolutions:
+
+```text
+CR-01 Action lifecycle
+CR-02 Memory admission ownership
+CR-03 Replay taxonomy
+CR-04 Consolidation vs Learning Update
+CR-05 candidate/validated/activated Agent revision lifecycle
+```
+
+Они закрепляют уже принятые поздние ADR и не создают новый subsystem design.
+
+---
+
+# 4. Что semantic-frozen
+
+Для roadmap заморожены:
+
+- logical boundaries/ownership;
+- source-of-truth responsibilities;
+- proposal/validation/commit semantics;
+- causal ordering;
+- source/derived/provenance/visibility distinctions;
+- availability meanings;
+- Memory Core vs Regulation;
+- Replay/Consolidation/Training distinctions;
+- Scheduler/Executive/Policy distinctions;
+- Planner/Policy/Action Boundary distinctions;
+- candidate/validation/activation training lifecycle;
+- snapshot/checkpoint/reproducibility distinctions;
+- Evaluation/Verification/Claims separation;
+- negative module gates и control requirements;
+- breaking-change governance.
+
+Version design не может менять эти semantics без нового ADR.
+
+---
+
+# 5. Что остаётся version/implementation choice
+
+До `DU-32` и concrete version specification не выбраны:
+
+- software version decomposition;
+- Python package/file layout;
+- exact Protocol/ABC/dataclass/Pydantic/TensorDict forms;
+- exact field/status enum encoding;
+- Cortex/model/backend;
+- neural/RL/learning algorithms;
+- concrete Memory/index/storage backend;
+- checkpoint file/storage format;
+- exact MicroWorld/task suite;
+- budgets/horizons/defaults;
+- benchmark/statistical/test/CI tooling;
+- hardware/deployment topology.
+
+Эти choices не требуют нового ADR, пока сохраняют baseline `F31`.
+
+---
+
+# 6. Следующий допустимый Design Update
 
 ```text
 DU-32 — Version Roadmap
 ```
 
+Цель `DU-32` — разбить semantic-frozen architecture `F31` на реалистичные dependency-complete software milestones.
+
+Roadmap должен определить:
+
+- последовательность concrete software versions;
+- vertical acceptance slice каждой версии;
+- какие frozen boundaries включаются/остаются `No*`/Dummy/control;
+- concrete compute constraints первой домашней/Colab реализации;
+- dependencies между versions;
+- non-goals;
+- evaluation/verification gates;
+- для каждой версии будущий `versions/vX.Y/README.md` и `implementation-sequence.md`.
+
+`DU-32` **не имеет права заново выбирать semantic ownership/causal boundaries** — только конкретизировать реализацию baseline F31.
+
+После принятия `DU-32` можно начинать отдельное подробное проектирование первой software version и её implementation sequence перед заданиями Codex.
+
 ---
 
-# 5. Ещё не приняты
+# 7. Ещё не приняты
 
 Пока отсутствуют accepted решения по:
 
-- Contract + ADR Consistency Freeze;
 - Version Roadmap;
+- concrete software version specifications;
 - implementation sequences конкретных software versions.
-
-Также не выбраны concrete Python/framework/model/algorithm/storage/evaluation/testing implementations.
 
 ---
 
-# 6. Implementation status
+# 8. Implementation status
 
 ```text
 Исследовательская/production реализация: не начата
+Semantic design freeze: F31 accepted
 Дорожная карта версий: не спроектирована
 Software version: отсутствует
 Implementation HEAD: отсутствует
 ```
 
-Detailed design сам по себе не разрешает Codex начинать implementation до `DU-32` и соответствующего version/implementation sequence.
+До `DU-32` и конкретного version/implementation sequence Codex не начинает production/research implementation.
