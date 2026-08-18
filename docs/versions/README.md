@@ -38,7 +38,7 @@ docs/versions/vX.Y/implementation-sequence.md
 
 | Версия | Статус | Название |
 |---|---|---|
-| `v0.1` | next design | Core Kernel |
+| `v0.1` | design proposed / review | Core Kernel |
 | `v0.2` | planned | MicroWorld Interaction |
 | `v0.3` | planned | Cortex Gateway |
 | `v0.4` | planned | Memory & Restore |
@@ -51,6 +51,11 @@ docs/versions/vX.Y/implementation-sequence.md
 | `v0.11` | planned | Research Harness |
 | `v0.12` | planned | Integration Hardening |
 | `v1.0` | planned | MINDRA Research Baseline |
+
+Текущий proposed design:
+
+- [`v0.1/README.md`](v0.1/README.md) — exact design `Core Kernel`, ожидает review/acceptance;
+- `v0.1/implementation-sequence.md` — ещё не создан и создаётся только после acceptance version design.
 
 Статус конкретной работы всегда определяется [`../design/current.md`](../design/current.md).
 
@@ -77,6 +82,10 @@ docs/versions/vX.Y/implementation-sequence.md
 
 Если для выбора требуется актуальный внешний landscape, перед принятием version design выполняется новый датированный research/tool pass.
 
+Для `v0.1` такой pass создан:
+
+- [`../research/literature/v0.1-core-kernel-tooling-landscape-2026-08.md`](../research/literature/v0.1-core-kernel-tooling-landscape-2026-08.md).
+
 ---
 
 # Implementation sequence checklist
@@ -96,7 +105,13 @@ docs/versions/vX.Y/implementation-sequence.md
 # Следующий шаг
 
 ```text
-Version Design — v0.1 Core Kernel
+Review / acceptance — v0.1 Core Kernel design
 ```
 
-До принятия `docs/versions/v0.1/README.md` и `implementation-sequence.md` implementation не начинается.
+После acceptance [`v0.1/README.md`](v0.1/README.md) следующей разрешённой документационной работой станет:
+
+```text
+v0.1/implementation-sequence.md
+```
+
+Implementation не начинается, пока оба документа не имеют accepted status.
