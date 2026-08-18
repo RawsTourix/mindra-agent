@@ -4,7 +4,7 @@
 
 Этот каталог — каноническая база знаний исследовательского проекта MINDRA.
 
-Документация должна позволять человеку, ChatGPT, Codex или другому coding agent восстановить актуальный архитектурный контекст без истории чатов.
+Документация должна позволять человеку, ChatGPT, Codex или другому coding agent восстановить актуальный контекст без истории чатов.
 
 Краткое задание не заменяет repository documentation.
 
@@ -19,34 +19,23 @@
 3. [`research-methodology.md`](research-methodology.md)
 4. [`design/README.md`](design/README.md)
 5. [`design/current.md`](design/current.md)
-6. [`design/contract-adr-consistency-freeze.md`](design/contract-adr-consistency-freeze.md) — после `DU-31`.
+6. [`design/contract-adr-consistency-freeze.md`](design/contract-adr-consistency-freeze.md)
+7. [`design/version-roadmap.md`](design/version-roadmap.md)
 
-## Перед архитектурной работой
+## Перед version design / implementation
 
 1. [`../AGENTS.md`](../AGENTS.md)
 2. [`design/current.md`](design/current.md)
-3. [`design/principles.md`](design/principles.md)
-4. [`design/contract-adr-consistency-freeze.md`](design/contract-adr-consistency-freeze.md)
-5. [`design/contracts/semantic-freeze-manifest.md`](design/contracts/semantic-freeze-manifest.md)
-6. [`design/glossary.md`](design/glossary.md)
-7. [`design/documentation-plan.md`](design/documentation-plan.md)
-8. релевантные canonical design owners;
-9. релевантные accepted/non-superseded ADR;
-10. релевантные semantic contracts;
-11. датированный research/tool pass, если он material для текущего решения.
-
-## Перед будущей реализацией
-
-После `DU-32` и появления concrete version design дополнительно обязательны:
-
-- semantic baseline `F31`;
-- version specification;
-- version-specific exact contracts/API decisions;
-- `implementation-sequence.md`;
-- Engineering Verification obligations;
-- MINDRA-Eval requirements и acceptance criteria.
-
-До появления version specification implementation choices не угадываются заранее.
+3. [`design/contract-adr-consistency-freeze.md`](design/contract-adr-consistency-freeze.md)
+4. [`design/contracts/semantic-freeze-manifest.md`](design/contracts/semantic-freeze-manifest.md)
+5. [`design/version-roadmap.md`](design/version-roadmap.md)
+6. [`versions/README.md`](versions/README.md)
+7. релевантные canonical design owners;
+8. релевантные accepted/non-superseded ADR;
+9. релевантные semantic contracts;
+10. version-specific `README.md`;
+11. version-specific `implementation-sequence.md` перед coding;
+12. датированный research/tool pass, если current tooling/model/compute materially влияет на решение.
 
 ---
 
@@ -57,6 +46,7 @@ Concept
 → Canonical Design + ADR
 → Semantic Freeze Baseline F31
 → semantic-frozen contracts
+→ DU-32 Version Roadmap
 → Version design / exact contracts
 → Implementation sequence
 → Implementation
@@ -84,32 +74,43 @@ Research/engineering evidence инициирует claim/design review при н
 
 # Semantic Freeze F31
 
-После `DU-31` архитектурная линия `DU-01 … DU-30` считается согласованной baseline:
-
-```text
-F31
-= ready for version planning
-```
-
 Canonical owner:
 
-- [`design/contract-adr-consistency-freeze.md`](design/contract-adr-consistency-freeze.md).
+- [`design/contract-adr-consistency-freeze.md`](design/contract-adr-consistency-freeze.md)
 
-Machine-facing freeze manifest:
+Machine-facing manifest:
 
-- [`design/contracts/semantic-freeze-manifest.md`](design/contracts/semantic-freeze-manifest.md).
+- [`design/contracts/semantic-freeze-manifest.md`](design/contracts/semantic-freeze-manifest.md)
 
 Accepted decision:
 
-- [`design/decisions/ADR-0031-semantic-contract-consistency-freeze.md`](design/decisions/ADR-0031-semantic-contract-consistency-freeze.md).
+- [`design/decisions/ADR-0031-semantic-contract-consistency-freeze.md`](design/decisions/ADR-0031-semantic-contract-consistency-freeze.md)
 
 Freeze означает semantic ownership/lifecycle/source/provenance/causal boundaries, а не exact Python API.
 
 ---
 
+# Version Roadmap
+
+Canonical roadmap:
+
+- [`design/version-roadmap.md`](design/version-roadmap.md)
+
+Accepted decision:
+
+- [`design/decisions/ADR-0032-vertical-capability-version-roadmap.md`](design/decisions/ADR-0032-vertical-capability-version-roadmap.md)
+
+Version index:
+
+- [`versions/README.md`](versions/README.md)
+
+Roadmap строится вертикальными runnable slices и доводит проект от `v0.1 Core Kernel` до `v1.0 MINDRA Research Baseline`.
+
+---
+
 # Исследовательский журнал
 
-Датированные literature/research/tool pass хранятся в [`research/`](research/). Future hypotheses/experiments/results/claim evidence хранятся отдельно от canonical design.
+Датированные literature/research/tool pass хранятся в [`research/`](research/). Hypotheses/experiments/results/claim evidence хранятся отдельно от canonical design.
 
 ---
 
@@ -126,12 +127,20 @@ Freeze означает semantic ownership/lifecycle/source/provenance/causal bo
 
 # Текущий этап
 
-Проект находится на стадии **Version Roadmap planning после semantic freeze**.
-
-`DU-01 … DU-31` приняты. Следующий допустимый этап определяется только [`design/current.md`](design/current.md); сейчас это:
+Общий архитектурный цикл:
 
 ```text
-DU-32 — Version Roadmap
+DU-00 … DU-32 complete
 ```
 
-Production/research implementation, concrete software versions и implementation sequences ещё не начаты.
+Semantic baseline `F31` и software roadmap приняты.
+
+Следующая разрешённая работа:
+
+```text
+Version Design — v0.1 Core Kernel
+```
+
+Production/research implementation ещё не начата. Сначала должны быть приняты `docs/versions/v0.1/README.md` и `implementation-sequence.md`.
+
+Фактический статус всегда определяется [`design/current.md`](design/current.md).
