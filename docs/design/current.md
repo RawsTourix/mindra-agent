@@ -2,13 +2,13 @@
 
 ## Назначение
 
-Краткий фактический статус проекта. Этот файл не переопределяет canonical design; он определяет, что уже принято и какой следующий Design Update допустим.
+Краткий фактический статус проекта. Этот файл не переопределяет canonical design; он определяет, что уже принято и какая работа разрешена следующей.
 
 ---
 
 # 1. Общий статус
 
-**`DU-01 … DU-31` завершены и приняты. Реализация ещё не начата.**
+**Общий архитектурный цикл `DU-00 … DU-32` завершён и принят. Реализация ещё не начата.**
 
 Приняты:
 
@@ -21,15 +21,20 @@
 - Engineering Testing `DU-29`;
 - Research Claims / Limitations `DU-30`;
 - Contract + ADR Consistency Freeze `DU-31`;
-- 31 accepted ADR;
+- Version Roadmap `DU-32`;
+- 32 accepted ADR;
 - semantic contracts `DU-07 … DU-30` frozen по смыслу как baseline `F31`;
-- exact Python/API representation contracts ещё не frozen.
+- roadmap `v0.1 … v1.0`.
 
 Архитектурная линия имеет статус:
 
 ```text
-ready for version planning
+semantic design frozen: F31
+version roadmap accepted
+ready for version-specific design
 ```
+
+Exact Python/API/tooling choices будут фиксироваться отдельно в каждой software version.
 
 ---
 
@@ -68,23 +73,18 @@ DU-28 — MINDRA-Eval
 DU-29 — Engineering Testing
 DU-30 — Research Claims / Limitations
 DU-31 — Contract + ADR Consistency Freeze
+DU-32 — Version Roadmap
 ```
 
 ---
 
-# 3. DU-31
+# 3. Semantic baseline
 
-Canonical freeze design:
+Canonical freeze:
 
 - [`contract-adr-consistency-freeze.md`](contract-adr-consistency-freeze.md)
-
-Accepted decision:
-
-- [`ADR-0031`](decisions/ADR-0031-semantic-contract-consistency-freeze.md)
-
-Machine-facing freeze manifest:
-
 - [`contracts/semantic-freeze-manifest.md`](contracts/semantic-freeze-manifest.md)
+- [`ADR-0031`](decisions/ADR-0031-semantic-contract-consistency-freeze.md)
 
 Freeze identity:
 
@@ -92,125 +92,99 @@ Freeze identity:
 Semantic Freeze Baseline F31
 scope: DU-01 … DU-30
 semantic boundary contracts: 24
-status: ready_for_version_planning
+status: accepted
 ```
 
-Главные результаты audit:
+Version design не может менять F31 semantics без нового ADR и новой freeze baseline revision.
+
+---
+
+# 4. Version Roadmap
+
+Canonical roadmap:
+
+- [`version-roadmap.md`](version-roadmap.md)
+
+Accepted decision:
+
+- [`ADR-0032`](decisions/ADR-0032-vertical-capability-version-roadmap.md)
+
+Version index:
+
+- [`../versions/README.md`](../versions/README.md)
+
+Roadmap:
 
 ```text
-ADR completeness: PASS
-canonical owner uniqueness: PASS
-semantic contract coverage DU-07…30: PASS
-ownership consistency: PASS
-runtime/temporal consistency: PASS
-source/provenance/visibility consistency: PASS
-snapshot/checkpoint consistency: PASS
-Evaluation/Verification/Claims separation: PASS
-blocking architectural TODO: NONE FOUND
+v0.1  Core Kernel
+v0.2  MicroWorld Interaction
+v0.3  Cortex Gateway
+v0.4  Memory & Restore
+v0.5  World & Self
+v0.6  Intrinsic / Drives / Appraisal
+v0.7  Affect / Valuation / Salience
+v0.8  Memory Regulation / Workspace
+v0.9  Executive / Planner
+v0.10 Training & Revision Lifecycle
+v0.11 Research Harness
+v0.12 Integration Hardening
+v1.0  MINDRA Research Baseline
 ```
 
-Explicit consistency resolutions:
+Главный roadmap invariant:
 
 ```text
-CR-01 Action lifecycle
-CR-02 Memory admission ownership
-CR-03 Replay taxonomy
-CR-04 Consolidation vs Learning Update
-CR-05 candidate/validated/activated Agent revision lifecycle
+vertical runnable slice
++
+No*/Dummy/control implementations
++
+F31 semantic contracts
+→ следующая версия расширяет capability без semantic rewrite
 ```
 
-Они закрепляют уже принятые поздние ADR и не создают новый subsystem design.
-
 ---
 
-# 4. Что semantic-frozen
+# 5. Следующая разрешённая работа
 
-Для roadmap заморожены:
+Общий `DU`-цикл завершён.
 
-- logical boundaries/ownership;
-- source-of-truth responsibilities;
-- proposal/validation/commit semantics;
-- causal ordering;
-- source/derived/provenance/visibility distinctions;
-- availability meanings;
-- Memory Core vs Regulation;
-- Replay/Consolidation/Training distinctions;
-- Scheduler/Executive/Policy distinctions;
-- Planner/Policy/Action Boundary distinctions;
-- candidate/validation/activation training lifecycle;
-- snapshot/checkpoint/reproducibility distinctions;
-- Evaluation/Verification/Claims separation;
-- negative module gates и control requirements;
-- breaking-change governance.
-
-Version design не может менять эти semantics без нового ADR.
-
----
-
-# 5. Что остаётся version/implementation choice
-
-До `DU-32` и concrete version specification не выбраны:
-
-- software version decomposition;
-- Python package/file layout;
-- exact Protocol/ABC/dataclass/Pydantic/TensorDict forms;
-- exact field/status enum encoding;
-- Cortex/model/backend;
-- neural/RL/learning algorithms;
-- concrete Memory/index/storage backend;
-- checkpoint file/storage format;
-- exact MicroWorld/task suite;
-- budgets/horizons/defaults;
-- benchmark/statistical/test/CI tooling;
-- hardware/deployment topology.
-
-Эти choices не требуют нового ADR, пока сохраняют baseline `F31`.
-
----
-
-# 6. Следующий допустимый Design Update
+Следующая работа:
 
 ```text
-DU-32 — Version Roadmap
+Version Design — v0.1 Core Kernel
 ```
 
-Цель `DU-32` — разбить semantic-frozen architecture `F31` на реалистичные dependency-complete software milestones.
+Нужно создать и принять минимум:
 
-Roadmap должен определить:
+```text
+docs/versions/v0.1/README.md
+docs/versions/v0.1/implementation-sequence.md
+```
 
-- последовательность concrete software versions;
-- vertical acceptance slice каждой версии;
-- какие frozen boundaries включаются/остаются `No*`/Dummy/control;
-- concrete compute constraints первой домашней/Colab реализации;
-- dependencies между versions;
-- non-goals;
-- evaluation/verification gates;
-- для каждой версии будущий `versions/vX.Y/README.md` и `implementation-sequence.md`.
+Сначала подробно выбираются:
 
-`DU-32` **не имеет права заново выбирать semantic ownership/causal boundaries** — только конкретизировать реализацию baseline F31.
+- Python/runtime/tooling stack;
+- package structure;
+- exact representations foundation contracts;
+- config/composition scheme;
+- scheduler/state/provenance implementation profile;
+- testing stack;
+- VerificationObligations;
+- acceptance criteria;
+- non-goals.
 
-После принятия `DU-32` можно начинать отдельное подробное проектирование первой software version и её implementation sequence перед заданиями Codex.
-
----
-
-# 7. Ещё не приняты
-
-Пока отсутствуют accepted решения по:
-
-- Version Roadmap;
-- concrete software version specifications;
-- implementation sequences конкретных software versions.
+Только после принятия version design и implementation sequence начинается coding `v0.1`.
 
 ---
 
-# 8. Implementation status
+# 6. Implementation status
 
 ```text
 Исследовательская/production реализация: не начата
 Semantic design freeze: F31 accepted
-Дорожная карта версий: не спроектирована
-Software version: отсутствует
+Version roadmap: DU-32 accepted
+Current software milestone: v0.1 — design not started
 Implementation HEAD: отсутствует
 ```
 
-До `DU-32` и конкретного version/implementation sequence Codex не начинает production/research implementation.
+Codex не начинает реализовывать roadmap целиком и не выбирает самостоятельно architecture/tooling вне принятого version scope.
