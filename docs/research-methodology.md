@@ -4,12 +4,13 @@
 
 Этот документ фиксирует общие правила постановки, проведения и интерпретации исследований MINDRA.
 
-После принятых design updates:
+Canonical owners:
 
 - evaluation semantics — [`design/mindra-eval.md`](design/mindra-eval.md), `DU-28`;
 - Engineering Verification — [`design/engineering-testing.md`](design/engineering-testing.md), `DU-29`;
-- claim/limitations discipline — [`design/research-claims-limitations.md`](design/research-claims-limitations.md), `DU-30`;
-- semantic consistency baseline — [`design/contract-adr-consistency-freeze.md`](design/contract-adr-consistency-freeze.md), `DU-31`.
+- claims/limitations — [`design/research-claims-limitations.md`](design/research-claims-limitations.md), `DU-30`;
+- semantic consistency baseline — [`design/contract-adr-consistency-freeze.md`](design/contract-adr-consistency-freeze.md), `DU-31`;
+- software milestone sequencing — [`design/version-roadmap.md`](design/version-roadmap.md), `DU-32`.
 
 Этот документ не задаёт concrete benchmark/library/statistical implementation.
 
@@ -17,7 +18,7 @@
 
 # 1. Главный принцип
 
-MINDRA развивается не по схеме «добавили модуль — стало сложнее — значит стало лучше», а:
+MINDRA развивается по цепочке:
 
 ```text
 гипотеза
@@ -32,7 +33,7 @@ MINDRA развивается не по схеме «добавили модул
 
 Любой заявляемый вклад по возможности отделяется от:
 
-- увеличения параметров/state capacity;
+- увеличения parameters/state capacity;
 - дополнительного compute/context/data;
 - tuning budget;
 - lucky seed;
@@ -46,17 +47,15 @@ MINDRA развивается не по схеме «добавили модул
 
 ```text
 Engineering Testing (DU-29)
-≠
-MINDRA-Eval (DU-28)
-≠
-Research Claims / Limitations (DU-30)
+≠ MINDRA-Eval (DU-28)
+≠ Research Claims / Limitations (DU-30)
 ```
 
-Корректно реализованный модуль может не подтверждать research hypothesis.
+Корректная implementation может не подтверждать research hypothesis.
 
-Интересный результат не является sufficient evidence, если implementation/protocol/reproducibility invalid.
+Интересный result не является sufficient evidence при invalid implementation/protocol/reproducibility.
 
-Даже валидный result не разрешает claim шире, чем поддерживают scope/design/evidence.
+Даже valid result не разрешает claim шире, чем поддерживают scope/design/evidence.
 
 ---
 
@@ -72,7 +71,7 @@ Research Claims / Limitations (DU-30)
 
 > При aligned base state intervention в appraisal dimension систематически меняет заранее указанный downstream outcome при ограниченных off-target effects.
 
-Module gates и EvaluationStudyPlan задаются `DU-28`.
+Module gates и `EvaluationStudyPlan` задаются `DU-28`.
 
 ---
 
@@ -88,7 +87,7 @@ Full - X
 
 полезна, но может менять capacity/compute.
 
-Для claim о **semantic contribution** используются, где feasible:
+Для claim о semantic contribution используются, где feasible:
 
 - `No*`;
 - constant/random/shuffled;
@@ -103,7 +102,7 @@ Matching factors/deviations описываются `EvaluationCondition/Resource
 
 # 5. Causal intervention
 
-Корреляция internal state и behavior недостаточна для сильного causal claim.
+Корреляция internal state и behavior недостаточна для strong causal claim.
 
 Желательный pattern:
 
@@ -116,13 +115,13 @@ verified common base state
 
 Paired counterfactual требует достаточного `DU-27` restore level и explicit `DU-28` protocol.
 
-Causal wording затем ограничивается `DU-30`.
+Causal wording ограничивается `DU-30`.
 
 ---
 
 # 6. Factorial interactions
 
-Если механизм полезен только совместно с другим, допускается hypothesis-driven subset:
+Если mechanism полезен только совместно с другим, допускается hypothesis-driven subset:
 
 ```text
 none
@@ -150,7 +149,7 @@ counterfactual branch
 
 Много episodes одного checkpoint не являются independent training replicates.
 
-Количество replicates/statistical method задаются конкретными `ReplicateStructure + StatisticalAnalysisPlan`, а не глобальным магическим числом seeds.
+Количество replicates/statistical method задаются `ReplicateStructure + StatisticalAnalysisPlan`, а не глобальным магическим числом seeds.
 
 ---
 
@@ -371,17 +370,19 @@ Old claim не переписывается молча при новом evidenc
 
 ---
 
-# 20. Semantic freeze и research design
+# 20. Semantic freeze и roadmap
 
-После `DU-31` research/version work использует `Semantic Freeze Baseline F31`.
+Research/version work использует `Semantic Freeze Baseline F31` и `DU-32 Version Roadmap`.
 
 Это означает:
 
 - research condition может включать `No*`/Dummy/control implementation frozen boundary;
 - experiment не переопределяет semantic owner/lifecycle;
-- отрицательный result может инициировать новый ADR, но не silent architecture mutation;
+- negative result может инициировать новый ADR, но не silent architecture mutation;
 - concrete implementation choice не повышается до architecture claim автоматически;
-- version roadmap обязан сохранять controls и falsifiable module gates.
+- roadmap сохраняет controls и falsifiable module gates;
+- ранний software milestone не считается evidence необходимости отсутствующих/conditional modules;
+- version grouping не изменяет semantic meaning boundary.
 
 Breaking semantic change после F31 требует нового ADR.
 
@@ -389,7 +390,7 @@ Breaking semantic change после F31 требует нового ADR.
 
 # 21. Что не фиксируется глобально
 
-По-прежнему не существует universal:
+Не существует universal:
 
 - benchmark suite/task catalog;
 - exact number of seeds;
@@ -403,14 +404,18 @@ Breaking semantic change после F31 требует нового ADR.
 
 ---
 
-# 22. Текущий design scope
+# 22. Текущий этап
 
-`DU-31` завершён; baseline `F31` принят.
-
-Следующий допустимый этап:
+Общий architecture/roadmap design cycle завершён:
 
 ```text
-DU-32 — Version Roadmap
+DU-00 … DU-32 complete
 ```
 
-Roadmap должен выбрать реалистичные implementation milestones, но не переопределять semantic-frozen architecture без нового ADR.
+Следующая разрешённая работа:
+
+```text
+Version Design — v0.1 Core Kernel
+```
+
+Перед implementation `v0.1` должны быть приняты version-specific design и `implementation-sequence.md`.
