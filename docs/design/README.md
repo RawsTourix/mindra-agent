@@ -2,11 +2,9 @@
 
 ## Назначение
 
-`docs/design/` — каноническое место архитектурной документации MINDRA.
+`docs/design/` — каноническое место общей архитектурной документации MINDRA.
 
-Здесь фиксируются принятые семантики, invariants, cognitive/runtime/data/training/reproducibility/evaluation/testing/research-claim boundaries, contracts, ADR, consistency freeze и будущие version plans.
-
-На текущем этапе приняты `DU-01 … DU-31`. Реализация ещё не начата.
+Общий design cycle `DU-00 … DU-32` завершён. Semantic architecture заморожена как baseline `F31`, а software roadmap принят. Реализация ещё не начата.
 
 ---
 
@@ -28,7 +26,7 @@
 - [`module-lifecycle.md`](module-lifecycle.md) — `DU-05`
 - [`observability-and-intervention.md`](observability-and-intervention.md) — `DU-06`
 
-## Cognitive/runtime subsystem boundaries
+## Cognitive/runtime boundaries
 
 - [`modules/environment.md`](modules/environment.md) — `DU-07`
 - [`modules/perception.md`](modules/perception.md) — `DU-08`
@@ -49,103 +47,89 @@
 - [`modules/policy-planner.md`](modules/policy-planner.md) — `DU-23`
 - [`modules/action-boundary.md`](modules/action-boundary.md) — `DU-24`
 
-Карта областей: [`modules/README.md`](modules/README.md).
+Карта: [`modules/README.md`](modules/README.md).
 
-## Experience / Data Plane
+## External planes
 
-- [`experience-data-replay.md`](experience-data-replay.md) — `DU-25`.
+- [`experience-data-replay.md`](experience-data-replay.md) — `DU-25`
+- [`training-lifecycle.md`](training-lifecycle.md) — `DU-26`
+- [`checkpoint-reproducibility-compute.md`](checkpoint-reproducibility-compute.md) — `DU-27`
+- [`mindra-eval.md`](mindra-eval.md) — `DU-28`
+- [`engineering-testing.md`](engineering-testing.md) — `DU-29`
+- [`research-claims-limitations.md`](research-claims-limitations.md) — `DU-30`
 
-## Training Plane
+## Semantic freeze
 
-- [`training-lifecycle.md`](training-lifecycle.md) — `DU-26`.
+- [`contract-adr-consistency-freeze.md`](contract-adr-consistency-freeze.md) — `DU-31`
+- [`contracts/semantic-freeze-manifest.md`](contracts/semantic-freeze-manifest.md) — baseline `F31`
 
-## Checkpoint / Reproducibility / Compute Plane
+## Version roadmap
 
-- [`checkpoint-reproducibility-compute.md`](checkpoint-reproducibility-compute.md) — `DU-27`.
+- [`version-roadmap.md`](version-roadmap.md) — `DU-32`
+- [`../versions/README.md`](../versions/README.md) — software milestone index
 
-## Evaluation Plane
-
-- [`mindra-eval.md`](mindra-eval.md) — `DU-28`.
-
-## Engineering Verification Plane
-
-- [`engineering-testing.md`](engineering-testing.md) — `DU-29`.
-
-## Research Claims / Limitations Plane
-
-- [`research-claims-limitations.md`](research-claims-limitations.md) — `DU-30`.
-
-## Semantic consistency freeze
-
-- [`contract-adr-consistency-freeze.md`](contract-adr-consistency-freeze.md) — `DU-31`;
-- [`contracts/semantic-freeze-manifest.md`](contracts/semantic-freeze-manifest.md) — machine-facing baseline `F31`.
-
-Статус после `DU-31`:
+Roadmap:
 
 ```text
-DU-01 … DU-30 semantic design
-= baseline F31
-= ready for version planning
+v0.1 Core Kernel
+→ v0.2 MicroWorld Interaction
+→ v0.3 Cortex Gateway
+→ v0.4 Memory & Restore
+→ v0.5 World & Self
+→ v0.6 Intrinsic / Drives / Appraisal
+→ v0.7 Affect / Valuation / Salience
+→ v0.8 Memory Regulation / Workspace
+→ v0.9 Executive / Planner
+→ v0.10 Training & Revision Lifecycle
+→ v0.11 Research Harness
+→ v0.12 Integration Hardening
+→ v1.0 MINDRA Research Baseline
 ```
 
-## Decisions
+---
+
+# Decisions
 
 - [`decisions/README.md`](decisions/README.md)
-- `ADR-0001 … ADR-0031` — accepted.
+- `ADR-0001 … ADR-0032` — accepted.
 
-Последнее решение:
+Последние решения:
 
-- [`ADR-0031`](decisions/ADR-0031-semantic-contract-consistency-freeze.md) — semantic contract consistency freeze перед Version Roadmap.
+- [`ADR-0031`](decisions/ADR-0031-semantic-contract-consistency-freeze.md) — semantic freeze `F31`;
+- [`ADR-0032`](decisions/ADR-0032-vertical-capability-version-roadmap.md) — vertical capability roadmap вместо module-order implementation.
 
-## Semantic contracts
+---
+
+# Semantic contracts
 
 Каталог: [`contracts/README.md`](contracts/README.md).
 
-После `DU-31` contracts `DU-07 … DU-30` считаются **semantic-frozen for roadmap baseline F31**, но exact Python/API/serialization representation ещё не frozen.
-
-Freeze manifest:
-
-- [`contracts/semantic-freeze-manifest.md`](contracts/semantic-freeze-manifest.md).
+Contracts `DU-07 … DU-30` semantic-frozen для `F31`; exact Python/API/serialization representation определяется version-specific design.
 
 ---
 
-# Design Update discipline
-
-`DU-xx` — самостоятельный архитектурный documentation update, а не software version.
-
-Канонический порядок: [`documentation-plan.md`](documentation-plan.md).
-
-Текущий следующий update:
+# Статус после DU-32
 
 ```text
-DU-32 — Version Roadmap
+DU-00 … DU-32 complete
+F31 semantic architecture accepted
+version roadmap accepted
+implementation not started
 ```
 
----
-
-# Ключевые инварианты после DU-31
+Следующая разрешённая работа:
 
 ```text
-semantic ownership frozen
-exact Python API not frozen
-
-CognitiveState ≠ AgentSnapshot ≠ Checkpoint
-Memory Core ≠ Memory Regulation
-Retrieval ≠ Memory Replay ≠ Training Replay
-Consolidation ≠ Learning Update
-Scheduler ≠ Executive ≠ Policy
-Planner ≠ Policy ≠ Action Boundary
-SelectedActionIntent ≠ AuthorizedAction ≠ Action Commit
-Action Commit ≠ Dispatch ≠ Environment Transition
-Evaluation ≠ Engineering Verification ≠ Research Claims
+Version Design — v0.1 Core Kernel
 ```
 
-- `F31` закрепляет normative reading `DU-01 … DU-30`;
-- CR-01 … CR-05 разрешают накопленные generic→specialized wording ambiguities;
-- 24 semantic boundary contracts покрывают `DU-07 … DU-30`;
-- breaking semantic change после freeze требует нового ADR;
-- version roadmap может выбирать framework/model/algorithm/storage/API только при сохранении frozen meaning;
-- conditional Affect/Workspace/Executive/Planner остаются falsifiable и не объявляются empirically proven;
-- implementation начинается только после `DU-32` и version-specific implementation sequence.
+Для неё сначала создаются:
+
+```text
+docs/versions/v0.1/README.md
+docs/versions/v0.1/implementation-sequence.md
+```
+
+И только после их принятия начинается coding.
 
 Фактический статус: [`current.md`](current.md).
