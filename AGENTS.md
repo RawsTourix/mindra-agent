@@ -9,19 +9,28 @@
 - документация и комментарии — на русском;
 - technical identifiers/API/package/class/function/type names — на английском.
 
-## Перед любой работой
+---
+
+# Перед любой работой
 
 1. Проверить repository status/HEAD.
 2. Прочитать `docs/README.md` и `docs/design/current.md`.
-3. После `DU-31` обязательно прочитать:
+3. Обязательно прочитать:
    - `docs/design/contract-adr-consistency-freeze.md`;
-   - `docs/design/contracts/semantic-freeze-manifest.md`.
-4. Определить разрешённый DU/version scope.
+   - `docs/design/contracts/semantic-freeze-manifest.md`;
+   - `docs/design/version-roadmap.md`.
+4. Определить разрешённый version scope.
 5. Прочитать релевантный canonical design owner + accepted ADR + semantic contract.
-6. Для implementation дополнительно прочитать `DU-32` roadmap, version specification и `implementation-sequence.md` соответствующей версии.
+6. Для implementation прочитать:
+   - `docs/versions/vX.Y/README.md`;
+   - `docs/versions/vX.Y/implementation-sequence.md`.
 7. Не выходить за разрешённый scope.
 
-## Source of truth после DU-31
+Если version-specific документы ещё не приняты, coding не начинается.
+
+---
+
+# Source of truth
 
 ```text
 accepted ADR + canonical design
@@ -29,6 +38,8 @@ accepted ADR + canonical design
 Semantic Freeze Baseline F31
         ↓
 semantic-frozen contracts
+        ↓
+DU-32 Version Roadmap
         ↓
 version specification / exact contracts
         ↓
@@ -41,11 +52,37 @@ engineering/research evidence
 versioned research claims
 ```
 
-Research/engineering evidence меняет architecture только через design review/ADR. Research claim не заменяет evidence source.
-
 `F31` freezing означает semantic meaning, **не exact Python API**.
 
-## Принятые boundaries
+Roadmap определяет sequencing, **не имеет права переопределять F31**.
+
+---
+
+# Roadmap
+
+```text
+v0.1  Core Kernel
+v0.2  MicroWorld Interaction
+v0.3  Cortex Gateway
+v0.4  Memory & Restore
+v0.5  World & Self
+v0.6  Intrinsic / Drives / Appraisal
+v0.7  Affect / Valuation / Salience
+v0.8  Memory Regulation / Workspace
+v0.9  Executive / Planner
+v0.10 Training & Revision Lifecycle
+v0.11 Research Harness
+v0.12 Integration Hardening
+v1.0  MINDRA Research Baseline
+```
+
+Current permitted milestone определяется только `docs/design/current.md`.
+
+Нельзя реализовывать roadmap целиком одним change/PR.
+
+---
+
+# Принятые boundaries
 
 | Область | Canonical design | Contract | ADR |
 |---|---|---|---|
@@ -74,12 +111,13 @@ Research/engineering evidence меняет architecture только через 
 | Engineering Testing | `docs/design/engineering-testing.md` | `contracts/engineering-testing.md` | `ADR-0029` |
 | Research Claims / Limitations | `docs/design/research-claims-limitations.md` | `contracts/research-claims-limitations.md` | `ADR-0030` |
 | Semantic Freeze | `docs/design/contract-adr-consistency-freeze.md` | `contracts/semantic-freeze-manifest.md` | `ADR-0031` |
+| Version Roadmap | `docs/design/version-roadmap.md` | — | `ADR-0032` |
 
 `contracts/...` означает `docs/design/contracts/...`.
 
-## F31 consistency resolutions
+---
 
-Следующие resolutions обязательны при чтении ранних docs:
+# F31 consistency resolutions
 
 ```text
 CR-01 Action lifecycle
@@ -89,15 +127,14 @@ CR-04 Consolidation vs Learning Update
 CR-05 candidate/validated/activated revision lifecycle
 ```
 
-Подробности — `docs/design/contract-adr-consistency-freeze.md`.
-
 Нельзя выбирать старую generic формулировку вместо F31 resolution.
 
-## Cross-cutting stop-signs
+---
+
+# Cross-cutting stop-signs
 
 ```text
-CognitiveState ≠ full Agent Snapshot ≠ Checkpoint
-Goal Proposal ≠ Committed Goal
+CognitiveState ≠ Agent Snapshot ≠ Checkpoint
 MemoryRecord ≠ embedding/index
 Memory Core ≠ Memory Regulation
 World Prediction ≠ observed fact
@@ -111,118 +148,109 @@ Executive Control ≠ Scheduler ≠ Policy
 Planner ≠ Policy
 SelectedActionIntent ≠ AuthorizedAction ≠ Action Commit
 Action Commit ≠ Dispatch ≠ Environment Transition
-Experience Journal ≠ Agent runtime state
-Source Experience ≠ TrainingSample
+ExperienceEvent ≠ TrainingSample
 Training Runtime ≠ cognitive module
 runtime dependency graph ≠ gradient graph
 CandidateRevisionBundle ≠ Active AgentRevision
 same seed ≠ same RNG state ≠ guaranteed same execution
 ComputeManifest ≠ CognitiveResourceEnvelope
 Evaluation Runtime ≠ Agent cognition
-Task score ≠ module/causal/calibration evidence
 Engineering Testing ≠ MINDRA-Eval
 Observation ≠ Interpretation ≠ ResearchClaim
-ClaimScope ≠ universal scope
-association ≠ causation
 functional similarity ≠ phenomenological equivalence
-publication prose ≠ claim source of truth
 ```
 
-## Cognitive/runtime safeguards
+---
+
+# Cognitive/runtime safeguards
 
 - никакого runtime Service Locator, mutable global bus, hidden peer mutation или oracle input;
-- Memory Core владеет Store/identity/structural validation/commit; Memory Regulation — policy admission/retention/eviction/replay/consolidation decisions;
-- consolidation создаёт derived MemoryRecord/maintenance effect и не делает optimizer update;
-- Workspace — bounded proposal/admission surface, не alias `CognitiveState`;
-- Executive выбирает internal meta-actions/resources, но не меняет Scheduler graph и не выбирает Environment action;
-- Policy — normal-runtime owner `SelectedActionIntent`;
-- Planner — optional provider, не final selection owner;
-- Action Gate не hidden Policy/oracle; override имеет explicit provenance;
+- Memory Core владеет Store/identity/structural validation/commit; Regulation — policy decisions;
+- consolidation не делает optimizer update;
+- Workspace не alias `CognitiveState`;
+- Executive не меняет Scheduler graph/write authority и не выбирает Environment action;
+- Policy — owner `SelectedActionIntent`;
+- Planner — optional provider;
 - `Action Commit` после authorization и до dispatch;
 - post-commit failure не отменяет commit;
 - blind retry при `execution_unknown` запрещён без dedup/idempotency evidence.
 
-## Data/training/checkpoint safeguards
+---
 
-- `Experience Journal` append-only source; replay buffer не source truth;
-- evaluator-only Ground Truth хранится отдельно;
-- hindsight/relabel/re-encode создают derived sample, не rewrite source;
-- Agent Memory Replay не является Training Replay;
+# Data/training/checkpoint safeguards
+
+- `Experience Journal` append-only source;
+- evaluator Ground Truth хранится отдельно;
+- hindsight/relabel/re-encode создают derived sample;
+- Agent Memory Replay не Training Replay;
 - ordinary cognition не выполняет hidden `optimizer.step()`;
 - runtime edge не создаёт gradient edge;
 - candidate revision проходит validation до activation;
-- activation только на causal boundary;
 - failed candidate не мутирует live Agent;
-- weights-only не называть full/training-resume checkpoint;
+- weights-only не full checkpoint;
 - seed не заменяет current RNG state;
-- final checkpoint manifest commit только после verification required artifacts;
-- active/candidate revisions restore'ятся раздельно;
 - exact restore не downgraded молча;
 - `execution_unknown` блокирует unsafe retry/branch.
 
-## MINDRA-Eval safeguards
+---
 
-- evaluator score/Ground Truth не писать в `CognitiveState` normal runtime способом;
-- `EvaluationCondition` pin'ит checkpoint/world/Cortex/composition/interventions/data/resources/software/hardware context;
-- confirmatory hypothesis/metrics/contrasts/statistical plan фиксируются до confirmatory outcome;
-- experimental/statistical unit и replicate nesting explicit;
-- episodes одного checkpoint не считать independent training replicates;
-- stochastic aggregate claim требует uncertainty/distribution evidence;
-- `NoX` не называть matched control, если изменились capacity/compute/context/data;
-- paired counterfactual only from sufficient verified DU-27 base state;
-- Policy quality измерять до Gate отдельно от Gate/post-Gate outcome;
-- `execution_unknown`/censored/invalid/unavailable не сворачивать в failure/0 без MetricSpec policy;
-- actual compute/data/context/parameter/tuning differences входят в attribution;
-- Affect/Workspace/Planner/Executive имеют explicit negative module gates.
+# Evaluation / Verification / Claims safeguards
 
-## Engineering Testing safeguards
+- evaluator score/Ground Truth не писать в Agent normal path;
+- `NoX` не называть matched control без реально matched confounders;
+- episodes одного checkpoint не independent training replicates;
+- actual compute/data/context/tuning differences входят в attribution;
+- Engineering Verification и MINDRA-Eval создают разные evidence;
+- line coverage не заменяет invariant coverage;
+- flaky rerun/skip/quarantine не считается выполненной VerificationObligation;
+- claim strength не превышает evidence strength/scope;
+- negative/null/inconclusive/invalid/not-measured не смешиваются;
+- Self Model/Affect/Workspace/first-person Cortex output не являются proof consciousness/subjective experience;
+- один benchmark/result не proof AGI.
 
-- для изменяемого frozen invariant определить/обновить `VerificationObligation`;
-- `VerificationMatrix` не заменять списком случайных tests;
-- architecture/import rules проверять статически, где package structure позволяет;
-- replaceable implementation должна проходить capability-aware conformance suite;
-- sequence-heavy lifecycle проверять property/state-machine подходом, где practically возможно;
-- failure semantics намеренно fault-inject'ить; happy path недостаточен;
-- test oracle/privileged sentinel не пересекает Agent-visible boundaries;
-- stochastic neural output не фиксировать exact golden без deterministic contract;
-- flaky rerun/`xfail`/quarantine не считать выполненной obligation;
-- `skip`/`not run`/capability unavailable не считать pass;
-- corrupted checkpoint, illegal write, privileged leakage, unsafe retry и unauthorized activation fail closed;
-- line coverage не заменяет invariant/failure/contract coverage.
+---
 
-## Research Claims / Limitations safeguards
+# Roadmap safeguards
 
-- substantial claim оформлять как versioned `ResearchClaim`;
-- Observation/MetricRecord не повышать молча до causal/theoretical claim;
-- каждый claim имеет explicit `ClaimScope`; отсутствие поля не означает universal;
-- supporting и challenging evidence сохранять одновременно;
-- causal wording только при соответствующем intervention/control evidence;
-- `NoX` degradation не называть доказательством semantic necessity без confounder controls;
-- effect одной implementation не выдавать автоматически за architecture-level effect;
-- Cortex/provider/data/compute/tuning dependence отражать в scope/limitations;
-- `negative evidence`, `null`, `inconclusive`, `invalid`, `not measured` не смешивать;
-- failed module gate создаёт ClaimReview/design review, не silent ADR mutation;
-- old claim weaken/narrow/supersede с historical lineage;
-- public statement не сильнее canonical claim revision;
-- `Self Model` не proof self-awareness/consciousness;
-- `Affect`/Appraisal/Drives не proof subjective emotions;
-- `Workspace` не proof consciousness;
-- first-person Cortex text не reliable phenomenal self-report;
-- human-like behavior/function не biological/phenomenological equivalence;
-- один benchmark/result не proof AGI;
-- `unknown` разрешён и предпочтительнее выдуманной уверенности.
+- core correctness не должна зависеть от GPU;
+- optional real Cortex не должен ломать `NoCortex`/control profile;
+- не реализованный пока F31 mechanism представлен честным `No*`/Dummy/control path, а не hidden shortcut;
+- новый causally relevant state сразу получает observability + snapshot/restore consideration;
+- Experience/Verification не добавляются задним числом;
+- neural training не внедряется hidden way до `v0.10` Training Lifecycle;
+- hosted notebook/Colab/GPU model не hardcode'ится как architecture;
+- tool/framework/model choice version-specific и не становится новым global invariant;
+- version milestone не считается завершённым без acceptance/verification gate;
+- следующая version design не начинается с намеренного обхода failed previous gate.
 
-## Semantic freeze safeguards
+---
 
-- version roadmap/implementation не меняет F31 ownership/causal semantics;
-- exact API choice не объявляется новым semantic requirement без ADR;
-- conditional module можно временно реализовать как `No*`/Dummy/control согласно version scope, но нельзя переопределить его contract;
-- breaking semantic change идёт только через новый ADR + canonical owner/contract/freeze update;
-- ранний generic wording при конфликте читается через explicit CR-01…CR-05;
-- framework/model/tool candidate не становится architecture invariant только потому, что выбран в первой версии.
+# Breaking change
 
-## Implementation scope
+Если implementation требует изменить F31 semantics:
 
-После `DU-31` semantic architecture **готова к version planning, но не к немедленному coding**.
+```text
+blocker/evidence
+→ design review
+→ новый ADR
+→ canonical owner/contract update
+→ новая freeze baseline revision
+→ roadmap/version update
+→ implementation
+```
 
-До `DU-32` и version-specific `implementation-sequence.md` не начинать production/research implementation.
+Не исправлять semantic mismatch только кодом или version README.
+
+---
+
+# Текущий implementation scope
+
+После `DU-32` общий architecture/roadmap design завершён, но coding всё ещё не разрешён автоматически.
+
+Следующий этап:
+
+```text
+Version Design — v0.1 Core Kernel
+```
+
+До принятия `docs/versions/v0.1/README.md` и `implementation-sequence.md` implementation не начинается.
