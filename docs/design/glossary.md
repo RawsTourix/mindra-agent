@@ -2,31 +2,55 @@
 
 ## Назначение
 
-Короткие рабочие определения устойчивых терминов MINDRA после `DU-31`.
+Короткие рабочие определения устойчивых терминов MINDRA после `DU-32`.
 
-При конфликте приоритет имеют accepted ADR, специализированный canonical design и [`contract-adr-consistency-freeze.md`](contract-adr-consistency-freeze.md).
+При конфликте приоритет имеют accepted ADR, специализированный canonical design, [`contract-adr-consistency-freeze.md`](contract-adr-consistency-freeze.md) и version-specific design текущего milestone.
 
-Exact Python/API names могут отличаться в version specification; здесь фиксируется смысл.
+Exact Python/API names могут отличаться; здесь фиксируется смысл.
 
 ---
 
-# Semantic Freeze / governance
+# Semantic Freeze / roadmap / governance
 
 ## Semantic Freeze Baseline F31
 
-Согласованный semantic baseline `DU-01 … DU-30`, принятый `DU-31`. Замораживает ownership/lifecycle/source/provenance/causal meaning, но не exact Python API или algorithms.
+Согласованный semantic baseline `DU-01 … DU-30`, принятый `DU-31`. Замораживает ownership/lifecycle/source/provenance/causal meaning, но не exact Python API/algorithm.
 
 ## Semantic-frozen contract
 
-Machine-facing contract, смысл которого нельзя менять в version implementation без нового ADR. Concrete representation остаётся version choice.
+Machine-facing contract, смысл которого нельзя менять в version implementation без нового ADR.
 
 ## Breaking Semantic Change
 
-Изменение owner, source-of-truth, visibility, causal ordering, lifecycle или другой frozen semantics. После F31 требует нового ADR и обновления freeze baseline.
+Изменение owner, source-of-truth, visibility, causal ordering, lifecycle или другой frozen semantics. После F31 требует нового ADR и новой freeze baseline revision.
 
 ## Deferred Implementation Choice
 
-Concrete framework/API/algorithm/storage/default, который может быть выбран version specification без изменения F31 semantics.
+Framework/API/algorithm/storage/default, который version specification может выбрать без изменения F31 semantics.
+
+## Version Roadmap
+
+Принятая `DU-32` последовательность software milestones `v0.1 … v1.0`. Определяет implementation sequencing, но не переопределяет F31.
+
+## Software Milestone
+
+Вертикально запускаемый и проверяемый version scope с explicit acceptance gate и non-goals.
+
+## Version Design
+
+Подробная specification конкретного milestone: selected stack, exact representations, implementations, config, VerificationObligations и acceptance criteria.
+
+## Implementation Sequence
+
+Dependency-ordered набор reviewable шагов Codex для уже принятого Version Design. Не место выбора архитектуры.
+
+## Reference Composition
+
+Явный composition profile конкретной версии, используемый как воспроизводимый implementation/evaluation reference.
+
+## Compute Profile
+
+Version-level planning class доступного compute (`C0…C3` в DU-32). Не cognitive resource и не architecture identity.
 
 ---
 
@@ -94,7 +118,7 @@ Runtime-core механизм DAG/waves/read-write validation/atomic commits. Н
 
 ## stale
 
-Значение существует, но его validity horizon не покрывает текущий causal context.
+Значение существует, но validity horizon не покрывает текущий causal context.
 
 ## unavailable
 
@@ -150,7 +174,7 @@ Versioned identity/configuration world instance/family сверх одного s
 
 ## Memory Core
 
-Owner canonical Memory Store/record identity/structural validation/retrieval/representation/index/commit. Не owner importance/admission policy после DU-20.
+Owner canonical Memory Store/record identity/structural validation/retrieval/representation/index/commit. Не owner policy admission после DU-20.
 
 ## Memory Regulation
 
@@ -292,10 +316,6 @@ Immutable evidence committed action с intent/authorization/revision/dispatch li
 
 # Experience / Data / Replay
 
-## Experience Data Plane
-
-Внешняя относительно cognition responsibility записи causal experience, построения datasets и Training Replay inputs.
-
 ## ExperienceEvent
 
 Immutable по смыслу typed causal data event со stable identity, logical scope, causal parents, revisions, visibility и provenance.
@@ -306,7 +326,7 @@ Append-only logical collection `ExperienceEvent`, source of truth записан
 
 ## CausalRevisionSet
 
-Bundle behavior-relevant Agent/component/environment/representation revisions конкретного causal event.
+Bundle behavior-relevant Agent/component/environment/representation revisions causal event.
 
 ## ResearchAnnotationRecord
 
@@ -510,7 +530,7 @@ Versioned first-class ограничение claim/study/version/project.
 
 ## UnsupportedClaimPattern
 
-Явно запрещённый/необоснованный inference leap, например `Workspace → consciousness proof`.
+Необоснованный inference leap, например `Workspace → consciousness proof`.
 
 ## ClaimRegistry
 
@@ -522,7 +542,7 @@ Versioned registry active/challenged/superseded/unsupported claims и review lin
 
 ## Phenomenological claim
 
-Утверждение о subjective experience/conscious feeling. Текущая MINDRA architecture сама по себе не предоставляет достаточного bridge evidence для такого claim.
+Утверждение о subjective experience/conscious feeling. Текущая MINDRA architecture сама по себе не предоставляет достаточного bridge evidence.
 
 ---
 
@@ -534,7 +554,7 @@ Versioned registry active/challenged/superseded/unsupported claims и review lin
 
 ## Ablation
 
-Отключение/замена subsystem для измерения его вклада.
+Отключение/замена subsystem для измерения вклада.
 
 ## Control
 
@@ -550,14 +570,18 @@ Versioned registry active/challenged/superseded/unsupported claims и review lin
 
 ---
 
-# Текущий design scope
+# Текущий этап
 
-`DU-31` завершён. Semantic baseline `F31` принят.
-
-Следующий допустимый этап:
+Общий architecture/roadmap cycle завершён:
 
 ```text
-DU-32 — Version Roadmap
+DU-00 … DU-32 complete
 ```
 
-Version roadmap конкретизирует implementation milestones, но не переопределяет frozen semantics без нового ADR.
+Следующая разрешённая работа:
+
+```text
+Version Design — v0.1 Core Kernel
+```
+
+Roadmap конкретизирует implementation milestones, но не переопределяет F31 без нового ADR.
