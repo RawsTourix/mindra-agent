@@ -2,7 +2,7 @@
 
 ## Назначение
 
-Этот каталог хранит значимые архитектурные решения MINDRA. ADR создаётся, когда выбор влияет на module boundaries, contracts, ownership, runtime/training/evaluation/testing/research-claim semantics, freeze/governance или исследовательскую валидность.
+Этот каталог хранит значимые архитектурные и roadmap-решения MINDRA. ADR создаётся, когда выбор влияет на boundaries, contracts, ownership, runtime/training/evaluation/testing/research semantics, freeze/governance или структуру software milestones.
 
 Статусы: `proposed`, `accepted`, `superseded`, `superseded in part`, `rejected`.
 
@@ -35,16 +35,17 @@ Research result не меняет design автоматически: снача�
 - [`ADR-0019`](ADR-0019-budgeted-contextual-salience-allocation.md) — contextual Salience Profiles + explicit budgeted Attention Allocation.
 - [`ADR-0020`](ADR-0020-source-preserving-budget-aware-memory-regulation.md) — source-preserving budget-aware Memory Regulation с gated consolidation.
 - [`ADR-0021`](ADR-0021-bounded-broadcast-workspace-overlay.md) — bounded source-preserving broadcast Workspace overlay с first-class `NoWorkspace`, matched controls и explicit negative module gate.
-- [`ADR-0022`](ADR-0022-proposal-driven-budget-aware-executive-control.md) — proposal-driven budget-aware Executive Control поверх invariant Scheduler, с explicit MetaAction proposals, resource envelope и equal-compute negative gate.
-- [`ADR-0023`](ADR-0023-policy-owned-selection-optional-planner.md) — Policy-owned final behavioral selection с optional/falsifiable Planner provider и explicit selected-intent boundary перед Action Gate.
-- [`ADR-0024`](ADR-0024-post-authorization-pre-dispatch-action-commit.md) — mandatory Action authorization boundary и `Action Commit` после финальной authorization, но до dispatch; explicit override provenance и retry/idempotency semantics.
-- [`ADR-0025`](ADR-0025-causal-experience-journal-derived-projections.md) — append-only causal `Experience Journal` как source of truth записанного опыта + versioned derived trajectory/dataset/training projections.
-- [`ADR-0026`](ADR-0026-candidate-revision-validated-activation-training-lifecycle.md) — external Training Runtime обучает pinned base revisions в candidate state; validation предшествует атомарной activation совместимого Agent revision bundle.
-- [`ADR-0027`](ADR-0027-manifest-driven-causal-checkpoint-restore.md) — manifest-driven causal checkpoint: explicit capture boundary, content/integrity artifacts, restore profiles и scoped reproducibility guarantees.
-- [`ADR-0028`](ADR-0028-multi-layer-causal-evaluation-harness.md) — multi-layer causal Evaluation Harness с fully specified conditions, matched controls, paired interventions, typed metrics и explicit statistical plan вместо universal leaderboard score.
-- [`ADR-0029`](ADR-0029-layered-invariant-driven-engineering-verification.md) — layered invariant-driven Engineering Verification: `VerificationObligation/Matrix`, layered tests, fault/state-machine verification и obligation-aware CI gates.
-- [`ADR-0030`](ADR-0030-versioned-evidence-bounded-research-claims.md) — versioned evidence-bounded Research Claims с explicit scope, limitations/known unknowns, negative evidence и claim lifecycle вместо свободного reporting prose.
-- [`ADR-0031`](ADR-0031-semantic-contract-consistency-freeze.md) — semantic contract consistency freeze `F31`: `DU-01 … DU-30` считаются согласованным baseline, exact API остаётся deferred до version design.
+- [`ADR-0022`](ADR-0022-proposal-driven-budget-aware-executive-control.md) — proposal-driven budget-aware Executive Control поверх invariant Scheduler.
+- [`ADR-0023`](ADR-0023-policy-owned-selection-optional-planner.md) — Policy-owned final behavioral selection с optional/falsifiable Planner provider.
+- [`ADR-0024`](ADR-0024-post-authorization-pre-dispatch-action-commit.md) — `Action Commit` после authorization и до dispatch; retry/idempotency semantics.
+- [`ADR-0025`](ADR-0025-causal-experience-journal-derived-projections.md) — causal `Experience Journal` как source of truth + derived projections.
+- [`ADR-0026`](ADR-0026-candidate-revision-validated-activation-training-lifecycle.md) — candidate → validation → activation Training Lifecycle.
+- [`ADR-0027`](ADR-0027-manifest-driven-causal-checkpoint-restore.md) — manifest-driven causal checkpoint/restore.
+- [`ADR-0028`](ADR-0028-multi-layer-causal-evaluation-harness.md) — multi-layer causal Evaluation Harness.
+- [`ADR-0029`](ADR-0029-layered-invariant-driven-engineering-verification.md) — layered invariant-driven Engineering Verification.
+- [`ADR-0030`](ADR-0030-versioned-evidence-bounded-research-claims.md) — versioned evidence-bounded Research Claims.
+- [`ADR-0031`](ADR-0031-semantic-contract-consistency-freeze.md) — semantic contract consistency freeze `F31`.
+- [`ADR-0032`](ADR-0032-vertical-capability-version-roadmap.md) — vertical capability software roadmap вместо реализации в порядке module DU.
 
 ## Proposed
 
@@ -60,9 +61,7 @@ Research result не меняет design автоматически: снача�
 
 ---
 
-# Freeze status
-
-После `ADR-0031`:
+# Freeze / roadmap status
 
 ```text
 ADR-0001 … ADR-0030
@@ -70,9 +69,17 @@ ADR-0001 … ADR-0030
 DU-31 consistency resolutions
 =
 Semantic Freeze Baseline F31
+
+F31
++
+ADR-0032
+=
+accepted software roadmap v0.1 … v1.0
 ```
 
 Breaking semantic change после F31 требует нового ADR и обновления freeze baseline.
+
+Изменение grouping/порядка software milestones может быть roadmap update без semantic ADR, если F31 meaning не меняется.
 
 ---
 
@@ -82,10 +89,9 @@ Breaking semantic change после F31 требует нового ADR и об�
 research evidence / implementation blocker
 → interpretation/claim review
 → design review
-→ ADR
-→ canonical design owner
-→ semantic contract / freeze baseline update
-→ version plans
+→ ADR при semantic change
+→ canonical design/freeze update
+→ roadmap/version plan
 → implementation
 ```
 
