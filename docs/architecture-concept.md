@@ -4,9 +4,11 @@
 
 Этот документ фиксирует макроархитектуру и основные границы ответственности MINDRA.
 
-Он намеренно не задаёт точные Python-интерфейсы, размеры тензоров, библиотеки, модели, loss-функции или version scope. Эти решения относятся к будущему canonical design и ADR.
+Он намеренно не задаёт точные Python-интерфейсы, размеры тензоров, библиотеки, модели, loss-функции или version scope. Эти решения относятся к более конкретному canonical design, ADR и version-specific design.
 
 Если concept-level описание расходится с более поздним accepted Design/ADR/contract, приоритет имеет более конкретная каноническая документация.
+
+Актуальный фактический статус, semantic freeze и software roadmap не дублируются здесь и всегда определяются `docs/design/current.md`, `docs/design/contract-adr-consistency-freeze.md` и `docs/design/version-roadmap.md`.
 
 ---
 
@@ -74,10 +76,10 @@ Canonical CognitiveState / state exchange boundary
 
 - `CognitiveState` содержит опубликованное межмодульное runtime state, а не всё `Agent-owned state`;
 - committed state revision не должна изменяться задним числом;
-- будущие модули читают и публикуют данные через явные semantic contracts;
+- модули читают и публикуют данные через явные semantic contracts;
 - model/backend-specific private state не должен без необходимости протекать через общую границу.
 
-Точное container/API representation пока не выбрано.
+Точное container/API representation определяется version-specific design и не является частью concept-level архитектуры.
 
 Важно сохранить invariant:
 
@@ -94,10 +96,10 @@ Cortex предоставляет богатые pretrained capabilities, нап
 - Cortex backend заменяем;
 - конкретная модель не должна протекать во всю архитектуру через model-specific hidden shapes и приватные API;
 - MINDRA должна иметь собственную canonical integration boundary;
-- возможность `DummyCortex`/`NoCortex` рассматривается как важный диагностический инструмент;
+- `DummyCortex`/`NoCortex` являются важными диагностическими конфигурациями;
 - обучение Cortex и обучение остальных модулей не обязаны происходить одинаково или одновременно.
 
-Конкретный adapter contract будет спроектирован отдельно.
+Точный semantic Cortex contract находится в специализированной canonical design-документации.
 
 ---
 
@@ -109,9 +111,9 @@ World Model conceptually отвечает за прогнозирование д
 
 - предсказывать следующее состояние или релевантные его свойства;
 - предоставлять prediction error/uncertainty там, где это обосновано;
-- поддерживать planning/model-based evaluation, если такой механизм будет принят.
+- поддерживать planning/model-based evaluation, если такой механизм принят.
 
-Не фиксируется, будет ли это RSSM, recurrent model, Transformer, MLP или другой подход.
+Concept-документ не фиксирует RSSM, recurrent model, Transformer, MLP или другой конкретный implementation approach.
 
 ---
 
@@ -145,13 +147,13 @@ Drives представляют внутренние переменные, ко�
 потенциально разная оценка и policy
 ```
 
-Конкретный набор drives, их динамика и способ обучения пока не определены.
+Конкретный набор drives, их динамика и способ реализации определяются более конкретным canonical/version design.
 
 ---
 
 # 8. Appraisal
 
-Appraisal conceptually преобразует событие и контекст в внутреннюю оценку его значения для текущего агента.
+Appraisal conceptually преобразует событие и контекст во внутреннюю оценку его значения для текущего агента.
 
 Он должен рассматриваться как функциональный вычислительный механизм, а не как декларация наличия эмоции.
 
@@ -165,7 +167,7 @@ Appraisal может зависеть от:
 - uncertainty;
 - результатов действия.
 
-Точный output space определяется позднее.
+Точный output space принадлежит специализированному design.
 
 ---
 
@@ -197,9 +199,9 @@ working state
 → long-term learned representations
 ```
 
-Фактические типы памяти и storage backend будут выбраны позднее.
+Фактические типы памяти и storage backend относятся к более конкретному design.
 
-Полный Memory store не обязан входить в `CognitiveState`; shared state должен публиковать только contract-defined результаты/representations, необходимые другим подсистемам.
+Полный Memory store не обязан входить в `CognitiveState`; shared state публикует только contract-defined результаты/representations, необходимые другим подсистемам.
 
 ---
 
@@ -216,21 +218,23 @@ MINDRA исследует ограниченный механизм интегр
 
 Это рабочая функциональная аналогия и не является утверждением о реализации сознания.
 
+Workspace остаётся экспериментально проверяемой boundary, а не аксиомой о необходимости отдельного «модуля сознания».
+
 ---
 
 # 12. Policy / Planner
 
-Policy/Planner отвечает за выбор действия на основе доступного внутреннего и внешнего состояния.
+Policy/Planner отвечает за формирование и выбор поведения на основе доступного внутреннего и внешнего состояния.
 
-Важно, чтобы архитектура позволяла измерить вклад отдельных сигналов в этот выбор.
+Важно, чтобы архитектура позволяла измерить вклад отдельных сигналов в этот выбор и отделять planning от финальной policy-selection responsibility и от фактического исполнения действия.
 
-Конкретная граница между policy, planner и Cortex reasoning будет отдельным design-вопросом.
+Точные boundaries определены специализированными design-документами.
 
 ---
 
 # 13. Обучение и временные масштабы
 
-Архитектура должна допускать разделение:
+Архитектура допускает разделение:
 
 ```text
 runtime state updates
@@ -269,7 +273,7 @@ optional Cortex adaptation
 
 Модульность считается архитектурным свойством только если замена компонента не требует ручного переписывания всех его потребителей.
 
-Поэтому будущие contracts должны явно определять:
+Поэтому contracts должны явно определять, где применимо:
 
 - inputs;
 - outputs;
@@ -279,24 +283,24 @@ optional Cortex adaptation
 - error/degradation behavior;
 - observability hooks.
 
-Точная форма будет спроектирована в `docs/design/`.
+Точная программная форма этих contracts определяется version-specific design.
 
 ---
 
-# 16. Текущие открытые области
+# 16. Граница ответственности concept-документа
 
-На concept-уровне намеренно не определены:
+Этот документ намеренно не является владельцем конкретных implementation choices, включая:
 
 - concrete `CognitiveState` container/framework;
 - exact shared-state API;
 - latent dimensions;
-- scheduling graph;
-- concrete module protocols;
-- конкретный Cortex;
+- concrete scheduler implementation;
+- exact Python module protocols;
+- конкретный Cortex backend;
 - конкретные RL/model-based algorithms;
 - memory backend;
 - training stack;
 - compute environment;
-- version roadmap.
+- software version roadmap.
 
-Эти вопросы должны решаться последовательно после отдельного анализа вариантов.
+Эти области уже могут быть определены в более конкретной документации или оставаться version-specific choices; их актуальный статус всегда нужно читать по [`design/current.md`](design/current.md), canonical design, accepted ADR и semantic contracts, а не выводить из этого concept-документа.

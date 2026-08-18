@@ -8,14 +8,28 @@
 
 Этот документ определяет нейтральную базовую Memory subsystem MINDRA до появления Salience, Affect-driven retention и Consolidation.
 
+После `DU-20` и consistency freeze `F31` терминология этого документа читается однозначно:
+
+```text
+Memory Core
+→ structural eligibility / schema / authority / provenance validation
+→ canonical Memory Store / record identity / retrieval / commit
+
+Memory Regulation
+→ policy admission / retention / forgetting / eviction
+→ replay / consolidation selection и regulation state
+```
+
+Следовательно, `Memory Core` **не является вторым владельцем policy admission**. Если Memory Regulation отключена в раннем/control profile, используется явно объявленная baseline control policy, а не скрытая admission-логика внутри Core.
+
 Документ определяет:
 
 - ownership памяти;
 - различие `Memory Store`, `Memory Record`, derived representation и retrieval index;
-- write/admission boundary;
+- write/structural-eligibility boundary;
 - retrieval request/result semantics;
 - representation drift/versioning;
-- capacity и минимальную eviction semantics;
+- hard-capacity/degradation semantics Core;
 - temporal scope/persistence;
 - snapshot/restore/counterfactual requirements;
 - связь Memory с Cortex без ambient context injection;
@@ -31,11 +45,13 @@
 - [`../observability-and-intervention.md`](../observability-and-intervention.md) — наблюдение и intervention разделены;
 - [`perception.md`](perception.md) — canonical percept и learned Feature Views имеют provenance/version semantics;
 - [`goals.md`](goals.md) — Goal state существует отдельно от Memory;
-- [`cortex.md`](cortex.md) — Cortex не получает ambient access к Memory и использует только явно подготовленный context.
+- [`cortex.md`](cortex.md) — Cortex не получает ambient access к Memory и использует только явно подготовленный context;
+- [`memory-regulation.md`](memory-regulation.md) — policy admission/retention/forgetting/eviction и consolidation принадлежат отдельной responsibility после `DU-20`;
+- [`../contract-adr-consistency-freeze.md`](../contract-adr-consistency-freeze.md) — нормативное чтение `CR-02`/`CR-03`/`CR-04` для baseline `F31`.
 
 Документ намеренно **не** определяет:
 
-- Salience-based admission/retention/forgetting — `DU-19/20`;
+- Salience-based policy admission/retention/forgetting — `DU-19/20`;
 - emotional memory semantics — `DU-16/17/20`;
 - semantic consolidation/knowledge extraction algorithm — `DU-20`;
 - training replay/data pipeline — `DU-25/26`;
@@ -82,12 +98,22 @@ embedding/index entry
 
 MINDRA принимает **versioned canonical Memory Store с устойчивыми semantic records и производными перестраиваемыми retrieval representations/indexes**.
 
-Conceptually:
+После F31 write path conceptually выглядит так:
 
 ```text
 MemoryWriteProposal
        ↓
-Memory Core validation/admission
+Memory Core
+→ structural eligibility / schema / authority /
+  provenance / visibility validation
+       ↓
+eligible proposal
+       ↓
+Memory Regulation или explicit baseline control policy
+→ policy admission decision
+       ↓
+Memory Core
+→ canonical commit / Memory revision
        ↓
 ┌────────────────────────────┐
 │ Canonical Memory Store     │
@@ -116,11 +142,13 @@ Memory Core validation/admission
        cognitive consumer
 ```
 
-Ключевой invariant:
+Ключевые invariants:
 
 > Потеря/перестройка derived index не должна уничтожать каноническое содержание воспоминания.
 
-Решение дополнительно фиксируется в `ADR-0011`.
+> Structural eligibility в Memory Core не является policy admission.
+
+Решение дополнительно фиксируется в `ADR-0011`, а разделение Core/Regulation — в `ADR-0020` и `CR-02` baseline `F31`.
 
 ---
 
@@ -143,10 +171,11 @@ Memory является частью MINDRA Agent и содержит agent-owne
 ## 3.2. Memory Core отвечает за
 
 - canonical identity memory records;
-- validation/admission write proposals;
+- structural validation/eligibility write proposals;
+- canonical commit после допустимого regulation/control decision;
 - versioned logical store state;
 - provenance/source references;
-- record lifecycle metadata;
+- record lifecycle metadata в пределах Core ownership;
 - explicit retrieval capability;
 - derived retrieval representations;
 - indexes и их compatibility metadata;
@@ -156,6 +185,8 @@ Memory является частью MINDRA Agent и содержит agent-owne
 
 ## 3.3. Memory Core не отвечает за
 
+- policy admission по значимости/бюджету;
+- retention/forgetting/eviction policy;
 - решение, насколько событие эмоционально важно;
 - dynamic utility;
 - goal arbitration;
@@ -165,6 +196,8 @@ Memory является частью MINDRA Agent и содержит agent-owne
 - training replay sampling;
 - скрытое формирование Cortex prompt;
 - evaluator-only truth storage normal runtime способом.
+
+Policy admission/retention/forgetting/eviction принадлежат [`memory-regulation.md`](memory-regulation.md).
 
 ---
 
@@ -218,7 +251,7 @@ Conceptually:
 
 ```text
 memory_revision M17
-→ committed write / lifecycle transition
+→ committed write / Core-owned lifecycle transition
 → memory_revision M18
 ```
 
@@ -250,7 +283,7 @@ MemoryRecord
 └── intervention provenance?
 ```
 
-Exact field names/types пока не frozen.
+Exact field names/types не frozen.
 
 ## 6.1. Stable identity
 
@@ -311,7 +344,7 @@ derived/summarized record
 Но:
 
 - основной reference-use DU-11 — episodic/event-linked memory;
-- automatic semantic consolidation проектируется позже;
+- automatic semantic consolidation проектируется в Memory Regulation;
 - procedural skill в trainable weights Policy/Cortex не считается `MemoryRecord` автоматически.
 
 То есть:
@@ -319,7 +352,7 @@ derived/summarized record
 ```text
 Memory Core supports record kinds
 ≠
-DU-11 already defines semantic consolidation architecture
+Memory Core owns semantic consolidation policy
 ```
 
 ---
@@ -358,6 +391,8 @@ Memory-owned lifecycle metadata может изменяться через но�
 
 Любой producer, имеющий соответствующую capability, создаёт **proposal**, а не напрямую пишет record.
 
+После F31 канонический путь:
+
 ```text
 producer
   ↓
@@ -365,9 +400,15 @@ MemoryWriteProposal
   ↓
 Memory Core
   ↓
-validate / admit / reject
+structural validate / eligible / structurally reject
   ↓
-committed MemoryRecord
+eligible proposal
+  ↓
+Memory Regulation или declared baseline control policy
+  ↓
+admit / reject по policy
+  ↓
+Memory Core canonical commit
 ```
 
 Potential sources могут включать:
@@ -375,47 +416,66 @@ Potential sources могут включать:
 - deterministic experience capture;
 - Perception/event capture;
 - Goal/history mechanism;
-- будущие World/Self/Appraisal mechanisms;
+- World/Self/Appraisal mechanisms;
 - Cortex-derived interpretation через semantic owner;
-- будущую Consolidation;
+- Consolidation-derived proposal;
 - research intervention.
 
 Proposal capability не даёт direct write authority Store.
 
-## 9.1. Neutral admission в DU-11
+## 9.1. Structural eligibility Core
 
-`DU-11` не использует Salience/Valuation для admission.
+Memory Core проверяет только то, что относится к его ownership, например conceptually:
 
-Baseline admission должна быть explicit и неантропоморфной, например:
+- schema compatibility;
+- producer/write authority;
+- required provenance/source metadata;
+- visibility/trust restrictions;
+- record-kind structural validity;
+- compatibility с canonical store revision.
 
-- accept all valid eligible proposals;
-- allowlist record kinds;
+Эта проверка отвечает на вопрос:
+
+> «может ли такой proposal вообще быть корректным кандидатом на Memory commit?»
+
+Она **не** отвечает на вопрос:
+
+> «стоит ли сохранять этот допустимый proposal с учётом значимости, бюджета и retention policy?»
+
+Второй вопрос принадлежит Memory Regulation.
+
+## 9.2. Baseline/control policy до substantial Memory Regulation
+
+Ранний software milestone может использовать explicit baseline policy, например:
+
+- accept all structurally eligible proposals, пока hard capacity не исчерпана;
 - deterministic configured sampling/control;
-- explicit capacity rejection.
+- explicit reject-new при hard limit.
 
-Importance-driven admission относится к `DU-19/20`.
+Такой profile является control/no-regulation behavior и не делает Memory Core владельцем policy admission.
 
 ---
 
-# 10. Capacity и baseline eviction
+# 10. Capacity и baseline behavior
 
 Memory не может предполагаться физически бесконечной.
 
-Но `DU-11` запрещает скрытый «эмоциональный» eviction.
+Memory Core обязан уметь обнаружить и явно представить storage/capacity constraint, но policy того, **какие** records сохранять, вытеснять или забывать, принадлежит Memory Regulation.
 
-При исчерпании capacity допустимы explicit policies класса:
+При отсутствии substantial regulation допустим explicit control profile:
 
 ```text
-reject_new
-oldest_first_control
-configured deterministic baseline
+accept_eligible_until_limit
+reject_new_after_limit
 ```
 
-Предпочтительный research default до `DU-20`:
+или другой заранее объявленный deterministic baseline.
 
-> не удалять canonical records молча; при достижении hard limit выдавать observable `capacity_exhausted`, если experiment не выбрал explicit baseline eviction policy.
+Предпочтительный исследовательский default до полноценной regulation policy:
 
-Нельзя называть oldest-first или FIFO «биологическим забыванием».
+> не удалять canonical records молча; при достижении hard limit выдавать observable `capacity_exhausted`, если experiment не выбрал explicit baseline control policy.
+
+FIFO/oldest-first допускается только как явно названный control policy, а не как внутреннее поведение Memory Core и не как «биологическое забывание».
 
 ---
 
@@ -462,7 +522,7 @@ Record M42
 
 Старый и новый vector нельзя молча считать сравнимыми.
 
-Допустимые будущие стратегии:
+Допустимые стратегии:
 
 - freeze retrieval encoder;
 - re-encode canonical records;
@@ -470,7 +530,7 @@ Record M42
 - compatibility adapter;
 - explicit mixed-version retrieval algorithm.
 
-`DU-11` не выбирает одну стратегию как universal, но требует:
+Memory Core не выбирает одну стратегию как universal, но требует:
 
 > несовместимые representations не смешиваются без explicit compatibility semantics.
 
@@ -593,7 +653,7 @@ salience
 truth probability
 ```
 
-Эти значения относятся к другим future mechanisms.
+Эти значения относятся к другим mechanisms.
 
 Например, cosine similarity 0.91 означает только определённую близость в конкретном feature space при конкретной metric semantics.
 
@@ -636,30 +696,40 @@ KV-cache Cortex также не является Memory Record store.
 Нужно строго различать:
 
 ```text
-Agent Memory
+Agent Memory Retrieval
+≠
+Agent Memory Replay / Reactivation
 ≠
 Experience/Trajectory Evidence
 ≠
 Training Replay
 ```
 
-## Agent Memory
+## Retrieval
 
-- доступна cognition normal runtime способом;
-- входит в agent-owned state;
-- может влиять на поведение через retrieval.
+Query-driven normal cognition operation над Memory Core.
 
-## Trajectory/Evidence
+## Agent Memory Replay / Reactivation
+
+Agent-owned повторная активация существующего `MemoryRecord` в memory/consolidation dynamics. Эта responsibility определяется Memory Regulation.
+
+## Experience / Trajectory Evidence
 
 - внешний research/training record;
 - может хранить privileged metadata;
 - не является normal Agent input.
 
-## Replay
+## Training Replay
 
-- training/data operation;
-- может повторно использовать trajectories;
-- не является автоматически recollection Agent.
+- внешний data/training operation;
+- повторно использует source/derived training data;
+- не является воспоминанием Agent.
+
+Общее правило:
+
+```text
+replay ≠ new natural Environment experience
+```
 
 Они могут ссылаться на одинаковые causal event IDs, но не должны быть одной скрытой storage boundary.
 
@@ -708,19 +778,21 @@ Explicit Memory reset должен иметь собственную operation/p
 
 Для exact Agent counterfactual Memory является обязательной частью snapshot.
 
-Logical Memory snapshot должен сохранять достаточную информацию для восстановления:
+Logical Memory Core snapshot должен сохранять достаточную информацию для восстановления:
 
 ```text
 memory_revision
 canonical records
-relations/lifecycle metadata
+relations/Core-owned lifecycle metadata
 scope state
-admission/capacity state
+structural/capacity state
 representation manifests
 index manifests
 causally relevant RNG state, если есть stochastic retrieval/control
 backend/config revisions, влияющие на retrieval
 ```
+
+Memory Regulation snapshot отдельно сохраняет собственное causally relevant policy/budget/replay/consolidation state согласно её contract.
 
 Derived index может:
 
@@ -737,8 +809,9 @@ Memory evidence должна позволять наблюдать миниму�
 
 ```text
 write proposal
-admission/rejection
-record creation
+structural eligibility / structural rejection
+regulation/control decision reference, если применимо
+record commit
 record lifecycle transition
 representation build/rebuild
 index build/revision
@@ -757,6 +830,8 @@ snapshot/restore/fork
 - index/feature-space revision;
 - truncation/filtering.
 
+Core evidence не должна приписывать себе policy decision, произведённое Memory Regulation.
+
 ---
 
 # 23. Interventions
@@ -766,17 +841,19 @@ Research intervention может включать:
 ```text
 inject MemoryWriteProposal
 force/add synthetic MemoryRecord
-remove/tombstone selected record
+remove/tombstone selected record через explicit intervention boundary
 replace record availability
 alter RetrievalResult
 swap retrieval strategy
 shuffle returned records
-change capacity policy
+change capacity/control condition
 ```
 
 Intervention не должна маскироваться под natural memory operation.
 
 При вмешательстве в record semantic owner остаётся Memory Core, а origin текущего состояния содержит intervention provenance по `DU-06`.
+
+Policy-level вмешательства в admission/retention/forgetting принадлежат Memory Regulation intervention boundary.
 
 ---
 
@@ -807,6 +884,8 @@ parameter/cost-matched retrieval control
 
 Control implementation не должна использовать hidden benchmark oracle, если experiment явно не объявлен oracle upper bound.
 
+Policy admission controls оформляются отдельно на Memory Regulation/control boundary.
+
 ---
 
 # 25. Failure / Degradation
@@ -815,7 +894,8 @@ Control implementation не должна использовать hidden benchma
 
 ```text
 store unavailable
-write rejected
+structural write rejection
+policy rejection        # Regulation/control decision
 capacity exhausted
 record/schema incompatibility
 representation unavailable
@@ -840,7 +920,7 @@ Memory failed
 
 # 26. Минимальные evaluation implications
 
-Точная MINDRA-Eval проектируется позже, но DU-11 требует, чтобы будущая реализация позволяла измерять:
+Точная MINDRA-Eval определена отдельно, но Memory Core обязан позволять измерять:
 
 - retrieval accuracy/recall на задачах с известным target;
 - causal utility памяти: correct vs shuffled vs NoMemory;
@@ -850,7 +930,7 @@ Memory failed
 - capacity/degradation behavior;
 - separation Memory contribution от Cortex capability.
 
-Главный будущий causal pattern:
+Главный causal pattern:
 
 ```text
 same Agent/Environment base
@@ -861,29 +941,33 @@ same Agent/Environment base
 
 Если `correct` и `shuffled` дают одинаковый эффект, само наличие дополнительного context может объяснять выигрыш лучше, чем содержательная память.
 
+Policy admission/retention quality оценивается отдельно как вклад Memory Regulation.
+
 ---
 
-# 27. Что DU-11 намеренно откладывает
+# 27. Что Memory Core намеренно не владеет
 
-До последующих DU не принимаются:
+К отдельным или version-specific механизмам относятся:
 
-- importance-weighted write admission;
+- importance-weighted policy admission;
 - emotional retention;
-- decay/forgetting curve;
+- decay/forgetting policy;
 - memory consolidation;
 - semantic knowledge extraction;
-- dream/replay consolidation;
-- learned retrieval policy;
+- dream/reactivation consolidation;
+- learned regulation policy;
 - proactive reminder policy;
-- World Model imagination storage;
+- World Model imagination storage policy;
 - training replay sampling;
 - exact embedding model;
 - exact vector index;
 - exact database/storage backend.
 
+Часть этих responsibilities определена `DU-20/25/26`; concrete algorithms остаются version-specific.
+
 ---
 
-# 28. Инварианты DU-11
+# 28. Инварианты DU-11 / F31
 
 1. Memory Store является agent-owned state, но не всем `CognitiveState`.
 2. `MemoryRecord` имеет stable semantic identity независимо от физического index slot.
@@ -895,12 +979,13 @@ same Agent/Environment base
 8. Cortex не имеет ambient access к Memory.
 9. Retrieval relevance не равна utility/salience/importance.
 10. Memory write producer не получает direct store mutation authority.
-11. Salience-based retention не входит в DU-11.
-12. `Environment.reset()` не означает reset Memory.
-13. Memory отличается от trajectory/replay.
-14. Exact Agent snapshot обязан учитывать causally relevant Memory state.
-15. Research intervention всегда сохраняет provenance.
-16. `NoMemory`, Dummy и Control configurations различаются.
+11. Memory Core владеет structural eligibility и canonical commit, но не policy admission/retention/forgetting/eviction.
+12. Memory Regulation является единственным owner соответствующей policy responsibility после `DU-20`.
+13. `Environment.reset()` не означает reset Memory.
+14. Retrieval, Agent Memory Replay и Training Replay различаются.
+15. Exact Agent snapshot обязан учитывать causally relevant Memory Core и Memory Regulation state согласно scope.
+16. Research intervention всегда сохраняет provenance.
+17. `NoMemory`, Dummy и Control configurations различаются.
 
 ---
 
@@ -910,14 +995,13 @@ same Agent/Environment base
 
 - canonical Memory ownership определён;
 - Memory Record/Store/Representation/Index различаются;
-- write/admission boundary определена;
-- neutral pre-Salience behavior определено;
+- write/structural-eligibility boundary определена;
+- neutral baseline/control behavior не создаёт второго policy owner внутри Core;
 - retrieval request/result boundary определена;
 - representation drift semantics определена;
 - Cortex integration не создаёт ambient context;
-- Memory/trajectory/replay разделены;
+- Retrieval/Agent Memory Replay/Training Replay разделены;
 - snapshot/restore requirements определены;
 - ablation/control semantics определены;
-- candidate contract создан;
-- значимый выбор оформлен ADR;
-- `current.md` переведён на `DU-12`.
+- semantic contract согласован с `DU-20` и F31;
+- значимый выбор оформлен ADR.

@@ -2,82 +2,55 @@
 
 ## Статус документа
 
-Этот документ является каноническим владельцем **порядка design-обновлений** MINDRA до появления version roadmap.
+**Статус:** завершённый исторический design-plan.  
+**Область:** `DU-00 … DU-32`.
 
-Он не является roadmap реализации и не определяет software versions.
+Этот документ фиксирует порядок, в котором была спроектирована общая архитектурная документация MINDRA.
 
-Каждый идентификатор вида `DU-xx` означает самостоятельное **Design Update**: ограниченный documentation patch, который должен закрыть один связный набор архитектурных вопросов, пройти review и только после этого стать основанием для следующего обновления.
+Он **не является текущим roadmap реализации** и не определяет следующий разрешённый software milestone. Актуальный статус всегда определяется [`current.md`](current.md), а software roadmap — [`version-roadmap.md`](version-roadmap.md).
 
-Главный принцип:
+Общий design-cycle завершён:
+
+```text
+DU-00 … DU-32 complete
+Semantic Freeze Baseline F31 accepted
+software roadmap accepted
+```
+
+Документ сохраняется как карта зависимостей и как объяснение того, почему архитектурные темы проектировались именно в таком порядке.
+
+---
+
+# 1. Что означал Design Update
+
+Каждый идентификатор `DU-xx` обозначал самостоятельный **Design Update**: ограниченный documentation patch, закрывающий один связный набор архитектурных вопросов до перехода к следующему слою.
+
+Базовый принцип цикла:
 
 ```text
 не проектировать следующий слой через предположения
 о ещё не определённом предыдущем слое
 ```
 
-Version roadmap появляется только после того, как canonical architecture, training/evaluation boundaries и exact internal contracts достаточно сформированы.
+Каждый DU должен был:
+
+1. иметь чёткую цель и prerequisites;
+2. отделять собственный scope от downstream вопросов;
+3. при нетривиальном выборе опираться на targeted research;
+4. сравнивать реалистичные варианты и trade-offs;
+5. определять canonical owner темы;
+6. фиксировать значимые решения ADR;
+7. обновлять связанные glossary/index/contracts/status documents;
+8. иметь completion gate.
+
+После завершения `DU-31` semantic meaning общей архитектуры был заморожен как baseline `F31`; `DU-32` затем разбил её на software milestones.
 
 ---
 
-# 1. Что считается самостоятельным Design Update
-
-Каждый `DU` должен иметь:
-
-1. чёткую цель;
-2. обязательные prerequisites;
-3. список вопросов, которые именно этот update обязан закрыть;
-4. список вопросов, которые в него **не входят**;
-5. research pass по существующим подходам, если выбор не тривиален;
-6. рассмотренные варианты и trade-offs;
-7. canonical design owner;
-8. ADR, если существует несколько реалистичных архитектурных вариантов;
-9. consistency patch для glossary/index/current/contracts, если они затронуты;
-10. явный completion gate.
-
-Design Update не должен одновременно:
-
-- проектировать несколько независимых подсистем «заодно»;
-- фиксировать library/API раньше semantic requirements;
-- смешивать architecture design с implementation versioning;
-- превращать exploratory идею в accepted invariant без сравнения альтернатив;
-- добавлять будущий scope только потому, что он тесно связан по тематике.
-
----
-
-# 2. Типовой workflow одного Design Update
-
-Рекомендуемый порядок:
+# 2. Фактическая завершённая цепочка
 
 ```text
-1. восстановить repository context
-2. сформулировать design questions
-3. провести targeted research
-4. сравнить candidate approaches
-5. определить invariants / responsibilities / non-goals
-6. решить open choices через ADR при необходимости
-7. записать canonical design
-8. определить будущие exact contracts, если semantic boundary уже стабилен
-9. определить testing/evaluation implications
-10. consistency review
-11. обновить current.md
-```
-
-Research pass должен использовать в первую очередь:
-
-- исходные научные статьи;
-- официальную документацию framework/library;
-- официальные model cards;
-- reference implementations авторов/maintainers;
-- только затем качественные вторичные обзоры для навигации.
-
-Конкретные ресурсы не закрепляются этим планом: они выбираются заново при выполнении соответствующего `DU`, чтобы не зафиксировать устаревшее состояние области.
-
----
-
-# 3. Общий dependency graph design-обновлений
-
-```text
-DU-00 Documentation Foundation [готово]
+DU-00 Documentation Foundation
         ↓
 DU-01 System Context
         ↓
@@ -133,7 +106,7 @@ DU-26 Training Lifecycle
         ↓
 DU-27 Checkpoint / Reproducibility / Compute
         ↓
-DU-28 Evaluation Harness
+DU-28 MINDRA-Eval
         ↓
 DU-29 Engineering Testing
         ↓
@@ -144,1267 +117,190 @@ DU-31 Contract + ADR Consistency Freeze
 DU-32 Version Roadmap
 ```
 
-Это порядок **semantic design**, а не утверждение о линейном runtime. Фактическая когнитивная система будет содержать feedback loops.
+Это был порядок **semantic design**, а не literal runtime DAG и не порядок реализации software.
 
 ---
 
-# 4. DU-00 — Documentation Foundation
+# 3. Фактические canonical owners
 
-**Статус:** завершён.
+## Foundation
 
-Зафиксированы:
+| DU | Тема | Canonical owner |
+|---|---|---|
+| `DU-00` | Documentation Foundation | `project-concept.md`, `architecture-concept.md`, `research-methodology.md`, foundation-файлы `design/` |
+| `DU-01` | System Context | [`system-context.md`](system-context.md) |
+| `DU-02` | Dependency & Composition | [`dependency-rules.md`](dependency-rules.md) |
+| `DU-03` | Runtime / Temporal Model | [`execution-model.md`](execution-model.md) |
+| `DU-04` | CognitiveState | [`cognitive-state.md`](cognitive-state.md) |
+| `DU-05` | Module Protocol / Scheduling | [`module-lifecycle.md`](module-lifecycle.md) |
+| `DU-06` | Observability / Intervention | [`observability-and-intervention.md`](observability-and-intervention.md) |
 
-- `project-concept.md`;
-- `architecture-concept.md`;
-- `research-methodology.md`;
-- `design/principles.md`;
-- `design/glossary.md`;
-- `design/current.md`;
-- `AGENTS.md`;
-- реестры ADR/contracts/versions;
-- карта проектирования модулей.
+## Cognitive/runtime boundaries
 
-## Gate
+| DU | Тема | Canonical owner |
+|---|---|---|
+| `DU-07` | Environment | [`modules/environment.md`](modules/environment.md) |
+| `DU-08` | Perception | [`modules/perception.md`](modules/perception.md) |
+| `DU-09` | Goals | [`modules/goals.md`](modules/goals.md) |
+| `DU-10` | Cortex | [`modules/cortex.md`](modules/cortex.md) |
+| `DU-11` | Memory Core | [`modules/memory.md`](modules/memory.md) |
+| `DU-12` | World Model | [`modules/world-model.md`](modules/world-model.md) |
+| `DU-13` | Self Model | [`modules/self-model.md`](modules/self-model.md) |
+| `DU-14` | Intrinsic Signals | [`modules/intrinsic-signals.md`](modules/intrinsic-signals.md) |
+| `DU-15` | Drives | [`modules/drives.md`](modules/drives.md) |
+| `DU-16` | Appraisal | [`modules/appraisal.md`](modules/appraisal.md) |
+| `DU-17` | Affect | [`modules/affect.md`](modules/affect.md) |
+| `DU-18` | Valuation | [`modules/valuation.md`](modules/valuation.md) |
+| `DU-19` | Salience / Attention | [`modules/salience.md`](modules/salience.md) |
+| `DU-20` | Memory Regulation | [`modules/memory-regulation.md`](modules/memory-regulation.md) |
+| `DU-21` | Workspace | [`modules/workspace.md`](modules/workspace.md) |
+| `DU-22` | Executive Control | [`modules/executive-control.md`](modules/executive-control.md) |
+| `DU-23` | Policy / Planner | [`modules/policy-planner.md`](modules/policy-planner.md) |
+| `DU-24` | Action Boundary | [`modules/action-boundary.md`](modules/action-boundary.md) |
 
-Следующий update не должен возвращаться к общему brainstorming без необходимости. Новые идеи либо ложатся в конкретный `DU`, либо оформляются как open question.
+## External planes и завершение архитектурного цикла
 
----
+| DU | Тема | Canonical owner |
+|---|---|---|
+| `DU-25` | Experience / Data / Replay | [`experience-data-replay.md`](experience-data-replay.md) |
+| `DU-26` | Training Lifecycle | [`training-lifecycle.md`](training-lifecycle.md) |
+| `DU-27` | Checkpoint / Reproducibility / Compute | [`checkpoint-reproducibility-compute.md`](checkpoint-reproducibility-compute.md) |
+| `DU-28` | MINDRA-Eval | [`mindra-eval.md`](mindra-eval.md) |
+| `DU-29` | Engineering Testing | [`engineering-testing.md`](engineering-testing.md) |
+| `DU-30` | Research Claims / Limitations | [`research-claims-limitations.md`](research-claims-limitations.md) |
+| `DU-31` | Semantic consistency freeze | [`contract-adr-consistency-freeze.md`](contract-adr-consistency-freeze.md) |
+| `DU-32` | Version Roadmap | [`version-roadmap.md`](version-roadmap.md) |
 
-# 5. DU-01 — System Context
-
-## Цель
-
-Определить MINDRA как систему в окружении внешних runtime, storage, compute и исследовательских компонентов.
-
-## Обязательные вопросы
-
-- что находится внутри agent boundary;
-- что является Environment;
-- где проходит Cortex boundary;
-- где живёт training runtime;
-- где живёт evaluation runtime;
-- чем online execution отличается от offline training/consolidation;
-- что считается внешним artifact/checkpoint storage;
-- какие роли могут выполнять локальная машина, Colab/remote GPU и future compute providers;
-- какие внешние системы считаются trusted/untrusted;
-- где находятся experiment runner и artifact collector;
-- какие данные могут пересекать system boundary.
-
-## Результат
-
-`system-context.md`.
-
-## Не входит
-
-- конкретная библиотека;
-- конкретный GPU;
-- точный process graph;
-- точный `CognitiveState`;
-- module protocol.
-
-## Gate
-
-Любой следующий документ должен однозначно понимать, **в какой системе и в каком runtime context существует обсуждаемый объект**.
+Machine-facing semantic contracts находятся в [`contracts/`](contracts/), а accepted decisions — в [`decisions/`](decisions/).
 
 ---
 
-# 6. DU-02 — Dependency & Composition Rules
+# 4. Почему порядок отличался от software roadmap
 
-## Цель
+Порядок DU отвечал на вопрос:
 
-Не допустить превращения модульной архитектуры в сеть скрытых Python-зависимостей.
+> в какой последовательности нужно определить semantics и ownership, чтобы downstream design не строился на догадках?
 
-## Обязательные вопросы
+Software roadmap отвечает на другой вопрос:
 
-- допустимые import directions;
-- место shared contracts;
-- composition root;
-- registry/plugin mechanism на semantic уровне;
-- запрет прямой зависимости от concrete Cortex backend;
-- взаимодействие runtime modules и training code;
-- взаимодействие evaluator и internal state;
-- правила доступа к module-private state;
-- как модуль объявляет зависимость, не импортируя concrete implementation;
-- как disabled/control implementation подменяет обычный модуль;
-- как предотвращается circular hidden coupling.
+> в какой последовательности реализовать runnable vertical slices, чтобы каждая версия была проверяемой и не требовала semantic rewrite?
 
-## Результат
-
-`dependency-rules.md`.
-
-## Возможный ADR
-
-Если потребуется выбор между DI/registry/graph composition подходами.
-
-## Gate
-
-Можно нарисовать разрешённый dependency graph и автоматически проверить значительную часть правил в будущих architecture tests.
-
----
-
-# 7. DU-03 — Runtime / Temporal Model
-
-## Цель
-
-Определить **временную семантику** MINDRA до проектирования state и lifecycle.
-
-## Обязательные вопросы
-
-Различить:
+Поэтому после `DU-32` принята отдельная capability ladder:
 
 ```text
-environment tick
-cognitive step
-module compute phase
-action dispatch
-outcome observation
-runtime state update
-online learning update
-replay step
-consolidation step
-evaluation-only execution
+v0.1 Core Kernel
+→ v0.2 MicroWorld Interaction
+→ v0.3 Cortex Gateway
+→ v0.4 Memory & Restore
+→ v0.5 World & Self
+→ v0.6 Intrinsic / Drives / Appraisal
+→ v0.7 Affect / Valuation / Salience
+→ v0.8 Memory Regulation / Workspace
+→ v0.9 Executive / Planner
+→ v0.10 Training & Revision Lifecycle
+→ v0.11 Research Harness
+→ v0.12 Integration Hardening
+→ v1.0 MINDRA Research Baseline
 ```
 
-Также определить:
-
-- синхронность/асинхронность на semantic уровне;
-- clock/step identity;
-- episode/session identity;
-- что может переживать episode reset;
-- какие state изменения должны быть causal/order-aware;
-- что означает deterministic replay;
-- может ли один environment tick содержать несколько внутренних cognitive cycles;
-- чем fixed runtime scheduler отличается от будущего learned Executive Control.
-
-## Результат
-
-`runtime-topology.md` или отдельный `execution-model.md` — точное имя выбирается в update.
-
-## Gate
-
-Следующий `CognitiveState` design может однозначно описать, **к какому моменту времени относится каждое значение**.
+Canonical owner: [`version-roadmap.md`](version-roadmap.md).
 
 ---
 
-# 8. DU-04 — Canonical CognitiveState Semantics
+# 5. Ключевые разделения, полученные в ходе DU-cycle
 
-## Цель
-
-Спроектировать каноническую модель внутреннего состояния без привязки к конкретному framework.
-
-## Обязательные вопросы
-
-- категории state;
-- persistent/ephemeral;
-- observed/derived/predicted;
-- owner каждого field namespace;
-- read/write permissions;
-- immutable snapshot vs mutable bus;
-- version/timestamp/step semantics;
-- `unknown`/`missing`/`stale`;
-- provenance;
-- batch dimensions;
-- device/dtype independence на semantic уровне;
-- serialization requirements;
-- clone/counterfactual requirements;
-- checkpoint/replay compatibility;
-- model-specific hidden state isolation.
-
-## Результаты
-
-- `cognitive-state.md`;
-- при необходимости ADR по representation strategy;
-- позднее exact contract.
-
-## Не входит
-
-Точные dimensions и concrete TensorDict/dataclass/Pydantic choice, пока requirements не сформированы.
-
-## Gate
-
-Каждый будущий модуль может объявить собственные input/output namespaces без знания concrete реализации соседей.
-
----
-
-# 9. DU-05 — Module Protocol & Scheduling
-
-## Цель
-
-Определить единый lifecycle заменяемого cognitive module.
-
-## Обязательные вопросы
-
-Conceptual lifecycle:
+Ниже перечислены distinction, которые особенно важны для дальнейшей реализации:
 
 ```text
-initialize
-reset
-read state
-compute
-publish state
-observe outcome
-update runtime state
-learn
-checkpoint
-restore
-shutdown
+CognitiveState ≠ Agent Snapshot ≠ Checkpoint
+CognitiveState ≠ Workspace
+MemoryRecord ≠ representation/index
+Memory Core ≠ Memory Regulation
+Retrieval ≠ Agent Memory Replay ≠ Training Replay
+Consolidation ≠ Learning Update
+World Prediction ≠ observed fact
+Intrinsic Signal ≠ Drive ≠ Value
+Appraisal ≠ Affect ≠ Valuation
+SalienceProfile ≠ AttentionAllocation
+Scheduler ≠ Executive Control ≠ Policy
+Planner ≠ Policy
+SelectedActionIntent ≠ AuthorizedAction ≠ Action Commit
+Action Commit ≠ Dispatch ≠ Environment Transition
+ExperienceEvent ≠ TrainingSample
+Training Runtime ≠ cognition
+CandidateRevisionBundle ≠ Active AgentRevision
+MINDRA-Eval ≠ Engineering Testing
+Observation ≠ Interpretation ≠ ResearchClaim
+functional similarity ≠ phenomenological equivalence
 ```
 
-Нужно решить:
-
-- какие методы обязательны/опциональны;
-- deterministic mode;
-- train/eval mode;
-- dependency declaration;
-- ordering;
-- error/degradation semantics;
-- `NoOp`/disabled behavior;
-- control implementation behavior;
-- trainable vs stateless modules;
-- module-local private state;
-- scheduler graph;
-- cycle prevention;
-- batch/vectorized environments.
-
-## Результаты
-
-- `module-lifecycle.md`;
-- первое semantic описание `ModuleProtocol`;
-- возможный ADR по scheduler/composition model.
-
-## Gate
-
-Любой будущий module design обязан вписываться в единый lifecycle без ad-hoc специальных вызовов из main loop.
+Полное нормативное чтение задаёт baseline `F31`, а не этот исторический план.
 
 ---
 
-# 10. DU-06 — Observability & Intervention
+# 6. Consistency freeze
 
-## Цель
+`DU-31` закрыл накопившиеся междокументные неоднозначности перед roadmap.
 
-Сделать исследовательскую диагностируемость частью архитектуры до появления сложных модулей.
-
-## Обязательные вопросы
-
-- module input/output tracing;
-- state snapshots;
-- trajectory tracing;
-- intervention hooks;
-- force/override конкретного state;
-- module disable/substitution;
-- counterfactual clone;
-- debug metadata vs agent-visible state;
-- metrics/event emission;
-- privacy/size boundaries для Cortex activations;
-- deterministic capture;
-- causal intervention без скрытого изменения остальных переменных.
-
-## Результат
-
-`observability-and-intervention.md`.
-
-## Gate
-
-Новый модуль нельзя считать research-ready, если его невозможно наблюдать, отключить и причинно вмешаться в его outputs там, где это требуется гипотезой.
-
----
-
-# 11. DU-07 — Environment / MicroWorld Contract
-
-## Цель
-
-Спроектировать контролируемый исследовательский мир и общий Environment boundary.
-
-## Обязательные вопросы
-
-- observation space;
-- action space;
-- objective external feedback отдельно от internal utility;
-- reset/step/clone/restore;
-- procedural generation;
-- hidden rules;
-- train/validation/test world distributions;
-- deterministic seeds;
-- counterfactual branching;
-- environment versioning;
-- task families;
-- failure/termination/truncation;
-- intervention API;
-- minimal baseline tasks;
-- отсутствие скрытой помощи агенту через evaluator.
-
-## Результаты
-
-- `modules/environment.md`;
-- exact Environment contract candidate.
-
-## Research focus
-
-Сравнить подходы Gymnasium-подобных сред, benchmark design для model-based/RL agents и требования собственных causal experiments.
-
-## Gate
-
-Можно специфицировать одинаковый внешний мир для baseline и любой MINDRA configuration.
-
----
-
-# 12. DU-08 — Perception / Canonical Representation
-
-## Цель
-
-Отделить raw Environment/Cortex input от внутреннего representation space остальных модулей.
-
-## Обязательные вопросы
-
-- structured vs learned encoding;
-- canonical representation semantics;
-- modality metadata;
-- missing observations;
-- normalization;
-- representation versioning;
-- reversible provenance;
-- trainable encoder boundary;
-- representation drift;
-- Cortex embedding adapter;
-- no-Cortex mode;
-- representation compatibility across backends.
-
-## Результат
-
-`modules/perception.md`.
-
-## Gate
-
-World Model, Memory и Policy больше не обязаны знать raw environment schema или hidden size конкретной LLM.
-
----
-
-# 13. DU-09 — Goal System
-
-## Цель
-
-Явно отделить цели от reward, drives, appraisal и policy.
-
-## Обязательные вопросы
-
-- external goal;
-- internally generated goal;
-- subgoal;
-- priority;
-- commitment;
-- persistence;
-- completion/failure/abandonment;
-- progress representation;
-- conflict;
-- goal stack/graph;
-- goal provenance;
-- кто имеет право создавать/изменять goal;
-- связь natural-language instruction с canonical goal;
-- связь goals с future valuation.
-
-## Результат
-
-`modules/goals.md`.
-
-## Gate
-
-Остальные модули могут ссылаться на canonical goal semantics, не придумывая собственное понимание «цели».
-
----
-
-# 14. DU-10 — Cortex Boundary
-
-## Цель
-
-Спроектировать заменяемую pretrained «кору» как capability backend, а не как центр архитектуры.
-
-## Обязательные вопросы
-
-- required capabilities;
-- text generation;
-- hidden/embedding access;
-- canonical adapter;
-- multilingual requirements;
-- reasoning mode;
-- context construction;
-- tool/action proposal boundary;
-- soft/latent bridge;
-- text fallback;
-- frozen/adapted modes;
-- `DummyCortex`;
-- `NoCortex`;
-- backend switching;
-- transfer testing;
-- resource reporting;
-- backend identity in checkpoint/experiment record.
-
-## Research focus
-
-При выполнении update провести свежий model comparison по model cards, multilingual benchmarks, memory/VRAM requirements, licensing и доступности hidden-state interfaces.
-
-## Результаты
-
-- `modules/cortex.md`;
-- Cortex contract;
-- ADR по baseline backend только если выбор действительно нужен на design уровне.
-
-## Gate
-
-Ни один non-Cortex module не зависит от конкретной model family.
-
----
-
-# 15. DU-11 — Memory Core
-
-## Цель
-
-Спроектировать нейтральное episodic storage/retrieval до эмоционально/мотивационно регулируемой памяти.
-
-## Обязательные вопросы
-
-- episodic record;
-- temporal identity;
-- provenance;
-- canonical representation for retrieval;
-- indexing;
-- similarity/relevance;
-- retrieval query source;
-- capacity;
-- exact vs approximate retrieval;
-- raw trajectory vs summarized memory;
-- semantic/procedural memory necessity;
-- working memory boundary с `CognitiveState`/Workspace;
-- deterministic replay;
-- storage backend abstraction.
-
-## Не входит
-
-- salience-based retention;
-- forgetting policy;
-- consolidation scheduling.
-
-## Результат
-
-`modules/memory.md` с первой частью Memory Core semantics.
-
-## Gate
-
-Appraisal/Self Model/Policy могут читать прошлый опыт через стабильный retrieval contract.
-
----
-
-# 16. DU-12 — World Model
-
-## Цель
-
-Определить predictive model окружающей среды.
-
-## Обязательные вопросы
-
-- prediction target;
-- latent/observable predictions;
-- action conditioning;
-- one-step/multi-step rollout;
-- uncertainty;
-- prediction error;
-- stochasticity;
-- imagined trajectories;
-- training source;
-- leakage prevention;
-- planning interface;
-- no-op/control implementation;
-- module-specific evaluation.
-
-## Research focus
-
-World-model/model-based RL, recurrent state-space models, Transformer world models и минимальные модели для малых сред.
-
-## Результат
-
-`modules/world-model.md`.
-
-## Gate
-
-Prediction signal имеет точную семантику и может использоваться следующими модулями без знания architecture internals World Model.
-
----
-
-# 17. DU-13 — Self Model
-
-## Цель
-
-Определить, какие свойства собственных возможностей агент моделирует отдельно от World Model.
-
-## Обязательные вопросы
-
-- success probability;
-- competence;
-- capability boundary;
-- uncertainty/calibration;
-- action cost/resource estimate;
-- own-state prediction;
-- history dependence;
-- task/domain specificity;
-- calibration targets;
-- distinction from Cortex verbal self-report;
-- distinction from metacognitive control.
-
-## Результат
-
-`modules/self-model.md`.
-
-## Gate
-
-Self Model имеет measurable predictive targets и calibration metrics, а не описательный personality state.
-
----
-
-# 18. DU-14 — Intrinsic Signal Providers
-
-## Цель
-
-Развести objective-derived intrinsic signals и собственно Drives/Valuation.
-
-## Обязательные вопросы
-
-Кандидатные сигналы:
-
-- novelty;
-- surprise;
-- prediction error;
-- epistemic uncertainty;
-- information gain;
-- uncertainty reduction;
-- competence progress;
-- visitation rarity.
-
-Нужно определить:
-
-- semantic units;
-- normalization;
-- stationarity;
-- noisy-TV/pathological curiosity risks;
-- dependence on World/Self Model;
-- learnable vs deterministic signal;
-- control baselines;
-- logging/evaluation.
-
-## Результат
-
-`modules/intrinsic-signals.md`.
-
-## Gate
-
-Можно говорить «событие ново/неожиданно» отдельно от «агент сейчас хочет новизны».
-
----
-
-# 19. DU-15 — Drives
-
-## Цель
-
-Спроектировать внутренние регулируемые variables, которые изменяют относительную значимость событий во времени.
-
-## Обязательные вопросы
-
-- список категорий на semantic уровне;
-- state dynamics;
-- target/range/homeostasis;
-- decay/recovery;
-- saturation;
-- interaction;
-- update sources;
-- initial conditions;
-- learned vs fixed dynamics;
-- persistence между episodes;
-- relation to goals;
-- relation to intrinsic signals;
-- causal intervention protocol.
-
-## Результат
-
-`modules/drives.md`.
-
-## Gate
-
-Разное Drive state может быть независимо установлено/измерено и не является просто другим названием reward weight.
-
----
-
-# 20. DU-16 — Appraisal
-
-## Цель
-
-Спроектировать контекстную оценку значения конкретного события для текущего агента.
-
-## Обязательные вопросы
-
-- event boundary;
-- input context;
-- relation to goals/drives/world/self/memory;
-- multidimensional output;
-- learnable targets;
-- rule-derived targets;
-- online/offline update;
-- calibration;
-- causal effect requirements;
-- distinction from Valuation;
-- distinction from Affect state.
-
-## Результат
-
-`modules/appraisal.md`.
-
-## Gate
-
-Appraisal имеет собственную многомерную responsibility и не сводится к scalar reward prediction.
-
----
-
-# 21. DU-17 — Affect Dynamics
-
-## Цель
-
-Проверить необходимость отдельного persistent affective state, который интегрирует оценку событий во времени.
-
-## Обязательные вопросы
-
-- какие appraisal outputs интегрируются;
-- decay/inertia/recovery;
-- short/medium-term persistence;
-- saturation;
-- interaction with Drives;
-- downstream modulation;
-- episode/reset semantics;
-- intervention;
-- gate отделения от Appraisal;
-- control implementation.
-
-## Результат
-
-`modules/affect.md` либо ADR/решение объединить эту ответственность с другим модулем.
-
-## Gate
-
-Отдельный Affect сохраняется только если у него есть самостоятельная функциональная роль.
-
----
-
-# 22. DU-18 — Valuation
-
-## Цель
-
-Спроектировать центральную внутреннюю систему ценности — ключевой предмет исходной гипотезы MINDRA.
-
-## Обязательные вопросы
-
-Развести:
+Canonical resolutions:
 
 ```text
-external feedback
-intrinsic signal
-drive state
-goal progress
-appraisal
-affect
-immediate utility
-future value
-risk/uncertainty
+CR-01 Action lifecycle
+CR-02 Memory admission ownership
+CR-03 Replay taxonomy
+CR-04 Consolidation vs Learning Update
+CR-05 candidate/validated/activated revision lifecycle
 ```
 
-Нужно решить:
+Их нормативный owner:
 
-- vector-valued representation;
-- scalarization, если требуется;
-- context-dependent weights;
-- learned vs structured aggregation;
-- state/action value;
-- critic boundary;
-- temporal discounting;
-- risk sensitivity;
-- conflicts между criteria;
-- stability/identifiability;
-- causal evaluation;
-- relation to Policy.
+- [`contract-adr-consistency-freeze.md`](contract-adr-consistency-freeze.md);
+- [`contracts/semantic-freeze-manifest.md`](contracts/semantic-freeze-manifest.md);
+- специализированные поздние canonical owners соответствующих responsibilities.
 
-## Результат
-
-`modules/valuation.md` + возможный ключевой ADR.
-
-## Gate
-
-Policy получает decision-relevant value через явный contract; внутренняя ценность не растворена в непрозрачной общей loss-функции.
+Version-specific design не должен возвращаться к более ранней generic формулировке, если она была уточнена F31.
 
 ---
 
-# 23. DU-19 — Salience / Attention Control
+# 7. Правило для будущих изменений
 
-## Цель
+Завершение DU-cycle не означает, что архитектура объявлена неизменной навсегда.
 
-Спроектировать приоритетность информации и распределение ограниченного cognitive processing.
-
-## Обязательные вопросы
-
-- salience inputs;
-- event/item granularity;
-- attention priority;
-- memory write priority;
-- replay priority;
-- Workspace admission;
-- optional compute allocation;
-- normalization/competition;
-- persistence;
-- future-utility target;
-- off-target effects;
-- intervention.
-
-## Результат
-
-`modules/salience.md`.
-
-## Gate
-
-Salience обязательно имеет downstream causal effects; декоративный score не считается модулем.
-
----
-
-# 24. DU-20 — Memory Regulation / Consolidation
-
-## Цель
-
-Добавить к Memory Core управляемое сохранение, забывание, replay и consolidation.
-
-## Обязательные вопросы
-
-- retention;
-- eviction;
-- forgetting;
-- replay selection;
-- prioritized replay;
-- salience integration;
-- memory aging;
-- consolidation target;
-- slow weight updates;
-- semantic abstraction;
-- catastrophic forgetting;
-- provenance влияния memory на future learning;
-- shuffled/no-memory controls.
-
-## Результат
-
-Обновление `modules/memory.md` + `memory-consolidation.md`, если область окажется достаточно самостоятельной.
-
-## Gate
-
-Память может доказуемо выбирать/сохранять опыт полезнее случайного или purely recent baseline.
-
----
-
-# 25. DU-21 — Workspace
-
-## Цель
-
-Определить ограниченный общий интеграционный механизм и доказать, что он отличается от обычного state bus.
-
-## Обязательные вопросы
-
-- candidate admission;
-- capacity;
-- competition/gating;
-- broadcast/read semantics;
-- persistence;
-- consumers;
-- relation to Salience;
-- relation to Cortex;
-- relation to Memory;
-- intervention;
-- no-workspace baseline;
-- exact distinction from `CognitiveState`.
-
-## Research focus
-
-Global Workspace Theory как функциональная гипотеза, современные workspace-like neural mechanisms и engineering alternatives без антропоморфного предположения.
-
-## Результат
-
-`modules/workspace.md` либо аргументированное решение не выделять отдельный Workspace.
-
-## Gate
-
-Отдельный Workspace имеет measurable role сверх общего state exchange.
-
----
-
-# 26. DU-22 — Metacognitive / Executive Control
-
-## Цель
-
-Определить, нужен ли отдельный механизм, который регулирует **сам процесс вычисления**, используя Self Model/uncertainty/goals/value.
-
-## Обязательные вопросы
-
-- strategy selection;
-- memory retrieval decision;
-- planner depth;
-- Cortex invocation;
-- compute budget;
-- uncertainty-triggered verification;
-- exploration/exploitation mode;
-- goal focus switching;
-- self-monitoring;
-- relation to fixed scheduler;
-- relation to Self Model;
-- relation to Policy/Workspace.
-
-## Результат
-
-`modules/executive-control.md` либо ADR о распределении ответственности между существующими модулями.
-
-## Gate
-
-Executive Control сохраняется отдельным только при самостоятельной causal responsibility.
-
----
-
-# 27. DU-23 — Policy / Planner
-
-## Цель
-
-Определить границу выбора действия после того, как уже известны representations, goals, value, memory и predictive state.
-
-## Обязательные вопросы
-
-- model-free policy;
-- model-based planner;
-- hierarchical planning;
-- subgoals;
-- candidate action generation;
-- action distribution;
-- exploration;
-- World Model rollouts;
-- Cortex reasoning contribution;
-- critic coupling;
-- deterministic evaluation;
-- conflict resolution;
-- fallback/degradation;
-- no-Cortex mode.
-
-## Результат
-
-`modules/policy.md`.
-
-## Gate
-
-Policy отвечает за action selection, но не владеет скрытыми копиями Goals/Valuation/Memory.
-
----
-
-# 28. DU-24 — Action Boundary
-
-## Цель
-
-Отделить candidate/selected action от фактического исполнения и наблюдаемого outcome.
-
-## Обязательные вопросы
-
-- action validation;
-- feasibility;
-- constraint/safety hooks;
-- action identity;
-- dispatch;
-- failure;
-- timeout;
-- unknown outcome;
-- cancellation, если применимо;
-- executed vs requested action;
-- outcome attribution;
-- trajectory linkage;
-- future external-tool boundary.
-
-## Результат
-
-`modules/action.md` или `action-boundary.md`.
-
-## Gate
-
-Research trace может однозначно связать решение, фактическое действие и последствие.
-
----
-
-# 29. DU-25 — Experience / Data / Replay
-
-## Цель
-
-Определить каноническую запись опыта после того, как все основные module outputs известны.
-
-## Обязательные вопросы
-
-Trajectory record должен рассмотреть:
-
-- observation;
-- canonical representation;
-- internal state snapshot/reference;
-- active goals;
-- module outputs;
-- action proposal/selection/execution;
-- prediction;
-- outcome;
-- external feedback;
-- intrinsic signals;
-- appraisal/affect/value/salience;
-- memory reads/writes;
-- timestamps/steps;
-- provenance;
-- seed/world/version;
-- leakage controls.
-
-Также:
-
-- replay sampling;
-- train/eval split;
-- dataset versioning;
-- retention;
-- synthetic/human annotations;
-- schema evolution.
-
-## Результат
-
-`data-and-replay.md` + experiment/trajectory contract candidate.
-
-## Gate
-
-Training и evaluation могут работать с одним reproducible experience representation.
-
----
-
-# 30. DU-26 — Training Lifecycle
-
-## Цель
-
-Спроектировать обучение всей композиции без требования end-to-end update каждого параметра на каждом шаге.
-
-## Обязательные вопросы
-
-- module pretraining;
-- frozen/trainable sets;
-- online learning;
-- offline replay;
-- consolidation;
-- alternating updates;
-- joint training;
-- optimizer ownership;
-- gradient boundaries;
-- stop-gradient;
-- Cortex adaptation;
-- curriculum;
-- catastrophic forgetting;
-- stability;
-- resume semantics;
-- stopping criteria;
-- evaluation isolation;
-- compute-aware scheduling.
-
-## Результат
-
-`training.md`.
-
-## Gate
-
-Для каждого trainable module понятно: **что, когда, на каких данных и каким signal его обучает**.
-
----
-
-# 31. DU-27 — Checkpoint / Reproducibility / Compute
-
-## Цель
-
-Сделать experiment resumable и воспроизводимым на неоднородном compute.
-
-## Обязательные вопросы
-
-- versioned checkpoint composition;
-- module states;
-- optimizer states;
-- random generators;
-- environment state;
-- replay/data cursor;
-- Cortex identity;
-- adapter identity;
-- configuration hash;
-- repository commit;
-- artifact manifest;
-- CPU/GPU device mapping;
-- local/Colab/remote compute profiles;
-- interruption/resume;
-- storage atomicity;
-- checkpoint compatibility.
-
-## Результаты
-
-- `checkpointing.md`;
-- `reproducibility.md`;
-- exact checkpoint/experiment-record contracts.
-
-## Gate
-
-Значимый experiment можно восстановить без зависимости от исходной transient VM.
-
----
-
-# 32. DU-28 — MINDRA-Eval
-
-## Цель
-
-Превратить общую research methodology в точный evaluation harness.
-
-## Обязательные вопросы
-
-- baseline matrix;
-- Cortex-only/no-Cortex;
-- module ablations;
-- random/constant/shuffled controls;
-- parameter/compute-matched controls;
-- factorial interactions;
-- causal interventions;
-- counterfactual branching;
-- transfer between Cortex backends;
-- generalization;
-- adaptation speed;
-- module-specific metrics;
-- seed policy;
-- uncertainty/confidence intervals;
-- primary/secondary endpoints;
-- experiment registry;
-- negative result acceptance;
-- composite score policy или осознанный отказ от одного score.
-
-## Результат
-
-`evaluation.md` + future MINDRA-Eval contract.
-
-## Gate
-
-Для каждой ключевой архитектурной гипотезы существует тест, который способен не только подтвердить, но и ослабить/опровергнуть её.
-
----
-
-# 33. DU-29 — Engineering Testing
-
-## Цель
-
-Отделить software correctness от research evaluation.
-
-## Обязательные классы
-
-- static/lint/type;
-- architecture dependency tests;
-- unit;
-- contract;
-- component integration;
-- environment determinism;
-- state clone/restore;
-- checkpoint roundtrip;
-- CPU/GPU compatibility;
-- failure injection;
-- resume/recovery;
-- serialization/version compatibility;
-- smoke experiment;
-- optional long/full profiles.
-
-## Результат
-
-`testing.md`.
-
-## Gate
-
-Green research metric не может маскировать broken engineering contract.
-
----
-
-# 34. DU-30 — Research Claims / Limitations
-
-## Цель
-
-Зафиксировать допустимые уровни интерпретации результатов до публикации серьёзных experiment claims.
-
-## Обязательные вопросы
-
-- functional vs phenomenal claims;
-- anthropomorphic terminology;
-- what evidence supports what wording;
-- known confounders;
-- model-size dependence;
-- environment artificiality;
-- biological analogy limits;
-- external validity;
-- safety/agent autonomy boundaries;
-- negative evidence;
-- unsupported consciousness claims.
-
-## Результаты
-
-- `research-claims.md`;
-- `limitations.md`.
-
-## Gate
-
-Ни design, ни README, ни experiment report не могут делать более сильный вывод, чем позволяет evidence class.
-
----
-
-# 35. DU-31 — Contract + ADR Consistency Freeze
-
-## Цель
-
-Перед version roadmap закрыть архитектурную неоднозначность, которая иначе будет передана Codex как implementation guess.
-
-## Проверить
-
-- у каждой темы один canonical owner;
-- все значимые choices имеют accepted ADR или явно остаются deferred;
-- superseded решения не выглядят активными;
-- module inputs/outputs/lifecycle согласованы;
-- `CognitiveState` namespaces согласованы;
-- exact internal contracts отражают semantic design;
-- training/evaluation/checkpoint contracts совместимы;
-- glossary не конфликтует с module docs;
-- никаких hidden TODO, требующих архитектурного решения во время coding.
-
-## Результат
-
-Design line получает статус `ready for version planning`.
-
-## Gate
-
-Codex не должен быть вынужден самостоятельно выбирать архитектуру для первого implementation milestone.
-
----
-
-# 36. DU-32 — Version Roadmap
-
-## Цель
-
-Только теперь разбить принятую архитектуру на implementation milestones.
-
-## Принципы разбиения
-
-Каждая версия должна:
-
-- быть вертикально проверяемой;
-- иметь dependency-complete scope;
-- не требовать заведомого rewrite следующей версией;
-- иметь baseline/acceptance evidence;
-- соответствовать доступному compute;
-- не добавлять слишком много новых learning dynamics одновременно;
-- иметь чёткие non-goals.
-
-После roadmap для каждой версии отдельно проектируются:
+Если implementation или research evidence обнаруживает semantic blocker:
 
 ```text
-versions/vX.Y/README.md
-versions/vX.Y/implementation-sequence.md
+blocker / evidence
+→ design review
+→ новый ADR при semantic change
+→ canonical owner / contract update
+→ новая freeze baseline revision
+→ roadmap/version update
+→ implementation
 ```
 
-И только затем появляются прямые задания Codex на реализацию.
+Нельзя исправлять semantic mismatch только локальным кодом или version README.
+
+Если меняется лишь concrete implementation choice при сохранении F31 meaning, новый global DU не требуется.
 
 ---
 
-# 37. Почему некоторые области специально разделены
+# 8. Текущий следующий шаг
 
-## 37.1 Appraisal ≠ Affect ≠ Valuation
+Этот документ больше **не определяет текущий следующий шаг**.
 
-```text
-Appraisal
-→ что текущее событие означает для агента
+Фактический статус находится только в [`current.md`](current.md).
 
-Affect
-→ какое сохраняющееся внутреннее состояние сформировалось во времени
-
-Valuation
-→ какую decision-relevant ценность имеют состояния/действия
-```
-
-Их можно позже объединить, но сначала семантики должны быть разведены, чтобы не создать один непрозрачный «эмоциональный reward module».
-
-## 37.2 Intrinsic Signal ≠ Drive
+На момент завершения `DU-32` следующий этап установлен как:
 
 ```text
-novelty = свойство опыта
-novelty drive = текущая внутренняя потребность в исследовании
+Version Design — v0.1 Core Kernel
 ```
 
-Это разные причины изменения поведения.
-
-## 37.3 Self Model ≠ Executive Control
-
-Self Model может оценивать собственную компетентность, но Executive Control — если он нужен — использует такие оценки для изменения **самой стратегии вычисления**.
-
-## 37.4 Salience ≠ Workspace
-
-Salience определяет приоритет; Workspace определяет ограниченную общую доступность выбранной информации.
-
-## 37.5 CognitiveState ≠ Workspace
-
-`CognitiveState` — инженерный канонический state exchange. Workspace — потенциальный функциональный механизм cognition. Их смешение сделало бы исследовательскую гипотезу непроверяемой.
-
-## 37.6 Scheduler ≠ Executive Control
-
-Scheduler обеспечивает deterministic correctness runtime graph. Executive Control, если будет принят, является агентным механизмом, способным выбирать, какие cognitive операции выполнять.
-
-## 37.7 Memory Core ≠ Memory Regulation
-
-Сначала существует нейтральное storage/retrieval. Потом Salience/Appraisal/Valuation могут регулировать retention/replay/consolidation. Это уменьшает циклические design dependencies.
-
----
-
-# 38. Параллельность design-работ
-
-По умолчанию `DU` выполняются последовательно.
-
-Допускается параллельный research без принятия решений, если темы независимы. Например, можно заранее собирать literature notes по World Model и Cortex.
-
-Но canonical update не должен приниматься, если его inputs ещё не определены предыдущими prerequisites.
-
-Пример:
+Перед coding должны быть приняты:
 
 ```text
-можно заранее исследовать Dreamer-подходы
-нельзя зафиксировать World Model contract
-до принятия Environment/Representation semantics
+docs/versions/v0.1/README.md
+docs/versions/v0.1/implementation-sequence.md
 ```
 
----
-
-# 39. Правило изменения порядка
-
-Этот план не является догмой.
-
-Если при выполнении `DU-N` выясняется, что следующий update требует нового фундаментального вопроса:
-
-1. зафиксировать blocker;
-2. определить новый/переставленный Design Update;
-3. обновить dependency graph;
-4. обновить `current.md`;
-5. только потом продолжать.
-
-Нельзя решать фундаментальный blocker внутри downstream module document как локальный implementation detail.
-
----
-
-# 40. Текущий следующий шаг
-
-После завершения `DU-00` следующий допустимый update:
-
-```text
-DU-01 — System Context
-```
-
-После него:
-
-```text
-DU-02 — Dependency & Composition Rules
-→ DU-03 — Runtime / Temporal Model
-→ DU-04 — CognitiveState Semantics
-```
-
-Детальный design когнитивных модулей до завершения этого фундамента считается преждевременным.
+После начала реализации дальнейшее движение определяется version-specific design, acceptance gates и `current.md`, а не историческим порядком `DU-00 … DU-32`.
