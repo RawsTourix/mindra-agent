@@ -4,21 +4,27 @@
 
 Этот каталог хранит machine-facing semantic contracts принятых subsystem/data/training/reproducibility/evaluation/testing/research-claim boundaries.
 
-После `DU-31 — Contract + ADR Consistency Freeze` contracts `DU-07 … DU-30` считаются **semantic-frozen for roadmap baseline F31**.
+После `DU-31` contracts `DU-07 … DU-30` считаются **semantic-frozen for baseline F31**.
+
+После `DU-32` они являются нормативным входом для каждого version-specific design.
 
 Это означает:
 
 - responsibility/ownership/lifecycle/source/provenance meaning frozen;
-- exact Python/API/serialization representation **не frozen**;
+- exact Python/API/serialization representation не frozen;
 - version specification может конкретизировать representation без нового ADR, если semantic meaning сохраняется.
 
 Freeze manifest:
 
-- [`semantic-freeze-manifest.md`](semantic-freeze-manifest.md).
+- [`semantic-freeze-manifest.md`](semantic-freeze-manifest.md)
 
 Canonical consistency owner:
 
-- [`../contract-adr-consistency-freeze.md`](../contract-adr-consistency-freeze.md).
+- [`../contract-adr-consistency-freeze.md`](../contract-adr-consistency-freeze.md)
+
+Canonical roadmap:
+
+- [`../version-roadmap.md`](../version-roadmap.md)
 
 ---
 
@@ -73,13 +79,11 @@ Contract должен сохранять, где применимо:
 - control/No*/Dummy semantics;
 - machine-checkable invariants, где practically возможно.
 
-Exact implementation detail одного backend не должен протекать в contract meaning без нового design justification/ADR.
+Exact implementation detail одного backend не должен протекать в contract meaning без нового ADR.
 
 ---
 
 # Freeze consistency resolutions
-
-Baseline F31 применяет:
 
 ```text
 CR-01 Action lifecycle
@@ -103,12 +107,8 @@ Cortex ≠ ambient Agent-state owner
 MemoryRecord ≠ embedding/index
 Memory Core ≠ Memory Regulation
 World Prediction ≠ observed fact
-Self Prediction ≠ Policy decision
 Intrinsic Signal ≠ reward/value
-Drive State ≠ global motivation/value
-Appraisal ≠ emotion/value/Affect
-Affect ≠ emotion label/Drive/value
-ValueProfile ≠ mandatory scalar/reward/Policy decision
+Appraisal ≠ Affect ≠ Valuation
 SalienceProfile ≠ AttentionAllocation
 Retrieval ≠ Memory Replay ≠ Training Replay
 Consolidation ≠ Learning Update
@@ -117,8 +117,7 @@ Executive Control ≠ Scheduler ≠ Policy
 Policy ≠ Planner
 SelectedActionIntent ≠ AuthorizedAction ≠ Action Commit
 Action Commit ≠ Dispatch ≠ Environment Transition
-Experience Journal ≠ Agent runtime state
-Source Experience ≠ TrainingSample
+ExperienceEvent ≠ TrainingSample
 Training Runtime ≠ cognitive module
 runtime dependency graph ≠ gradient graph
 CandidateRevisionBundle ≠ Active AgentRevision
@@ -126,38 +125,42 @@ AgentSnapshot ≠ persistent Checkpoint
 same seed ≠ same RNG state ≠ guaranteed same execution
 ComputeManifest ≠ CognitiveResourceEnvelope
 Evaluation Runtime ≠ Agent cognition
-Task score ≠ module/causal/calibration evidence
 Engineering Testing ≠ MINDRA-Eval
 Observation ≠ Interpretation ≠ ResearchClaim
-ClaimScope ≠ universal scope
-association ≠ causation
-engineering verified ≠ functionally useful
 functional similarity ≠ phenomenological equivalence
 ```
 
 ---
 
-# Что всё ещё НЕ frozen
+# Что НЕ frozen
 
-До concrete version specification не считать canonical implementation choice:
+До concrete version specification не считать global canonical implementation choice:
 
 - `Protocol`/ABC/dataclass/TypedDict/Pydantic/TensorDict;
 - exact field names/enum strings/status codes;
-- exact tensor dimensions/dtypes;
+- tensor dimensions/dtypes;
 - package/file layout;
-- concrete model/backend/algorithm;
+- model/backend/algorithm;
 - storage/index/checkpoint format;
 - optimizer/training library;
-- pytest/Hypothesis/Import Linter/CI tooling;
+- testing/CI tooling;
 - benchmark/statistical package/threshold;
-- report/preregistration/tracker framework;
+- report/tracker framework;
 - deployment/provider/hardware topology.
 
 ---
 
-# Breaking semantic change
+# Roadmap interaction
 
-После F31 изменение semantic owner/lifecycle/source/visibility/causal ordering требует:
+`DU-32` может определить, **в какой версии** появляется substantial implementation contract, но не менять его meaning.
+
+Ранняя версия может использовать `No*`/Dummy/control implementation, если это допускается frozen contract и явно указано version scope.
+
+Version-specific exact representation живёт в `docs/versions/vX.Y/` и не становится global semantic requirement автоматически.
+
+---
+
+# Breaking semantic change
 
 ```text
 design review
@@ -166,19 +169,19 @@ design review
 → contract update
 → freeze baseline revision
 → VerificationObligation update
-→ version plan/code
+→ roadmap/version update
+→ code
 ```
-
-Version specification не может молча переопределить F31.
 
 ---
 
-# Иерархия после DU-31
+# Иерархия после DU-32
 
 ```text
 accepted ADR + canonical design
 → Semantic Freeze Baseline F31
 → semantic-frozen contracts
+→ DU-32 Version Roadmap
 → version specification / exact contracts
 → implementation sequence
 → implementation
