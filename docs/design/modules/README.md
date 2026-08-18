@@ -2,11 +2,11 @@
 
 ## Статус
 
-Этот документ — карта принятых cognitive/runtime boundaries и внешних data/training/reproducibility/evaluation/testing/research-claim областей. Канонический статус определяется специализированными design docs, [`../contract-adr-consistency-freeze.md`](../contract-adr-consistency-freeze.md) и [`../current.md`](../current.md).
+Этот документ — карта принятых cognitive/runtime boundaries и внешних data/training/reproducibility/evaluation/testing/research-claim областей. Канонический статус определяется специализированными design docs, semantic baseline [`../contract-adr-consistency-freeze.md`](../contract-adr-consistency-freeze.md), roadmap [`../version-roadmap.md`](../version-roadmap.md) и [`../current.md`](../current.md).
 
 Отдельный cognitive module существует только при самостоятельной ответственности, явной boundary/state semantics и независимо проверяемом causal вкладе.
 
-`DU-25 … DU-30` находятся **вне cognitive module chain**. `DU-31` — governance/consistency freeze, а не module/plane.
+`DU-25 … DU-30` находятся вне cognitive module chain. `DU-31` — consistency freeze. `DU-32` — software roadmap.
 
 ---
 
@@ -35,7 +35,7 @@ DU-24  Action Boundary / Gate / Executor
 
 ---
 
-# 2. Завершённая cognitive interaction chain
+# 2. Cognitive interaction map
 
 ```text
 Environment
@@ -75,74 +75,52 @@ Environment
 
 ---
 
-# 3. Внешние planes вокруг cognition
+# 3. Внешние planes
 
 ```text
 Agent / Environment / Runtime
           │
-          ├──→ Evidence / Experience Plane (DU-25)
+          ├──→ Experience / Data (DU-25)
           │          ↓
-          │      Training Plane (DU-26)
-          │          ↓
-          │   candidate / activation
+          │      Training (DU-26)
           │
           ├──→ Checkpoint / Reproducibility / Compute (DU-27)
-          │
-          ├──→ Evaluation Plane (DU-28)
-          │       research evidence
-          │
-          ├──→ Engineering Verification Plane (DU-29)
-          │       contract/invariant evidence
-          │
-          └──→ Research Claims / Limitations Plane (DU-30)
-                  interpretation / scoped claims /
-                  limitations / known unknowns
+          ├──→ Evaluation (DU-28)
+          ├──→ Engineering Verification (DU-29)
+          └──→ Research Claims / Limitations (DU-30)
 ```
 
 Canonical owners:
 
-- [`../experience-data-replay.md`](../experience-data-replay.md) — `DU-25`;
-- [`../training-lifecycle.md`](../training-lifecycle.md) — `DU-26`;
-- [`../checkpoint-reproducibility-compute.md`](../checkpoint-reproducibility-compute.md) — `DU-27`;
-- [`../mindra-eval.md`](../mindra-eval.md) — `DU-28`;
-- [`../engineering-testing.md`](../engineering-testing.md) — `DU-29`;
-- [`../research-claims-limitations.md`](../research-claims-limitations.md) — `DU-30`.
-
-Ключевые различия:
-
-```text
-Experience Journal ≠ Agent runtime state
-Training Runtime ≠ cognitive module
-Checkpoint ≠ ExperimentManifest
-Evaluation Runtime ≠ Agent cognition
-Engineering Testing ≠ MINDRA-Eval
-ResearchClaim ≠ Evaluation metric
-Observation ≠ Interpretation ≠ Claim
-Test Oracle ≠ Agent-visible input
-functional similarity ≠ phenomenological equivalence
-```
+- [`../experience-data-replay.md`](../experience-data-replay.md)
+- [`../training-lifecycle.md`](../training-lifecycle.md)
+- [`../checkpoint-reproducibility-compute.md`](../checkpoint-reproducibility-compute.md)
+- [`../mindra-eval.md`](../mindra-eval.md)
+- [`../engineering-testing.md`](../engineering-testing.md)
+- [`../research-claims-limitations.md`](../research-claims-limitations.md)
 
 ---
 
 # 4. Semantic Freeze Baseline F31
 
-После `DU-31` вся карта читается через:
+После `DU-31` карта читается через:
 
-- [`../contract-adr-consistency-freeze.md`](../contract-adr-consistency-freeze.md);
-- [`../contracts/semantic-freeze-manifest.md`](../contracts/semantic-freeze-manifest.md);
-- [`../decisions/ADR-0031-semantic-contract-consistency-freeze.md`](../decisions/ADR-0031-semantic-contract-consistency-freeze.md).
+- [`../contract-adr-consistency-freeze.md`](../contract-adr-consistency-freeze.md)
+- [`../contracts/semantic-freeze-manifest.md`](../contracts/semantic-freeze-manifest.md)
 
-Frozen смысл:
+Frozen:
 
 ```text
 semantic owner / lifecycle / source / causal boundary
-= frozen for roadmap
-
-exact Python/API/algorithm/storage
-= version choice
 ```
 
-Особенно обязательны consistency resolutions:
+Version choice:
+
+```text
+exact Python/API/algorithm/storage/backend
+```
+
+Обязательные consistency resolutions:
 
 ```text
 CR-01 Action lifecycle
@@ -154,60 +132,60 @@ CR-05 candidate/validated/activated revision lifecycle
 
 ---
 
-# 5. Research evidence → claims
+# 5. Software roadmap
 
-Scientific reporting chain:
+`DU-32` не меняет эту module map. Он определяет порядок **реализации vertical slices**:
 
 ```text
-Evaluation / Verification Evidence
-          ↓
-      Observation
-          ↓
-     Interpretation
-          ↓
-      ResearchClaim
-      + ClaimScope
-      + Limitations
-      + KnownUnknowns
-          ↓
-      ClaimReview /
-      supersession
+v0.1 Core Kernel
+→ v0.2 MicroWorld Interaction
+→ v0.3 Cortex Gateway
+→ v0.4 Memory & Restore
+→ v0.5 World & Self
+→ v0.6 Intrinsic / Drives / Appraisal
+→ v0.7 Affect / Valuation / Salience
+→ v0.8 Memory Regulation / Workspace
+→ v0.9 Executive / Planner
+→ v0.10 Training & Revision Lifecycle
+→ v0.11 Research Harness
+→ v0.12 Integration Hardening
+→ v1.0 MINDRA Research Baseline
 ```
 
-Engineering Testing и Research Claims не входят в cognition и не получают write authority Agent state.
+Canonical roadmap: [`../version-roadmap.md`](../version-roadmap.md).
+
+Ранний milestone может использовать `No*`/Dummy/control implementation поздней boundary, если её semantic contract сохраняется.
 
 ---
 
-# 6. Следующий Design Update
-
-```text
-DU-32 — Version Roadmap
-```
-
-Это не новая cognitive subsystem.
-
-Задача:
-
-> разбить semantic-frozen baseline `F31` на dependency-complete, вертикально проверяемые software versions и определить, какие frozen boundaries реализуются на каждом milestone, а какие временно представлены `No*`/Dummy/control implementations.
-
----
-
-# 7. Diagnostic rule
+# 6. Diagnostic rule
 
 Для cognitive subsystem требуются, где применимо, `No*`/Dummy/matched controls, observability, interventions, snapshots и causal metrics.
 
-Для Experience/Data — lineage/leakage/schema/replay controls `DU-25`.
+Для Experience/Data — lineage/leakage/schema/replay controls.
 
-Для Training — revision/gradient/data/activation correctness `DU-26`.
+Для Training — revision/gradient/data/activation correctness.
 
-Для Checkpoint — scope/integrity/restore/RNG/Environment/compute provenance `DU-27`.
+Для Checkpoint — scope/integrity/restore/RNG/Environment/compute provenance.
 
-Для Evaluation — condition/replicate/statistics/attribution validity `DU-28`.
+Для Evaluation — condition/replicate/statistics/attribution validity.
 
-Для Engineering Testing — explicit VerificationObligation/Matrix, failure paths и environment-scoped evidence `DU-29`.
+Для Engineering Testing — `VerificationObligation/Matrix`, failure paths и environment-scoped evidence.
 
-Для Research Claims — scope/evidence/limitations/known-unknowns/supersession discipline `DU-30`.
+Для Research Claims — scope/evidence/limitations/known-unknowns/supersession discipline.
 
-Для version planning — semantic baseline `F31` не переопределяется без нового ADR.
+Для version planning — F31 не переопределяется без нового ADR.
 
-Следующий допустимый этап определяется только [`../current.md`](../current.md).
+---
+
+# 7. Следующий этап
+
+Общий DU-cycle завершён.
+
+Следующая разрешённая работа:
+
+```text
+Version Design — v0.1 Core Kernel
+```
+
+Фактический статус определяется только [`../current.md`](../current.md).
