@@ -4,7 +4,7 @@
 
 **Статус:** `accepted`  
 **Назначение:** единый source of truth для задания Codex на один implementation step  
-**Текущая revision шаблона:** `CSPT-01`
+**Текущая revision шаблона:** `CSPT-02`
 
 Этот файл задаёт обязательную структуру prompt для implementation-задач MINDRA.
 
@@ -201,6 +201,9 @@ CI NOT AVAILABLE — среда не имеет доступа к Actions
    - GitHub Actions по каждому declared job/OS: PASS/FAIL/PENDING/RUNNING/NOT AVAILABLE.
 7. Остались ли blockers, риски или незакрытые вопросы.
 8. Можно ли считать implementation текущего step завершённой со стороны Codex.
+9. Предложи одно краткое название коммита в стиле Conventional Commits, отражающее фактический scope этого implementation step.
+
+Самостоятельно не создавай и не отправляй commit/push, если это прямо не разрешено текущим заданием. Предложение названия коммита не является разрешением на commit.
 
 Не обновляй самостоятельно docs/design/current.md, milestone status и не открывай следующий implementation step, если это не является прямым scope текущего этапа. Следующий step открывается только после отдельного ChatGPT audit.
 ```
