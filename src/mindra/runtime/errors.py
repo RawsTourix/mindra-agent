@@ -1,6 +1,6 @@
-"""Слой исполнения Core Kernel MINDRA."""
+"""Runtime-facing exports typed ошибок Core Kernel."""
 
-from mindra.runtime.errors import (
+from mindra.contracts.errors import (
     AvailabilityError,
     CommitValidationError,
     CompositionError,
@@ -18,7 +18,6 @@ from mindra.runtime.errors import (
     UndeclaredReadError,
     WaveExecutionError,
 )
-from mindra.runtime.identity import DeterministicIdFactory, Uuid7IdFactory
 
 __all__ = [
     "AvailabilityError",
@@ -26,7 +25,6 @@ __all__ = [
     "CompositionError",
     "ConfigurationError",
     "DependencyCycleError",
-    "DeterministicIdFactory",
     "DuplicateIdentityError",
     "ExecutionPlanError",
     "InterventionError",
@@ -37,6 +35,5 @@ __all__ = [
     "StaleProposalError",
     "UnauthorizedWriteError",
     "UndeclaredReadError",
-    "Uuid7IdFactory",
     "WaveExecutionError",
 ]

@@ -86,6 +86,12 @@ class StateNamespace(_SemanticId):
     __slots__ = ()
 
 
+class RuntimeBoundaryId(_SemanticId):
+    """Стабильная identity runtime boundary, публикующей state."""
+
+    __slots__ = ()
+
+
 __all__ = [
     "AgentRevisionId",
     "AgentSessionId",
@@ -104,6 +110,7 @@ __all__ = [
     "ModuleId",
     "ProfileId",
     "RunId",
+    "RuntimeBoundaryId",
     "StateNamespace",
     "WaveAttemptId",
     "WaveId",
