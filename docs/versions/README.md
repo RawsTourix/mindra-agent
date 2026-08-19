@@ -32,13 +32,15 @@ docs/versions/vX.Y/implementation-sequence.md
 
 `implementation-sequence.md` разбивает уже принятый version design на небольшие dependency-ordered implementation steps.
 
+Каждый coding task выполняет только один `IS` и перед переходом дальше проходит verification + ChatGPT audit.
+
 ---
 
 # Планируемые milestones
 
 | Версия | Статус | Название |
 |---|---|---|
-| `v0.1` | design proposed / review | Core Kernel |
+| `v0.1` | implementation ready — `IS-01` next | Core Kernel |
 | `v0.2` | planned | MicroWorld Interaction |
 | `v0.3` | planned | Cortex Gateway |
 | `v0.4` | planned | Memory & Restore |
@@ -52,10 +54,11 @@ docs/versions/vX.Y/implementation-sequence.md
 | `v0.12` | planned | Integration Hardening |
 | `v1.0` | planned | MINDRA Research Baseline |
 
-Текущий proposed design:
+Текущая версия:
 
-- [`v0.1/README.md`](v0.1/README.md) — exact design `Core Kernel`, ожидает review/acceptance;
-- `v0.1/implementation-sequence.md` — ещё не создан и создаётся только после acceptance version design.
+- [`v0.1/README.md`](v0.1/README.md) — accepted exact design `Core Kernel`;
+- [`v0.1/implementation-sequence.md`](v0.1/implementation-sequence.md) — accepted sequence `V0.1-IS-01 … V0.1-IS-16`;
+- первый разрешённый coding step — `V0.1-IS-01`.
 
 Статус конкретной работы всегда определяется [`../design/current.md`](../design/current.md).
 
@@ -102,16 +105,12 @@ docs/versions/vX.Y/implementation-sequence.md
 
 ---
 
-# Следующий шаг
+# Текущий следующий шаг
 
 ```text
-Review / acceptance — v0.1 Core Kernel design
+V0.1-IS-01 — Project bootstrap & verification shell
 ```
 
-После acceptance [`v0.1/README.md`](v0.1/README.md) следующей разрешённой документационной работой станет:
+После реализации и проверки `IS-01` выполняется ChatGPT audit. Только после него открывается `V0.1-IS-02`.
 
-```text
-v0.1/implementation-sequence.md
-```
-
-Implementation не начинается, пока оба документа не имеют accepted status.
+Нельзя перескакивать к последующим implementation steps или начинать `v0.2` до полного acceptance gate `v0.1`.
