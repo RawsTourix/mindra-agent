@@ -19,6 +19,13 @@ from mindra.runtime.errors import (
     WaveExecutionError,
 )
 from mindra.runtime.identity import DeterministicIdFactory, Uuid7IdFactory
+from mindra.runtime.planning import (
+    ExecutionDependency,
+    ExecutionPlan,
+    ExecutionPlanCompiler,
+    ExecutionWave,
+    PlanFingerprint,
+)
 from mindra.runtime.state_store import (
     build_cognitive_state,
     build_state_projection,
@@ -33,11 +40,16 @@ __all__ = [
     "DependencyCycleError",
     "DeterministicIdFactory",
     "DuplicateIdentityError",
+    "ExecutionDependency",
+    "ExecutionPlan",
+    "ExecutionPlanCompiler",
     "ExecutionPlanError",
+    "ExecutionWave",
     "InterventionError",
     "KernelError",
     "MissingFieldError",
     "ModuleExecutionError",
+    "PlanFingerprint",
     "SchemaError",
     "StaleProposalError",
     "UnauthorizedWriteError",
