@@ -38,7 +38,7 @@ research/
 - `DU-29` — property/state-machine testing, architecture checks, flaky/determinism guidance;
 - `DU-30` — research reporting, null/negative evidence, claim scope и consciousness-overclaim boundaries;
 - [`literature/DU-32-version-roadmap-landscape-2026-08.md`](literature/DU-32-version-roadmap-landscape-2026-08.md) — compute/training candidates для roadmap;
-- [`literature/v0.1-core-kernel-tooling-landscape-2026-08.md`](literature/v0.1-core-kernel-tooling-landscape-2026-08.md) — актуальный Python/project/build/type/test/architecture-verification stack для proposed `v0.1 Core Kernel`.
+- [`literature/v0.1-core-kernel-tooling-landscape-2026-08.md`](literature/v0.1-core-kernel-tooling-landscape-2026-08.md) — актуальный Python/project/build/type/test/architecture-verification stack, использованный при принятии `v0.1 Core Kernel`.
 
 Research pass **не является architecture source of truth**. Concrete choice становится version design только после фиксации в `docs/versions/vX.Y/README.md`.
 
@@ -111,6 +111,12 @@ Failed module gate инициирует ClaimReview/design review; architecture 
 
 Общий architecture/roadmap design `DU-00 … DU-32` завершён.
 
-`v0.1 Core Kernel` имеет proposed version design и ожидает review/acceptance перед созданием `implementation-sequence.md`.
+Для `v0.1 Core Kernel` приняты version design и implementation sequence. Следующий этап уже implementation, начиная только с:
+
+```text
+V0.1-IS-01 — Project bootstrap & verification shell
+```
+
+Research/tooling choice `v0.1` зафиксирован version design; новый tooling pass потребуется только при material change внешней среды или перед следующей version, где появится новый dependency choice.
 
 Experiment/hypothesis/claim registry implementation ещё не создан; журнал пока используется в основном для датированных research/tool pass и не смешивается с canonical design.
