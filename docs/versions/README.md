@@ -55,7 +55,7 @@ implementation
 
 | Версия | Статус | Название |
 |---|---|---|
-| `v0.1` | implementation in progress — `IS-01` accepted, `IS-02` open | Core Kernel |
+| `v0.1` | implementation in progress — `IS-02` code/design PASS, CI evidence pending | Core Kernel |
 | `v0.2` | planned | MicroWorld Interaction |
 | `v0.3` | planned | Cortex Gateway |
 | `v0.4` | planned | Memory & Restore |
@@ -74,7 +74,8 @@ implementation
 - [`v0.1/README.md`](v0.1/README.md) — accepted exact design `Core Kernel`;
 - [`v0.1/implementation-sequence.md`](v0.1/implementation-sequence.md) — accepted sequence `V0.1-IS-01 … V0.1-IS-16`;
 - `V0.1-IS-01` — accepted;
-- `V0.1-IS-02` — единственный открытый implementation step.
+- `V0.1-IS-02` — реализован, code/design audit PASS, ожидается post-push CI evidence;
+- `V0.1-IS-03` — закрыт до final acceptance `IS-02`.
 
 Статус конкретной работы всегда определяется [`../design/current.md`](../design/current.md).
 
@@ -157,14 +158,23 @@ Correction commit:
 
 ---
 
-# Текущий следующий шаг
+# Текущий implementation checkpoint
+
+`V0.1-IS-02 — Identity / revision / logical time` реализован commit:
 
 ```text
-V0.1-IS-02 — Identity / revision / logical time
+e457ada1aa8ded3ff70cd47b5328e2bbcc96f724
+feat(core): add identity revision and logical time primitives
 ```
 
-Перед выдачей `IS-02` применимость `CSPT-01` проверена; обновление шаблона не требуется.
+Содержательный ChatGPT audit: `PASS`.
 
-`V0.1-IS-03` и последующие шаги остаются закрыты до implementation + verification + ChatGPT audit `IS-02`.
+Локальный targeted verification и `FULL-C0` по отчёту Codex: `PASS`.
+
+До открытия `IS-03` остаётся подтвердить declared GitHub Actions Ubuntu/Windows для remote implementation commit либо исправить defect внутри scope `IS-02`, если CI его выявит.
+
+Canonical prompt обновлён до `CSPT-02`: итоговый отчёт Codex теперь обязан предлагать краткое название коммита; это не разрешает Codex самостоятельно commit/push.
+
+`V0.1-IS-03` и последующие шаги остаются закрыты до final acceptance `IS-02`.
 
 Нельзя начинать `v0.2` до полного acceptance gate `v0.1`.
