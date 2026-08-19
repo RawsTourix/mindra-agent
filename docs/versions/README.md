@@ -32,10 +32,6 @@ docs/versions/vX.Y/implementation-sequence.md
 
 Только после этого Codex может реализовывать version scope.
 
-`README.md` версии определяет exact selected choices и acceptance criteria.
-
-`implementation-sequence.md` разбивает уже принятый version design на небольшие dependency-ordered implementation steps.
-
 Каждый coding task выполняет только один `IS` и перед переходом дальше проходит:
 
 ```text
@@ -55,7 +51,7 @@ implementation
 
 | Версия | Статус | Название |
 |---|---|---|
-| `v0.1` | implementation in progress — `IS-01…IS-03` accepted, `IS-04` open | Core Kernel |
+| `v0.1` | implementation in progress — `IS-01…IS-04` accepted, `IS-05` open | Core Kernel |
 | `v0.2` | planned | MicroWorld Interaction |
 | `v0.3` | planned | Cortex Gateway |
 | `v0.4` | planned | Memory & Restore |
@@ -73,10 +69,8 @@ implementation
 
 - [`v0.1/README.md`](v0.1/README.md) — accepted exact design `Core Kernel`;
 - [`v0.1/implementation-sequence.md`](v0.1/implementation-sequence.md) — accepted sequence `V0.1-IS-01 … V0.1-IS-16`;
-- `V0.1-IS-01` — accepted;
-- `V0.1-IS-02` — accepted;
-- `V0.1-IS-03` — accepted;
-- `V0.1-IS-04` — единственный открытый implementation step.
+- `V0.1-IS-01 … V0.1-IS-04` — accepted;
+- `V0.1-IS-05` — единственный открытый implementation step.
 
 Статус конкретной работы всегда определяется [`../design/current.md`](../design/current.md).
 
@@ -107,7 +101,7 @@ implementation
 
 - [`../research/literature/v0.1-core-kernel-tooling-landscape-2026-08.md`](../research/literature/v0.1-core-kernel-tooling-landscape-2026-08.md).
 
-При принятии нового version design обязательно проверяется актуальность [`codex-step-prompt-template.md`](codex-step-prompt-template.md). Если версия вводит новые verification profiles, CI semantics, обязательные source-of-truth paths или reporting evidence, шаблон обновляется тем же документационным патчем.
+При принятии нового version design обязательно проверяется актуальность [`codex-step-prompt-template.md`](codex-step-prompt-template.md).
 
 ---
 
@@ -124,13 +118,11 @@ implementation
 - завершаться version acceptance audit;
 - быть совместимым с canonical [`codex-step-prompt-template.md`](codex-step-prompt-template.md).
 
-При каждом изменении implementation sequence и перед открытием следующего `IS` после ChatGPT audit проверяется актуальность prompt template. Если фактические verification/CI/reporting требования изменились, шаблон актуализируется до выдачи следующего coding task.
+Перед открытием следующего `IS` после ChatGPT audit проверяется актуальность prompt template. Если фактические verification/CI/reporting требования изменились, шаблон актуализируется до выдачи следующего coding task.
 
 ---
 
 # Verification workflow
-
-Targeted verification конкретного step не заменяет regression verification уже построенной части версии.
 
 Для `v0.1` после `IS-01` каждый последующий Codex task перед отчётом обязан выполнить:
 
@@ -160,40 +152,54 @@ Correction commit:
 
 `Identity / revision / logical time` принят.
 
-Implementation commit:
-
 ```text
 e457ada1aa8ded3ff70cd47b5328e2bbcc96f724
 feat(core): add identity revision and logical time primitives
 ```
 
-Содержательный ChatGPT audit: `PASS`. Локальный targeted verification и `FULL-C0`: `PASS`. Post-push Ubuntu/Windows CI принят как operator-confirmed evidence.
-
 ## `V0.1-IS-03`
 
 `Availability / provenance / error foundation` принят.
-
-Implementation commit:
 
 ```text
 a5c9f314bb0e9960da0434c6fcfd3556e8e9b5f2
 feat(contracts): add availability provenance and kernel errors
 ```
 
-Содержательный ChatGPT audit: `PASS`. Локальный targeted verification и `FULL-C0`: `PASS`. Post-push Ubuntu/Windows CI принят как operator-confirmed evidence.
+`V01-005` и `V01-010` достигли предусмотренного на этом этапе уровня `foundation/partial`.
 
-`V01-005` и `V01-010` имеют предусмотренный статус `foundation/partial`.
+## `V0.1-IS-04`
+
+`State schema primitives` принят.
+
+Implementation commit:
+
+```text
+86d38ff6232239df190d69db8b75352927ac8b1f
+feat(contracts): add state schema primitives
+```
+
+Correction commit после ChatGPT audit:
+
+```text
+afc1937b82f09a9b7a082c3f5cf8d38fa264a5ef
+fix(contracts): validate enum payload snapshot safety
+```
+
+Correction закрыла snapshot-safety для `Enum` с mutable/nested-mutable underlying value. Targeted verification и local `FULL-C0`: `PASS`; post-push Ubuntu/Windows CI принят как operator-confirmed evidence.
+
+`V01-005` достиг предусмотренного для `IS-04` уровня `substantial`.
 
 ---
 
 # Текущий следующий шаг
 
 ```text
-V0.1-IS-04 — State schema primitives
+V0.1-IS-05 — CognitiveState & StateProjection
 ```
 
-Перед открытием `IS-04` применимость `CSPT-02` проверена. Новых verification profiles, CI jobs, mandatory commands или reporting semantics не появилось, поэтому revision шаблона не меняется.
+Перед открытием `IS-05` применимость `CSPT-02` проверена. Новых verification profiles, CI jobs, mandatory commands или reporting semantics не появилось, поэтому revision шаблона не меняется.
 
-`V0.1-IS-05` и последующие шаги остаются закрыты до implementation + verification + ChatGPT audit `IS-04`.
+`V0.1-IS-06` и последующие шаги остаются закрыты до implementation + verification + ChatGPT audit `IS-05`.
 
 Нельзя начинать `v0.2` до полного acceptance gate `v0.1`.
