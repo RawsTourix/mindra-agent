@@ -43,6 +43,8 @@ jobs:
         run: uv run --locked mypy src tests
 
       - name: Проверить import contracts
+        env:
+          PYTHONUTF8: "1"
         run: uv run --locked lint-imports
 
       - name: Запустить тесты
