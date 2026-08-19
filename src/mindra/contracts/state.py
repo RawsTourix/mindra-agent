@@ -9,7 +9,12 @@ from typing import cast, overload
 from uuid import UUID
 
 from mindra.contracts.availability import Availability, Available, Stale, Unavailable, Unknown
-from mindra.contracts.errors import MissingFieldError, SchemaError
+from mindra.contracts.errors import (
+    AvailabilityError,
+    MissingFieldError,
+    SchemaError,
+    UndeclaredReadError,
+)
 from mindra.contracts.identity import AgentRevisionId, BranchId, LineageId, ModuleId
 from mindra.contracts.provenance import StateProvenance
 from mindra.contracts.revisions import CompositionRevision, SchemaRevision, StateRevision
@@ -272,8 +277,166 @@ class ReadSpec[ValueT]:
             raise TypeError("freshness должен быть FreshnessMode")
 
 
+def _freeze_entry(spec: StateFieldSpec[object], entry: StateEntry[object]) -> StateEntry[object]:
+    """Применить schema ValueContract к payload перед публикацией snapshot."""
+    availability = entry.availability
+    if isinstance(availability, Available):
+        frozen_availability: Availability[object] = Available(
+            spec.value_contract.freeze(availability.value)
+        )
+    elif isinstance(availability, Stale):
+        frozen_availability = Stale(
+            value=spec.value_contract.freeze(availability.value),
+            freshness=availability.freshness,
+        )
+    else:
+        frozen_availability = availability
+    return StateEntry(availability=frozen_availability, provenance=entry.provenance)
+
+
+@dataclass(frozen=True, slots=True, init=False)
+class CognitiveState:
+    """Immutable-by-interface committed canonical state snapshot."""
+
+    envelope: StateEnvelope
+    _entries: Mapping[StatePath, StateEntry[object]]
+
+    def __init__(
+        self,
+        *,
+        schema: StateSchema,
+        envelope: StateEnvelope,
+        entries: Mapping[StatePath, StateEntry[object]],
+    ) -> None:
+        if not isinstance(schema, StateSchema):
+            raise TypeError("schema должен быть StateSchema")
+        if not isinstance(envelope, StateEnvelope):
+            raise TypeError("envelope должен быть StateEnvelope")
+        if not isinstance(entries, Mapping):
+            raise TypeError("entries должен быть Mapping")
+        if envelope.schema_revision != schema.revision:
+            raise SchemaError("StateEnvelope и StateSchema имеют разные schema revision")
+
+        frozen_entries: dict[StatePath, StateEntry[object]] = {}
+        for path, entry in entries.items():
+            if not isinstance(path, StatePath):
+                raise TypeError("entries keys должны быть StatePath")
+            if not isinstance(entry, StateEntry):
+                raise TypeError("entries values должны быть StateEntry")
+            spec = schema.lookup(path)
+            frozen_entries[path] = _freeze_entry(spec, entry)
+
+        object.__setattr__(self, "envelope", envelope)
+        object.__setattr__(self, "_entries", MappingProxyType(frozen_entries))
+
+    @property
+    def entries(self) -> Mapping[StatePath, StateEntry[object]]:
+        """Вернуть read-only mapping без выдачи mutable backing store."""
+        return self._entries
+
+    def read[ValueT](self, key: StateKey[ValueT]) -> StateEntry[ValueT]:
+        """Прочитать canonical entry либо сообщить structural missing."""
+        if not isinstance(key, StateKey):
+            raise TypeError("key должен быть StateKey")
+        try:
+            entry = self._entries[key.path]
+        except KeyError as error:
+            raise MissingFieldError(
+                f"StatePath отсутствует в committed CognitiveState: {key.path}"
+            ) from error
+        return cast(StateEntry[ValueT], entry)
+
+    def __len__(self) -> int:
+        return len(self._entries)
+
+
+@dataclass(frozen=True, slots=True, init=False)
+class StateProjection:
+    """Узкий module-facing view только declared canonical reads."""
+
+    _read_specs: Mapping[StatePath, ReadSpec[object]]
+    _entries: Mapping[StatePath, StateEntry[object]]
+    _logical_time: LogicalTime
+
+    @classmethod
+    def _from_runtime(
+        cls,
+        *,
+        read_specs: Iterable[ReadSpec[object]],
+        entries: Mapping[StatePath, StateEntry[object]],
+        logical_time: LogicalTime,
+    ) -> StateProjection:
+        """Создать projection из подготовленных runtime данных."""
+        if not isinstance(entries, Mapping):
+            raise TypeError("entries должен быть Mapping")
+        if not isinstance(logical_time, LogicalTime):
+            raise TypeError("logical_time должен быть LogicalTime")
+
+        declared: dict[StatePath, ReadSpec[object]] = {}
+        for read_spec in read_specs:
+            if not isinstance(read_spec, ReadSpec):
+                raise TypeError("read_specs должен содержать ReadSpec")
+            path = read_spec.key.path
+            if path in declared:
+                raise SchemaError(f"Duplicate ReadSpec для StatePath: {path}")
+            declared[path] = read_spec
+
+        projected_entries = {path: entry for path, entry in entries.items() if path in declared}
+        projection = object.__new__(cls)
+        object.__setattr__(projection, "_read_specs", MappingProxyType(declared))
+        object.__setattr__(projection, "_entries", MappingProxyType(dict(projected_entries)))
+        object.__setattr__(projection, "_logical_time", logical_time)
+        return projection
+
+    def read[ValueT](self, key: StateKey[ValueT]) -> StateEntry[ValueT]:
+        """Прочитать declared entry с fail-closed availability/freshness checks."""
+        if not isinstance(key, StateKey):
+            raise TypeError("key должен быть StateKey")
+        try:
+            read_spec = self._read_specs[key.path]
+        except KeyError as error:
+            raise UndeclaredReadError(f"Read не объявлен для StatePath: {key.path}") from error
+
+        try:
+            entry = self._entries[key.path]
+        except KeyError as error:
+            raise MissingFieldError(
+                f"StatePath отсутствует в committed CognitiveState: {key.path}"
+            ) from error
+
+        availability_type = type(entry.availability)
+        if availability_type not in read_spec.allowed_availability:
+            raise AvailabilityError(
+                f"Availability {availability_type.__name__} запрещена для StatePath: {key.path}"
+            )
+
+        if read_spec.freshness is FreshnessMode.CURRENT_CYCLE:
+            produced_at = entry.provenance.logical_time
+            current_cycle = (
+                self._logical_time.run_id,
+                self._logical_time.agent_session_id,
+                self._logical_time.episode_id,
+                self._logical_time.decision_window_id,
+                self._logical_time.cognitive_cycle_id,
+            )
+            produced_cycle = (
+                produced_at.run_id,
+                produced_at.agent_session_id,
+                produced_at.episode_id,
+                produced_at.decision_window_id,
+                produced_at.cognitive_cycle_id,
+            )
+            if self._logical_time.cognitive_cycle_id is None or produced_cycle != current_cycle:
+                raise AvailabilityError(
+                    f"StatePath не произведён в текущем cognitive cycle: {key.path}"
+                )
+
+        return cast(StateEntry[ValueT], entry)
+
+
 __all__ = [
     "AvailabilityVariant",
+    "CognitiveState",
     "FreshnessMode",
     "ReadSpec",
     "StateEntry",
@@ -281,6 +444,7 @@ __all__ = [
     "StateFieldSpec",
     "StateKey",
     "StatePath",
+    "StateProjection",
     "StateSchema",
     "ValueContract",
 ]

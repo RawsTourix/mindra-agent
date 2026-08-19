@@ -59,6 +59,7 @@ from mindra.contracts.revisions import (
 )
 from mindra.contracts.state import (
     AvailabilityVariant,
+    CognitiveState,
     FreshnessMode,
     ReadSpec,
     StateEntry,
@@ -66,6 +67,7 @@ from mindra.contracts.state import (
     StateFieldSpec,
     StateKey,
     StatePath,
+    StateProjection,
     StateSchema,
     ValueContract,
 )
@@ -80,6 +82,7 @@ __all__ = [
     "Available",
     "BranchId",
     "CognitiveCycleId",
+    "CognitiveState",
     "CommitId",
     "CommitValidationError",
     "CompositionError",
@@ -122,6 +125,7 @@ __all__ = [
     "StateKey",
     "StateNamespace",
     "StatePath",
+    "StateProjection",
     "StateProvenance",
     "StateRevision",
     "StateSchema",
