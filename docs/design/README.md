@@ -4,7 +4,7 @@
 
 `docs/design/` — каноническое место общей архитектурной документации MINDRA.
 
-Общий design cycle `DU-00 … DU-32` завершён. Semantic architecture заморожена как baseline `F31`, а software roadmap принят. Реализация ещё не начата.
+Общий design cycle `DU-00 … DU-32` завершён. Semantic architecture заморожена как baseline `F31`, software roadmap принят, exact design и implementation sequence `v0.1 Core Kernel` приняты. Production implementation ещё не начата.
 
 ---
 
@@ -86,6 +86,11 @@ v0.1 Core Kernel
 → v1.0 MINDRA Research Baseline
 ```
 
+Current version-specific documents:
+
+- [`../versions/v0.1/README.md`](../versions/v0.1/README.md) — accepted exact design;
+- [`../versions/v0.1/implementation-sequence.md`](../versions/v0.1/implementation-sequence.md) — accepted `IS-01 … IS-16`.
+
 ---
 
 # Decisions
@@ -108,28 +113,21 @@ Contracts `DU-07 … DU-30` semantic-frozen для `F31`; exact Python/API/seria
 
 ---
 
-# Статус после DU-32
+# Текущий статус
 
 ```text
 DU-00 … DU-32 complete
 F31 semantic architecture accepted
 version roadmap accepted
-implementation not started
+v0.1 exact design accepted
+v0.1 implementation sequence accepted
+production implementation not started
 ```
 
-Следующая разрешённая работа:
+Единственная разрешённая следующая работа:
 
 ```text
-Version Design — v0.1 Core Kernel
+V0.1-IS-01 — Project bootstrap & verification shell
 ```
 
-Для неё сначала создаются:
-
-```text
-docs/versions/v0.1/README.md
-docs/versions/v0.1/implementation-sequence.md
-```
-
-И только после их принятия начинается coding.
-
-Фактический статус: [`current.md`](current.md).
+После каждого implementation step обязателен verification + ChatGPT audit. Фактический статус: [`current.md`](current.md).
