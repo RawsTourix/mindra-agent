@@ -30,8 +30,6 @@ docs/versions/vX.Y/README.md
 docs/versions/vX.Y/implementation-sequence.md
 ```
 
-Только после этого Codex может реализовывать version scope.
-
 Каждый coding task выполняет только один `IS` и перед переходом дальше проходит:
 
 ```text
@@ -51,7 +49,7 @@ implementation
 
 | Версия | Статус | Название |
 |---|---|---|
-| `v0.1` | implementation in progress — `IS-01…IS-04` accepted, `IS-05` open | Core Kernel |
+| `v0.1` | implementation in progress — `IS-01…IS-05` accepted, `IS-06` open | Core Kernel |
 | `v0.2` | planned | MicroWorld Interaction |
 | `v0.3` | planned | Cortex Gateway |
 | `v0.4` | planned | Memory & Restore |
@@ -69,8 +67,8 @@ implementation
 
 - [`v0.1/README.md`](v0.1/README.md) — accepted exact design `Core Kernel`;
 - [`v0.1/implementation-sequence.md`](v0.1/implementation-sequence.md) — accepted sequence `V0.1-IS-01 … V0.1-IS-16`;
-- `V0.1-IS-01 … V0.1-IS-04` — accepted;
-- `V0.1-IS-05` — единственный открытый implementation step.
+- `V0.1-IS-01 … V0.1-IS-05` — accepted;
+- `V0.1-IS-06` — единственный открытый implementation step.
 
 Статус конкретной работы всегда определяется [`../design/current.md`](../design/current.md).
 
@@ -96,10 +94,6 @@ implementation
 - known risks/deferred work.
 
 Если для выбора требуется актуальный внешний landscape, перед принятием version design выполняется новый датированный research/tool pass.
-
-Для `v0.1` такой pass создан:
-
-- [`../research/literature/v0.1-core-kernel-tooling-landscape-2026-08.md`](../research/literature/v0.1-core-kernel-tooling-landscape-2026-08.md).
 
 При принятии нового version design обязательно проверяется актуальность [`codex-step-prompt-template.md`](codex-step-prompt-template.md).
 
@@ -150,16 +144,12 @@ Correction commit:
 
 ## `V0.1-IS-02`
 
-`Identity / revision / logical time` принят.
-
 ```text
 e457ada1aa8ded3ff70cd47b5328e2bbcc96f724
 feat(core): add identity revision and logical time primitives
 ```
 
 ## `V0.1-IS-03`
-
-`Availability / provenance / error foundation` принят.
 
 ```text
 a5c9f314bb0e9960da0434c6fcfd3556e8e9b5f2
@@ -169,8 +159,6 @@ feat(contracts): add availability provenance and kernel errors
 `V01-005` и `V01-010` достигли предусмотренного на этом этапе уровня `foundation/partial`.
 
 ## `V0.1-IS-04`
-
-`State schema primitives` принят.
 
 Implementation commit:
 
@@ -186,20 +174,51 @@ afc1937b82f09a9b7a082c3f5cf8d38fa264a5ef
 fix(contracts): validate enum payload snapshot safety
 ```
 
-Correction закрыла snapshot-safety для `Enum` с mutable/nested-mutable underlying value. Targeted verification и local `FULL-C0`: `PASS`; post-push Ubuntu/Windows CI принят как operator-confirmed evidence.
-
 `V01-005` достиг предусмотренного для `IS-04` уровня `substantial`.
+
+## `V0.1-IS-05`
+
+`CognitiveState & StateProjection` принят.
+
+```text
+df602abbf57d898952590d7a2eb145fff52b5f00
+feat(state): add cognitive state and declared-read projections
+```
+
+ChatGPT audit подтвердил immutable committed state, copy-on-commit isolation, механическое declared-read enforcement, availability/freshness semantics и отсутствие scope leakage в `IS-06+`. Targeted verification и local `FULL-C0`: `PASS`; post-push Ubuntu/Windows CI принят как operator-confirmed evidence.
+
+VerificationObligations:
+
+- `V01-004` — closed at projection layer;
+- `V01-005` — closed;
+- `V01-010` — partial.
 
 ---
 
 # Текущий следующий шаг
 
 ```text
-V0.1-IS-05 — CognitiveState & StateProjection
+V0.1-IS-06 — Module contracts & proposals
 ```
 
-Перед открытием `IS-05` применимость `CSPT-02` проверена. Новых verification profiles, CI jobs, mandatory commands или reporting semantics не появилось, поэтому revision шаблона не меняется.
+Перед открытием `IS-06` применимость `CSPT-02` проверена. Новых verification profiles, CI jobs, mandatory commands или reporting semantics не появилось, поэтому revision шаблона не меняется.
 
-`V0.1-IS-06` и последующие шаги остаются закрыты до implementation + verification + ChatGPT audit `IS-05`.
+Ключевой scope:
+
+```text
+CognitiveModule Protocol
+ModuleDescriptor
+ModuleExecutionContext
+ModuleComputeRequest / ModuleComputeResult
+StateWrite / StateUpdateProposal
+PrivateStateContract / PrivateStateSnapshot / PrivateStateProposal
+private-state descriptor
+execution traits
+COGNITIVE_CYCLE phase marker
+```
+
+Модули на этом шаге не выполняются, proposals не commit'ятся, execution DAG не компилируется.
+
+`V0.1-IS-07` и последующие шаги остаются закрыты до implementation + verification + ChatGPT audit `IS-06`.
 
 Нельзя начинать `v0.2` до полного acceptance gate `v0.1`.
