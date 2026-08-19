@@ -47,6 +47,7 @@ Version-specific source of truth:
 
 - [`../versions/v0.1/README.md`](../versions/v0.1/README.md) — accepted exact design;
 - [`../versions/v0.1/implementation-sequence.md`](../versions/v0.1/implementation-sequence.md) — accepted dependency-ordered implementation plan;
+- [`../versions/v0.1/is-06-contract-shape.md`](../versions/v0.1/is-06-contract-shape.md) — accepted exact clarification только для текущего `IS-06`;
 - [`../versions/codex-step-prompt-template.md`](../versions/codex-step-prompt-template.md) — canonical operational prompt template, revision `CSPT-02`.
 
 Текущий разрешённый implementation step всегда определяется только этим файлом.
@@ -154,7 +155,7 @@ VerificationObligations:
 V0.1-IS-06 — Module contracts & proposals
 ```
 
-Scope определяется accepted `implementation-sequence.md`.
+Scope определяется accepted `implementation-sequence.md` и accepted step-specific clarification [`../versions/v0.1/is-06-contract-shape.md`](../versions/v0.1/is-06-contract-shape.md).
 
 Ключевой результат:
 
@@ -170,6 +171,8 @@ execution traits
 COGNITIVE_CYCLE phase marker
 ```
 
+Перед открытием шага отдельно устранена implementation-level неоднозначность `implementation_revision` и exact shape proposal/private-state/request/result contracts. Это clarification не меняет F31 или semantic design.
+
 `ModuleComputeRequest` должен содержать только `StateProjection`, собственный private snapshot/unavailable и `ModuleExecutionContext`. Выполнение modules, DAG compilation и commit proposals на этом шаге запрещены.
 
 `V0.1-IS-07` и последующие шаги закрыты до implementation + verification + отдельного ChatGPT audit `IS-06`.
@@ -182,7 +185,7 @@ Canonical template:
 
 - [`../versions/codex-step-prompt-template.md`](../versions/codex-step-prompt-template.md), revision `CSPT-02`.
 
-Перед открытием `IS-06` применимость `CSPT-02` проверена. Новых verification profiles, CI jobs, mandatory commands или reporting semantics не появилось, поэтому revision шаблона не изменяется.
+Перед открытием `IS-06` применимость `CSPT-02` проверена повторно после добавления step-specific clarification. Новых verification profiles, CI jobs, mandatory commands или reporting semantics не появилось, поэтому revision шаблона не изменяется.
 
 `CSPT-02` требует targeted verification, полный local `FULL-C0`, truthful GitHub Actions status/evidence и предложение Conventional Commit message в конце отчёта.
 
