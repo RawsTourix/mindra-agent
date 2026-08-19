@@ -3,9 +3,10 @@
 ## Статус
 
 **Software milestone:** `v0.1 — Core Kernel`  
-**Статус design:** proposed — готов к review перед implementation sequence  
+**Статус design:** `accepted`  
 **Semantic baseline:** `F31`  
 **Roadmap owner:** `docs/design/version-roadmap.md`  
+**Implementation sequence:** [`implementation-sequence.md`](implementation-sequence.md) — `accepted`  
 **Implementation:** не начата
 
 Этот документ конкретизирует foundation semantics `DU-01 … DU-06` и Engineering Verification foundation `DU-29` в exact software profile первой версии.
@@ -16,6 +17,8 @@
 
 - этот README со статусом `accepted`;
 - `implementation-sequence.md` со статусом `accepted`.
+
+Оба условия выполнены. Coding выполняется только по одному implementation step за задачу, начиная с `V0.1-IS-01`.
 
 ---
 
@@ -149,6 +152,7 @@ mypy --strict — static typing
 pytest        — test runner
 Hypothesis    — property/state-machine tests
 Import Linter — package dependency contracts
+GitHub Actions — CI provider v0.1
 ```
 
 Exact resolved versions фиксируются `uv.lock`.
@@ -1429,7 +1433,7 @@ Implementation sequence может разделить быстрые/extended te
 
 # 47. CI profile
 
-`v0.1` должна получить автоматический CI gate.
+`v0.1` использует **GitHub Actions** как CI provider.
 
 Минимально:
 
@@ -1438,7 +1442,7 @@ Implementation sequence может разделить быстрые/extended te
 - locked dependency install;
 - build artifact check.
 
-Конкретный CI provider может быть GitHub Actions, поскольку repository уже размещён на GitHub; это version-level tooling choice, не F31 requirement.
+Выбор GitHub Actions является version-level tooling choice и не становится F31 requirement для последующих versions.
 
 Network доступен только dependency installation phase; tests themselves не зависят от network.
 
@@ -1599,9 +1603,9 @@ Design считается реализованным только если од�
 
 ---
 
-# 55. Design review gate
+# 55. Accepted design gate
 
-До создания `implementation-sequence.md` нужно подтвердить следующие concrete решения:
+Следующие concrete решения приняты для `v0.1`:
 
 ```text
 Python 3.14 + uv + uv_build
@@ -1620,13 +1624,20 @@ TOML profile + explicit immutable registry
 in-memory O0 Evidence Recorder
 basic explicit InterventionGateway
 Ruff + strict mypy + pytest + Hypothesis + Import Linter
+GitHub Actions CI
 V01-001 … V01-014
 ```
 
-После принятия этого документа следующим шагом является:
+Dependency-ordered реализация определена в:
 
 ```text
-v0.1 implementation-sequence.md
+docs/versions/v0.1/implementation-sequence.md
 ```
 
-Coding до этого не начинается.
+Первый и единственный разрешённый coding step на старте:
+
+```text
+V0.1-IS-01 — Project bootstrap & verification shell
+```
+
+Следующий step открывается только после implementation + verification + ChatGPT audit предыдущего шага.
