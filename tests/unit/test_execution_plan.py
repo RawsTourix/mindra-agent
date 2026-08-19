@@ -1,11 +1,13 @@
 """Unit checks immutable execution plan compiler v0.1."""
 
+from collections.abc import Callable
 from dataclasses import FrozenInstanceError, fields, replace
 from typing import cast
 from uuid import UUID
 
 import pytest
 
+import mindra.runtime as runtime
 from mindra.contracts import (
     Available,
     CompositionRevision,
@@ -184,6 +186,33 @@ def test_empty_descriptor_set_produces_deterministic_empty_plan() -> None:
     assert second.waves == ()
     assert first.fingerprint == second.fingerprint
     assert first.plan_id != second.plan_id
+
+
+def test_direct_execution_plan_construction_is_rejected() -> None:
+    compiled = _compile((_descriptor("alpha"),), _schema())
+    constructor = cast(Callable[..., ExecutionPlan], ExecutionPlan)
+
+    with pytest.raises(TypeError, match="только ExecutionPlanCompiler"):
+        constructor(
+            plan_id=compiled.plan_id,
+            revision=compiled.revision,
+            fingerprint=compiled.fingerprint,
+            composition_revision=compiled.composition_revision,
+            schema_revision=compiled.schema_revision,
+            phase=compiled.phase,
+            descriptors=compiled.descriptors,
+            dependencies=compiled.dependencies,
+            waves=compiled.waves,
+        )
+
+
+def test_compiler_returns_execution_plan() -> None:
+    assert isinstance(_compile((_descriptor("alpha"),), _schema()), ExecutionPlan)
+
+
+def test_internal_plan_construction_helper_is_not_runtime_api() -> None:
+    assert not hasattr(runtime, "_build_execution_plan")
+    assert "_build_execution_plan" not in runtime.__all__
 
 
 def test_plan_fingerprint_has_exact_lowercase_sha256_shape() -> None:

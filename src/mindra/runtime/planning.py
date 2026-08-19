@@ -76,9 +76,9 @@ class ExecutionWave:
             raise ValueError("ExecutionWave module_ids должны иметь canonical order")
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True, slots=True, init=False)
 class ExecutionPlan:
-    """Immutable validated static plan одного cognitive-cycle segment."""
+    """Immutable compiler-controlled plan одного cognitive-cycle segment."""
 
     plan_id: ExecutionPlanId
     revision: ExecutionPlanRevision
@@ -90,46 +90,8 @@ class ExecutionPlan:
     dependencies: tuple[ExecutionDependency, ...]
     waves: tuple[ExecutionWave, ...]
 
-    def __post_init__(self) -> None:
-        if not isinstance(self.plan_id, UUID):
-            raise TypeError("plan_id должен быть ExecutionPlanId")
-        if not isinstance(self.revision, ExecutionPlanRevision):
-            raise TypeError("revision должен быть ExecutionPlanRevision")
-        if not isinstance(self.fingerprint, PlanFingerprint):
-            raise TypeError("fingerprint должен быть PlanFingerprint")
-        if not isinstance(self.composition_revision, CompositionRevision):
-            raise TypeError("composition_revision должен быть CompositionRevision")
-        if not isinstance(self.schema_revision, SchemaRevision):
-            raise TypeError("schema_revision должен быть SchemaRevision")
-        if self.phase is not ExecutionPhase.COGNITIVE_CYCLE:
-            raise ValueError("v0.1 ExecutionPlan поддерживает только COGNITIVE_CYCLE")
-        if not isinstance(self.descriptors, tuple) or any(
-            not isinstance(descriptor, ModuleDescriptor) for descriptor in self.descriptors
-        ):
-            raise TypeError("descriptors должен быть tuple ModuleDescriptor")
-        if self.descriptors != tuple(
-            sorted(self.descriptors, key=lambda descriptor: descriptor.module_id.value)
-        ):
-            raise ValueError("ExecutionPlan descriptors должны иметь canonical order")
-        if not isinstance(self.dependencies, tuple) or any(
-            not isinstance(dependency, ExecutionDependency) for dependency in self.dependencies
-        ):
-            raise TypeError("dependencies должен быть tuple ExecutionDependency")
-        if self.dependencies != tuple(sorted(self.dependencies, key=_dependency_key)):
-            raise ValueError("ExecutionPlan dependencies должны иметь canonical order")
-        if not isinstance(self.waves, tuple) or any(
-            not isinstance(wave, ExecutionWave) for wave in self.waves
-        ):
-            raise TypeError("waves должен быть tuple ExecutionWave")
-        if tuple(wave.index for wave in self.waves) != tuple(range(len(self.waves))):
-            raise ValueError("ExecutionPlan wave indices должны идти с 0 без gaps")
-
-        descriptor_ids = tuple(descriptor.module_id for descriptor in self.descriptors)
-        wave_ids = tuple(module_id for wave in self.waves for module_id in wave.module_ids)
-        if len(set(descriptor_ids)) != len(descriptor_ids):
-            raise ValueError("ExecutionPlan descriptors содержат duplicate ModuleId")
-        if len(wave_ids) != len(set(wave_ids)) or set(wave_ids) != set(descriptor_ids):
-            raise ValueError("Каждый active ModuleId должен входить ровно в одну wave")
+    def __init__(self, *args: object, **kwargs: object) -> None:
+        raise TypeError("ExecutionPlan создаётся только ExecutionPlanCompiler")
 
 
 class ExecutionPlanCompiler:
@@ -163,7 +125,7 @@ class ExecutionPlanCompiler:
         waves = _decompose_waves(canonical_descriptors, dependencies)
         fingerprint = _build_fingerprint(canonical_descriptors, dependencies, waves)
         plan_id = self._id_factory.new_id(ExecutionPlanId)
-        return ExecutionPlan(
+        return _build_execution_plan(
             plan_id=plan_id,
             revision=plan_revision,
             fingerprint=fingerprint,
@@ -174,6 +136,75 @@ class ExecutionPlanCompiler:
             dependencies=dependencies,
             waves=waves,
         )
+
+
+def _build_execution_plan(
+    *,
+    plan_id: ExecutionPlanId,
+    revision: ExecutionPlanRevision,
+    fingerprint: PlanFingerprint,
+    composition_revision: CompositionRevision,
+    schema_revision: SchemaRevision,
+    phase: ExecutionPhase,
+    descriptors: tuple[ModuleDescriptor, ...],
+    dependencies: tuple[ExecutionDependency, ...],
+    waves: tuple[ExecutionWave, ...],
+) -> ExecutionPlan:
+    """Construct a plan only after compiler-established validation."""
+    plan = object.__new__(ExecutionPlan)
+    object.__setattr__(plan, "plan_id", plan_id)
+    object.__setattr__(plan, "revision", revision)
+    object.__setattr__(plan, "fingerprint", fingerprint)
+    object.__setattr__(plan, "composition_revision", composition_revision)
+    object.__setattr__(plan, "schema_revision", schema_revision)
+    object.__setattr__(plan, "phase", phase)
+    object.__setattr__(plan, "descriptors", descriptors)
+    object.__setattr__(plan, "dependencies", dependencies)
+    object.__setattr__(plan, "waves", waves)
+    _validate_execution_plan_shape(plan)
+    return plan
+
+
+def _validate_execution_plan_shape(plan: ExecutionPlan) -> None:
+    if not isinstance(plan.plan_id, UUID):
+        raise TypeError("plan_id должен быть ExecutionPlanId")
+    if not isinstance(plan.revision, ExecutionPlanRevision):
+        raise TypeError("revision должен быть ExecutionPlanRevision")
+    if not isinstance(plan.fingerprint, PlanFingerprint):
+        raise TypeError("fingerprint должен быть PlanFingerprint")
+    if not isinstance(plan.composition_revision, CompositionRevision):
+        raise TypeError("composition_revision должен быть CompositionRevision")
+    if not isinstance(plan.schema_revision, SchemaRevision):
+        raise TypeError("schema_revision должен быть SchemaRevision")
+    if plan.phase is not ExecutionPhase.COGNITIVE_CYCLE:
+        raise ValueError("v0.1 ExecutionPlan поддерживает только COGNITIVE_CYCLE")
+    if not isinstance(plan.descriptors, tuple) or any(
+        not isinstance(descriptor, ModuleDescriptor) for descriptor in plan.descriptors
+    ):
+        raise TypeError("descriptors должен быть tuple ModuleDescriptor")
+    if plan.descriptors != tuple(
+        sorted(plan.descriptors, key=lambda descriptor: descriptor.module_id.value)
+    ):
+        raise ValueError("ExecutionPlan descriptors должны иметь canonical order")
+    if not isinstance(plan.dependencies, tuple) or any(
+        not isinstance(dependency, ExecutionDependency) for dependency in plan.dependencies
+    ):
+        raise TypeError("dependencies должен быть tuple ExecutionDependency")
+    if plan.dependencies != tuple(sorted(plan.dependencies, key=_dependency_key)):
+        raise ValueError("ExecutionPlan dependencies должны иметь canonical order")
+    if not isinstance(plan.waves, tuple) or any(
+        not isinstance(wave, ExecutionWave) for wave in plan.waves
+    ):
+        raise TypeError("waves должен быть tuple ExecutionWave")
+    if tuple(wave.index for wave in plan.waves) != tuple(range(len(plan.waves))):
+        raise ValueError("ExecutionPlan wave indices должны идти с 0 без gaps")
+
+    descriptor_ids = tuple(descriptor.module_id for descriptor in plan.descriptors)
+    wave_ids = tuple(module_id for wave in plan.waves for module_id in wave.module_ids)
+    if len(set(descriptor_ids)) != len(descriptor_ids):
+        raise ValueError("ExecutionPlan descriptors содержат duplicate ModuleId")
+    if len(wave_ids) != len(set(wave_ids)) or set(wave_ids) != set(descriptor_ids):
+        raise ValueError("Каждый active ModuleId должен входить ровно в одну wave")
 
 
 def _validate_descriptors(
