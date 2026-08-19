@@ -34,8 +34,11 @@
 8. релевантные accepted/non-superseded ADR;
 9. релевантные semantic contracts;
 10. version-specific `README.md`;
-11. version-specific `implementation-sequence.md` перед coding;
-12. датированный research/tool pass, если current tooling/model/compute materially влияет на решение.
+11. version-specific `implementation-sequence.md`;
+12. section только текущего разрешённого `Vx.y-IS-XX` перед coding;
+13. датированный research/tool pass, если current tooling/model/compute materially влияет на решение.
+
+Один Codex task реализует только один разрешённый implementation step; следующий открывается после verification + ChatGPT audit.
 
 ---
 
@@ -49,6 +52,7 @@ Concept
 → DU-32 Version Roadmap
 → Version design / exact contracts
 → Implementation sequence
+→ Current implementation step
 → Implementation
 → Engineering / Research evidence
 → Versioned Research Claims
@@ -135,12 +139,17 @@ DU-00 … DU-32 complete
 
 Semantic baseline `F31` и software roadmap приняты.
 
-Следующая разрешённая работа:
+Для `v0.1 Core Kernel` приняты:
+
+- [`versions/v0.1/README.md`](versions/v0.1/README.md) — exact design;
+- [`versions/v0.1/implementation-sequence.md`](versions/v0.1/implementation-sequence.md) — `V0.1-IS-01 … V0.1-IS-16`.
+
+Единственная разрешённая следующая coding-работа:
 
 ```text
-Version Design — v0.1 Core Kernel
+V0.1-IS-01 — Project bootstrap & verification shell
 ```
 
-Production/research implementation ещё не начата. Сначала должны быть приняты `docs/versions/v0.1/README.md` и `implementation-sequence.md`.
+Production/research implementation ещё не начата.
 
 Фактический статус всегда определяется [`design/current.md`](design/current.md).
