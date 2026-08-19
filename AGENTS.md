@@ -2,7 +2,13 @@
 
 ## Назначение
 
-Карта обязательного контекста для Codex, ChatGPT и других coding agents. Канонические знания находятся в `docs/`; этот файл не дублирует полный design.
+Карта обязательного контекста для Codex, ChatGPT и других coding agents. Канонические знания находятся в `docs/`; этот файл не дублирует полный design и **не хранит копию текущего номера implementation step**.
+
+Текущий разрешённый milestone/step определяется только:
+
+```text
+docs/design/current.md
+```
 
 ## Язык
 
@@ -19,16 +25,15 @@
    - `docs/design/contract-adr-consistency-freeze.md`;
    - `docs/design/contracts/semantic-freeze-manifest.md`;
    - `docs/design/version-roadmap.md`.
-4. Определить разрешённый version scope и implementation step.
+4. Определить разрешённый version scope и implementation step **только по `current.md`**.
 5. Прочитать релевантный canonical design owner + accepted ADR + semantic contract.
-6. Для implementation обязательно прочитать canonical operational template:
-   - `docs/versions/codex-step-prompt-template.md`.
-7. Для implementation прочитать:
+6. Для implementation обязательно прочитать:
+   - `docs/versions/codex-step-prompt-template.md`;
    - `docs/versions/vX.Y/README.md`;
    - `docs/versions/vX.Y/implementation-sequence.md`;
    - section текущего `Vx.y-IS-XX` и перечисленный там canonical context.
-8. Проверить prerequisites/VerificationObligations текущего step.
-9. Не выходить за разрешённый scope и не начинать следующий `IS` заранее.
+7. Проверить prerequisites/VerificationObligations текущего step.
+8. Не выходить за разрешённый scope и не начинать следующий `IS` заранее.
 
 Если version-specific документы ещё не приняты, coding не начинается.
 
@@ -54,6 +59,8 @@ version specification / exact contracts
 implementation sequence
         ↓
 canonical Codex step prompt
+        ↓
+docs/design/current.md
         ↓
 current implementation step
         ↓
@@ -93,8 +100,6 @@ v0.11 Research Harness
 v0.12 Integration Hardening
 v1.0  MINDRA Research Baseline
 ```
-
-Current permitted milestone/step определяется только `docs/design/current.md`.
 
 Нельзя реализовывать roadmap или даже всю текущую version одним change/PR/task.
 
@@ -283,7 +288,7 @@ docs/versions/codex-step-prompt-template.md
 7. если изменения не нужны, не делать фиктивный edit — достаточно подтвердить применимость текущей revision;
 8. обязательное новое правило prompt нельзя оставлять только в чате.
 
-`AGENTS.md` должен при каждом существенном version/implementation workflow update проверяться вместе с prompt template. Если operational process изменился, оба source-of-truth указателя актуализируются согласованно.
+`AGENTS.md` проверяется вместе с prompt template при каждом существенном version/implementation workflow update. **Текущий номер implementation step здесь не дублируется:** он всегда читается из `docs/design/current.md`.
 
 ---
 
@@ -305,9 +310,7 @@ blocker/evidence
 
 ---
 
-# Текущий implementation scope
-
-Общий architecture/roadmap design завершён.
+# Current implementation authority
 
 Для `v0.1 Core Kernel` приняты:
 
@@ -317,12 +320,10 @@ docs/versions/v0.1/implementation-sequence.md
 docs/versions/codex-step-prompt-template.md
 ```
 
-`V0.1-IS-01` реализован и прошёл содержательный ChatGPT code/design audit без correction blocker, но final execution evidence ещё требует подтверждения.
-
-Единственная разрешённая работа согласно `docs/design/current.md`:
+Разрешённый **сейчас** implementation step, его статус и закрытые/открытые последующие шаги определяются исключительно:
 
 ```text
-V0.1-IS-01 — verification follow-up / final evidence
+docs/design/current.md
 ```
 
-`V0.1-IS-02` остаётся закрытым до verification + ChatGPT acceptance audit `IS-01`.
+Не использовать этот файл как копию implementation status.
