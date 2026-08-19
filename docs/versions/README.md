@@ -55,7 +55,7 @@ implementation
 
 | Версия | Статус | Название |
 |---|---|---|
-| `v0.1` | implementation in progress — `IS-01` verification pending | Core Kernel |
+| `v0.1` | implementation in progress — `IS-01` accepted, `IS-02` open | Core Kernel |
 | `v0.2` | planned | MicroWorld Interaction |
 | `v0.3` | planned | Cortex Gateway |
 | `v0.4` | planned | Memory & Restore |
@@ -73,8 +73,8 @@ implementation
 
 - [`v0.1/README.md`](v0.1/README.md) — accepted exact design `Core Kernel`;
 - [`v0.1/implementation-sequence.md`](v0.1/implementation-sequence.md) — accepted sequence `V0.1-IS-01 … V0.1-IS-16`;
-- `V0.1-IS-01` реализован, но остаётся закрыть final verification evidence;
-- `V0.1-IS-02` пока не открыт.
+- `V0.1-IS-01` — accepted;
+- `V0.1-IS-02` — единственный открытый implementation step.
 
 Статус конкретной работы всегда определяется [`../design/current.md`](../design/current.md).
 
@@ -140,18 +140,31 @@ Targeted verification конкретного step не заменяет regressi
 
 ---
 
-# Текущий следующий шаг
+# Принятый первый шаг
 
-До закрытия `IS-01` разрешена только его verification-follow-up работа.
+`V0.1-IS-01 — Project bootstrap & verification shell` принят после:
+
+- code/design audit;
+- local `FULL-C0`;
+- Linux GitHub Actions;
+- Windows GitHub Actions после correction `PYTHONUTF8=1` для Import Linter.
+
+Correction commit:
 
 ```text
-V0.1-IS-01 — final verification evidence
+584db766e190739e22c7616f1ea1e68428ecf86e
 ```
 
-После подтверждения local/CI evidence выполняется ChatGPT acceptance audit. Только после него может быть открыт:
+---
+
+# Текущий следующий шаг
 
 ```text
 V0.1-IS-02 — Identity / revision / logical time
 ```
 
-Нельзя перескакивать к последующим implementation steps или начинать `v0.2` до полного acceptance gate `v0.1`.
+Перед выдачей `IS-02` применимость `CSPT-01` проверена; обновление шаблона не требуется.
+
+`V0.1-IS-03` и последующие шаги остаются закрыты до implementation + verification + ChatGPT audit `IS-02`.
+
+Нельзя начинать `v0.2` до полного acceptance gate `v0.1`.
