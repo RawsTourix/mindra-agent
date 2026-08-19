@@ -55,7 +55,7 @@ implementation
 
 | Версия | Статус | Название |
 |---|---|---|
-| `v0.1` | implementation in progress — `IS-01`/`IS-02` accepted, `IS-03` open | Core Kernel |
+| `v0.1` | implementation in progress — `IS-01…IS-03` accepted, `IS-04` open | Core Kernel |
 | `v0.2` | planned | MicroWorld Interaction |
 | `v0.3` | planned | Cortex Gateway |
 | `v0.4` | planned | Memory & Restore |
@@ -75,7 +75,8 @@ implementation
 - [`v0.1/implementation-sequence.md`](v0.1/implementation-sequence.md) — accepted sequence `V0.1-IS-01 … V0.1-IS-16`;
 - `V0.1-IS-01` — accepted;
 - `V0.1-IS-02` — accepted;
-- `V0.1-IS-03` — единственный открытый implementation step.
+- `V0.1-IS-03` — accepted;
+- `V0.1-IS-04` — единственный открытый implementation step.
 
 Статус конкретной работы всегда определяется [`../design/current.md`](../design/current.md).
 
@@ -166,20 +167,33 @@ e457ada1aa8ded3ff70cd47b5328e2bbcc96f724
 feat(core): add identity revision and logical time primitives
 ```
 
-Содержательный ChatGPT audit: `PASS`.
+Содержательный ChatGPT audit: `PASS`. Локальный targeted verification и `FULL-C0`: `PASS`. Post-push Ubuntu/Windows CI принят как operator-confirmed evidence.
 
-Локальный targeted verification и `FULL-C0`: `PASS` по отчёту Codex. Post-push declared Ubuntu/Windows CI принят как operator-confirmed evidence; доступный ChatGPT connector не отображает push-triggered workflow runs по SHA.
+## `V0.1-IS-03`
+
+`Availability / provenance / error foundation` принят.
+
+Implementation commit:
+
+```text
+a5c9f314bb0e9960da0434c6fcfd3556e8e9b5f2
+feat(contracts): add availability provenance and kernel errors
+```
+
+Содержательный ChatGPT audit: `PASS`. Локальный targeted verification и `FULL-C0`: `PASS`. Post-push Ubuntu/Windows CI принят как operator-confirmed evidence.
+
+`V01-005` и `V01-010` имеют предусмотренный статус `foundation/partial`.
 
 ---
 
 # Текущий следующий шаг
 
 ```text
-V0.1-IS-03 — Availability / provenance / error foundation
+V0.1-IS-04 — State schema primitives
 ```
 
-Перед открытием `IS-03` применимость `CSPT-02` проверена. Новых verification profiles, CI jobs, mandatory commands или reporting semantics не появилось, поэтому revision шаблона не меняется.
+Перед открытием `IS-04` применимость `CSPT-02` проверена. Новых verification profiles, CI jobs, mandatory commands или reporting semantics не появилось, поэтому revision шаблона не меняется.
 
-`V0.1-IS-04` и последующие шаги остаются закрыты до implementation + verification + ChatGPT audit `IS-03`.
+`V0.1-IS-05` и последующие шаги остаются закрыты до implementation + verification + ChatGPT audit `IS-04`.
 
 Нельзя начинать `v0.2` до полного acceptance gate `v0.1`.
