@@ -20,8 +20,9 @@ V0.1-IS-01: accepted
 V0.1-IS-02: accepted
 V0.1-IS-03: accepted
 V0.1-IS-04: accepted
-current implementation step: V0.1-IS-05 — OPEN
-V0.1-IS-06+: CLOSED
+V0.1-IS-05: accepted
+current implementation step: V0.1-IS-06 — OPEN
+V0.1-IS-07+: CLOSED
 ```
 
 Приняты 32 ADR и semantic contracts `DU-07 … DU-30`, frozen по смыслу как baseline `F31`.
@@ -56,7 +57,7 @@ Version-specific source of truth:
 
 ## `V0.1-IS-01 — Project bootstrap & verification shell`
 
-Принят после implementation/correction audit, local `FULL-C0` и declared Ubuntu/Windows GitHub Actions.
+Принят после implementation/correction audit, local `FULL-C0` и Ubuntu/Windows GitHub Actions.
 
 Correction commit:
 
@@ -69,25 +70,21 @@ fix(ci): enable UTF-8 for Import Linter on Windows
 
 ## `V0.1-IS-02 — Identity / revision / logical time`
 
-Implementation commit:
-
 ```text
 e457ada1aa8ded3ff70cd47b5328e2bbcc96f724
 feat(core): add identity revision and logical time primitives
 ```
 
-ChatGPT code/design audit, targeted verification и local `FULL-C0`: `PASS`. Post-push declared Ubuntu/Windows GitHub Actions подтверждены оператором проекта как успешные.
+ChatGPT code/design audit, targeted verification и local `FULL-C0`: `PASS`. Post-push Ubuntu/Windows GitHub Actions подтверждены оператором проекта как успешные.
 
 ## `V0.1-IS-03 — Availability / provenance / error foundation`
-
-Implementation commit:
 
 ```text
 a5c9f314bb0e9960da0434c6fcfd3556e8e9b5f2
 feat(contracts): add availability provenance and kernel errors
 ```
 
-ChatGPT code/design audit, targeted verification и local `FULL-C0`: `PASS`. Post-push declared Ubuntu/Windows GitHub Actions подтверждены оператором проекта как успешные.
+ChatGPT code/design audit, targeted verification и local `FULL-C0`: `PASS`. Post-push Ubuntu/Windows GitHub Actions подтверждены оператором проекта как успешные.
 
 VerificationObligations:
 
@@ -103,8 +100,6 @@ Implementation commit:
 feat(contracts): add state schema primitives
 ```
 
-Во время ChatGPT audit обнаружен и исправлен snapshot-safety defect для `Enum` с mutable underlying value.
-
 Correction commit:
 
 ```text
@@ -112,25 +107,42 @@ afc1937b82f09a9b7a082c3f5cf8d38fa264a5ef
 fix(contracts): validate enum payload snapshot safety
 ```
 
-Подтверждено:
+ChatGPT audit подтвердил schema semantics, structural missing, snapshot safety, `StateEntry`/`StateEnvelope` и `ReadSpec` foundation. Targeted verification и local `FULL-C0`: `PASS`; post-push Ubuntu/Windows CI подтверждён оператором проекта.
+
+`V01-005` достиг предусмотренного для `IS-04` уровня `substantial`.
+
+## `V0.1-IS-05 — CognitiveState & StateProjection`
+
+Implementation commit:
 
 ```text
-scope IS-04                               PASS
-forbidden scope IS-05+                   PASS
-StatePath/StateKey/schema semantics      PASS
-structural missing semantics             PASS
-ValueContract snapshot safety            PASS после correction
-StateEntry/StateEnvelope foundation      PASS
-ReadSpec/FreshnessMode foundation        PASS
-local targeted verification              PASS
-local FULL-C0                             PASS
-GitHub Actions Ubuntu                     PASS (operator-confirmed)
-GitHub Actions Windows                    PASS (operator-confirmed)
+df602abbf57d898952590d7a2eb145fff52b5f00
+feat(state): add cognitive state and declared-read projections
 ```
 
-`V01-005` достиг предусмотренного для `IS-04` уровня `substantial`; окончательное закрытие выполняется последующими шагами version sequence.
+ChatGPT audit подтвердил:
 
-`V0.1-IS-04` принят.
+```text
+scope IS-05                               PASS
+forbidden scope IS-06+                   PASS
+CognitiveState immutability              PASS
+ValueContract integration                PASS
+copy-on-commit isolation                 PASS
+declared-read enforcement                PASS
+availability semantics                   PASS
+CURRENT_CYCLE semantics                  PASS
+ANY_COMMITTED semantics                  PASS
+```
+
+По отчёту Codex targeted verification и local `FULL-C0`: `PASS`, полный suite — `130 passed`, build wheel/sdist — `PASS`. Post-push Ubuntu/Windows GitHub Actions подтверждены оператором проекта как успешные.
+
+VerificationObligations:
+
+- `V01-004` — closed at projection layer;
+- `V01-005` — closed;
+- `V01-010` — partial.
+
+`V0.1-IS-05` принят.
 
 ---
 
@@ -139,7 +151,7 @@ GitHub Actions Windows                    PASS (operator-confirmed)
 Единственный разрешённый следующий coding step:
 
 ```text
-V0.1-IS-05 — CognitiveState & StateProjection
+V0.1-IS-06 — Module contracts & proposals
 ```
 
 Scope определяется accepted `implementation-sequence.md`.
@@ -147,15 +159,20 @@ Scope определяется accepted `implementation-sequence.md`.
 Ключевой результат:
 
 ```text
-immutable-by-interface CognitiveState
-read-only StateEntry mapping
-copy-on-commit state construction primitive
-StateProjection
-runtime-controlled projection builder
-mechanical enforcement declared reads / availability / freshness
+CognitiveModule Protocol
+ModuleDescriptor
+ModuleExecutionContext
+ModuleComputeRequest / ModuleComputeResult
+StateWrite / StateUpdateProposal
+PrivateStateContract / PrivateStateSnapshot / PrivateStateProposal
+private-state descriptor
+execution traits
+COGNITIVE_CYCLE phase marker
 ```
 
-`V0.1-IS-06` и последующие шаги закрыты до implementation + verification + отдельного ChatGPT audit `IS-05`.
+`ModuleComputeRequest` должен содержать только `StateProjection`, собственный private snapshot/unavailable и `ModuleExecutionContext`. Выполнение modules, DAG compilation и commit proposals на этом шаге запрещены.
+
+`V0.1-IS-07` и последующие шаги закрыты до implementation + verification + отдельного ChatGPT audit `IS-06`.
 
 ---
 
@@ -165,7 +182,7 @@ Canonical template:
 
 - [`../versions/codex-step-prompt-template.md`](../versions/codex-step-prompt-template.md), revision `CSPT-02`.
 
-Перед открытием `IS-05` применимость `CSPT-02` проверена. Новых verification profiles, CI jobs, mandatory commands или reporting semantics не появилось, поэтому revision шаблона не изменяется.
+Перед открытием `IS-06` применимость `CSPT-02` проверена. Новых verification profiles, CI jobs, mandatory commands или reporting semantics не появилось, поэтому revision шаблона не изменяется.
 
 `CSPT-02` требует targeted verification, полный local `FULL-C0`, truthful GitHub Actions status/evidence и предложение Conventional Commit message в конце отчёта.
 
@@ -173,7 +190,7 @@ Canonical template:
 
 # 6. Ограничения
 
-- не переходить к `V0.1-IS-06` до final acceptance `IS-05`;
+- не переходить к `V0.1-IS-07` до final acceptance `IS-06`;
 - не начинать `v0.2` до полного acceptance gate `v0.1`;
 - implementation-level correction допустима только внутри accepted `v0.1` semantics;
 - semantic blocker требует design review и нового ADR/freeze update;
