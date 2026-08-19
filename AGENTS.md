@@ -19,14 +19,18 @@
    - `docs/design/contract-adr-consistency-freeze.md`;
    - `docs/design/contracts/semantic-freeze-manifest.md`;
    - `docs/design/version-roadmap.md`.
-4. Определить разрешённый version scope.
+4. Определить разрешённый version scope и implementation step.
 5. Прочитать релевантный canonical design owner + accepted ADR + semantic contract.
 6. Для implementation прочитать:
    - `docs/versions/vX.Y/README.md`;
-   - `docs/versions/vX.Y/implementation-sequence.md`.
-7. Не выходить за разрешённый scope.
+   - `docs/versions/vX.Y/implementation-sequence.md`;
+   - section текущего `Vx.y-IS-XX` и перечисленный там canonical context.
+7. Проверить prerequisites/VerificationObligations текущего step.
+8. Не выходить за разрешённый scope и не начинать следующий `IS` заранее.
 
 Если version-specific документы ещё не приняты, coding не начинается.
+
+Один coding task выполняет **только один implementation step**. Завершение Codex task не открывает следующий step автоматически: между шагами обязателен ChatGPT audit.
 
 ---
 
@@ -44,6 +48,8 @@ DU-32 Version Roadmap
 version specification / exact contracts
         ↓
 implementation sequence
+        ↓
+current implementation step
         ↓
 implementation
         ↓
@@ -76,9 +82,9 @@ v0.12 Integration Hardening
 v1.0  MINDRA Research Baseline
 ```
 
-Current permitted milestone определяется только `docs/design/current.md`.
+Current permitted milestone/step определяется только `docs/design/current.md`.
 
-Нельзя реализовывать roadmap целиком одним change/PR.
+Нельзя реализовывать roadmap или даже всю текущую version одним change/PR/task.
 
 ---
 
@@ -225,6 +231,20 @@ functional similarity ≠ phenomenological equivalence
 
 ---
 
+# Implementation-step safeguards
+
+- один Codex task = один разрешённый `IS`;
+- перед coding проверять prerequisites и current repository state;
+- не создавать файлы/abstractions следующего `IS` заранее;
+- не ослаблять tests/type/import contracts ради green;
+- не использовать hidden test mode, global mutable fixture state или production bypass;
+- если документация оставляет semantic/architectural choice нерешённым — blocker, а не самостоятельный выбор;
+- implementation-level file split можно уточнить только в пределах accepted package layers/semantics;
+- после шага выполнить указанный verification и сообщить VerificationObligations;
+- следующий `IS` открывается только после ChatGPT audit.
+
+---
+
 # Breaking change
 
 Если implementation требует изменить F31 semantics:
@@ -245,12 +265,19 @@ blocker/evidence
 
 # Текущий implementation scope
 
-После `DU-32` общий architecture/roadmap design завершён, но coding всё ещё не разрешён автоматически.
+Общий architecture/roadmap design завершён.
 
-Следующий этап:
+Для `v0.1 Core Kernel` приняты:
 
 ```text
-Version Design — v0.1 Core Kernel
+docs/versions/v0.1/README.md
+docs/versions/v0.1/implementation-sequence.md
 ```
 
-До принятия `docs/versions/v0.1/README.md` и `implementation-sequence.md` implementation не начинается.
+Единственная разрешённая coding работа согласно `docs/design/current.md`:
+
+```text
+V0.1-IS-01 — Project bootstrap & verification shell
+```
+
+Codex не начинает `IS-02` до implementation + verification + ChatGPT audit `IS-01`.
