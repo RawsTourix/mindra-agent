@@ -21,16 +21,20 @@
    - `docs/design/version-roadmap.md`.
 4. Определить разрешённый version scope и implementation step.
 5. Прочитать релевантный canonical design owner + accepted ADR + semantic contract.
-6. Для implementation прочитать:
+6. Для implementation обязательно прочитать canonical operational template:
+   - `docs/versions/codex-step-prompt-template.md`.
+7. Для implementation прочитать:
    - `docs/versions/vX.Y/README.md`;
    - `docs/versions/vX.Y/implementation-sequence.md`;
    - section текущего `Vx.y-IS-XX` и перечисленный там canonical context.
-7. Проверить prerequisites/VerificationObligations текущего step.
-8. Не выходить за разрешённый scope и не начинать следующий `IS` заранее.
+8. Проверить prerequisites/VerificationObligations текущего step.
+9. Не выходить за разрешённый scope и не начинать следующий `IS` заранее.
 
 Если version-specific документы ещё не приняты, coding не начинается.
 
 Один coding task выполняет **только один implementation step**. Завершение Codex task не открывает следующий step автоматически: между шагами обязателен ChatGPT audit.
+
+Каждый implementation prompt строится по актуальной revision `docs/versions/codex-step-prompt-template.md`. Не использовать старую копию prompt из чата или embedded example, если она расходится с canonical template.
 
 ---
 
@@ -49,9 +53,15 @@ version specification / exact contracts
         ↓
 implementation sequence
         ↓
+canonical Codex step prompt
+        ↓
 current implementation step
         ↓
 implementation
+        ↓
+verification evidence
+        ↓
+ChatGPT audit
         ↓
 engineering/research evidence
         ↓
@@ -61,6 +71,8 @@ versioned research claims
 `F31` freezing означает semantic meaning, **не exact Python API**.
 
 Roadmap определяет sequencing, **не имеет права переопределять F31**.
+
+Operational prompt template не определяет архитектуру: он заставляет Codex прочитать и исполнить актуальные accepted sources of truth и verification rules.
 
 ---
 
@@ -235,13 +247,43 @@ functional similarity ≠ phenomenological equivalence
 
 - один Codex task = один разрешённый `IS`;
 - перед coding проверять prerequisites и current repository state;
+- каждый task использует актуальный `docs/versions/codex-step-prompt-template.md`;
 - не создавать файлы/abstractions следующего `IS` заранее;
 - не ослаблять tests/type/import contracts ради green;
 - не использовать hidden test mode, global mutable fixture state или production bypass;
 - если документация оставляет semantic/architectural choice нерешённым — blocker, а не самостоятельный выбор;
 - implementation-level file split можно уточнить только в пределах accepted package layers/semantics;
-- после шага выполнить указанный verification и сообщить VerificationObligations;
+- после implementation выполнить targeted verification текущего step;
+- затем выполнить полный уже существующий local regression profile текущей версии;
+- если изменения находятся на remote commit и Actions доступен — проверить declared CI jobs/OS;
+- `CI PENDING`, `CI RUNNING` и `CI NOT AVAILABLE` не считать `PASS`;
+- итоговый отчёт должен различать фактически выполненную verification и недоступную/pending verification;
 - следующий `IS` открывается только после ChatGPT audit.
+
+Для `v0.1` после создания toolchain в `IS-01` каждый последующий Codex task перед отчётом выполняет `FULL-C0` независимо от более узкого targeted profile текущего step.
+
+---
+
+# Canonical Codex prompt и его актуализация
+
+Canonical operational source:
+
+```text
+docs/versions/codex-step-prompt-template.md
+```
+
+Правила:
+
+1. prompt из истории чата не является source of truth;
+2. embedded version-specific example prompt не имеет приоритета над canonical template;
+3. при принятии нового version design обязательно проверить применимость шаблона;
+4. при создании/изменении `implementation-sequence.md` обязательно проверить применимость шаблона;
+5. перед открытием каждого следующего `IS` после ChatGPT audit проверить актуальность шаблона;
+6. при изменении verification profiles, CI provider/jobs, mandatory commands, reporting/evidence semantics или обязательных source paths обновить template тем же documentation patch;
+7. если изменения не нужны, не делать фиктивный edit — достаточно подтвердить применимость текущей revision;
+8. обязательное новое правило prompt нельзя оставлять только в чате.
+
+`AGENTS.md` должен при каждом существенном version/implementation workflow update проверяться вместе с prompt template. Если operational process изменился, оба source-of-truth указателя актуализируются согласованно.
 
 ---
 
@@ -272,12 +314,15 @@ blocker/evidence
 ```text
 docs/versions/v0.1/README.md
 docs/versions/v0.1/implementation-sequence.md
+docs/versions/codex-step-prompt-template.md
 ```
 
-Единственная разрешённая coding работа согласно `docs/design/current.md`:
+`V0.1-IS-01` реализован и прошёл содержательный ChatGPT code/design audit без correction blocker, но final execution evidence ещё требует подтверждения.
+
+Единственная разрешённая работа согласно `docs/design/current.md`:
 
 ```text
-V0.1-IS-01 — Project bootstrap & verification shell
+V0.1-IS-01 — verification follow-up / final evidence
 ```
 
-Codex не начинает `IS-02` до implementation + verification + ChatGPT audit `IS-01`.
+`V0.1-IS-02` остаётся закрытым до verification + ChatGPT acceptance audit `IS-01`.
