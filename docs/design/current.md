@@ -21,8 +21,9 @@ V0.1-IS-02: accepted
 V0.1-IS-03: accepted
 V0.1-IS-04: accepted
 V0.1-IS-05: accepted
-current implementation step: V0.1-IS-06 — OPEN
-V0.1-IS-07+: CLOSED
+V0.1-IS-06: accepted
+current implementation step: V0.1-IS-07 — OPEN
+V0.1-IS-08+: CLOSED
 ```
 
 Приняты 32 ADR и semantic contracts `DU-07 … DU-30`, frozen по смыслу как baseline `F31`.
@@ -47,7 +48,8 @@ Version-specific source of truth:
 
 - [`../versions/v0.1/README.md`](../versions/v0.1/README.md) — accepted exact design;
 - [`../versions/v0.1/implementation-sequence.md`](../versions/v0.1/implementation-sequence.md) — accepted dependency-ordered implementation plan;
-- [`../versions/v0.1/is-06-contract-shape.md`](../versions/v0.1/is-06-contract-shape.md) — accepted exact clarification только для текущего `IS-06`;
+- [`../versions/v0.1/is-06-contract-shape.md`](../versions/v0.1/is-06-contract-shape.md) — accepted exact clarification `IS-06`;
+- [`../versions/v0.1/is-07-execution-plan-shape.md`](../versions/v0.1/is-07-execution-plan-shape.md) — accepted exact clarification текущего `IS-07`;
 - [`../versions/codex-step-prompt-template.md`](../versions/codex-step-prompt-template.md) — canonical operational prompt template, revision `CSPT-02`.
 
 Текущий разрешённый implementation step всегда определяется только этим файлом.
@@ -121,21 +123,7 @@ df602abbf57d898952590d7a2eb145fff52b5f00
 feat(state): add cognitive state and declared-read projections
 ```
 
-ChatGPT audit подтвердил:
-
-```text
-scope IS-05                               PASS
-forbidden scope IS-06+                   PASS
-CognitiveState immutability              PASS
-ValueContract integration                PASS
-copy-on-commit isolation                 PASS
-declared-read enforcement                PASS
-availability semantics                   PASS
-CURRENT_CYCLE semantics                  PASS
-ANY_COMMITTED semantics                  PASS
-```
-
-По отчёту Codex targeted verification и local `FULL-C0`: `PASS`, полный suite — `130 passed`, build wheel/sdist — `PASS`. Post-push Ubuntu/Windows GitHub Actions подтверждены оператором проекта как успешные.
+ChatGPT audit подтвердил immutable committed state, copy-on-commit isolation, механическое declared-read enforcement и availability/freshness semantics. По отчёту Codex targeted verification и local `FULL-C0`: `PASS`, полный suite — `130 passed`; post-push Ubuntu/Windows GitHub Actions подтверждены оператором проекта.
 
 VerificationObligations:
 
@@ -143,7 +131,38 @@ VerificationObligations:
 - `V01-005` — closed;
 - `V01-010` — partial.
 
-`V0.1-IS-05` принят.
+## `V0.1-IS-06 — Module contracts & proposals`
+
+Implementation commit:
+
+```text
+633babaffe3c44a0afc7dea1494512f94e54e6dd
+feat(contracts): add module contracts and staged proposals
+```
+
+ChatGPT audit подтвердил:
+
+```text
+scope IS-06                               PASS
+forbidden scope IS-07+                   PASS
+ModuleDescriptor                         PASS
+CognitiveModule Protocol                 PASS
+narrow ModuleComputeRequest              PASS
+staged public proposals                  PASS
+private-state contract foundation        PASS
+no Service Locator                       PASS
+```
+
+Targeted verification и local `FULL-C0`: `PASS`, полный suite — `151 passed`; post-push Ubuntu/Windows GitHub Actions подтверждены оператором проекта как успешные.
+
+VerificationObligations:
+
+- `V01-003` — contract foundation;
+- `V01-004` — module boundary integration;
+- `V01-008` — contract foundation;
+- `V01-012` — structural partial/no-Service-Locator.
+
+`V0.1-IS-06` принят.
 
 ---
 
@@ -152,30 +171,30 @@ VerificationObligations:
 Единственный разрешённый следующий coding step:
 
 ```text
-V0.1-IS-06 — Module contracts & proposals
+V0.1-IS-07 — Execution Plan Compiler
 ```
 
-Scope определяется accepted `implementation-sequence.md` и accepted step-specific clarification [`../versions/v0.1/is-06-contract-shape.md`](../versions/v0.1/is-06-contract-shape.md).
+Scope определяется accepted `implementation-sequence.md` и accepted clarification [`../versions/v0.1/is-07-execution-plan-shape.md`](../versions/v0.1/is-07-execution-plan-shape.md).
 
 Ключевой результат:
 
 ```text
-CognitiveModule Protocol
-ModuleDescriptor
-ModuleExecutionContext
-ModuleComputeRequest / ModuleComputeResult
-StateWrite / StateUpdateProposal
-PrivateStateContract / PrivateStateSnapshot / PrivateStateProposal
-private-state descriptor
-execution traits
-COGNITIVE_CYCLE phase marker
+PlanFingerprint
+ExecutionDependency
+ExecutionWave
+ExecutionPlan
+ExecutionPlanCompiler
+compile-time descriptor/schema validation
+deterministic CURRENT_CYCLE DAG
+deterministic topological wave decomposition
+stable structural fingerprint
 ```
 
-Перед открытием шага отдельно устранена implementation-level неоднозначность `implementation_revision` и exact shape proposal/private-state/request/result contracts. Это clarification не меняет F31 или semantic design.
+Перед открытием шага отдельно устранены implementation-level неоднозначности exact plan shape, compiler inputs, plan identity allocation и fingerprint semantics. Clarification не меняет F31 или canonical scheduling semantics.
 
-`ModuleComputeRequest` должен содержать только `StateProjection`, собственный private snapshot/unavailable и `ModuleExecutionContext`. Выполнение modules, DAG compilation и commit proposals на этом шаге запрещены.
+`IS-07` только компилирует immutable plan. Module execution, `PrivateStateStore`, commits, scheduler и state mutation запрещены.
 
-`V0.1-IS-07` и последующие шаги закрыты до implementation + verification + отдельного ChatGPT audit `IS-06`.
+`V0.1-IS-08` и последующие шаги закрыты до implementation + verification + отдельного ChatGPT audit `IS-07`.
 
 ---
 
@@ -185,7 +204,7 @@ Canonical template:
 
 - [`../versions/codex-step-prompt-template.md`](../versions/codex-step-prompt-template.md), revision `CSPT-02`.
 
-Перед открытием `IS-06` применимость `CSPT-02` проверена повторно после добавления step-specific clarification. Новых verification profiles, CI jobs, mandatory commands или reporting semantics не появилось, поэтому revision шаблона не изменяется.
+Перед открытием `IS-07` применимость `CSPT-02` проверена после добавления step-specific clarification. Новых verification profiles, CI jobs, mandatory commands или reporting semantics не появилось, поэтому revision шаблона не изменяется.
 
 `CSPT-02` требует targeted verification, полный local `FULL-C0`, truthful GitHub Actions status/evidence и предложение Conventional Commit message в конце отчёта.
 
@@ -193,7 +212,7 @@ Canonical template:
 
 # 6. Ограничения
 
-- не переходить к `V0.1-IS-07` до final acceptance `IS-06`;
+- не переходить к `V0.1-IS-08` до final acceptance `IS-07`;
 - не начинать `v0.2` до полного acceptance gate `v0.1`;
 - implementation-level correction допустима только внутри accepted `v0.1` semantics;
 - semantic blocker требует design review и нового ADR/freeze update;
