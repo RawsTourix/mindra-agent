@@ -55,7 +55,7 @@ implementation
 
 | Версия | Статус | Название |
 |---|---|---|
-| `v0.1` | implementation in progress — `IS-02` code/design PASS, CI evidence pending | Core Kernel |
+| `v0.1` | implementation in progress — `IS-01`/`IS-02` accepted, `IS-03` open | Core Kernel |
 | `v0.2` | planned | MicroWorld Interaction |
 | `v0.3` | planned | Cortex Gateway |
 | `v0.4` | planned | Memory & Restore |
@@ -74,8 +74,8 @@ implementation
 - [`v0.1/README.md`](v0.1/README.md) — accepted exact design `Core Kernel`;
 - [`v0.1/implementation-sequence.md`](v0.1/implementation-sequence.md) — accepted sequence `V0.1-IS-01 … V0.1-IS-16`;
 - `V0.1-IS-01` — accepted;
-- `V0.1-IS-02` — реализован, code/design audit PASS, ожидается post-push CI evidence;
-- `V0.1-IS-03` — закрыт до final acceptance `IS-02`.
+- `V0.1-IS-02` — accepted;
+- `V0.1-IS-03` — единственный открытый implementation step.
 
 Статус конкретной работы всегда определяется [`../design/current.md`](../design/current.md).
 
@@ -139,16 +139,15 @@ Targeted verification конкретного step не заменяет regressi
 
 Если изменения ещё не находятся на remote commit или среда Codex не имеет доступа к Actions, статус фиксируется как `PENDING`/`NOT AVAILABLE`, а не `PASS`.
 
+Canonical prompt revision `CSPT-02` дополнительно требует в конце отчёта предложить краткое название коммита в стиле Conventional Commits. Это не разрешает Codex самостоятельно commit/push.
+
 ---
 
-# Принятый первый шаг
+# Принятые implementation checkpoints
 
-`V0.1-IS-01 — Project bootstrap & verification shell` принят после:
+## `V0.1-IS-01`
 
-- code/design audit;
-- local `FULL-C0`;
-- Linux GitHub Actions;
-- Windows GitHub Actions после correction `PYTHONUTF8=1` для Import Linter.
+`Project bootstrap & verification shell` принят после code/design audit, local `FULL-C0`, Linux CI и Windows CI после correction `PYTHONUTF8=1` для Import Linter.
 
 Correction commit:
 
@@ -156,11 +155,11 @@ Correction commit:
 584db766e190739e22c7616f1ea1e68428ecf86e
 ```
 
----
+## `V0.1-IS-02`
 
-# Текущий implementation checkpoint
+`Identity / revision / logical time` принят.
 
-`V0.1-IS-02 — Identity / revision / logical time` реализован commit:
+Implementation commit:
 
 ```text
 e457ada1aa8ded3ff70cd47b5328e2bbcc96f724
@@ -169,12 +168,18 @@ feat(core): add identity revision and logical time primitives
 
 Содержательный ChatGPT audit: `PASS`.
 
-Локальный targeted verification и `FULL-C0` по отчёту Codex: `PASS`.
+Локальный targeted verification и `FULL-C0`: `PASS` по отчёту Codex. Post-push declared Ubuntu/Windows CI принят как operator-confirmed evidence; доступный ChatGPT connector не отображает push-triggered workflow runs по SHA.
 
-До открытия `IS-03` остаётся подтвердить declared GitHub Actions Ubuntu/Windows для remote implementation commit либо исправить defect внутри scope `IS-02`, если CI его выявит.
+---
 
-Canonical prompt обновлён до `CSPT-02`: итоговый отчёт Codex теперь обязан предлагать краткое название коммита; это не разрешает Codex самостоятельно commit/push.
+# Текущий следующий шаг
 
-`V0.1-IS-03` и последующие шаги остаются закрыты до final acceptance `IS-02`.
+```text
+V0.1-IS-03 — Availability / provenance / error foundation
+```
+
+Перед открытием `IS-03` применимость `CSPT-02` проверена. Новых verification profiles, CI jobs, mandatory commands или reporting semantics не появилось, поэтому revision шаблона не меняется.
+
+`V0.1-IS-04` и последующие шаги остаются закрыты до implementation + verification + ChatGPT audit `IS-03`.
 
 Нельзя начинать `v0.2` до полного acceptance gate `v0.1`.
