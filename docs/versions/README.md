@@ -49,7 +49,7 @@ implementation
 
 | Версия | Статус | Название |
 |---|---|---|
-| `v0.1` | implementation in progress — `IS-01…IS-05` accepted, `IS-06` open | Core Kernel |
+| `v0.1` | implementation in progress — `IS-01…IS-06` accepted, `IS-07` open | Core Kernel |
 | `v0.2` | planned | MicroWorld Interaction |
 | `v0.3` | planned | Cortex Gateway |
 | `v0.4` | planned | Memory & Restore |
@@ -67,9 +67,10 @@ implementation
 
 - [`v0.1/README.md`](v0.1/README.md) — accepted exact design `Core Kernel`;
 - [`v0.1/implementation-sequence.md`](v0.1/implementation-sequence.md) — accepted sequence `V0.1-IS-01 … V0.1-IS-16`;
-- [`v0.1/is-06-contract-shape.md`](v0.1/is-06-contract-shape.md) — accepted exact clarification текущего `IS-06`;
-- `V0.1-IS-01 … V0.1-IS-05` — accepted;
-- `V0.1-IS-06` — единственный открытый implementation step.
+- [`v0.1/is-06-contract-shape.md`](v0.1/is-06-contract-shape.md) — accepted clarification `IS-06`;
+- [`v0.1/is-07-execution-plan-shape.md`](v0.1/is-07-execution-plan-shape.md) — accepted clarification текущего `IS-07`;
+- `V0.1-IS-01 … V0.1-IS-06` — accepted;
+- `V0.1-IS-07` — единственный открытый implementation step.
 
 Статус конкретной работы всегда определяется [`../design/current.md`](../design/current.md).
 
@@ -179,14 +180,10 @@ fix(contracts): validate enum payload snapshot safety
 
 ## `V0.1-IS-05`
 
-`CognitiveState & StateProjection` принят.
-
 ```text
 df602abbf57d898952590d7a2eb145fff52b5f00
 feat(state): add cognitive state and declared-read projections
 ```
-
-ChatGPT audit подтвердил immutable committed state, copy-on-commit isolation, механическое declared-read enforcement, availability/freshness semantics и отсутствие scope leakage в `IS-06+`. Targeted verification и local `FULL-C0`: `PASS`; post-push Ubuntu/Windows CI принят как operator-confirmed evidence.
 
 VerificationObligations:
 
@@ -194,38 +191,36 @@ VerificationObligations:
 - `V01-005` — closed;
 - `V01-010` — partial.
 
+## `V0.1-IS-06`
+
+`Module contracts & proposals` принят.
+
+```text
+633babaffe3c44a0afc7dea1494512f94e54e6dd
+feat(contracts): add module contracts and staged proposals
+```
+
+ChatGPT audit подтвердил exact `ModuleDescriptor`, synchronous structural `CognitiveModule`, узкий `ModuleComputeRequest`, staged public/private proposals, private-state contract foundation и отсутствие Service Locator/scope leakage. Targeted verification и local `FULL-C0`: `PASS`, полный suite — `151 passed`; post-push Ubuntu/Windows CI принят как operator-confirmed evidence.
+
+VerificationObligations:
+
+- `V01-003` — contract foundation;
+- `V01-004` — module boundary integration;
+- `V01-008` — contract foundation;
+- `V01-012` — structural partial.
+
 ---
 
 # Текущий следующий шаг
 
 ```text
-V0.1-IS-06 — Module contracts & proposals
+V0.1-IS-07 — Execution Plan Compiler
 ```
 
-Перед открытием `IS-06` обнаружена implementation-level неоднозначность `ModuleDescriptor.implementation_revision` и нескольких exact proposal/private-state shapes. Она устранена accepted step-specific clarification:
+Перед открытием `IS-07` создан accepted clarification [`v0.1/is-07-execution-plan-shape.md`](v0.1/is-07-execution-plan-shape.md), который фиксирует exact plan/compiler shape, deterministic DAG/waves, identity allocation и fingerprint semantics без изменения F31.
 
-- [`v0.1/is-06-contract-shape.md`](v0.1/is-06-contract-shape.md).
+Применимость `CSPT-02` проверена. Новых verification profiles, CI jobs, mandatory commands или reporting semantics не появилось, поэтому revision шаблона не меняется.
 
-Clarification не меняет `F31`/`DU-05`, а только фиксирует exact Python-facing representation текущего шага.
-
-После этого применимость `CSPT-02` проверена повторно. Новых verification profiles, CI jobs, mandatory commands или reporting semantics не появилось, поэтому revision шаблона не меняется.
-
-Ключевой scope:
-
-```text
-CognitiveModule Protocol
-ModuleDescriptor
-ModuleExecutionContext
-ModuleComputeRequest / ModuleComputeResult
-StateWrite / StateUpdateProposal
-PrivateStateContract / PrivateStateSnapshot / PrivateStateProposal
-private-state descriptor
-execution traits
-COGNITIVE_CYCLE phase marker
-```
-
-Модули на этом шаге не выполняются, proposals не commit'ятся, execution DAG не компилируется.
-
-`V0.1-IS-07` и последующие шаги остаются закрыты до implementation + verification + ChatGPT audit `IS-06`.
+`V0.1-IS-08` и последующие шаги остаются закрыты до implementation + verification + ChatGPT audit `IS-07`.
 
 Нельзя начинать `v0.2` до полного acceptance gate `v0.1`.
