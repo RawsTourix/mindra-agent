@@ -68,8 +68,10 @@ class StateKey[ValueT]:
 def _is_snapshot_safe(value: object) -> bool:
     if value is None or type(value) in {bool, int, float, complex, str, bytes, range}:
         return True
-    if isinstance(value, UUID | Enum):
+    if isinstance(value, UUID):
         return True
+    if isinstance(value, Enum):
+        return _is_snapshot_safe(value.value)
     if isinstance(value, tuple | frozenset):
         return all(_is_snapshot_safe(item) for item in value)
     if isinstance(value, list | dict | set | bytearray):

@@ -1,6 +1,8 @@
 """Проверки default snapshot-safe ValueContract."""
 
 from dataclasses import dataclass
+from enum import Enum
+from uuid import UUID
 
 import pytest
 
@@ -22,11 +24,34 @@ class FrozenShellWithMutableField:
     values: list[int]
 
 
+def _mutable_enum_value() -> list[int]:
+    return [1, 2]
+
+
+class ImmutableValueEnum(Enum):
+    """Enum с immutable underlying value."""
+
+    VALUE = ("safe", 1)
+
+
+class MutableListValueEnum(Enum):
+    """Enum с mutable list как underlying value."""
+
+    VALUE = _mutable_enum_value()
+
+
+class NestedMutableValueEnum(Enum):
+    """Enum с вложенным mutable underlying value."""
+
+    VALUE = ("unsafe", _mutable_enum_value())
+
+
 @pytest.mark.parametrize(
     "value",
     [
         7,
         "canonical",
+        UUID(int=1),
         (1, "two", frozenset({3})),
         FrozenPayload(label="safe", values=(1, 2)),
     ],
@@ -54,6 +79,20 @@ def test_value_contract_rejects_mutability_nested_in_frozen_dataclass() -> None:
 
     with pytest.raises(SchemaError):
         contract.freeze(FrozenShellWithMutableField(values=[1]))
+
+
+def test_value_contract_accepts_enum_with_immutable_value() -> None:
+    contract = ValueContract(ImmutableValueEnum)
+
+    assert contract.freeze(ImmutableValueEnum.VALUE) is ImmutableValueEnum.VALUE
+
+
+@pytest.mark.parametrize("value", [MutableListValueEnum.VALUE, NestedMutableValueEnum.VALUE])
+def test_value_contract_rejects_enum_with_mutable_value(value: Enum) -> None:
+    contract = ValueContract(type(value))
+
+    with pytest.raises(SchemaError, match="snapshot-safe"):
+        contract.freeze(value)
 
 
 def test_value_contract_rejects_wrong_runtime_type() -> None:

@@ -2,6 +2,7 @@
 
 from collections.abc import MutableMapping
 from dataclasses import FrozenInstanceError
+from enum import Enum
 from typing import cast
 from uuid import UUID
 
@@ -57,6 +58,16 @@ def _logical_time() -> LogicalTime:
         run_id=RunId(UUID(int=1)),
         agent_session_id=AgentSessionId(UUID(int=2)),
     )
+
+
+def _mutable_enum_value() -> list[int]:
+    return [1]
+
+
+class MutableStateEntryEnum(Enum):
+    """Enum с mutable payload для проверки StateEntry boundary."""
+
+    VALUE = _mutable_enum_value()
 
 
 def test_schema_lookup_preserves_explicit_owner_and_contract() -> None:
@@ -140,6 +151,20 @@ def test_state_entry_rejects_mutable_canonical_payload() -> None:
 
     with pytest.raises(SchemaError, match="snapshot-safe"):
         StateEntry(availability=Available([1]), provenance=provenance)
+
+
+def test_state_entry_rejects_enum_with_mutable_underlying_value() -> None:
+    provenance = StateProvenance(
+        producer=RuntimeBoundaryId("runtime.initialization"),
+        base_state_revision=StateRevision.initial(),
+        logical_time=_logical_time(),
+    )
+
+    with pytest.raises(SchemaError, match="snapshot-safe"):
+        StateEntry(
+            availability=Available(MutableStateEntryEnum.VALUE),
+            provenance=provenance,
+        )
 
 
 def test_read_spec_declares_only_current_v01_freshness_modes() -> None:
