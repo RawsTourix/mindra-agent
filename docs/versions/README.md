@@ -67,6 +67,7 @@ implementation
 
 - [`v0.1/README.md`](v0.1/README.md) — accepted exact design `Core Kernel`;
 - [`v0.1/implementation-sequence.md`](v0.1/implementation-sequence.md) — accepted sequence `V0.1-IS-01 … V0.1-IS-16`;
+- [`v0.1/is-06-contract-shape.md`](v0.1/is-06-contract-shape.md) — accepted exact clarification текущего `IS-06`;
 - `V0.1-IS-01 … V0.1-IS-05` — accepted;
 - `V0.1-IS-06` — единственный открытый implementation step.
 
@@ -201,7 +202,13 @@ VerificationObligations:
 V0.1-IS-06 — Module contracts & proposals
 ```
 
-Перед открытием `IS-06` применимость `CSPT-02` проверена. Новых verification profiles, CI jobs, mandatory commands или reporting semantics не появилось, поэтому revision шаблона не меняется.
+Перед открытием `IS-06` обнаружена implementation-level неоднозначность `ModuleDescriptor.implementation_revision` и нескольких exact proposal/private-state shapes. Она устранена accepted step-specific clarification:
+
+- [`v0.1/is-06-contract-shape.md`](v0.1/is-06-contract-shape.md).
+
+Clarification не меняет `F31`/`DU-05`, а только фиксирует exact Python-facing representation текущего шага.
+
+После этого применимость `CSPT-02` проверена повторно. Новых verification profiles, CI jobs, mandatory commands или reporting semantics не появилось, поэтому revision шаблона не меняется.
 
 Ключевой scope:
 
