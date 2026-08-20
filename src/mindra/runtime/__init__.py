@@ -1,5 +1,11 @@
 """Слой исполнения Core Kernel MINDRA."""
 
+from mindra.runtime.commit import (
+    CommitCoordinator,
+    CommitRecord,
+    CommitResult,
+    PrivateStateRevisionTransition,
+)
 from mindra.runtime.errors import (
     AvailabilityError,
     CommitValidationError,
@@ -35,6 +41,9 @@ from mindra.runtime.state_store import (
 
 __all__ = [
     "AvailabilityError",
+    "CommitCoordinator",
+    "CommitRecord",
+    "CommitResult",
     "CommitValidationError",
     "CompositionError",
     "ConfigurationError",
@@ -51,6 +60,7 @@ __all__ = [
     "MissingFieldError",
     "ModuleExecutionError",
     "PlanFingerprint",
+    "PrivateStateRevisionTransition",
     "PrivateStateSlot",
     "PrivateStateStore",
     "SchemaError",
