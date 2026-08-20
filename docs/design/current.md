@@ -2,13 +2,11 @@
 
 ## Назначение
 
-Краткий фактический статус проекта. Этот файл не переопределяет canonical design; он определяет, что уже принято и какая работа разрешена следующей.
+Краткий фактический статус проекта. Этот файл не переопределяет canonical design; он определяет, что уже принято и какая implementation-работа разрешена следующей.
 
 ---
 
 # 1. Общий статус
-
-Общий архитектурный цикл `DU-00 … DU-32` завершён и принят.
 
 ```text
 Semantic Freeze Baseline F31: accepted
@@ -16,17 +14,14 @@ Version Roadmap DU-32: accepted
 Current milestone: v0.1 Core Kernel
 v0.1 exact design: accepted
 v0.1 implementation-sequence: accepted
-V0.1-IS-01: accepted
-V0.1-IS-02: accepted
-V0.1-IS-03: accepted
-V0.1-IS-04: accepted
-V0.1-IS-05: accepted
-V0.1-IS-06: accepted
-current implementation step: V0.1-IS-07 — OPEN
-V0.1-IS-08+: CLOSED
+V0.1-IS-01 … V0.1-IS-07: accepted
+current implementation step: V0.1-IS-08 — OPEN
+V0.1-IS-09+: CLOSED
 ```
 
-Приняты 32 ADR и semantic contracts `DU-07 … DU-30`, frozen по смыслу как baseline `F31`.
+Общий архитектурный цикл `DU-00 … DU-32` завершён и принят. Приняты 32 ADR и semantic contracts `DU-07 … DU-30`, frozen по смыслу как baseline `F31`.
+
+Текущий разрешённый implementation step всегда определяется только этим файлом.
 
 ---
 
@@ -49,120 +44,44 @@ Version-specific source of truth:
 - [`../versions/v0.1/README.md`](../versions/v0.1/README.md) — accepted exact design;
 - [`../versions/v0.1/implementation-sequence.md`](../versions/v0.1/implementation-sequence.md) — accepted dependency-ordered implementation plan;
 - [`../versions/v0.1/is-06-contract-shape.md`](../versions/v0.1/is-06-contract-shape.md) — accepted exact clarification `IS-06`;
-- [`../versions/v0.1/is-07-execution-plan-shape.md`](../versions/v0.1/is-07-execution-plan-shape.md) — accepted exact clarification текущего `IS-07`;
+- [`../versions/v0.1/is-07-execution-plan-shape.md`](../versions/v0.1/is-07-execution-plan-shape.md) — accepted exact clarification `IS-07`;
+- [`../versions/v0.1/is-07-controlled-construction-correction.md`](../versions/v0.1/is-07-controlled-construction-correction.md) — accepted correction clarification `IS-07`;
+- [`../versions/v0.1/is-08-private-state-store-shape.md`](../versions/v0.1/is-08-private-state-store-shape.md) — accepted exact clarification текущего `IS-08`;
 - [`../versions/codex-step-prompt-template.md`](../versions/codex-step-prompt-template.md) — canonical operational prompt template, revision `CSPT-02`.
-
-Текущий разрешённый implementation step всегда определяется только этим файлом.
 
 ---
 
 # 3. Принятые implementation checkpoints
 
-## `V0.1-IS-01 — Project bootstrap & verification shell`
+| Step | Статус | Основной implementation/correction |
+|---|---|---|
+| `IS-01` | accepted | bootstrap + correction `584db766...` |
+| `IS-02` | accepted | `e457ada1...` identity/revision/logical time |
+| `IS-03` | accepted | `a5c9f314...` availability/provenance/errors |
+| `IS-04` | accepted | `86d38ff6...` + correction `afc1937b...` |
+| `IS-05` | accepted | `df602abb...` CognitiveState/StateProjection |
+| `IS-06` | accepted | `633babaf...` module contracts/proposals |
+| `IS-07` | accepted | `c8852930...` + correction `5b60d001...` |
 
-Принят после implementation/correction audit, local `FULL-C0` и Ubuntu/Windows GitHub Actions.
-
-Correction commit:
-
-```text
-584db766e190739e22c7616f1ea1e68428ecf86e
-fix(ci): enable UTF-8 for Import Linter on Windows
-```
-
-`V01-012` и `V01-014` остаются закрытыми только на предусмотренном для `IS-01` уровне `foundation/partial`; окончательное закрытие `V01-014` выполняется в `IS-16`.
-
-## `V0.1-IS-02 — Identity / revision / logical time`
-
-```text
-e457ada1aa8ded3ff70cd47b5328e2bbcc96f724
-feat(core): add identity revision and logical time primitives
-```
-
-ChatGPT code/design audit, targeted verification и local `FULL-C0`: `PASS`. Post-push Ubuntu/Windows GitHub Actions подтверждены оператором проекта как успешные.
-
-## `V0.1-IS-03 — Availability / provenance / error foundation`
-
-```text
-a5c9f314bb0e9960da0434c6fcfd3556e8e9b5f2
-feat(contracts): add availability provenance and kernel errors
-```
-
-ChatGPT code/design audit, targeted verification и local `FULL-C0`: `PASS`. Post-push Ubuntu/Windows GitHub Actions подтверждены оператором проекта как успешные.
-
-VerificationObligations:
-
-- `V01-005` — `foundation/partial`;
-- `V01-010` — `foundation/partial`.
-
-## `V0.1-IS-04 — State schema primitives`
+## `V0.1-IS-07 — Execution Plan Compiler`
 
 Implementation commit:
 
 ```text
-86d38ff6232239df190d69db8b75352927ac8b1f
-feat(contracts): add state schema primitives
+c88529300ab926b052e0b40089539735d64ac2e7
+feat(runtime): add deterministic execution plan compiler
 ```
 
-Correction commit:
+Correction commit после ChatGPT audit:
 
 ```text
-afc1937b82f09a9b7a082c3f5cf8d38fa264a5ef
-fix(contracts): validate enum payload snapshot safety
+5b60d001f2d730c3fdc921244bc68b122f784a16
+fix(runtime): restrict execution plan construction
 ```
 
-ChatGPT audit подтвердил schema semantics, structural missing, snapshot safety, `StateEntry`/`StateEnvelope` и `ReadSpec` foundation. Targeted verification и local `FULL-C0`: `PASS`; post-push Ubuntu/Windows CI подтверждён оператором проекта.
+ChatGPT audit подтвердил deterministic `CURRENT_CYCLE` DAG, topological waves, stable fingerprint, fail-closed plan validation, отсутствие ID consumption при failed compile и compiler-controlled `ExecutionPlan` construction. Targeted verification и local `FULL-C0`: `PASS`; post-push Ubuntu/Windows GitHub Actions подтверждены оператором проекта как успешные.
 
-`V01-005` достиг предусмотренного для `IS-04` уровня `substantial`.
-
-## `V0.1-IS-05 — CognitiveState & StateProjection`
-
-Implementation commit:
-
-```text
-df602abbf57d898952590d7a2eb145fff52b5f00
-feat(state): add cognitive state and declared-read projections
-```
-
-ChatGPT audit подтвердил immutable committed state, copy-on-commit isolation, механическое declared-read enforcement и availability/freshness semantics. По отчёту Codex targeted verification и local `FULL-C0`: `PASS`, полный suite — `130 passed`; post-push Ubuntu/Windows GitHub Actions подтверждены оператором проекта.
-
-VerificationObligations:
-
-- `V01-004` — closed at projection layer;
-- `V01-005` — closed;
-- `V01-010` — partial.
-
-## `V0.1-IS-06 — Module contracts & proposals`
-
-Implementation commit:
-
-```text
-633babaffe3c44a0afc7dea1494512f94e54e6dd
-feat(contracts): add module contracts and staged proposals
-```
-
-ChatGPT audit подтвердил:
-
-```text
-scope IS-06                               PASS
-forbidden scope IS-07+                   PASS
-ModuleDescriptor                         PASS
-CognitiveModule Protocol                 PASS
-narrow ModuleComputeRequest              PASS
-staged public proposals                  PASS
-private-state contract foundation        PASS
-no Service Locator                       PASS
-```
-
-Targeted verification и local `FULL-C0`: `PASS`, полный suite — `151 passed`; post-push Ubuntu/Windows GitHub Actions подтверждены оператором проекта как успешные.
-
-VerificationObligations:
-
-- `V01-003` — contract foundation;
-- `V01-004` — module boundary integration;
-- `V01-008` — contract foundation;
-- `V01-012` — structural partial/no-Service-Locator.
-
-`V0.1-IS-06` принят.
+`V01-007 — DAG validity`: **closed**.
 
 ---
 
@@ -171,30 +90,35 @@ VerificationObligations:
 Единственный разрешённый следующий coding step:
 
 ```text
-V0.1-IS-07 — Execution Plan Compiler
+V0.1-IS-08 — PrivateStateStore
 ```
 
-Scope определяется accepted `implementation-sequence.md` и accepted clarification [`../versions/v0.1/is-07-execution-plan-shape.md`](../versions/v0.1/is-07-execution-plan-shape.md).
+Scope определяется accepted `implementation-sequence.md`, `is-06-contract-shape.md` и accepted exact clarification [`../versions/v0.1/is-08-private-state-store-shape.md`](../versions/v0.1/is-08-private-state-store-shape.md).
 
 Ключевой результат:
 
 ```text
-PlanFingerprint
-ExecutionDependency
-ExecutionWave
-ExecutionPlan
-ExecutionPlanCompiler
-compile-time descriptor/schema validation
-deterministic CURRENT_CYCLE DAG
-deterministic topological wave decomposition
-stable structural fingerprint
+PrivateStateSlot
+PrivateStateStore
+explicit stateful initialization
+own snapshot / stateless Unavailable semantics
+private proposal validation + freeze
+prepared private update
+internal all-or-nothing apply primitive
 ```
 
-Перед открытием шага отдельно устранены implementation-level неоднозначности exact plan shape, compiler inputs, plan identity allocation и fingerprint semantics. Clarification не меняет F31 или canonical scheduling semantics.
+Exact clarification фиксирует:
 
-`IS-07` только компилирует immutable plan. Module execution, `PrivateStateStore`, commits, scheduler и state mutation запрещены.
+- каждый active `STATEFUL` module обязан получить explicit initial private value;
+- initial private value проходит свой `PrivateStateContract.freeze()` и получает `PrivateStateRevision.initial()`;
+- `STATELESS` module slot не имеет и получает `Unavailable`;
+- proposal validation не мутирует store;
+- actual replacement выполняется только internal all-or-nothing primitive после полной prevalidation batch;
+- cognitive modules никогда не получают store/slot reference.
 
-`V0.1-IS-08` и последующие шаги закрыты до implementation + verification + отдельного ChatGPT audit `IS-07`.
+`V01-008` должен достигнуть уровня `substantial/partial`; полная atomic public+private semantics остаётся `IS-09`.
+
+`V0.1-IS-09` и последующие шаги закрыты до implementation + verification + отдельного ChatGPT audit `IS-08`.
 
 ---
 
@@ -204,7 +128,7 @@ Canonical template:
 
 - [`../versions/codex-step-prompt-template.md`](../versions/codex-step-prompt-template.md), revision `CSPT-02`.
 
-Перед открытием `IS-07` применимость `CSPT-02` проверена после добавления step-specific clarification. Новых verification profiles, CI jobs, mandatory commands или reporting semantics не появилось, поэтому revision шаблона не изменяется.
+Перед открытием `IS-08` применимость `CSPT-02` проверена после добавления step-specific clarification. Новых CI jobs, verification profiles, mandatory commands или reporting semantics не появилось, поэтому revision шаблона не изменяется.
 
 `CSPT-02` требует targeted verification, полный local `FULL-C0`, truthful GitHub Actions status/evidence и предложение Conventional Commit message в конце отчёта.
 
@@ -212,7 +136,7 @@ Canonical template:
 
 # 6. Ограничения
 
-- не переходить к `V0.1-IS-08` до final acceptance `IS-07`;
+- не переходить к `V0.1-IS-09` до final acceptance `IS-08`;
 - не начинать `v0.2` до полного acceptance gate `v0.1`;
 - implementation-level correction допустима только внутри accepted `v0.1` semantics;
 - semantic blocker требует design review и нового ADR/freeze update;
