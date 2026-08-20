@@ -7,6 +7,7 @@ from types import MappingProxyType
 from mindra.contracts.availability import Unavailable
 from mindra.contracts.errors import (
     CommitValidationError,
+    CompositionError,
     ConfigurationError,
     DuplicateIdentityError,
     StaleProposalError,
@@ -136,6 +137,33 @@ class PrivateStateStore:
             revision=slot.revision,
             value=slot.value,
         )
+
+    def _assert_compatible_descriptors(
+        self,
+        descriptors: Mapping[ModuleId, ModuleDescriptor],
+    ) -> None:
+        """Fail closed подтвердить ту же active descriptor composition."""
+        if not isinstance(descriptors, Mapping):
+            raise TypeError("descriptors должен быть Mapping ModuleId -> ModuleDescriptor")
+
+        active_module_ids = set(descriptors)
+        stored_module_ids = set(self._descriptors)
+        if active_module_ids != stored_module_ids:
+            missing = sorted(module_id.value for module_id in active_module_ids - stored_module_ids)
+            extra = sorted(module_id.value for module_id in stored_module_ids - active_module_ids)
+            raise CompositionError(
+                "PrivateStateStore несовместим с active ModuleId set: "
+                f"missing={missing}, extra={extra}"
+            )
+
+        for module_id in sorted(active_module_ids, key=lambda item: item.value):
+            active_descriptor = descriptors[module_id]
+            if not isinstance(active_descriptor, ModuleDescriptor):
+                raise TypeError("descriptors values должны быть ModuleDescriptor")
+            if self._descriptors[module_id] != active_descriptor:
+                raise CompositionError(
+                    f"PrivateStateStore descriptor не совпадает с active descriptor: {module_id}"
+                )
 
     def _prepare(self, proposal: PrivateStateProposal[object]) -> _PreparedPrivateStateUpdate:
         """Validate/freeze proposal без mutation committed slots."""

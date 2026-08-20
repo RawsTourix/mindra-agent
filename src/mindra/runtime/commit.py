@@ -164,6 +164,8 @@ class CommitCoordinator:
                 )
             registered[descriptor.module_id] = descriptor
 
+        private_store._assert_compatible_descriptors(registered)
+
         self._schema = schema
         self._descriptors = MappingProxyType(registered)
         self._private_store = private_store
