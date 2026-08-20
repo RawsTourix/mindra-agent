@@ -26,6 +26,7 @@ from mindra.runtime.planning import (
     ExecutionWave,
     PlanFingerprint,
 )
+from mindra.runtime.private_state import PrivateStateSlot, PrivateStateStore
 from mindra.runtime.state_store import (
     build_cognitive_state,
     build_state_projection,
@@ -50,6 +51,8 @@ __all__ = [
     "MissingFieldError",
     "ModuleExecutionError",
     "PlanFingerprint",
+    "PrivateStateSlot",
+    "PrivateStateStore",
     "SchemaError",
     "StaleProposalError",
     "UnauthorizedWriteError",
