@@ -13,9 +13,15 @@ Semantic baseline:
 - [`../design/contract-adr-consistency-freeze.md`](../design/contract-adr-consistency-freeze.md)
 - [`../design/contracts/semantic-freeze-manifest.md`](../design/contracts/semantic-freeze-manifest.md)
 
+Operational workflow:
+
+- [`../process/README.md`](../process/README.md);
+- [`../process/independent-audit.md`](../process/independent-audit.md);
+- [`../process/codex-instruction-authoring.md`](../process/codex-instruction-authoring.md).
+
 Canonical operational prompt для Codex:
 
-- [`codex-step-prompt-template.md`](codex-step-prompt-template.md), revision `CSPT-02`.
+- [`codex-step-prompt-template.md`](codex-step-prompt-template.md), current accepted revision определяется самим template и при необходимости `docs/design/current.md`.
 
 ---
 
@@ -30,18 +36,28 @@ docs/versions/vX.Y/README.md
 docs/versions/vX.Y/implementation-sequence.md
 ```
 
-Каждый coding task выполняет только один `IS` и перед переходом дальше проходит:
+Каждый coding task выполняет только один `IS` и проходит:
 
 ```text
-implementation
+accepted previous step
+→ opening/clarification следующего step
+→ copy-ready Codex instruction
+→ implementation
 → targeted verification
 → полный local regression gate
-→ CI evidence/status, если применимо
+→ CI evidence/status
 → отчёт Codex
-→ ChatGPT audit
+→ operator commit/push
+→ independent ChatGPT audit
+→ correction ИЛИ acceptance
+→ только затем next step
 ```
 
+Подробный lifecycle находится в [`../process/README.md`](../process/README.md).
+
 Новые обязательные требования к Codex prompt нельзя хранить только в истории чата: canonical source — [`codex-step-prompt-template.md`](codex-step-prompt-template.md).
+
+Новые обязательные ChatGPT-side правила audit/transition/instruction delivery нельзя хранить только в чате: canonical source — [`../process/`](../process/README.md).
 
 ---
 
@@ -49,7 +65,7 @@ implementation
 
 | Версия | Статус | Название |
 |---|---|---|
-| `v0.1` | implementation in progress — `IS-01…IS-07` accepted, `IS-08` open | Core Kernel |
+| `v0.1` | implementation in progress | Core Kernel |
 | `v0.2` | planned | MicroWorld Interaction |
 | `v0.3` | planned | Cortex Gateway |
 | `v0.4` | planned | Memory & Restore |
@@ -66,15 +82,11 @@ implementation
 Текущая версия:
 
 - [`v0.1/README.md`](v0.1/README.md) — accepted exact design `Core Kernel`;
-- [`v0.1/implementation-sequence.md`](v0.1/implementation-sequence.md) — accepted sequence `V0.1-IS-01 … V0.1-IS-16`;
-- [`v0.1/is-06-contract-shape.md`](v0.1/is-06-contract-shape.md) — accepted clarification `IS-06`;
-- [`v0.1/is-07-execution-plan-shape.md`](v0.1/is-07-execution-plan-shape.md) — accepted clarification `IS-07`;
-- [`v0.1/is-07-controlled-construction-correction.md`](v0.1/is-07-controlled-construction-correction.md) — accepted correction clarification `IS-07`;
-- [`v0.1/is-08-private-state-store-shape.md`](v0.1/is-08-private-state-store-shape.md) — accepted exact clarification текущего `IS-08`;
-- `V0.1-IS-01 … V0.1-IS-07` — accepted;
-- `V0.1-IS-08` — единственный открытый implementation step.
+- [`v0.1/implementation-sequence.md`](v0.1/implementation-sequence.md) — accepted sequence `V0.1-IS-01 … V0.1-IS-16`.
 
-Фактический current step всегда определяется [`../design/current.md`](../design/current.md).
+Accepted step-specific clarification/correction docs текущей версии перечисляются в [`../design/current.md`](../design/current.md), который является единственным live status.
+
+Этот version index намеренно не дублирует номер текущего `IS`.
 
 ---
 
@@ -99,7 +111,7 @@ implementation
 
 Если для выбора требуется актуальный внешний landscape, перед принятием version design выполняется новый датированный research/tool pass.
 
-При принятии нового version design обязательно проверяется актуальность [`codex-step-prompt-template.md`](codex-step-prompt-template.md).
+При принятии нового version design обязательно проверяется актуальность [`codex-step-prompt-template.md`](codex-step-prompt-template.md) и operational workflow в [`../process/`](../process/README.md).
 
 ---
 
@@ -114,9 +126,16 @@ implementation
 - не просить Codex самому выбрать архитектуру;
 - не объединять refactor, new feature и experiment в один непрозрачный change;
 - завершаться version acceptance audit;
-- быть совместимым с canonical prompt template.
+- быть совместимым с canonical prompt template;
+- поддерживать independent audit/correction lifecycle.
 
-Перед открытием следующего `IS` после ChatGPT audit проверяется актуальность prompt template. Если verification/CI/reporting requirements изменились, шаблон актуализируется до выдачи coding task.
+Перед открытием следующего `IS` после ChatGPT audit:
+
+1. проверить prerequisites;
+2. проверить необходимость step-specific clarification;
+3. проверить актуальность prompt template;
+4. только затем обновить `docs/design/current.md` и открыть следующий step;
+5. выдать prompt по [`../process/codex-instruction-authoring.md`](../process/codex-instruction-authoring.md).
 
 ---
 
@@ -133,55 +152,24 @@ implementation
 
 Предложение названия коммита не разрешает Codex самостоятельно commit/push.
 
----
-
-# Принятые implementation checkpoints
-
-| Step | Основной результат |
-|---|---|
-| `IS-01` | bootstrap/tooling + Windows UTF-8 correction |
-| `IS-02` | identity/revisions/logical time |
-| `IS-03` | availability/provenance/errors |
-| `IS-04` | schema primitives + Enum snapshot-safety correction |
-| `IS-05` | CognitiveState/StateProjection |
-| `IS-06` | module contracts/staged proposals |
-| `IS-07` | deterministic ExecutionPlanCompiler + controlled-construction correction |
-
-`IS-07` commits:
-
-```text
-c88529300ab926b052e0b40089539735d64ac2e7
-feat(runtime): add deterministic execution plan compiler
-
-5b60d001f2d730c3fdc921244bc68b122f784a16
-fix(runtime): restrict execution plan construction
-```
-
-`V01-007 — DAG validity`: closed.
+После push результат обязательно проходит [`../process/independent-audit.md`](../process/independent-audit.md).
 
 ---
 
-# Текущий следующий шаг
+# Current implementation status
 
-```text
-V0.1-IS-08 — PrivateStateStore
-```
+Единственный source of truth:
 
-Перед открытием `IS-08` принят exact clarification [`v0.1/is-08-private-state-store-shape.md`](v0.1/is-08-private-state-store-shape.md).
+- [`../design/current.md`](../design/current.md).
 
-Он фиксирует initialization/private ownership и transactional preparation semantics без изменения F31:
+Именно он определяет:
 
-- stateful active module получает explicit initial private value и revision `0`;
-- stateless module не имеет slot и получает `Unavailable`;
-- private proposal validation/freezing отделены от mutation;
-- internal prepared update имеет expected/next private revision;
-- internal batch apply предварительно валидирует весь batch и не допускает partial private mutation;
-- public+private atomic commit остаётся `IS-09`.
+- какие steps accepted;
+- какой step `OPEN`;
+- какие последующие steps `CLOSED`;
+- какие step-specific clarifications обязательны;
+- какие implementation/correction commits считаются принятыми.
 
-`V01-008` на `IS-08` достигает уровня `substantial/partial`.
-
-Применимость `CSPT-02` проверена: новых CI jobs, verification profiles, mandatory commands или reporting semantics нет, revision шаблона не меняется.
-
-`V0.1-IS-09` и последующие шаги остаются закрыты до implementation + verification + ChatGPT audit `IS-08`.
+Нельзя копировать live step number в этот README или другие index docs: такая информация быстро становится stale.
 
 Нельзя начинать `v0.2` до полного acceptance gate `v0.1`.
