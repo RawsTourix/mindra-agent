@@ -4,7 +4,7 @@
 
 Этот каталог — каноническая база знаний исследовательского проекта MINDRA.
 
-Документация должна позволять человеку, ChatGPT, Codex или другому coding agent восстановить актуальный контекст без истории чатов.
+Документация должна позволять человеку, ChatGPT, Codex или другому coding agent восстановить актуальный контекст **без истории чатов**.
 
 Краткое задание не заменяет repository documentation.
 
@@ -22,23 +22,36 @@
 6. [`design/contract-adr-consistency-freeze.md`](design/contract-adr-consistency-freeze.md)
 7. [`design/version-roadmap.md`](design/version-roadmap.md)
 
+## Для восстановления development workflow / нового чата
+
+1. [`../AGENTS.md`](../AGENTS.md)
+2. [`process/README.md`](process/README.md) — durable operational handoff;
+3. mode-specific документ:
+   - audit/correction → [`process/independent-audit.md`](process/independent-audit.md);
+   - opening next step / Codex instruction → [`process/codex-instruction-authoring.md`](process/codex-instruction-authoring.md);
+4. [`design/current.md`](design/current.md) — единственный live status;
+5. current version docs и перечисленные в `current.md` clarification files.
+
 ## Перед version design / implementation
 
 1. [`../AGENTS.md`](../AGENTS.md)
-2. [`design/current.md`](design/current.md)
-3. [`design/contract-adr-consistency-freeze.md`](design/contract-adr-consistency-freeze.md)
-4. [`design/contracts/semantic-freeze-manifest.md`](design/contracts/semantic-freeze-manifest.md)
-5. [`design/version-roadmap.md`](design/version-roadmap.md)
-6. [`versions/README.md`](versions/README.md)
-7. релевантные canonical design owners;
-8. релевантные accepted/non-superseded ADR;
-9. релевантные semantic contracts;
-10. version-specific `README.md`;
-11. version-specific `implementation-sequence.md`;
-12. section только текущего разрешённого `Vx.y-IS-XX` перед coding;
-13. датированный research/tool pass, если current tooling/model/compute materially влияет на решение.
+2. [`process/README.md`](process/README.md)
+3. mode-specific process document;
+4. [`design/current.md`](design/current.md)
+5. [`design/contract-adr-consistency-freeze.md`](design/contract-adr-consistency-freeze.md)
+6. [`design/contracts/semantic-freeze-manifest.md`](design/contracts/semantic-freeze-manifest.md)
+7. [`design/version-roadmap.md`](design/version-roadmap.md)
+8. [`versions/README.md`](versions/README.md)
+9. релевантные canonical design owners;
+10. релевантные accepted/non-superseded ADR;
+11. релевантные semantic contracts;
+12. version-specific `README.md`;
+13. version-specific `implementation-sequence.md`;
+14. section только текущего разрешённого `Vx.y-IS-XX` перед coding;
+15. accepted step-specific clarification/correction docs;
+16. датированный research/tool pass, если current tooling/model/compute materially влияет на решение.
 
-Один Codex task реализует только один разрешённый implementation step; следующий открывается после verification + ChatGPT audit.
+Один Codex task реализует только один разрешённый implementation step; следующий открывается после verification + independent ChatGPT audit.
 
 ---
 
@@ -52,8 +65,12 @@ Concept
 → DU-32 Version Roadmap
 → Version design / exact contracts
 → Implementation sequence
+→ Step-specific clarification
+→ docs/design/current.md
 → Current implementation step
 → Implementation
+→ Verification evidence
+→ Independent audit
 → Engineering / Research evidence
 → Versioned Research Claims
 ```
@@ -73,6 +90,19 @@ Research/engineering evidence инициирует claim/design review при н
 # Язык
 
 Документация и комментарии в коде — на русском языке. Technical identifiers/API/package/class/function/type names остаются на английском.
+
+---
+
+# Operational workflow
+
+Canonical process documentation:
+
+- [`process/README.md`](process/README.md) — роли, modes, lifecycle, acceptance gates и recovery protocol;
+- [`process/independent-audit.md`](process/independent-audit.md) — independent implementation/correction audit;
+- [`process/codex-instruction-authoring.md`](process/codex-instruction-authoring.md) — transition/opening step и authoring copy-ready Codex instructions;
+- [`versions/codex-step-prompt-template.md`](versions/codex-step-prompt-template.md) — canonical content template самого Codex task.
+
+Новые обязательные workflow rules нельзя оставлять только в чате.
 
 ---
 
@@ -129,7 +159,7 @@ Roadmap строится вертикальными runnable slices и дово�
 
 ---
 
-# Текущий этап
+# Текущий статус
 
 Общий архитектурный цикл:
 
@@ -139,17 +169,10 @@ DU-00 … DU-32 complete
 
 Semantic baseline `F31` и software roadmap приняты.
 
-Для `v0.1 Core Kernel` приняты:
+Для текущей version используются accepted version README, implementation sequence и step-specific clarifications.
 
-- [`versions/v0.1/README.md`](versions/v0.1/README.md) — exact design;
-- [`versions/v0.1/implementation-sequence.md`](versions/v0.1/implementation-sequence.md) — `V0.1-IS-01 … V0.1-IS-16`.
+**Фактический текущий implementation step и его OPEN/CLOSED/accepted status всегда определяются только:**
 
-Единственная разрешённая следующая coding-работа:
+- [`design/current.md`](design/current.md)
 
-```text
-V0.1-IS-01 — Project bootstrap & verification shell
-```
-
-Production/research implementation ещё не начата.
-
-Фактический статус всегда определяется [`design/current.md`](design/current.md).
+Этот README намеренно не дублирует номер текущего `IS`, чтобы не становиться stale после каждого transition.
