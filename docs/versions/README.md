@@ -15,15 +15,15 @@ Semantic baseline:
 
 Canonical operational prompt для Codex:
 
-- [`codex-step-prompt-template.md`](codex-step-prompt-template.md)
+- [`codex-step-prompt-template.md`](codex-step-prompt-template.md), revision `CSPT-02`.
 
 ---
 
-# Правило
+# Правило разработки
 
 Roadmap не является прямым заданием на coding.
 
-Для каждой версии сначала создаются и принимаются:
+Для каждой версии сначала принимаются:
 
 ```text
 docs/versions/vX.Y/README.md
@@ -35,13 +35,13 @@ docs/versions/vX.Y/implementation-sequence.md
 ```text
 implementation
 → targeted verification
-→ полный уже существующий local regression gate
+→ полный local regression gate
 → CI evidence/status, если применимо
 → отчёт Codex
 → ChatGPT audit
 ```
 
-Для задания Codex используется [`codex-step-prompt-template.md`](codex-step-prompt-template.md). Обязательные новые требования к prompt нельзя хранить только в истории чата.
+Новые обязательные требования к Codex prompt нельзя хранить только в истории чата: canonical source — [`codex-step-prompt-template.md`](codex-step-prompt-template.md).
 
 ---
 
@@ -49,7 +49,7 @@ implementation
 
 | Версия | Статус | Название |
 |---|---|---|
-| `v0.1` | implementation in progress — `IS-01…IS-06` accepted, `IS-07` open | Core Kernel |
+| `v0.1` | implementation in progress — `IS-01…IS-07` accepted, `IS-08` open | Core Kernel |
 | `v0.2` | planned | MicroWorld Interaction |
 | `v0.3` | planned | Cortex Gateway |
 | `v0.4` | planned | Memory & Restore |
@@ -68,11 +68,13 @@ implementation
 - [`v0.1/README.md`](v0.1/README.md) — accepted exact design `Core Kernel`;
 - [`v0.1/implementation-sequence.md`](v0.1/implementation-sequence.md) — accepted sequence `V0.1-IS-01 … V0.1-IS-16`;
 - [`v0.1/is-06-contract-shape.md`](v0.1/is-06-contract-shape.md) — accepted clarification `IS-06`;
-- [`v0.1/is-07-execution-plan-shape.md`](v0.1/is-07-execution-plan-shape.md) — accepted clarification текущего `IS-07`;
-- `V0.1-IS-01 … V0.1-IS-06` — accepted;
-- `V0.1-IS-07` — единственный открытый implementation step.
+- [`v0.1/is-07-execution-plan-shape.md`](v0.1/is-07-execution-plan-shape.md) — accepted clarification `IS-07`;
+- [`v0.1/is-07-controlled-construction-correction.md`](v0.1/is-07-controlled-construction-correction.md) — accepted correction clarification `IS-07`;
+- [`v0.1/is-08-private-state-store-shape.md`](v0.1/is-08-private-state-store-shape.md) — accepted exact clarification текущего `IS-08`;
+- `V0.1-IS-01 … V0.1-IS-07` — accepted;
+- `V0.1-IS-08` — единственный открытый implementation step.
 
-Статус конкретной работы всегда определяется [`../design/current.md`](../design/current.md).
+Фактический current step всегда определяется [`../design/current.md`](../design/current.md).
 
 ---
 
@@ -112,115 +114,74 @@ implementation
 - не просить Codex самому выбрать архитектуру;
 - не объединять refactor, new feature и experiment в один непрозрачный change;
 - завершаться version acceptance audit;
-- быть совместимым с canonical [`codex-step-prompt-template.md`](codex-step-prompt-template.md).
+- быть совместимым с canonical prompt template.
 
-Перед открытием следующего `IS` после ChatGPT audit проверяется актуальность prompt template. Если фактические verification/CI/reporting требования изменились, шаблон актуализируется до выдачи следующего coding task.
+Перед открытием следующего `IS` после ChatGPT audit проверяется актуальность prompt template. Если verification/CI/reporting requirements изменились, шаблон актуализируется до выдачи coding task.
 
 ---
 
 # Verification workflow
 
-Для `v0.1` после `IS-01` каждый последующий Codex task перед отчётом обязан выполнить:
+Для `v0.1` после `IS-01` каждый Codex task перед отчётом обязан выполнить:
 
 1. targeted verification своего step;
 2. полный `FULL-C0` regression gate;
-3. CI status/evidence для remote commit, если доступно.
+3. CI status/evidence для remote commit, если доступно;
+4. предложить краткое название коммита в стиле Conventional Commits.
 
 Если изменения ещё не находятся на remote commit или среда Codex не имеет доступа к Actions, статус фиксируется как `PENDING`/`NOT AVAILABLE`, а не `PASS`.
 
-Canonical prompt revision `CSPT-02` дополнительно требует в конце отчёта предложить краткое название коммита в стиле Conventional Commits. Это не разрешает Codex самостоятельно commit/push.
+Предложение названия коммита не разрешает Codex самостоятельно commit/push.
 
 ---
 
 # Принятые implementation checkpoints
 
-## `V0.1-IS-01`
+| Step | Основной результат |
+|---|---|
+| `IS-01` | bootstrap/tooling + Windows UTF-8 correction |
+| `IS-02` | identity/revisions/logical time |
+| `IS-03` | availability/provenance/errors |
+| `IS-04` | schema primitives + Enum snapshot-safety correction |
+| `IS-05` | CognitiveState/StateProjection |
+| `IS-06` | module contracts/staged proposals |
+| `IS-07` | deterministic ExecutionPlanCompiler + controlled-construction correction |
 
-`Project bootstrap & verification shell` принят после code/design audit, local `FULL-C0`, Linux CI и Windows CI после correction `PYTHONUTF8=1` для Import Linter.
-
-Correction commit:
-
-```text
-584db766e190739e22c7616f1ea1e68428ecf86e
-```
-
-## `V0.1-IS-02`
-
-```text
-e457ada1aa8ded3ff70cd47b5328e2bbcc96f724
-feat(core): add identity revision and logical time primitives
-```
-
-## `V0.1-IS-03`
+`IS-07` commits:
 
 ```text
-a5c9f314bb0e9960da0434c6fcfd3556e8e9b5f2
-feat(contracts): add availability provenance and kernel errors
+c88529300ab926b052e0b40089539735d64ac2e7
+feat(runtime): add deterministic execution plan compiler
+
+5b60d001f2d730c3fdc921244bc68b122f784a16
+fix(runtime): restrict execution plan construction
 ```
 
-`V01-005` и `V01-010` достигли предусмотренного на этом этапе уровня `foundation/partial`.
-
-## `V0.1-IS-04`
-
-Implementation commit:
-
-```text
-86d38ff6232239df190d69db8b75352927ac8b1f
-feat(contracts): add state schema primitives
-```
-
-Correction commit после ChatGPT audit:
-
-```text
-afc1937b82f09a9b7a082c3f5cf8d38fa264a5ef
-fix(contracts): validate enum payload snapshot safety
-```
-
-`V01-005` достиг предусмотренного для `IS-04` уровня `substantial`.
-
-## `V0.1-IS-05`
-
-```text
-df602abbf57d898952590d7a2eb145fff52b5f00
-feat(state): add cognitive state and declared-read projections
-```
-
-VerificationObligations:
-
-- `V01-004` — closed at projection layer;
-- `V01-005` — closed;
-- `V01-010` — partial.
-
-## `V0.1-IS-06`
-
-`Module contracts & proposals` принят.
-
-```text
-633babaffe3c44a0afc7dea1494512f94e54e6dd
-feat(contracts): add module contracts and staged proposals
-```
-
-ChatGPT audit подтвердил exact `ModuleDescriptor`, synchronous structural `CognitiveModule`, узкий `ModuleComputeRequest`, staged public/private proposals, private-state contract foundation и отсутствие Service Locator/scope leakage. Targeted verification и local `FULL-C0`: `PASS`, полный suite — `151 passed`; post-push Ubuntu/Windows CI принят как operator-confirmed evidence.
-
-VerificationObligations:
-
-- `V01-003` — contract foundation;
-- `V01-004` — module boundary integration;
-- `V01-008` — contract foundation;
-- `V01-012` — structural partial.
+`V01-007 — DAG validity`: closed.
 
 ---
 
 # Текущий следующий шаг
 
 ```text
-V0.1-IS-07 — Execution Plan Compiler
+V0.1-IS-08 — PrivateStateStore
 ```
 
-Перед открытием `IS-07` создан accepted clarification [`v0.1/is-07-execution-plan-shape.md`](v0.1/is-07-execution-plan-shape.md), который фиксирует exact plan/compiler shape, deterministic DAG/waves, identity allocation и fingerprint semantics без изменения F31.
+Перед открытием `IS-08` принят exact clarification [`v0.1/is-08-private-state-store-shape.md`](v0.1/is-08-private-state-store-shape.md).
 
-Применимость `CSPT-02` проверена. Новых verification profiles, CI jobs, mandatory commands или reporting semantics не появилось, поэтому revision шаблона не меняется.
+Он фиксирует initialization/private ownership и transactional preparation semantics без изменения F31:
 
-`V0.1-IS-08` и последующие шаги остаются закрыты до implementation + verification + ChatGPT audit `IS-07`.
+- stateful active module получает explicit initial private value и revision `0`;
+- stateless module не имеет slot и получает `Unavailable`;
+- private proposal validation/freezing отделены от mutation;
+- internal prepared update имеет expected/next private revision;
+- internal batch apply предварительно валидирует весь batch и не допускает partial private mutation;
+- public+private atomic commit остаётся `IS-09`.
+
+`V01-008` на `IS-08` достигает уровня `substantial/partial`.
+
+Применимость `CSPT-02` проверена: новых CI jobs, verification profiles, mandatory commands или reporting semantics нет, revision шаблона не меняется.
+
+`V0.1-IS-09` и последующие шаги остаются закрыты до implementation + verification + ChatGPT audit `IS-08`.
 
 Нельзя начинать `v0.2` до полного acceptance gate `v0.1`.
