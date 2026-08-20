@@ -4,6 +4,12 @@
 
 Краткий фактический статус проекта. Этот файл не переопределяет canonical design; он определяет, что уже принято и какая implementation-работа разрешена следующей.
 
+Operational workflow не хранится в истории чата. Его canonical entry points:
+
+- [`../process/README.md`](../process/README.md) — durable handoff, роли, modes и acceptance lifecycle;
+- [`../process/independent-audit.md`](../process/independent-audit.md) — independent implementation/correction audit;
+- [`../process/codex-instruction-authoring.md`](../process/codex-instruction-authoring.md) — opening next step и authoring copy-ready Codex instructions.
+
 ---
 
 # 1. Общий статус
@@ -30,6 +36,12 @@ Semantic baseline:
 - [`contract-adr-consistency-freeze.md`](contract-adr-consistency-freeze.md)
 - [`contracts/semantic-freeze-manifest.md`](contracts/semantic-freeze-manifest.md)
 - [`ADR-0031`](decisions/ADR-0031-semantic-contract-consistency-freeze.md)
+
+Operational workflow:
+
+- [`../process/README.md`](../process/README.md);
+- [`../process/independent-audit.md`](../process/independent-audit.md);
+- [`../process/codex-instruction-authoring.md`](../process/codex-instruction-authoring.md).
 
 Version-specific source of truth:
 
@@ -113,9 +125,15 @@ Canonical template:
 
 - [`../versions/codex-step-prompt-template.md`](../versions/codex-step-prompt-template.md), revision `CSPT-02`.
 
+ChatGPT-side authoring/delivery:
+
+- [`../process/codex-instruction-authoring.md`](../process/codex-instruction-authoring.md).
+
 Перед открытием `IS-09` применимость `CSPT-02` проверена после добавления step-specific clarification. Новых CI jobs, verification profiles, mandatory commands или reporting semantics не появилось, поэтому revision шаблона не изменяется.
 
 `CSPT-02` требует targeted verification, полный local `FULL-C0`, truthful GitHub Actions status/evidence и предложение Conventional Commit message в конце отчёта.
+
+Финальная инструкция Codex в интерактивной работе ChatGPT должна выдаваться как один copy-ready writing/document block по process rules.
 
 ---
 
@@ -125,4 +143,5 @@ Canonical template:
 - не начинать `v0.2` до полного acceptance gate `v0.1`;
 - implementation-level correction допустима только внутри accepted `v0.1` semantics;
 - semantic blocker требует design review и нового ADR/freeze update;
-- Codex не меняет самостоятельно accepted version design/F31 и не открывает следующий implementation step.
+- Codex не меняет самостоятельно accepted version design/F31 и не открывает следующий implementation step;
+- live current step не дублировать в `AGENTS.md`, `docs/README.md` или `docs/versions/README.md`.
