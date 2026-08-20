@@ -10,6 +10,20 @@
 docs/design/current.md
 ```
 
+Operational workflow и постоянный handoff определяются:
+
+```text
+docs/process/README.md
+```
+
+Mode-specific правила:
+
+- independent implementation/correction audit — `docs/process/independent-audit.md`;
+- opening next step + Codex instruction authoring — `docs/process/codex-instruction-authoring.md`;
+- canonical Codex task content — `docs/versions/codex-step-prompt-template.md`.
+
+История чата не является source of truth для этих правил.
+
 ## Язык
 
 - документация и комментарии — на русском;
@@ -20,26 +34,59 @@ docs/design/current.md
 # Перед любой работой
 
 1. Проверить repository status/HEAD.
-2. Прочитать `docs/README.md` и `docs/design/current.md`.
-3. Обязательно прочитать:
+2. Прочитать `docs/README.md`, `docs/process/README.md` и `docs/design/current.md`.
+3. Выбрать operational mode по `docs/process/README.md`:
+   - audit/correction → прочитать `docs/process/independent-audit.md`;
+   - opening next step / Codex prompt → прочитать `docs/process/codex-instruction-authoring.md`;
+   - design/clarification → соблюдать transition/design rules из `docs/process/codex-instruction-authoring.md`.
+4. Обязательно прочитать:
    - `docs/design/contract-adr-consistency-freeze.md`;
    - `docs/design/contracts/semantic-freeze-manifest.md`;
    - `docs/design/version-roadmap.md`.
-4. Определить разрешённый version scope и implementation step **только по `current.md`**.
-5. Прочитать релевантный canonical design owner + accepted ADR + semantic contract.
-6. Для implementation обязательно прочитать:
+5. Определить разрешённый version scope и implementation step **только по `current.md`**.
+6. Прочитать релевантный canonical design owner + accepted ADR + semantic contract.
+7. Для implementation обязательно прочитать:
    - `docs/versions/codex-step-prompt-template.md`;
    - `docs/versions/vX.Y/README.md`;
    - `docs/versions/vX.Y/implementation-sequence.md`;
-   - section текущего `Vx.y-IS-XX` и перечисленный там canonical context.
-7. Проверить prerequisites/VerificationObligations текущего step.
-8. Не выходить за разрешённый scope и не начинать следующий `IS` заранее.
+   - section текущего `Vx.y-IS-XX`;
+   - все accepted step-specific clarification/correction docs, перечисленные в `current.md`;
+   - перечисленный там canonical context.
+8. Проверить prerequisites/VerificationObligations текущего step.
+9. Не выходить за разрешённый scope и не начинать следующий `IS` заранее.
 
 Если version-specific документы ещё не приняты, coding не начинается.
 
-Один coding task выполняет **только один implementation step**. Завершение Codex task не открывает следующий step автоматически: между шагами обязателен ChatGPT audit.
+Один coding task выполняет **только один implementation step**. Завершение Codex task не открывает следующий step автоматически: между шагами обязателен independent ChatGPT audit.
 
 Каждый implementation prompt строится по актуальной revision `docs/versions/codex-step-prompt-template.md`. Не использовать старую копию prompt из чата или embedded example, если она расходится с canonical template.
+
+---
+
+# Operational modes
+
+Canonical definitions находятся в `docs/process/README.md`.
+
+```text
+MODE-DESIGN
+→ exact version/step clarification до coding
+
+MODE-INSTRUCTION
+→ copy-ready Codex instruction для уже OPEN step
+
+MODE-AUDIT
+→ independent review remote implementation/correction
+
+MODE-CORRECTION
+→ минимальная correction-инструкция; next step CLOSED
+
+MODE-TRANSITION
+→ acceptance текущего step и только затем opening следующего
+```
+
+Нельзя смешивать незавершённый audit с автоматическим opening следующего step.
+
+При потере контекста чата использовать recovery protocol из `docs/process/README.md`, а не создавать новый ad-hoc handoff по памяти.
 
 ---
 
@@ -58,17 +105,21 @@ version specification / exact contracts
         ↓
 implementation sequence
         ↓
-canonical Codex step prompt
+step-specific accepted clarification/correction
         ↓
 docs/design/current.md
         ↓
-current implementation step
+current OPEN implementation step
+        ↓
+canonical Codex step prompt
         ↓
 implementation
         ↓
 verification evidence
         ↓
-ChatGPT audit
+independent ChatGPT audit
+        ↓
+correction ИЛИ acceptance/transition
         ↓
 engineering/research evidence
         ↓
@@ -250,6 +301,10 @@ functional similarity ≠ phenomenological equivalence
 
 # Implementation-step safeguards
 
+Operational details определяются `docs/process/README.md`, `docs/process/independent-audit.md` и `docs/process/codex-instruction-authoring.md`.
+
+Обязательные invariants:
+
 - один Codex task = один разрешённый `IS`;
 - перед coding проверять prerequisites и current repository state;
 - каждый task использует актуальный `docs/versions/codex-step-prompt-template.md`;
@@ -263,7 +318,10 @@ functional similarity ≠ phenomenological equivalence
 - если изменения находятся на remote commit и Actions доступен — проверить declared CI jobs/OS;
 - `CI PENDING`, `CI RUNNING` и `CI NOT AVAILABLE` не считать `PASS`;
 - итоговый отчёт должен различать фактически выполненную verification и недоступную/pending verification;
-- следующий `IS` открывается только после ChatGPT audit.
+- Codex предлагает Conventional Commit message, но по умолчанию не выполняет commit/push;
+- после push обязателен independent ChatGPT audit remote diff/code/tests;
+- следующий `IS` открывается только после audit + acceptance gate;
+- correction и следующий feature step не объединяются.
 
 Для `v0.1` после создания toolchain в `IS-01` каждый последующий Codex task перед отчётом выполняет `FULL-C0` независимо от более узкого targeted profile текущего step.
 
@@ -277,6 +335,12 @@ Canonical operational source:
 docs/versions/codex-step-prompt-template.md
 ```
 
+ChatGPT-side authoring/delivery rules:
+
+```text
+docs/process/codex-instruction-authoring.md
+```
+
 Правила:
 
 1. prompt из истории чата не является source of truth;
@@ -284,11 +348,37 @@ docs/versions/codex-step-prompt-template.md
 3. при принятии нового version design обязательно проверить применимость шаблона;
 4. при создании/изменении `implementation-sequence.md` обязательно проверить применимость шаблона;
 5. перед открытием каждого следующего `IS` после ChatGPT audit проверить актуальность шаблона;
-6. при изменении verification profiles, CI provider/jobs, mandatory commands, reporting/evidence semantics или обязательных source paths обновить template тем же documentation patch;
+6. при изменении verification profiles, CI provider/jobs, mandatory commands, reporting/evidence semantics или обязательных source paths **в Codex prompt** обновить template тем же documentation patch;
 7. если изменения не нужны, не делать фиктивный edit — достаточно подтвердить применимость текущей revision;
-8. обязательное новое правило prompt нельзя оставлять только в чате.
+8. обязательное новое правило prompt нельзя оставлять только в чате;
+9. финальная инструкция Codex в ChatGPT выдаётся как один copy-ready writing/document block по `docs/process/codex-instruction-authoring.md`;
+10. если меняется только ChatGPT-side presentation/workflow, а content contract Codex не меняется, CSPT revision не bump'ается формально.
 
-`AGENTS.md` проверяется вместе с prompt template при каждом существенном version/implementation workflow update. **Текущий номер implementation step здесь не дублируется:** он всегда читается из `docs/design/current.md`.
+`AGENTS.md` и `docs/process/` проверяются вместе с prompt template при каждом существенном version/implementation workflow update. **Текущий номер implementation step здесь не дублируется:** он всегда читается из `docs/design/current.md`.
+
+---
+
+# Independent audit
+
+После сообщения о push ChatGPT обязан перейти в `MODE-AUDIT` по:
+
+```text
+docs/process/independent-audit.md
+```
+
+Audit обязан:
+
+- определить remote commit/HEAD;
+- проверить diff относительно accepted baseline;
+- прочитать changed production code и tests;
+- сверить scope/forbidden scope;
+- проверить exact accepted design/clarifications;
+- искать negative/bypass/invariant defects независимо от отчёта Codex;
+- честно различать independently observed CI и operator-confirmed CI;
+- при defect оставить следующий `IS` CLOSED и выдать минимальную correction instruction;
+- только после `AUDIT-PASS` перейти к `MODE-TRANSITION`.
+
+Codex self-report не заменяет independent audit.
 
 ---
 
@@ -312,11 +402,11 @@ blocker/evidence
 
 # Current implementation authority
 
-Для `v0.1 Core Kernel` приняты:
+Для текущей version используются accepted:
 
 ```text
-docs/versions/v0.1/README.md
-docs/versions/v0.1/implementation-sequence.md
+docs/versions/vX.Y/README.md
+docs/versions/vX.Y/implementation-sequence.md
 docs/versions/codex-step-prompt-template.md
 ```
 
@@ -326,4 +416,4 @@ docs/versions/codex-step-prompt-template.md
 docs/design/current.md
 ```
 
-Не использовать этот файл как копию implementation status.
+Не использовать `AGENTS.md` или index README как копию implementation status.
