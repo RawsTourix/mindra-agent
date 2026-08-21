@@ -20,19 +20,22 @@ Version Roadmap DU-32: accepted
 Current milestone: v0.1 Core Kernel
 v0.1 exact design: accepted
 v0.1 implementation-sequence: accepted
-V0.1-IS-01 … V0.1-IS-08: accepted
-V0.1-IS-09 implementation: EXISTS
-V0.1-IS-09 correction: EXISTS
-V0.1-IS-09 independent code/design audit: PASS
-V0.1-IS-09 verification/acceptance gate: OPEN
-V0.1-IS-10+: CLOSED
+V0.1-IS-01 … V0.1-IS-09: accepted
+V0.1-IS-10: OPEN
+V0.1-IS-11+: CLOSED
 ```
 
 Общий архитектурный цикл `DU-00 … DU-32` завершён и принят.
 
-`V0.1-IS-09` **не должен реализовываться повторно**. Его implementation/correction уже находятся в истории `main`; текущая разрешённая работа — только восстановление/подтверждение required verification evidence и final acceptance audit.
+`V0.1-IS-09 — Atomic CommitCoordinator` принят после independent code/design/correction audit и восстановления required verification evidence. Targeted verification и полный `FULL-C0` прошли на post-correction regression HEAD `8b39497d7486bb7e69146249193ef38fb8246c2c`; GitHub Actions run `32516404539` для exact SHA завершился успешно на Ubuntu и Windows / Python 3.14.
 
-`V0.1-IS-10` нельзя открывать до закрытия verification/acceptance gate `IS-09`.
+Текущая разрешённая implementation-работа:
+
+```text
+V0.1-IS-10 — O0 Evidence Plane
+```
+
+Следующие implementation steps остаются закрыты до отдельного audit/transition.
 
 ---
 
@@ -60,7 +63,7 @@ Version-specific source of truth:
 - [`../versions/v0.1/is-08-private-state-store-shape.md`](../versions/v0.1/is-08-private-state-store-shape.md) — accepted clarification `IS-08`;
 - [`../versions/v0.1/is-09-commit-coordinator-shape.md`](../versions/v0.1/is-09-commit-coordinator-shape.md) — accepted exact clarification `IS-09`;
 - [`../versions/v0.1/is-09-active-boundary-consistency-correction.md`](../versions/v0.1/is-09-active-boundary-consistency-correction.md) — accepted correction clarification `IS-09`;
-- [`../versions/v0.1/is-10-evidence-plane-shape.md`](../versions/v0.1/is-10-evidence-plane-shape.md) — accepted clarification будущего `IS-10`, пока implementation step CLOSED;
+- [`../versions/v0.1/is-10-evidence-plane-shape.md`](../versions/v0.1/is-10-evidence-plane-shape.md) — accepted exact clarification текущего `IS-10`;
 - [`../versions/codex-step-prompt-template.md`](../versions/codex-step-prompt-template.md) — canonical operational prompt template, revision `CSPT-02`.
 
 ---
@@ -77,7 +80,8 @@ Version-specific source of truth:
 | `IS-06` | accepted | `633babaf...` |
 | `IS-07` | accepted | `c8852930...` + `5b60d001...` |
 | `IS-08` | accepted | `92a2dd75...` |
-| `IS-09` | verification/acceptance pending | `c11d79e7...` + correction clarification `a4e99807...` + correction `978897ad...` |
+| `IS-09` | accepted | `c11d79e7...` + correction clarification `a4e99807...` + correction `978897ad...` |
+| `IS-10` | OPEN | implementation not started |
 
 ## `V0.1-IS-08 — PrivateStateStore`
 
@@ -88,7 +92,7 @@ feat(runtime): add transactional private state store
 
 ChatGPT audit подтвердил explicit stateful initialization, stateless `Unavailable`, private contract freeze, own-snapshot isolation, staged proposal preparation и internal all-or-nothing private batch apply. Targeted verification и local `FULL-C0`: `PASS`, полный suite — `198 passed`; post-push Ubuntu/Windows GitHub Actions подтверждены оператором проекта как успешные.
 
-`V01-008` достиг уровня `substantial/partial`; полное atomic public+private closure принадлежит `IS-09`.
+`V01-008` достиг уровня `substantial/partial`; полное atomic public+private closure было завершено в `IS-09`.
 
 ## `V0.1-IS-09 — Atomic CommitCoordinator`
 
@@ -113,75 +117,81 @@ Correction implementation:
 fix(runtime): validate commit composition boundary
 ```
 
-Independent review текущего repository state подтвердил:
+Final independent acceptance audit подтвердил:
 
-- scope `IS-09` и forbidden scope `IS-10+`;
+- scope `IS-09` и отсутствие leakage в `IS-10+`;
 - atomic public/private commit pipeline;
 - active descriptor/private-store composition consistency correction;
 - fail-closed ownership/revision/provenance boundaries;
-- отсутствие нового implementation/F31 blocker.
+- отсутствие нового implementation/F31 blocker;
+- post-correction reconciliation: от `978897ad...` до verification HEAD production code, tests, toolchain и CI workflow не менялись;
+- targeted verification: `PASS`, `32 passed`;
+- полный local `FULL-C0`: `PASS`, полный suite `230 passed`;
+- build: `PASS`;
+- GitHub Actions run `32516404539`, exact head `8b39497d7486bb7e69146249193ef38fb8246c2c`, event `push`: `PASS`;
+- Ubuntu `FULL-C0 (ubuntu-latest, Python 3.14)`: `PASS`;
+- Windows `FULL-C0 (windows-latest, Python 3.14)`: `PASS`.
 
-Code/design/correction audit: `PASS`.
+Verdict:
 
-Формальное acceptance `IS-09` пока **не зафиксировано**, потому что в доступном evidence не установлены targeted verification + полный `FULL-C0` именно после correction `978897ad...`, а post-push Actions этого SHA не подтверждены независимо.
+```text
+AUDIT-PASS
+V0.1-IS-09: accepted
+```
 
-До восстановления/подтверждения этого evidence `V01-002`, `V01-003`, `V01-006`, `V01-008` не маркируются закрытыми на final accepted `IS-09` gate.
+VerificationObligations на предусмотренном `IS-09` commit layer:
+
+- `V01-002` — closed at commit layer;
+- `V01-003` — closed;
+- `V01-006` — closed;
+- `V01-008` — closed at commit layer.
+
+`V01-001 same-base wave` остаётся работой последующего Scheduler/WaveExecutor step согласно accepted sequence.
 
 ---
 
 # 4. Разрешённая текущая работа
 
-Новый feature coding step сейчас **не открыт**.
-
-Разрешённая работа:
-
-```text
-V0.1-IS-09 verification / final acceptance only
-```
-
-Нужно восстановить или повторно получить evidence минимум для:
-
-1. targeted `IS-09` verification:
-   - `FAST`;
-   - `ARCH`;
-   - tests текущего commit/correction layer, включая:
-     - `tests/contract/test_commit_authority.py`;
-     - `tests/contract/test_commit_active_composition.py`;
-     - `tests/property/test_atomic_commit.py`;
-     - `tests/property/test_stale_proposals.py`;
-     - `tests/state_machine/test_commit_state_machine.py`;
-2. полного current local regression gate `FULL-C0`;
-3. post-push GitHub Actions Ubuntu/Windows для production state после correction либо equivalent accepted evidence.
-
-Если local verification выполняется на более позднем HEAD, допустимо использовать его как regression evidence для `IS-09` только если между `978897ad...` и проверяемым HEAD отсутствуют production changes, способные изменить `IS-09` semantics. Это должно быть проверено по commit diff/history и явно указано в audit evidence.
-
-После достаточного evidence ChatGPT выполняет final `MODE-AUDIT` verdict:
-
-```text
-AUDIT-PASS
-→ IS-09 accepted
-→ V01-002 / V01-003 / V01-006 / V01-008 close на предусмотренном commit layer
-→ MODE-TRANSITION
-→ только затем IS-10 OPEN
-```
-
-`V0.1-IS-10` и последующие шаги остаются CLOSED.
-
----
-
-# 5. Следующий потенциальный step после acceptance IS-09
-
-Следующий по accepted sequence:
+Открыт ровно один feature coding step:
 
 ```text
 V0.1-IS-10 — O0 Evidence Plane
 ```
 
-Для него уже принят exact clarification:
+Prerequisites `IS-01 … IS-09` приняты.
+
+Для `IS-10` уже принят exact implementation clarification:
 
 - [`../versions/v0.1/is-10-evidence-plane-shape.md`](../versions/v0.1/is-10-evidence-plane-shape.md).
 
-Наличие clarification **не означает**, что `IS-10` открыт. До final acceptance `IS-09` Codex instruction на implementation `IS-10` не выдаётся.
+Clarification фиксирует passive typed structural Evidence Plane foundation: immutable evidence contracts + append-only process-local recorder, без producer integration в planner/commit/scheduler/composition/intervention boundaries на этом шаге.
+
+Перед implementation обязательны section `V0.1-IS-10` в `implementation-sequence.md`, exact clarification и перечисленные там canonical design/ADR.
+
+Targeted verification для `IS-10`: `FAST + ARCH` и минимум:
+
+```text
+tests/unit/test_evidence_records.py
+tests/contract/test_evidence_isolation.py
+```
+
+После targeted green обязателен `FULL-C0`.
+
+`V0.1-IS-11` и последующие steps остаются CLOSED.
+
+---
+
+# 5. Следующий потенциальный step после acceptance IS-10
+
+Следующий по accepted sequence:
+
+```text
+V0.1-IS-11 — WaveExecutor & Scheduler
+```
+
+Он остаётся CLOSED до implementation, verification и independent ChatGPT audit `IS-10`.
+
+Наличие дальнейшей version documentation не является разрешением реализовывать `IS-11` заранее.
 
 ---
 
@@ -196,18 +206,22 @@ ChatGPT-side audit/authoring:
 - [`../process/independent-audit.md`](../process/independent-audit.md);
 - [`../process/codex-instruction-authoring.md`](../process/codex-instruction-authoring.md).
 
-Текущий этап находится не в `MODE-INSTRUCTION`, а в `MODE-AUDIT`/verification recovery для уже существующего `IS-09`.
+`CSPT-02` проверен при открытии `IS-10` и остаётся применимым: обязательные verification semantics, CI evidence semantics, reporting и commit/push policy не изменились.
 
-Нельзя выдавать implementation prompt на `IS-09` повторно.
+Текущий operational mode после transition допускает `MODE-INSTRUCTION` только для:
 
-Нельзя выдавать implementation prompt на `IS-10` до final `AUDIT-PASS` `IS-09`.
+```text
+V0.1-IS-10 — O0 Evidence Plane
+```
+
+Codex не открывает следующий implementation step самостоятельно.
 
 ---
 
 # 7. Ограничения
 
-- не переходить к `V0.1-IS-10` до final acceptance `IS-09`;
-- не повторять implementation уже существующего `IS-09`;
+- не переходить к `V0.1-IS-11` до independent acceptance `IS-10`;
+- не повторять implementation уже принятого `IS-09`;
 - не начинать `v0.2` до полного acceptance gate `v0.1`;
 - implementation-level correction допустима только внутри accepted `v0.1` semantics;
 - semantic blocker требует design review и нового ADR/freeze update;
