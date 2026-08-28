@@ -18,7 +18,7 @@ from mindra.contracts.modules import (
     ModuleDescriptor,
     StateWrite,
 )
-from mindra.contracts.revisions import PrivateStateRevision, StateRevision
+from mindra.contracts.revisions import PrivateStateRevision, SchemaRevision, StateRevision
 from mindra.contracts.state import (
     CognitiveState,
     StateEntry,
@@ -171,6 +171,34 @@ class CommitCoordinator:
         self._private_store = private_store
         self._id_factory = id_factory
 
+    def _assert_runtime_binding(
+        self,
+        *,
+        descriptors: tuple[ModuleDescriptor, ...],
+        private_store: PrivateStateStore,
+        schema_revision: SchemaRevision,
+    ) -> None:
+        """Подтвердить exact active scheduler/coordinator boundary без выдачи authority."""
+        if not isinstance(descriptors, tuple):
+            raise TypeError("descriptors должен быть tuple ModuleDescriptor")
+        if private_store is not self._private_store:
+            raise CommitValidationError(
+                "Scheduler и CommitCoordinator должны использовать один PrivateStateStore"
+            )
+        if not isinstance(schema_revision, SchemaRevision):
+            raise TypeError("schema_revision должен быть SchemaRevision")
+        if schema_revision != self._schema.revision:
+            raise CommitValidationError(
+                "ExecutionPlan schema revision не совпадает с CommitCoordinator"
+            )
+
+        expected = tuple(sorted(self._descriptors.values(), key=lambda item: item.module_id.value))
+        actual = tuple(sorted(descriptors, key=lambda item: item.module_id.value))
+        if actual != expected:
+            raise CommitValidationError(
+                "ExecutionPlan descriptors не совпадают с CommitCoordinator"
+            )
+
     def commit(
         self,
         *,
@@ -240,7 +268,7 @@ class CommitCoordinator:
             raise CommitValidationError("Commit не может менять run_id base state")
         if base_time.agent_session_id != logical_time.agent_session_id:
             raise CommitValidationError("Commit не может менять agent_session_id base state")
-        for field_name in ("episode_id", "decision_window_id", "cognitive_cycle_id"):
+        for field_name in ("episode_id", "decision_window_id"):
             base_value = getattr(base_time, field_name)
             if base_value is not None and base_value != getattr(logical_time, field_name):
                 raise CommitValidationError(f"Commit logical time несовместим с base {field_name}")
