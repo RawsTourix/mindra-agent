@@ -21,7 +21,7 @@ Current milestone: v0.1 Core Kernel
 v0.1 exact design: accepted
 v0.1 implementation-sequence: accepted
 V0.1-IS-01 … V0.1-IS-11: accepted
-V0.1-IS-12: CLOSED — exact design clarification required
+V0.1-IS-12: OPEN
 V0.1-IS-13+: CLOSED
 ```
 
@@ -34,10 +34,6 @@ e8aa2fa8528b2875c54c010de0777dd266e5bd49
 feat(runtime): add wave executor and cognitive scheduler
 ```
 
-Accepted correction clarification:
-
-- [`../versions/v0.1/is-11-attempt-result-binding-correction.md`](../versions/v0.1/is-11-attempt-result-binding-correction.md).
-
 Correction implementation:
 
 ```text
@@ -45,21 +41,10 @@ a0cc9deae5b35779ffc42d351ed26dea5de30120
 fix(runtime): bind staged results to module attempts
 ```
 
-Final independent correction audit подтвердил:
-
-- Scheduler fail-closed связывает returned staged result с actual dispatched `ModuleId` и scheduler-created `ModuleAttemptId` до `commit_attempted`;
-- binding mismatch сохраняет `module_attempt_finished(SUCCEEDED)`, не вызывает `CommitCoordinator` и завершает cycle через deterministic `WaveExecutionError`;
-- forged attempt identity не расходует `CommitId` и не мутирует current-wave public/private state;
-- forged producer identity отклоняется deterministic canonical order до commit boundary;
-- valid path сохраняет exact equality `CommitAttemptedEvent.module_attempt_ids == CommitSucceededEvent.module_attempt_ids == actual scheduler-created attempt IDs`;
-- malformed provenance/base/private proposal остаётся responsibility `CommitCoordinator` и по-прежнему проходит `commit_attempted -> commit_failed -> cycle_failed`;
-- `CommitCoordinator.commit()` API/transaction pipeline не менялись;
-- correction diff ограничен Scheduler + focused regression tests.
-
-Verification evidence:
+Final verification evidence:
 
 ```text
-Targeted verification: PASS — 36 passed
+Targeted correction verification: PASS — 36 passed
 FULL-C0 local: PASS — 281 passed
 build: PASS
 git diff --check: PASS
@@ -115,6 +100,7 @@ Version-specific source of truth:
 - [`../versions/v0.1/is-10-evidence-plane-shape.md`](../versions/v0.1/is-10-evidence-plane-shape.md) — accepted exact clarification `IS-10`;
 - [`../versions/v0.1/is-11-wave-scheduler-shape.md`](../versions/v0.1/is-11-wave-scheduler-shape.md) — accepted exact clarification `IS-11`;
 - [`../versions/v0.1/is-11-attempt-result-binding-correction.md`](../versions/v0.1/is-11-attempt-result-binding-correction.md) — accepted correction clarification `IS-11`;
+- [`../versions/v0.1/is-12-reference-synthetic-shape.md`](../versions/v0.1/is-12-reference-synthetic-shape.md) — accepted exact clarification текущего `IS-12`;
 - [`../versions/codex-step-prompt-template.md`](../versions/codex-step-prompt-template.md) — canonical operational prompt template, revision `CSPT-02`.
 
 ---
@@ -134,100 +120,113 @@ Version-specific source of truth:
 | `IS-09` | accepted | `c11d79e7...` + clarification/correction `a4e99807...` / `978897ad...` |
 | `IS-10` | accepted | `510aad6f...` |
 | `IS-11` | accepted | `e8aa2fa...` + correction `a0cc9dea...` |
-| `IS-12` | CLOSED — clarification required | implementation not started |
+| `IS-12` | OPEN | implementation not started |
 
 ---
 
-# 4. Transition gate перед `V0.1-IS-12`
+# 4. Разрешённая текущая работа
 
-Следующий по accepted sequence:
+Открыт ровно один feature coding step:
 
 ```text
 V0.1-IS-12 — Reference synthetic modules
 ```
 
-Accepted sequence и version design уже фиксируют semantic graph:
+Prerequisites `IS-01 … IS-11` приняты.
+
+Для `IS-12` принят exact clarification:
+
+- [`../versions/v0.1/is-12-reference-synthetic-shape.md`](../versions/v0.1/is-12-reference-synthetic-shape.md).
+
+Clarification фиксирует:
+
+- production split `mindra.reference.synthetic`;
+- exact classes `SyntheticSourceModule`, `SyntheticDoubleModule`, `SyntheticTripleModule`, `SyntheticJoinModule`;
+- canonical ModuleIds `synthetic.source/double/triple/join`;
+- canonical ImplementationIds `reference.synthetic_*.v1` и `ImplementationRevision("v1")`;
+- exact int StateKeys `synthetic.*.value`;
+- source immutable constructor setting `value: int`;
+- stateless deterministic `COGNITIVE_CYCLE` descriptors;
+- `CURRENT_CYCLE`, required, `Available`-only dependencies;
+- exact arithmetic `source`, `*2`, `*3`, `double+triple`;
+- ordinary staged proposals/provenance built only from `ModuleComputeRequest.context`;
+- reference → contracts-only production dependency;
+- graph proof through existing `ExecutionPlanCompiler` without production Composition Root.
+
+Expected plan:
 
 ```text
-synthetic.source
-       ↓
- ┌─────┴─────┐
- ↓           ↓
-synthetic.double
-synthetic.triple
- └─────┬─────┘
-       ↓
-synthetic.join
+Wave 0: synthetic.source
+Wave 1: synthetic.double | synthetic.triple
+Wave 2: synthetic.join
 ```
 
-Expected waves:
+For source `2`:
 
 ```text
-Wave 0: source
-Wave 1: double | triple
-Wave 2: join
-```
-
-И example behavior для configured source value `2`:
-
-```text
+source = 2
 double = 4
 triple = 6
 join = 10
 ```
 
-Однако перед coding остаются implementation-level choices, которые нельзя оставлять Codex на самостоятельный выбор. Требуется exact clarification минимум для:
-
-- public package/file layout `mindra.reference`;
-- exact constructor/API каждого reference module;
-- canonical `ModuleId`, `ImplementationId`, `ImplementationRevision`;
-- exact StatePath/StateKey graph для source/double/triple/join;
-- exact ReadSpec freshness/required semantics;
-- exact descriptors/writes/traits;
-- immutable source settings/value validation;
-- exact proposal/provenance construction через `ModuleComputeRequest.context`;
-- join input ordering/operation semantics;
-- public exports;
-- architecture rule `reference` imports contracts only and never runtime/composition/entrypoints;
-- tests, including graph compatibility with existing `ExecutionPlanCompiler` without prematurely implementing Composition Root (`IS-13`).
-
-Текущий mode:
+Required tests минимум:
 
 ```text
-MODE-DESIGN — V0.1-IS-12 exact clarification
+tests/contract/test_reference_modules.py
+tests/architecture/test_reference_independence.py
+tests/integration/test_reference_plan.py
 ```
 
-До принятия clarification:
+После targeted green обязателен полный `FULL-C0` и `git diff --check`.
 
-```text
-V0.1-IS-12: CLOSED
-V0.1-IS-13+: CLOSED
-```
+`V0.1-IS-13` и последующие steps остаются CLOSED.
 
 ---
 
-# 5. Разрешённая текущая работа
+# 5. VerificationObligations текущего step
 
-Разрешена только документационная/design работа внутри accepted `v0.1` semantics:
+Ожидаемый уровень после accepted `IS-12`:
 
-```text
-V0.1-IS-12 exact clarification
-```
+- `V01-012` — closed at reference/runtime independence layer;
+- `V01-013` — foundation.
 
-Нельзя:
-
-- начинать production `mindra.reference` implementation до accepted clarification;
-- реализовывать Composition Root/KernelRuntime/profile parsing (`IS-13`);
-- реализовывать Intervention (`IS-14`);
-- менять F31/ADR/version semantics;
-- открывать `IS-13`.
+`V01-013` fully closed не считается до configured runnable reference profile/Composition Root из `IS-13`.
 
 ---
 
-# 6. Operational prompt
+# 6. Operational mode
 
 Canonical template:
 
 - [`../versions/codex-step-prompt-template.md`](../versions/codex-step-prompt-template.md), revision `CSPT-02`.
 
-`CSPT-02` остаётся применимым, но `MODE-INSTRUCTION` для `IS-12` разрешён только после принятия exact clarification и явного открытия step в этом файле.
+Applicability check:
+
+- verification semantics не изменились;
+- CI semantics не изменились;
+- reporting fields не изменились;
+- commit/push policy не изменился;
+- step-specific exact API/invariants добавлены clarification поверх template.
+
+Результат:
+
+```text
+CSPT-02: applicable
+MODE-INSTRUCTION разрешён только для V0.1-IS-12
+```
+
+Codex не открывает следующий implementation step самостоятельно.
+
+---
+
+# 7. Ограничения
+
+- не переходить к `V0.1-IS-13` до independent acceptance `IS-12`;
+- не реализовывать Configuration/Composition Root/KernelRuntime/profile TOML заранее;
+- не создавать production registry/factory/schema builder в `IS-12`;
+- не реализовывать Intervention/CLI;
+- implementation-level correction допустима только внутри accepted `v0.1` semantics;
+- semantic blocker требует design review и нового ADR/freeze update;
+- Codex не меняет самостоятельно accepted version design/F31 и не открывает следующий implementation step;
+- live current status не дублировать в `AGENTS.md`, `docs/README.md` или `docs/versions/README.md`.
