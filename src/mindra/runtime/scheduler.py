@@ -313,6 +313,18 @@ class CognitiveScheduler:
                     failure=failure,
                 )
 
+            try:
+                _validate_result_bindings(wave=wave, records=records)
+            except WaveExecutionError as error:
+                failure = TraceFailure.from_exception(error)
+                return self._failed_result(
+                    cycle_time=cycle_time,
+                    cycle_base_revision=cycle_base_revision,
+                    state=state,
+                    completed_waves=completed_waves,
+                    failure=failure,
+                )
+
             results = tuple(_successful_result(record) for record in records)
             module_attempt_ids = tuple(record.module_attempt_id for record in records)
             self._record(
@@ -565,6 +577,28 @@ def _attempt_finished_event(record: ModuleAttemptRecord) -> ModuleAttemptFinishe
         private_update_proposed=record.result.private_state_update is not None,
         failure=None,
     )
+
+
+def _validate_result_bindings(
+    *,
+    wave: ExecutionWave,
+    records: tuple[ModuleAttemptRecord, ...],
+) -> None:
+    for record in records:
+        result = _successful_result(record)
+        proposal = result.state_update
+        if proposal.producer != record.module_id:
+            raise WaveExecutionError(
+                f"Wave {wave.index} module {record.module_id} "
+                "state_update.producer mismatch: "
+                f"expected {record.module_id}, got {proposal.producer}"
+            )
+        if proposal.module_attempt_id != record.module_attempt_id:
+            raise WaveExecutionError(
+                f"Wave {wave.index} module {record.module_id} "
+                "state_update.module_attempt_id mismatch: "
+                f"expected {record.module_attempt_id}, got {proposal.module_attempt_id}"
+            )
 
 
 def _successful_result(record: ModuleAttemptRecord) -> ModuleComputeResult:

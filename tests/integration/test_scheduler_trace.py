@@ -3,8 +3,10 @@
 from uuid import UUID
 
 from mindra.contracts import (
+    CommitAttemptedEvent,
     CommitSucceededEvent,
     ModuleAttemptFinishedEvent,
+    ModuleAttemptStartedEvent,
     ModuleComputeRequest,
     ModuleComputeResult,
     ModuleId,
@@ -63,6 +65,21 @@ def test_successful_cycle_emits_exact_canonical_structural_trace() -> None:
     successful = [
         event.payload for event in events if isinstance(event.payload, CommitSucceededEvent)
     ]
+    attempted = [
+        (event.logical_time.wave_id, event.payload)
+        for event in events
+        if isinstance(event.payload, CommitAttemptedEvent)
+    ]
+    assert len(attempted) == len(successful)
+    for (wave_id, attempted_payload), succeeded_payload in zip(attempted, successful, strict=True):
+        actual_attempt_ids = tuple(
+            event.payload.module_attempt_id
+            for event in events
+            if isinstance(event.payload, ModuleAttemptStartedEvent)
+            and event.logical_time.wave_id == wave_id
+        )
+        assert attempted_payload.module_attempt_ids == actual_attempt_ids
+        assert succeeded_payload.module_attempt_ids == actual_attempt_ids
     committed = [
         event.payload for event in events if isinstance(event.payload, StateRevisionCommittedEvent)
     ]
