@@ -20,22 +20,48 @@ Version Roadmap DU-32: accepted
 Current milestone: v0.1 Core Kernel
 v0.1 exact design: accepted
 v0.1 implementation-sequence: accepted
-V0.1-IS-01 … V0.1-IS-09: accepted
-V0.1-IS-10: OPEN
-V0.1-IS-11+: CLOSED
+V0.1-IS-01 … V0.1-IS-10: accepted
+V0.1-IS-11: CLOSED — exact design clarification required
+V0.1-IS-12+: CLOSED
 ```
 
 Общий архитектурный цикл `DU-00 … DU-32` завершён и принят.
 
-`V0.1-IS-09 — Atomic CommitCoordinator` принят после independent code/design/correction audit и восстановления required verification evidence. Targeted verification и полный `FULL-C0` прошли на post-correction regression HEAD `8b39497d7486bb7e69146249193ef38fb8246c2c`; GitHub Actions run `32516404539` для exact SHA завершился успешно на Ubuntu и Windows / Python 3.14.
-
-Текущая разрешённая implementation-работа:
+`V0.1-IS-10 — O0 Evidence Plane` принят после independent audit implementation commit:
 
 ```text
-V0.1-IS-10 — O0 Evidence Plane
+510aad6f5dd98c572ff4cf832e72a469ecd4ebc5
+feat(evidence): add passive O0 evidence plane
 ```
 
-Следующие implementation steps остаются закрыты до отдельного audit/transition.
+Final audit подтвердил:
+
+- scope только `IS-10`, без leakage в Scheduler/Composition/Intervention;
+- exact 13 typed O0 payload variants и derived `TraceEventKind`;
+- immutable `TraceEventEnvelope` и structural helper records;
+- passive `EvidenceRecorder` Protocol;
+- append-only process-local `InMemoryEvidenceRecorder`;
+- evidence/cognition isolation и отсутствие automatic producer emission;
+- targeted verification `PASS`, `30 passed`;
+- полный local `FULL-C0`: `PASS`, полный suite `260 passed`;
+- build: `PASS`;
+- GitHub Actions run `33166873106`, exact head `510aad6f5dd98c572ff4cf832e72a469ecd4ebc5`, event `push`: `PASS`;
+- Ubuntu `FULL-C0 (ubuntu-latest, Python 3.14)`: `PASS`;
+- Windows `FULL-C0 (windows-latest, Python 3.14)`: `PASS`.
+
+Verdict:
+
+```text
+AUDIT-PASS
+V0.1-IS-10: accepted
+```
+
+VerificationObligations на предусмотренном `IS-10` уровне:
+
+- `V01-009` — `foundation`;
+- `V01-010` — `substantial`.
+
+Полное закрытие этих obligations остаётся за последующей runtime producer integration согласно accepted sequence.
 
 ---
 
@@ -43,9 +69,9 @@ V0.1-IS-10 — O0 Evidence Plane
 
 Semantic baseline:
 
-- [`contract-adr-consistency-freeze.md`](contract-adr-consistency-freeze.md)
-- [`contracts/semantic-freeze-manifest.md`](contracts/semantic-freeze-manifest.md)
-- [`ADR-0031`](decisions/ADR-0031-semantic-contract-consistency-freeze.md)
+- [`contract-adr-consistency-freeze.md`](contract-adr-consistency-freeze.md);
+- [`contracts/semantic-freeze-manifest.md`](contracts/semantic-freeze-manifest.md);
+- [`ADR-0031`](decisions/ADR-0031-semantic-contract-consistency-freeze.md).
 
 Operational workflow:
 
@@ -63,7 +89,7 @@ Version-specific source of truth:
 - [`../versions/v0.1/is-08-private-state-store-shape.md`](../versions/v0.1/is-08-private-state-store-shape.md) — accepted clarification `IS-08`;
 - [`../versions/v0.1/is-09-commit-coordinator-shape.md`](../versions/v0.1/is-09-commit-coordinator-shape.md) — accepted exact clarification `IS-09`;
 - [`../versions/v0.1/is-09-active-boundary-consistency-correction.md`](../versions/v0.1/is-09-active-boundary-consistency-correction.md) — accepted correction clarification `IS-09`;
-- [`../versions/v0.1/is-10-evidence-plane-shape.md`](../versions/v0.1/is-10-evidence-plane-shape.md) — accepted exact clarification текущего `IS-10`;
+- [`../versions/v0.1/is-10-evidence-plane-shape.md`](../versions/v0.1/is-10-evidence-plane-shape.md) — accepted exact clarification `IS-10`;
 - [`../versions/codex-step-prompt-template.md`](../versions/codex-step-prompt-template.md) — canonical operational prompt template, revision `CSPT-02`.
 
 ---
@@ -80,108 +106,13 @@ Version-specific source of truth:
 | `IS-06` | accepted | `633babaf...` |
 | `IS-07` | accepted | `c8852930...` + `5b60d001...` |
 | `IS-08` | accepted | `92a2dd75...` |
-| `IS-09` | accepted | `c11d79e7...` + correction clarification `a4e99807...` + correction `978897ad...` |
-| `IS-10` | OPEN | implementation not started |
-
-## `V0.1-IS-08 — PrivateStateStore`
-
-```text
-92a2dd759b71359aff66d0da0c4a211df0cdc237
-feat(runtime): add transactional private state store
-```
-
-ChatGPT audit подтвердил explicit stateful initialization, stateless `Unavailable`, private contract freeze, own-snapshot isolation, staged proposal preparation и internal all-or-nothing private batch apply. Targeted verification и local `FULL-C0`: `PASS`, полный suite — `198 passed`; post-push Ubuntu/Windows GitHub Actions подтверждены оператором проекта как успешные.
-
-`V01-008` достиг уровня `substantial/partial`; полное atomic public+private closure было завершено в `IS-09`.
-
-## `V0.1-IS-09 — Atomic CommitCoordinator`
-
-Основная implementation:
-
-```text
-c11d79e78716d2273a602b94d1e78a4a3846c45b
-feat(runtime): add atomic commit coordinator
-```
-
-После independent audit был обнаружен defect active composition boundary. Для него принят correction clarification:
-
-```text
-a4e99807669a4506105851edba99e88900beff8c
-docs(v0.1): clarify IS-09 active boundary consistency
-```
-
-Correction implementation:
-
-```text
-978897ad57c9f0c84a05489c4568d6fd7832ceb6
-fix(runtime): validate commit composition boundary
-```
-
-Final independent acceptance audit подтвердил:
-
-- scope `IS-09` и отсутствие leakage в `IS-10+`;
-- atomic public/private commit pipeline;
-- active descriptor/private-store composition consistency correction;
-- fail-closed ownership/revision/provenance boundaries;
-- отсутствие нового implementation/F31 blocker;
-- post-correction reconciliation: от `978897ad...` до verification HEAD production code, tests, toolchain и CI workflow не менялись;
-- targeted verification: `PASS`, `32 passed`;
-- полный local `FULL-C0`: `PASS`, полный suite `230 passed`;
-- build: `PASS`;
-- GitHub Actions run `32516404539`, exact head `8b39497d7486bb7e69146249193ef38fb8246c2c`, event `push`: `PASS`;
-- Ubuntu `FULL-C0 (ubuntu-latest, Python 3.14)`: `PASS`;
-- Windows `FULL-C0 (windows-latest, Python 3.14)`: `PASS`.
-
-Verdict:
-
-```text
-AUDIT-PASS
-V0.1-IS-09: accepted
-```
-
-VerificationObligations на предусмотренном `IS-09` commit layer:
-
-- `V01-002` — closed at commit layer;
-- `V01-003` — closed;
-- `V01-006` — closed;
-- `V01-008` — closed at commit layer.
-
-`V01-001 same-base wave` остаётся работой последующего Scheduler/WaveExecutor step согласно accepted sequence.
+| `IS-09` | accepted | `c11d79e7...` + clarification/correction `a4e99807...` / `978897ad...` |
+| `IS-10` | accepted | `510aad6f...` |
+| `IS-11` | CLOSED — clarification required | implementation not started |
 
 ---
 
-# 4. Разрешённая текущая работа
-
-Открыт ровно один feature coding step:
-
-```text
-V0.1-IS-10 — O0 Evidence Plane
-```
-
-Prerequisites `IS-01 … IS-09` приняты.
-
-Для `IS-10` уже принят exact implementation clarification:
-
-- [`../versions/v0.1/is-10-evidence-plane-shape.md`](../versions/v0.1/is-10-evidence-plane-shape.md).
-
-Clarification фиксирует passive typed structural Evidence Plane foundation: immutable evidence contracts + append-only process-local recorder, без producer integration в planner/commit/scheduler/composition/intervention boundaries на этом шаге.
-
-Перед implementation обязательны section `V0.1-IS-10` в `implementation-sequence.md`, exact clarification и перечисленные там canonical design/ADR.
-
-Targeted verification для `IS-10`: `FAST + ARCH` и минимум:
-
-```text
-tests/unit/test_evidence_records.py
-tests/contract/test_evidence_isolation.py
-```
-
-После targeted green обязателен `FULL-C0`.
-
-`V0.1-IS-11` и последующие steps остаются CLOSED.
-
----
-
-# 5. Следующий потенциальный step после acceptance IS-10
+# 4. Transition gate перед `V0.1-IS-11`
 
 Следующий по accepted sequence:
 
@@ -189,9 +120,57 @@ tests/contract/test_evidence_isolation.py
 V0.1-IS-11 — WaveExecutor & Scheduler
 ```
 
-Он остаётся CLOSED до implementation, verification и independent ChatGPT audit `IS-10`.
+Prerequisites implementation уровня `IS-01 … IS-10` приняты, однако `IS-11` **пока не открыт для coding**.
 
-Наличие дальнейшей version documentation не является разрешением реализовывать `IS-11` заранее.
+При обязательной ambiguity-проверке `MODE-TRANSITION` установлено, что current accepted docs недостаточно точно фиксируют implementation boundary Scheduler/WaveExecutor. До Codex coding нужен step-specific exact clarification минимум для:
+
+- public/internal API `WaveExecutor`, `SequentialWaveExecutor`, `CognitiveScheduler` и cycle result/attempt records;
+- ownership concrete module instances относительно compiled `ExecutionPlan`;
+- allocation/ownership `CognitiveCycleId`, `WaveId`, `WaveAttemptId`, `ModuleAttemptId`;
+- exact same-base snapshot capture и private snapshot pinning;
+- executor vs scheduler responsibility за request construction, exception capture и result ordering;
+- exact O0 event ordering на cycle/wave/module/commit boundaries;
+- failure path: какие events существуют при module failure и commit failure;
+- validation active module/plan composition до execution;
+- boundary последовательных cognitive cycles.
+
+Особенно важно разрешить temporal boundary: accepted `IS-09` commit clarification сейчас запрещает менять уже установленный `cognitive_cycle_id` base state внутри commit и прямо отмечает, что lifecycle/reset semantics не входят в `IS-09`. `IS-11` должен определить корректный переход между distinct cognitive cycles, не создавая второй `CognitiveState` с тем же `StateRevision` и другой temporal identity и не нарушая ADR-0003/ADR-0004. Если для этого потребуется минимальная correction `IS-09`, она должна быть спроектирована и принята до implementation `IS-11`.
+
+Текущий mode:
+
+```text
+MODE-DESIGN — V0.1-IS-11 exact clarification
+```
+
+До принятия clarification:
+
+```text
+V0.1-IS-11: CLOSED
+V0.1-IS-12+: CLOSED
+```
+
+Нельзя выдавать Codex implementation prompt на `IS-11` раньше этого gate.
+
+---
+
+# 5. Разрешённая текущая работа
+
+Разрешена только документационная/design работа внутри accepted `v0.1` semantics:
+
+```text
+V0.1-IS-11 exact clarification
++
+при необходимости minimal prerequisite correction clarification
+```
+
+Новый feature coding step сейчас не открыт.
+
+Нельзя:
+
+- начинать Scheduler/WaveExecutor implementation;
+- изменять F31 без semantic design review;
+- открывать `IS-12`;
+- объединять clarification и feature implementation в один Codex task.
 
 ---
 
@@ -201,29 +180,4 @@ Canonical template:
 
 - [`../versions/codex-step-prompt-template.md`](../versions/codex-step-prompt-template.md), revision `CSPT-02`.
 
-ChatGPT-side audit/authoring:
-
-- [`../process/independent-audit.md`](../process/independent-audit.md);
-- [`../process/codex-instruction-authoring.md`](../process/codex-instruction-authoring.md).
-
-`CSPT-02` проверен при открытии `IS-10` и остаётся применимым: обязательные verification semantics, CI evidence semantics, reporting и commit/push policy не изменились.
-
-Текущий operational mode после transition допускает `MODE-INSTRUCTION` только для:
-
-```text
-V0.1-IS-10 — O0 Evidence Plane
-```
-
-Codex не открывает следующий implementation step самостоятельно.
-
----
-
-# 7. Ограничения
-
-- не переходить к `V0.1-IS-11` до independent acceptance `IS-10`;
-- не повторять implementation уже принятого `IS-09`;
-- не начинать `v0.2` до полного acceptance gate `v0.1`;
-- implementation-level correction допустима только внутри accepted `v0.1` semantics;
-- semantic blocker требует design review и нового ADR/freeze update;
-- Codex не меняет самостоятельно accepted version design/F31 и не открывает следующий implementation step;
-- live current status не дублировать в `AGENTS.md`, `docs/README.md` или `docs/versions/README.md`.
+`CSPT-02` остаётся применимым, но Codex implementation instruction для `IS-11` появится только после закрытия текущего `MODE-DESIGN` gate и явного открытия `IS-11` в этом файле.
