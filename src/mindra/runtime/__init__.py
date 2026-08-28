@@ -24,6 +24,7 @@ from mindra.runtime.errors import (
     UndeclaredReadError,
     WaveExecutionError,
 )
+from mindra.runtime.evidence import InMemoryEvidenceRecorder
 from mindra.runtime.identity import DeterministicIdFactory, Uuid7IdFactory
 from mindra.runtime.planning import (
     ExecutionDependency,
@@ -55,6 +56,7 @@ __all__ = [
     "ExecutionPlanCompiler",
     "ExecutionPlanError",
     "ExecutionWave",
+    "InMemoryEvidenceRecorder",
     "InterventionError",
     "KernelError",
     "MissingFieldError",
