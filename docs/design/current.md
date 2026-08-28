@@ -21,7 +21,7 @@ Current milestone: v0.1 Core Kernel
 v0.1 exact design: accepted
 v0.1 implementation-sequence: accepted
 V0.1-IS-01 … V0.1-IS-10: accepted
-V0.1-IS-11: CLOSED — exact design clarification required
+V0.1-IS-11: OPEN
 V0.1-IS-12+: CLOSED
 ```
 
@@ -90,6 +90,7 @@ Version-specific source of truth:
 - [`../versions/v0.1/is-09-commit-coordinator-shape.md`](../versions/v0.1/is-09-commit-coordinator-shape.md) — accepted exact clarification `IS-09`;
 - [`../versions/v0.1/is-09-active-boundary-consistency-correction.md`](../versions/v0.1/is-09-active-boundary-consistency-correction.md) — accepted correction clarification `IS-09`;
 - [`../versions/v0.1/is-10-evidence-plane-shape.md`](../versions/v0.1/is-10-evidence-plane-shape.md) — accepted exact clarification `IS-10`;
+- [`../versions/v0.1/is-11-wave-scheduler-shape.md`](../versions/v0.1/is-11-wave-scheduler-shape.md) — accepted exact clarification текущего `IS-11`;
 - [`../versions/codex-step-prompt-template.md`](../versions/codex-step-prompt-template.md) — canonical operational prompt template, revision `CSPT-02`.
 
 ---
@@ -108,69 +109,64 @@ Version-specific source of truth:
 | `IS-08` | accepted | `92a2dd75...` |
 | `IS-09` | accepted | `c11d79e7...` + clarification/correction `a4e99807...` / `978897ad...` |
 | `IS-10` | accepted | `510aad6f...` |
-| `IS-11` | CLOSED — clarification required | implementation not started |
+| `IS-11` | OPEN | implementation not started |
 
 ---
 
-# 4. Transition gate перед `V0.1-IS-11`
+# 4. Разрешённая текущая работа
 
-Следующий по accepted sequence:
+Открыт ровно один feature coding step:
 
 ```text
 V0.1-IS-11 — WaveExecutor & Scheduler
 ```
 
-Prerequisites implementation уровня `IS-01 … IS-10` приняты, однако `IS-11` **пока не открыт для coding**.
+Prerequisites `IS-01 … IS-10` приняты.
 
-При обязательной ambiguity-проверке `MODE-TRANSITION` установлено, что current accepted docs недостаточно точно фиксируют implementation boundary Scheduler/WaveExecutor. До Codex coding нужен step-specific exact clarification минимум для:
+Для `IS-11` принят exact clarification:
 
-- public/internal API `WaveExecutor`, `SequentialWaveExecutor`, `CognitiveScheduler` и cycle result/attempt records;
-- ownership concrete module instances относительно compiled `ExecutionPlan`;
-- allocation/ownership `CognitiveCycleId`, `WaveId`, `WaveAttemptId`, `ModuleAttemptId`;
-- exact same-base snapshot capture и private snapshot pinning;
-- executor vs scheduler responsibility за request construction, exception capture и result ordering;
-- exact O0 event ordering на cycle/wave/module/commit boundaries;
-- failure path: какие events существуют при module failure и commit failure;
-- validation active module/plan composition до execution;
-- boundary последовательных cognitive cycles.
+- [`../versions/v0.1/is-11-wave-scheduler-shape.md`](../versions/v0.1/is-11-wave-scheduler-shape.md).
 
-Особенно важно разрешить temporal boundary: accepted `IS-09` commit clarification сейчас запрещает менять уже установленный `cognitive_cycle_id` base state внутри commit и прямо отмечает, что lifecycle/reset semantics не входят в `IS-09`. `IS-11` должен определить корректный переход между distinct cognitive cycles, не создавая второй `CognitiveState` с тем же `StateRevision` и другой temporal identity и не нарушая ADR-0003/ADR-0004. Если для этого потребуется минимальная correction `IS-09`, она должна быть спроектирована и принята до implementation `IS-11`.
+Clarification фиксирует:
 
-Текущий mode:
+- exact runtime forms `ModuleAttemptExecutionRequest`, `ModuleAttemptRecord`, `WaveExecutor`, `SequentialWaveExecutor`, `CycleExecutionOutcome`, `CycleExecutionResult`, `CognitiveScheduler`;
+- caller-owned `CognitiveCycleId` и scheduler-owned `WaveId`/`WaveAttemptId`/`ModuleAttemptId`;
+- same-base public snapshot и pre-wave own-private snapshot pinning;
+- current-wave logical time для `StateProjection`/`CURRENT_CYCLE` freshness;
+- narrow refinement `IS-09` temporal compatibility: new cycle commit может использовать новый `cognitive_cycle_id` под тем же run/session/episode/decision context без fake public revision;
+- exact active plan/module/private-store/commit-coordinator binding;
+- exact deterministic O0 ordering и producer ownership;
+- failure semantics: module failure -> no commit; commit failure -> no state transition; earlier successful waves не rollback;
+- отсутствие retries/degradation/parallel executor/Composition Root/reference modules/intervention в этом step.
 
-```text
-MODE-DESIGN — V0.1-IS-11 exact clarification
-```
+Перед implementation обязательны section `V0.1-IS-11` в `implementation-sequence.md`, exact clarification и перечисленные там canonical design/ADR.
 
-До принятия clarification:
+Targeted verification минимум:
 
 ```text
-V0.1-IS-11: CLOSED
-V0.1-IS-12+: CLOSED
+tests/integration/test_scheduler_wave_semantics.py
+tests/property/test_same_base_wave.py
+tests/integration/test_wave_failure_atomicity.py
+tests/integration/test_scheduler_trace.py
 ```
 
-Нельзя выдавать Codex implementation prompt на `IS-11` раньше этого gate.
+После targeted green обязателен `FULL-C0` и `git diff --check`.
+
+`V0.1-IS-12` и последующие steps остаются CLOSED.
 
 ---
 
-# 5. Разрешённая текущая работа
+# 5. VerificationObligations текущего step
 
-Разрешена только документационная/design работа внутри accepted `v0.1` semantics:
+Ожидаемый уровень после accepted `IS-11`:
 
-```text
-V0.1-IS-11 exact clarification
-+
-при необходимости minimal prerequisite correction clarification
-```
+- `V01-001` — closed;
+- `V01-002` — closed at runtime wave level;
+- `V01-008` — runtime closed;
+- `V01-009` — substantial;
+- `V01-010` — closed.
 
-Новый feature coding step сейчас не открыт.
-
-Нельзя:
-
-- начинать Scheduler/WaveExecutor implementation;
-- изменять F31 без semantic design review;
-- открывать `IS-12`;
-- объединять clarification и feature implementation в один Codex task.
+`V01-009` полностью не закрывается до последующей composition/intervention producer integration.
 
 ---
 
@@ -180,4 +176,32 @@ Canonical template:
 
 - [`../versions/codex-step-prompt-template.md`](../versions/codex-step-prompt-template.md), revision `CSPT-02`.
 
-`CSPT-02` остаётся применимым, но Codex implementation instruction для `IS-11` появится только после закрытия текущего `MODE-DESIGN` gate и явного открытия `IS-11` в этом файле.
+Applicability check после принятия `IS-11` clarification:
+
+- verification semantics не изменились;
+- CI semantics не изменились;
+- reporting fields не изменились;
+- commit/push policy не изменился;
+- mandatory source-of-truth paths сохраняются;
+- step-specific exact API/invariants полностью добавляются поверх template через clarification.
+
+Результат:
+
+```text
+CSPT-02: applicable
+MODE-INSTRUCTION разрешён только для V0.1-IS-11
+```
+
+Codex не открывает следующий implementation step самостоятельно.
+
+---
+
+# 7. Ограничения
+
+- не переходить к `V0.1-IS-12` до independent acceptance `IS-11`;
+- не реализовывать `mindra.reference` production graph заранее;
+- не реализовывать Composition Root/KernelRuntime/Intervention Gateway в `IS-11`;
+- implementation-level correction допустима только внутри accepted `v0.1` semantics;
+- semantic blocker требует design review и нового ADR/freeze update;
+- Codex не меняет самостоятельно accepted version design/F31 и не открывает следующий implementation step;
+- live current status не дублировать в `AGENTS.md`, `docs/README.md` или `docs/versions/README.md`.
