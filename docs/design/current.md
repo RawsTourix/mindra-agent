@@ -21,47 +21,41 @@ Current milestone: v0.1 Core Kernel
 v0.1 exact design: accepted
 v0.1 implementation-sequence: accepted
 V0.1-IS-01 … V0.1-IS-10: accepted
-V0.1-IS-11: OPEN
+V0.1-IS-11: CORRECTION REQUIRED
 V0.1-IS-12+: CLOSED
 ```
 
-Общий архитектурный цикл `DU-00 … DU-32` завершён и принят.
-
-`V0.1-IS-10 — O0 Evidence Plane` принят после independent audit implementation commit:
+`V0.1-IS-11 — WaveExecutor & Scheduler` implementation существует:
 
 ```text
-510aad6f5dd98c572ff4cf832e72a469ecd4ebc5
-feat(evidence): add passive O0 evidence plane
+e8aa2fa8528b2875c54c010de0777dd266e5bd49
+feat(runtime): add wave executor and cognitive scheduler
 ```
 
-Final audit подтвердил:
+Independent audit подтвердил основной scope/runtime design, local verification report и post-push GitHub Actions, но обнаружил blocking causal binding defect между фактически dispatched module attempt и identities, заявленными returned `ModuleComputeResult`.
 
-- scope только `IS-10`, без leakage в Scheduler/Composition/Intervention;
-- exact 13 typed O0 payload variants и derived `TraceEventKind`;
-- immutable `TraceEventEnvelope` и structural helper records;
-- passive `EvidenceRecorder` Protocol;
-- append-only process-local `InMemoryEvidenceRecorder`;
-- evidence/cognition isolation и отсутствие automatic producer emission;
-- targeted verification `PASS`, `30 passed`;
-- полный local `FULL-C0`: `PASS`, полный suite `260 passed`;
-- build: `PASS`;
-- GitHub Actions run `33166873106`, exact head `510aad6f5dd98c572ff4cf832e72a469ecd4ebc5`, event `push`: `PASS`;
-- Ubuntu `FULL-C0 (ubuntu-latest, Python 3.14)`: `PASS`;
-- Windows `FULL-C0 (windows-latest, Python 3.14)`: `PASS`.
-
-Verdict:
+Remote CI implementation commit:
 
 ```text
-AUDIT-PASS
-V0.1-IS-10: accepted
+GitHub Actions run 33170740949
+head e8aa2fa8528b2875c54c010de0777dd266e5bd49
+Ubuntu Python 3.14: PASS
+Windows Python 3.14: PASS
 ```
 
-VerificationObligations на предусмотренном `IS-10` уровне:
+Green CI не закрывает найденный boundary defect.
 
-- `V01-009` — `foundation`;
-- `V01-010` — `substantial`.
+Для defect принят correction clarification:
 
-Полное закрытие этих obligations остаётся за последующей runtime producer integration согласно accepted sequence.
+- [`../versions/v0.1/is-11-attempt-result-binding-correction.md`](../versions/v0.1/is-11-attempt-result-binding-correction.md).
+
+Текущий verdict:
+
+```text
+CORRECTION-REQUIRED
+V0.1-IS-11: not accepted
+V0.1-IS-12: CLOSED
+```
 
 ---
 
@@ -90,7 +84,8 @@ Version-specific source of truth:
 - [`../versions/v0.1/is-09-commit-coordinator-shape.md`](../versions/v0.1/is-09-commit-coordinator-shape.md) — accepted exact clarification `IS-09`;
 - [`../versions/v0.1/is-09-active-boundary-consistency-correction.md`](../versions/v0.1/is-09-active-boundary-consistency-correction.md) — accepted correction clarification `IS-09`;
 - [`../versions/v0.1/is-10-evidence-plane-shape.md`](../versions/v0.1/is-10-evidence-plane-shape.md) — accepted exact clarification `IS-10`;
-- [`../versions/v0.1/is-11-wave-scheduler-shape.md`](../versions/v0.1/is-11-wave-scheduler-shape.md) — accepted exact clarification текущего `IS-11`;
+- [`../versions/v0.1/is-11-wave-scheduler-shape.md`](../versions/v0.1/is-11-wave-scheduler-shape.md) — accepted exact clarification `IS-11`;
+- [`../versions/v0.1/is-11-attempt-result-binding-correction.md`](../versions/v0.1/is-11-attempt-result-binding-correction.md) — accepted correction clarification текущего audit defect;
 - [`../versions/codex-step-prompt-template.md`](../versions/codex-step-prompt-template.md) — canonical operational prompt template, revision `CSPT-02`.
 
 ---
@@ -109,56 +104,85 @@ Version-specific source of truth:
 | `IS-08` | accepted | `92a2dd75...` |
 | `IS-09` | accepted | `c11d79e7...` + clarification/correction `a4e99807...` / `978897ad...` |
 | `IS-10` | accepted | `510aad6f...` |
-| `IS-11` | OPEN | implementation not started |
+| `IS-11` | correction required | implementation `e8aa2fa...`; correction pending |
 
 ---
 
-# 4. Разрешённая текущая работа
+# 4. Найденный IS-11 defect
 
-Открыт ровно один feature coding step:
-
-```text
-V0.1-IS-11 — WaveExecutor & Scheduler
-```
-
-Prerequisites `IS-01 … IS-10` приняты.
-
-Для `IS-11` принят exact clarification:
-
-- [`../versions/v0.1/is-11-wave-scheduler-shape.md`](../versions/v0.1/is-11-wave-scheduler-shape.md).
-
-Clarification фиксирует:
-
-- exact runtime forms `ModuleAttemptExecutionRequest`, `ModuleAttemptRecord`, `WaveExecutor`, `SequentialWaveExecutor`, `CycleExecutionOutcome`, `CycleExecutionResult`, `CognitiveScheduler`;
-- caller-owned `CognitiveCycleId` и scheduler-owned `WaveId`/`WaveAttemptId`/`ModuleAttemptId`;
-- same-base public snapshot и pre-wave own-private snapshot pinning;
-- current-wave logical time для `StateProjection`/`CURRENT_CYCLE` freshness;
-- narrow refinement `IS-09` temporal compatibility: new cycle commit может использовать новый `cognitive_cycle_id` под тем же run/session/episode/decision context без fake public revision;
-- exact active plan/module/private-store/commit-coordinator binding;
-- exact deterministic O0 ordering и producer ownership;
-- failure semantics: module failure -> no commit; commit failure -> no state transition; earlier successful waves не rollback;
-- отсутствие retries/degradation/parallel executor/Composition Root/reference modules/intervention в этом step.
-
-Перед implementation обязательны section `V0.1-IS-11` в `implementation-sequence.md`, exact clarification и перечисленные там canonical design/ADR.
-
-Targeted verification минимум:
+Authoritative execution origin существует в Scheduler/Executor records:
 
 ```text
-tests/integration/test_scheduler_wave_semantics.py
-tests/property/test_same_base_wave.py
-tests/integration/test_wave_failure_atomicity.py
-tests/integration/test_scheduler_trace.py
+actual scheduled ModuleId
+actual scheduler-created ModuleAttemptId
 ```
 
-После targeted green обязателен `FULL-C0` и `git diff --check`.
+Но current implementation не подтверждает перед commit, что successful returned `StateUpdateProposal` сохраняет именно эти identities.
 
-`V0.1-IS-12` и последующие steps остаются CLOSED.
+Поэтому возможна causal divergence:
+
+```text
+module_attempt_started(A)
+module_attempt_finished(A, SUCCEEDED)
+commit_attempted(A)
+
+returned staged result claims attempt B
+
+commit_succeeded(B)
+```
+
+и аналогичный producer spoof между active modules.
+
+`CommitCoordinator` не может самостоятельно восстановить actual execution origin, потому что получает только `ModuleComputeResult`, а не execution request/record.
+
+Correction фиксирует responsibility split:
+
+```text
+CognitiveScheduler
+→ bind returned staged result to actual dispatched ModuleId/ModuleAttemptId
+
+CommitCoordinator
+→ validate staged transaction authority/provenance/revisions/atomicity
+```
+
+Binding mismatch должен fail closed после successful physical compute, но до actual commit call:
+
+```text
+module_attempt_finished(SUCCEEDED)
+# no commit_attempted
+cycle_failed
+```
+
+Current-wave public/private state не меняется; earlier successful waves не rollback.
 
 ---
 
-# 5. VerificationObligations текущего step
+# 5. Разрешённая текущая работа
 
-Ожидаемый уровень после accepted `IS-11`:
+Разрешена только минимальная correction текущего `IS-11` согласно:
+
+- `is-11-wave-scheduler-shape.md`;
+- `is-11-attempt-result-binding-correction.md`.
+
+Нельзя:
+
+- повторно реализовывать IS-11 целиком;
+- менять `CommitCoordinator.commit()` signature;
+- менять commit transaction pipeline;
+- открывать или реализовывать IS-12;
+- добавлять reference production modules;
+- реализовывать Composition Root/KernelRuntime/Intervention;
+- менять F31/ADR/version semantics.
+
+После correction обязательны targeted regression, полный `FULL-C0`, push и новый independent audit correction diff.
+
+---
+
+# 6. VerificationObligations
+
+До correction final acceptance предыдущие заявленные уровни IS-11 считаются **непринятыми audit gate**, даже при green tests/CI.
+
+Ожидаемый уровень после successful correction + re-audit:
 
 - `V01-001` — closed;
 - `V01-002` — closed at runtime wave level;
@@ -170,38 +194,16 @@ tests/integration/test_scheduler_trace.py
 
 ---
 
-# 6. Operational prompt
-
-Canonical template:
-
-- [`../versions/codex-step-prompt-template.md`](../versions/codex-step-prompt-template.md), revision `CSPT-02`.
-
-Applicability check после принятия `IS-11` clarification:
-
-- verification semantics не изменились;
-- CI semantics не изменились;
-- reporting fields не изменились;
-- commit/push policy не изменился;
-- mandatory source-of-truth paths сохраняются;
-- step-specific exact API/invariants полностью добавляются поверх template через clarification.
-
-Результат:
+# 7. Operational mode
 
 ```text
-CSPT-02: applicable
-MODE-INSTRUCTION разрешён только для V0.1-IS-11
+MODE-CORRECTION — V0.1-IS-11 attempt/result causal binding
 ```
 
-Codex не открывает следующий implementation step самостоятельно.
+`CSPT-02` остаётся применимым: verification/CI/reporting/commit policy не изменились.
 
----
+Следующий step остаётся:
 
-# 7. Ограничения
-
-- не переходить к `V0.1-IS-12` до independent acceptance `IS-11`;
-- не реализовывать `mindra.reference` production graph заранее;
-- не реализовывать Composition Root/KernelRuntime/Intervention Gateway в `IS-11`;
-- implementation-level correction допустима только внутри accepted `v0.1` semantics;
-- semantic blocker требует design review и нового ADR/freeze update;
-- Codex не меняет самостоятельно accepted version design/F31 и не открывает следующий implementation step;
-- live current status не дублировать в `AGENTS.md`, `docs/README.md` или `docs/versions/README.md`.
+```text
+V0.1-IS-12: CLOSED
+```
