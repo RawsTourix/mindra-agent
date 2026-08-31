@@ -9,10 +9,12 @@ from mindra.contracts import (
     CognitiveCycleId,
     CognitiveState,
     IdFactory,
+    InterventionError,
     LogicalTime,
     ModuleDescriptor,
     ProfileId,
     SchemaRevision,
+    StateInterventionSpec,
     TraceEventEnvelope,
 )
 from mindra.contracts.identity import AgentRevisionId
@@ -22,6 +24,8 @@ from mindra.runtime import (
     CycleExecutionResult,
     ExecutionPlan,
     InMemoryEvidenceRecorder,
+    InterventionGateway,
+    InterventionResult,
     PrivateStateStore,
 )
 
@@ -69,8 +73,10 @@ class KernelRuntime:
 
     __slots__ = (
         "_composition",
+        "_cycle_active",
         "_evidence_recorder",
         "_id_factory",
+        "_intervention_gateway",
         "_plan",
         "_private_store",
         "_profile",
@@ -88,6 +94,8 @@ class KernelRuntime:
     _evidence_recorder: InMemoryEvidenceRecorder
     _id_factory: IdFactory
     _root_time: LogicalTime
+    _intervention_gateway: InterventionGateway
+    _cycle_active: bool
 
     def __init__(self, *args: object, **kwargs: object) -> None:
         raise TypeError("KernelRuntime создаётся только CompositionRoot")
@@ -126,7 +134,33 @@ class KernelRuntime:
             cognitive_cycle_id=self._id_factory.new_id(CognitiveCycleId),
             wave_id=None,
         )
-        result = self._scheduler.run_cycle(current_state=self._state, cycle_time=cycle_time)
+        self._cycle_active = True
+        try:
+            result = self._scheduler.run_cycle(current_state=self._state, cycle_time=cycle_time)
+        finally:
+            self._cycle_active = False
+        self._state = result.state
+        return result
+
+    def apply_intervention(self, spec: StateInterventionSpec, /) -> InterventionResult:
+        """Применить one-shot public treatment только at between-cycle boundary."""
+        if not isinstance(spec, StateInterventionSpec):
+            raise TypeError("spec должен быть StateInterventionSpec")
+        if self._cycle_active:
+            raise InterventionError("Intervention запрещена во время active cognitive cycle")
+        logical_time = LogicalTime(
+            run_id=self._root_time.run_id,
+            agent_session_id=self._root_time.agent_session_id,
+            episode_id=self._root_time.episode_id,
+            decision_window_id=self._root_time.decision_window_id,
+            cognitive_cycle_id=None,
+            wave_id=None,
+        )
+        result = self._intervention_gateway.apply(
+            current_state=self._state,
+            spec=spec,
+            logical_time=logical_time,
+        )
         self._state = result.state
         return result
 
@@ -142,6 +176,7 @@ def _build_kernel_runtime(
     evidence_recorder: InMemoryEvidenceRecorder,
     id_factory: IdFactory,
     root_time: LogicalTime,
+    intervention_gateway: InterventionGateway,
 ) -> KernelRuntime:
     """Internal construction после полного assembly/validation."""
     runtime = object.__new__(KernelRuntime)
@@ -154,6 +189,8 @@ def _build_kernel_runtime(
     runtime._evidence_recorder = evidence_recorder
     runtime._id_factory = id_factory
     runtime._root_time = root_time
+    runtime._intervention_gateway = intervention_gateway
+    runtime._cycle_active = False
     return runtime
 
 

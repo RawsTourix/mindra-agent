@@ -32,6 +32,11 @@ from mindra.runtime.executor import (
     WaveExecutor,
 )
 from mindra.runtime.identity import DeterministicIdFactory, Uuid7IdFactory
+from mindra.runtime.intervention import (
+    InterventionGateway,
+    InterventionRecord,
+    InterventionResult,
+)
 from mindra.runtime.planning import (
     ExecutionDependency,
     ExecutionPlan,
@@ -72,6 +77,9 @@ __all__ = [
     "ExecutionWave",
     "InMemoryEvidenceRecorder",
     "InterventionError",
+    "InterventionGateway",
+    "InterventionRecord",
+    "InterventionResult",
     "KernelError",
     "MissingFieldError",
     "ModuleAttemptExecutionRequest",

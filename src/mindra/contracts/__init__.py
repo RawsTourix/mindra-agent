@@ -74,6 +74,11 @@ from mindra.contracts.identity import (
     WaveAttemptId,
     WaveId,
 )
+from mindra.contracts.intervention import (
+    InterventionPolicy,
+    StateInterventionSpec,
+    StateInterventionWrite,
+)
 from mindra.contracts.modules import (
     CognitiveModule,
     DeterminismMode,
@@ -159,6 +164,7 @@ __all__ = [
     "InterventionAppliedEvent",
     "InterventionError",
     "InterventionId",
+    "InterventionPolicy",
     "KernelError",
     "LineageId",
     "LogicalTime",
@@ -196,6 +202,8 @@ __all__ = [
     "StateEntry",
     "StateEnvelope",
     "StateFieldSpec",
+    "StateInterventionSpec",
+    "StateInterventionWrite",
     "StateKey",
     "StateNamespace",
     "StatePath",

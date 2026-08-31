@@ -21,6 +21,7 @@ from mindra.contracts import (
     EpisodeId,
     ExecutionPlanRevision,
     IdFactory,
+    InterventionPolicy,
     LineageId,
     LogicalTime,
     PlanCompiledEvent,
@@ -43,6 +44,7 @@ from mindra.runtime import (
     CommitCoordinator,
     ExecutionPlanCompiler,
     InMemoryEvidenceRecorder,
+    InterventionGateway,
     PrivateStateStore,
     SequentialWaveExecutor,
     build_cognitive_state,
@@ -52,20 +54,28 @@ from mindra.runtime import (
 class CompositionRoot:
     """Resolve, validate и assemble kernel только из explicit dependencies."""
 
-    __slots__ = ("_id_factory", "_registry")
+    __slots__ = ("_id_factory", "_intervention_policy", "_registry")
 
     def __init__(
         self,
         *,
         registry: ImplementationRegistry,
         id_factory: IdFactory,
+        intervention_policy: InterventionPolicy | None = None,
     ) -> None:
         if not isinstance(registry, ImplementationRegistry):
             raise TypeError("registry должен быть ImplementationRegistry")
         if not callable(getattr(id_factory, "new_id", None)):
             raise TypeError("id_factory должен удовлетворять IdFactory")
+        if intervention_policy is not None and not isinstance(
+            intervention_policy, InterventionPolicy
+        ):
+            raise TypeError("intervention_policy должен быть InterventionPolicy или None")
         self._registry = registry
         self._id_factory = id_factory
+        self._intervention_policy = (
+            InterventionPolicy.disabled() if intervention_policy is None else intervention_policy
+        )
 
     def build(self, profile: KernelProfile, /) -> KernelRuntime:
         """Fail closed собрать и instrument полностью готовую runtime composition."""
@@ -150,6 +160,12 @@ class CompositionRoot:
         )
         executor = SequentialWaveExecutor()
         recorder = InMemoryEvidenceRecorder()
+        intervention_gateway = InterventionGateway(
+            schema=schema,
+            policy=self._intervention_policy,
+            evidence_recorder=recorder,
+            id_factory=self._id_factory,
+        )
         scheduler = CognitiveScheduler(
             plan=plan,
             modules=modules,
@@ -177,6 +193,7 @@ class CompositionRoot:
             evidence_recorder=recorder,
             id_factory=self._id_factory,
             root_time=root_time,
+            intervention_gateway=intervention_gateway,
         )
 
         recorder.record(
