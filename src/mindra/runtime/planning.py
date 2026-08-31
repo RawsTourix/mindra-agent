@@ -150,7 +150,7 @@ def _build_execution_plan(
     dependencies: tuple[ExecutionDependency, ...],
     waves: tuple[ExecutionWave, ...],
 ) -> ExecutionPlan:
-    """Construct a plan only after compiler-established validation."""
+    """Создать plan только после выполненной compiler validation."""
     plan = object.__new__(ExecutionPlan)
     object.__setattr__(plan, "plan_id", plan_id)
     object.__setattr__(plan, "revision", revision)

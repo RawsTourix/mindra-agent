@@ -50,5 +50,16 @@ jobs:
       - name: Запустить тесты
         run: uv run --locked pytest
 
+      - name: Проверить canonical CLI
+        run: |
+          uv run --locked mindra validate-profile --profile configs/v0.1/reference.toml
+          uv run --locked mindra kernel-smoke --profile configs/v0.1/reference.toml
+
+      - name: Удалить stale artifacts
+        run: uv run --locked python -c "import shutil; shutil.rmtree('dist', ignore_errors=True)"
+
       - name: Собрать wheel и sdist
         run: uv build
+
+      - name: Проверить clean wheel
+        run: uv run --locked python tools/verify_v0_1_artifact.py
