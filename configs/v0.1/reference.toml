@@ -1,0 +1,21 @@
+schema = "mindra.kernel-profile/v1"
+profile_id = "v0_1.reference"
+
+[[modules]]
+module_id = "synthetic.source"
+implementation = "reference.synthetic_source.v1"
+
+[modules.settings]
+value = 2
+
+[[modules]]
+module_id = "synthetic.double"
+implementation = "reference.synthetic_double.v1"
+
+[[modules]]
+module_id = "synthetic.triple"
+implementation = "reference.synthetic_triple.v1"
+
+[[modules]]
+module_id = "synthetic.join"
+implementation = "reference.synthetic_join.v1"
