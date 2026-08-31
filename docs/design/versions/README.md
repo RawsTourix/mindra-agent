@@ -2,11 +2,13 @@
 
 ## Назначение
 
-Этот каталог предназначен для будущих версий MINDRA, ориентированных на реализацию.
+Этот каталог является историческим design-era navigation surface. После принятия `DU-32` canonical software roadmap и version-specific implementation design живут в:
 
-Дорожная карта версий пока **не спроектирована**.
+- [`../version-roadmap.md`](../version-roadmap.md);
+- [`../../versions/README.md`](../../versions/README.md);
+- `docs/versions/vX.Y/`.
 
-Версии появятся только после формирования достаточного канонического архитектурного design и графа зависимостей.
+Фактический live implementation status хранится только в [`../current.md`](../current.md).
 
 ---
 
@@ -14,7 +16,7 @@
 
 Нельзя использовать версии для преждевременного разбиения ещё не определённой архитектуры.
 
-Правильный порядок:
+Принятый порядок:
 
 ```text
 канонический design
@@ -27,9 +29,9 @@
 
 ---
 
-# Что должна содержать будущая директория версии
+# Что содержит директория версии
 
-Предварительно:
+Основной профиль:
 
 ```text
 versions/vX.Y/
@@ -37,7 +39,9 @@ versions/vX.Y/
 └── implementation-sequence.md
 ```
 
-`README.md` должен определять:
+Version-specific каталог может дополнительно содержать verification matrix и accepted clarification/correction documents, если они нужны operational workflow.
+
+`README.md` определяет:
 
 - цель версии;
 - prerequisites;
@@ -48,13 +52,13 @@ versions/vX.Y/
 - критерии приёмки;
 - известные ограничения.
 
-`implementation-sequence.md` должен задавать patch-oriented порядок работ для Codex.
+`implementation-sequence.md` задаёт patch-oriented порядок работ для Codex.
 
 ---
 
 # Правила последовательности реализации
 
-Каждый будущий patch должен содержать:
+Каждый patch должен содержать:
 
 - цель;
 - prerequisites;
@@ -73,21 +77,15 @@ versions/vX.Y/
 
 # Исследовательские и программные версии
 
-Нужно отдельно решить, как MINDRA будет соотносить:
-
-- программную версию;
-- архитектурный или исследовательский этап;
-- версию протокола эксперимента;
-- версию формата checkpoint.
-
-До соответствующего design/ADR эти понятия не следует автоматически объединять.
+MINDRA различает software milestone, архитектурный/исследовательский этап, experiment protocol и checkpoint/artifact version. Они не объединяются автоматически без соответствующего accepted design.
 
 ---
 
 # Состояние
 
 ```text
-Дорожная карта версий: не спроектирована
-Текущая версия: отсутствует
-Реализация: не начата
+DU-32 software roadmap: accepted
+v0.1 Core Kernel: implemented / independently audited / accepted
 ```
+
+Текущее состояние последующих versions и единственный разрешённый implementation step определяет только [`../current.md`](../current.md).
