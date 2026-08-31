@@ -17,56 +17,45 @@ Operational workflow:
 ```text
 Semantic Freeze Baseline F31: accepted
 Version Roadmap DU-32: accepted
-Current milestone: v0.1 Core Kernel
-v0.1 exact design: accepted
+v0.1 Core Kernel design: accepted
 v0.1 implementation-sequence: accepted
-V0.1-IS-01 … V0.1-IS-15: accepted
-V0.1-IS-16: OPEN — Version acceptance hardening
-v0.1 milestone acceptance: NOT YET
+V0.1-IS-01 … V0.1-IS-16: accepted
+V01-001 … V01-014: PASS
+v0.1 Core Kernel: implemented/accepted
+v0.2: NOT OPEN
 ```
 
-Последний accepted feature implementation step:
+Final accepted implementation candidate:
 
 ```text
-V0.1-IS-15 — CLI & deterministic end-to-end smoke
-657b8140e82f73dae14878ada8d788f03069c5cc
-feat(cli): add deterministic kernel smoke commands
+3c1ec7f746c040ca49f232c12e5c9ba7bf28e597
+test(v0.1): add final acceptance hardening
 ```
 
-Independent acceptance evidence:
+Final independent acceptance evidence:
 
 ```text
-Targeted verification: PASS — 12 passed
-FULL-C0 local: PASS — 362 passed
-build: PASS
-git diff --check: PASS
-GitHub Actions run 33405884901
-head 657b8140e82f73dae14878ada8d788f03069c5cc
-Ubuntu Python 3.14: PASS — 362 passed
-Windows Python 3.14: PASS
+Local FULL-C0: PASS — 366 passed
+ruff: PASS
+format: PASS — 243 files
+mypy: PASS — 91 source files
+Import Linter: PASS — 3 kept / 0 broken
+canonical validate-profile: PASS
+canonical kernel-smoke: PASS — waves=3 revision=3 join=10
+clean wheel metadata/install verification: PASS
+third-party runtime dependencies: 0
+future-responsibility scope audit: PASS
+language policy review: PASS
+GitHub Actions run 33424412605
+exact head 3c1ec7f746c040ca49f232c12e5c9ba7bf28e597
+Ubuntu Python 3.14: PASS — 366 passed — clean wheel PASS
+Windows Python 3.14: PASS — 366 passed — clean wheel PASS
 AUDIT-PASS
 ```
 
-Final IS-15 audit подтвердил:
+Canonical detailed evidence:
 
-- thin stdlib argparse entrypoint поверх public Composition Root/runtime API;
-- exact commands `validate-profile --profile` и `kernel-smoke --profile`;
-- identical console-script / `python -m mindra` behavior;
-- fixed deterministic CLI identity seeds;
-- full CompositionRoot validation без cognitive cycle для `validate-profile`;
-- ровно один reference cognitive cycle для `kernel-smoke`;
-- canonical output `waves=3 revision=3 join=10`;
-- expected domain/usage/internal exit semantics без traceback;
-- deterministic repeat по semantic plan, state payload/revisions и normalized O0 `(kind, logical_time, payload)` sequence;
-- installed console script реально проверяется subprocess test внутри locked environment;
-- entrypoints не собирают modules/runtime internals вручную и не создают Service Locator/global registry.
-
-VerificationObligations после IS-15:
-
-- `V01-009` — closed at deterministic v0.1 end-to-end O0 integration;
-- `V01-013` — closed at deterministic runnable reference profile/CLI layer.
-
-Final reconciliation всех `V01-001 … V01-014` и milestone acceptance выполняется только через `IS-16` + independent final audit.
+- [`../versions/v0.1/verification-matrix.md`](../versions/v0.1/verification-matrix.md).
 
 ---
 
@@ -78,10 +67,12 @@ Semantic baseline:
 - [`contracts/semantic-freeze-manifest.md`](contracts/semantic-freeze-manifest.md);
 - [`ADR-0031`](decisions/ADR-0031-semantic-contract-consistency-freeze.md).
 
-Version-specific:
+Version/roadmap:
 
+- [`version-roadmap.md`](version-roadmap.md);
 - [`../versions/v0.1/README.md`](../versions/v0.1/README.md);
 - [`../versions/v0.1/implementation-sequence.md`](../versions/v0.1/implementation-sequence.md);
+- [`../versions/v0.1/verification-matrix.md`](../versions/v0.1/verification-matrix.md);
 - [`../versions/v0.1/is-06-contract-shape.md`](../versions/v0.1/is-06-contract-shape.md);
 - [`../versions/v0.1/is-07-execution-plan-shape.md`](../versions/v0.1/is-07-execution-plan-shape.md);
 - [`../versions/v0.1/is-07-controlled-construction-correction.md`](../versions/v0.1/is-07-controlled-construction-correction.md);
@@ -95,12 +86,12 @@ Version-specific:
 - [`../versions/v0.1/is-13-composition-root-shape.md`](../versions/v0.1/is-13-composition-root-shape.md);
 - [`../versions/v0.1/is-14-intervention-gateway-shape.md`](../versions/v0.1/is-14-intervention-gateway-shape.md);
 - [`../versions/v0.1/is-15-cli-smoke-shape.md`](../versions/v0.1/is-15-cli-smoke-shape.md);
-- [`../versions/v0.1/is-16-acceptance-hardening-shape.md`](../versions/v0.1/is-16-acceptance-hardening-shape.md) — accepted exact clarification текущего step;
+- [`../versions/v0.1/is-16-acceptance-hardening-shape.md`](../versions/v0.1/is-16-acceptance-hardening-shape.md);
 - [`../versions/codex-step-prompt-template.md`](../versions/codex-step-prompt-template.md), revision `CSPT-02`.
 
 ---
 
-# 3. Implementation checkpoints
+# 3. Implementation checkpoints v0.1
 
 | Step | Status | Implementation/correction |
 |---|---|---|
@@ -119,61 +110,47 @@ Version-specific:
 | `IS-13` | accepted | `b2be887c...` |
 | `IS-14` | accepted | `9b6ca913...` |
 | `IS-15` | accepted | `657b8140...` |
-| `IS-16` | OPEN | acceptance hardening only |
+| `IS-16` | accepted | `3c1ec7f7...` |
 
 ---
 
-# 4. Разрешённая текущая работа
+# 4. VerificationObligations
 
-Открыт ровно один final hardening step:
+Final `v0.1` reconciliation:
 
 ```text
-V0.1-IS-16 — Version acceptance hardening
+V01-001: PASS
+V01-002: PASS
+V01-003: PASS
+V01-004: PASS
+V01-005: PASS
+V01-006: PASS
+V01-007: PASS
+V01-008: PASS
+V01-009: PASS
+V01-010: PASS
+V01-011: PASS
+V01-012: PASS
+V01-013: PASS
+V01-014: PASS
 ```
 
-Accepted exact clarification:
-
-- [`../versions/v0.1/is-16-acceptance-hardening-shape.md`](../versions/v0.1/is-16-acceptance-hardening-shape.md).
-
-Clarification фиксирует:
-
-- exact schema/status vocabulary `verification-matrix.md`;
-- canonical mapping `V01-001 … V01-014` к tests/commands;
-- repository acceptance-scope architecture test;
-- mechanical zero-third-party runtime dependency audit;
-- clean built-wheel install/smoke в fresh temp Python 3.14 venv;
-- extension existing Linux/Windows CI теми же artifact/CLI gates;
-- language policy manual-review boundary;
-- future cognitive responsibility scope audit;
-- minimal-defect-only correction rule;
-- `V01-014 = PENDING-CI` до exact post-push candidate run;
-- запрет Codex самостоятельно принимать milestone.
-
-Новые features в IS-16 запрещены.
+`v0.1` acceptance scope ограничен Core Kernel и не означает реализацию Environment, Cortex, Memory, learning или других roadmap responsibilities `v0.2+`.
 
 ---
 
-# 5. VerificationObligations IS-16
+# 5. Разрешённая текущая работа
 
-До operator push ожидаемый Codex handoff:
-
-```text
-V01-001 … V01-013: PASS
-V01-014: PENDING-CI
-Post-push CI: PENDING
-v0.1 milestone acceptance: NOT YET
-```
-
-После operator push independent ChatGPT final audit обязан проверить exact candidate SHA на Ubuntu/Windows и только затем может:
+Новый implementation step автоматически не открыт.
 
 ```text
-V01-014 -> PASS
-V01-001 … V01-014 -> PASS
-V0.1-IS-16 -> accepted
-v0.1 Core Kernel -> implemented/accepted
+v0.1 Core Kernel: implemented/accepted
+v0.2 MicroWorld Interaction: CLOSED / design not opened by this transition
 ```
 
-`v0.2` автоматически не открывается.
+Перед любой работой по `v0.2` требуется отдельный version-design/implementation-sequence gate согласно operational workflow.
+
+Нельзя использовать acceptance `v0.1` как разрешение начать coding `v0.2`.
 
 ---
 
@@ -181,7 +158,6 @@ v0.1 Core Kernel -> implemented/accepted
 
 ```text
 CSPT-02: applicable
-MODE-INSTRUCTION — V0.1-IS-16 only
+MODE-TRANSITION COMPLETE — v0.1 accepted
+No OPEN implementation step
 ```
-
-Codex не меняет этот status и не объявляет milestone accepted самостоятельно.
