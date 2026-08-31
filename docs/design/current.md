@@ -2,7 +2,7 @@
 
 ## Назначение
 
-Краткий фактический статус проекта. Этот файл не переопределяет canonical design; он определяет, что уже принято и какая implementation-работа разрешена следующей.
+Краткий фактический live status проекта. Этот файл не переопределяет canonical design; он определяет, что уже принято и какая implementation-работа разрешена следующей.
 
 Operational workflow:
 
@@ -17,13 +17,25 @@ Operational workflow:
 ```text
 Semantic Freeze Baseline F31: accepted
 Version Roadmap DU-32: accepted
+
 v0.1 Core Kernel design: accepted
 v0.1 implementation-sequence: accepted
 V0.1-IS-01 … V0.1-IS-16: accepted
 V01-001 … V01-014: PASS
-v0.1 Core Kernel: implemented/accepted
-v0.2: NOT OPEN
+v0.1 Core Kernel: implemented / independently audited / accepted
+
+v0.2 MicroWorld Interaction design: accepted
+v0.2 implementation-sequence: accepted
+V0.2-IS-01: OPEN
+V0.2-IS-02 … V0.2-IS-14: CLOSED
+v0.2 implementation: active, no accepted implementation step yet
 ```
+
+Одновременно `OPEN` только один implementation step.
+
+---
+
+# 2. Immutable historical boundary v0.1
 
 Final accepted implementation candidate:
 
@@ -47,7 +59,7 @@ third-party runtime dependencies: 0
 future-responsibility scope audit: PASS
 language policy review: PASS
 GitHub Actions run 33424412605
-exact head 3c1ec7f746c040ca49f232c12e5c9ba7bf28e597
+exact implementation head 3c1ec7f746c040ca49f232c12e5c9ba7bf28e597
 Ubuntu Python 3.14: PASS — 366 passed — clean wheel PASS
 Windows Python 3.14: PASS — 366 passed — clean wheel PASS
 AUDIT-PASS
@@ -57,9 +69,25 @@ Canonical detailed evidence:
 
 - [`../versions/v0.1/verification-matrix.md`](../versions/v0.1/verification-matrix.md).
 
+Post-v0.1 documentation consistency cleanup завершён без изменения F31, roadmap, v0.1 code или accepted semantics.
+
+Рекомендуемый immutable tag target **до добавления v0.2 design**:
+
+```text
+b6910164fba150a6bf69e05d385827fb4fe064ac
+```
+
+Tag name:
+
+```text
+v0.1.0
+```
+
+Tag не является GitHub Release и не разрешает publication.
+
 ---
 
-# 2. Canonical entry points
+# 3. Canonical entry points
 
 Semantic baseline:
 
@@ -67,31 +95,41 @@ Semantic baseline:
 - [`contracts/semantic-freeze-manifest.md`](contracts/semantic-freeze-manifest.md);
 - [`ADR-0031`](decisions/ADR-0031-semantic-contract-consistency-freeze.md).
 
-Version/roadmap:
+Roadmap/version governance:
 
 - [`version-roadmap.md`](version-roadmap.md);
+- [`../versions/README.md`](../versions/README.md);
+- [`../versions/codex-step-prompt-template.md`](../versions/codex-step-prompt-template.md), revision `CSPT-02`.
+
+Accepted historical `v0.1`:
+
 - [`../versions/v0.1/README.md`](../versions/v0.1/README.md);
 - [`../versions/v0.1/implementation-sequence.md`](../versions/v0.1/implementation-sequence.md);
 - [`../versions/v0.1/verification-matrix.md`](../versions/v0.1/verification-matrix.md);
-- [`../versions/v0.1/is-06-contract-shape.md`](../versions/v0.1/is-06-contract-shape.md);
-- [`../versions/v0.1/is-07-execution-plan-shape.md`](../versions/v0.1/is-07-execution-plan-shape.md);
-- [`../versions/v0.1/is-07-controlled-construction-correction.md`](../versions/v0.1/is-07-controlled-construction-correction.md);
-- [`../versions/v0.1/is-08-private-state-store-shape.md`](../versions/v0.1/is-08-private-state-store-shape.md);
-- [`../versions/v0.1/is-09-commit-coordinator-shape.md`](../versions/v0.1/is-09-commit-coordinator-shape.md);
-- [`../versions/v0.1/is-09-active-boundary-consistency-correction.md`](../versions/v0.1/is-09-active-boundary-consistency-correction.md);
-- [`../versions/v0.1/is-10-evidence-plane-shape.md`](../versions/v0.1/is-10-evidence-plane-shape.md);
-- [`../versions/v0.1/is-11-wave-scheduler-shape.md`](../versions/v0.1/is-11-wave-scheduler-shape.md);
-- [`../versions/v0.1/is-11-attempt-result-binding-correction.md`](../versions/v0.1/is-11-attempt-result-binding-correction.md);
-- [`../versions/v0.1/is-12-reference-synthetic-shape.md`](../versions/v0.1/is-12-reference-synthetic-shape.md);
-- [`../versions/v0.1/is-13-composition-root-shape.md`](../versions/v0.1/is-13-composition-root-shape.md);
-- [`../versions/v0.1/is-14-intervention-gateway-shape.md`](../versions/v0.1/is-14-intervention-gateway-shape.md);
-- [`../versions/v0.1/is-15-cli-smoke-shape.md`](../versions/v0.1/is-15-cli-smoke-shape.md);
-- [`../versions/v0.1/is-16-acceptance-hardening-shape.md`](../versions/v0.1/is-16-acceptance-hardening-shape.md);
-- [`../versions/codex-step-prompt-template.md`](../versions/codex-step-prompt-template.md), revision `CSPT-02`.
+- accepted clarification/correction docs in `docs/versions/v0.1/`.
+
+Accepted current `v0.2` design:
+
+- [`../versions/v0.2/README.md`](../versions/v0.2/README.md);
+- [`../versions/v0.2/implementation-sequence.md`](../versions/v0.2/implementation-sequence.md).
+
+Canonical owners/contracts обязательные для v0.2:
+
+- `DU-03` Runtime / Temporal Model;
+- `DU-04` CognitiveState;
+- `DU-05` Module Lifecycle;
+- `DU-06` Observability / Intervention;
+- `DU-07` Environment;
+- `DU-08` Perception;
+- `DU-09` Goals;
+- `DU-23` Policy / Planner;
+- `DU-24` Action Boundary;
+- `DU-25` Experience / Data / Replay;
+- соответствующие ADR и semantic contracts.
 
 ---
 
-# 3. Implementation checkpoints v0.1
+# 4. Historical implementation checkpoints v0.1
 
 | Step | Status | Implementation/correction |
 |---|---|---|
@@ -114,9 +152,7 @@ Version/roadmap:
 
 ---
 
-# 4. VerificationObligations
-
-Final `v0.1` reconciliation:
+# 5. VerificationObligations v0.1
 
 ```text
 V01-001: PASS
@@ -135,29 +171,129 @@ V01-013: PASS
 V01-014: PASS
 ```
 
-`v0.1` acceptance scope ограничен Core Kernel и не означает реализацию Environment, Cortex, Memory, learning или других roadmap responsibilities `v0.2+`.
+`v0.1` acceptance scope ограничен Core Kernel и не означает реализацию Environment, Cortex, Memory, learning или других roadmap responsibilities.
 
 ---
 
-# 5. Разрешённая текущая работа
+# 6. Accepted v0.2 exact design gate
 
-Новый implementation step автоматически не открыт.
+`v0.2` принято проектировать/реализовывать как:
 
 ```text
-v0.1 Core Kernel: implemented/accepted
-v0.2 MicroWorld Interaction: CLOSED / design not opened by this transition
+custom stdlib-only symbolic MicroWorld
+strict Agent Interaction Plane / Research Plane capability split
+InteractionRuntime owns external Agent↔Environment lifecycle
+KernelRuntime owns internal Agent execution
+CognitiveScheduler remains COGNITIVE_CYCLE-only
+LifecycleCoordinator handles EPISODE_START / POST_OUTCOME module phases
+runtime-owned CognitiveState ingress через separate BoundaryCommitCoordinator
+structured deterministic CanonicalPercept
+external-task-only Goal System subset
+deterministic Reference Policy, no Planner
+post-authorization pre-dispatch Action Commit
+explicit definite failure / execution_unknown / reconciliation semantics
+append-only typed InMemoryExperienceJournal
+FULL-C0-v0.2 on Ubuntu + Windows / Python 3.14 / CPU-only
 ```
 
-Перед любой работой по `v0.2` требуется отдельный version-design/implementation-sequence gate согласно operational workflow.
+Runtime third-party dependency target:
 
-Нельзя использовать acceptance `v0.1` как разрешение начать coding `v0.2`.
+```text
+0
+```
+
+No F31 change/ADR required by accepted design.
 
 ---
 
-# 6. Operational mode
+# 7. VerificationObligations v0.2
+
+Current obligations defined by accepted version design:
 
 ```text
-CSPT-02: applicable
-MODE-TRANSITION COMPLETE — v0.1 accepted
-No OPEN implementation step
+V02-001 — Canonical trajectory determinism
+V02-002 — Environment snapshot continuation
+V02-003 — Agent/Research plane isolation
+V02-004 — Session/Episode lifecycle
+V02-005 — Decision Window multiplicity
+V02-006 — Correct outcome lineage
+V02-007 — Percept boundary
+V02-008 — Goal authority/lifecycle
+V02-009 — Policy isolation
+V02-010 — Action causal separation
+V02-011 — Action failure taxonomy
+V02-012 — No blind retry / immutable post-commit history
+V02-013 — Journal append-only lineage
+V02-014 — Research annotation isolation
+V02-015 — Termination/truncation/reset semantics
+V02-016 — Scope negative gate
+V02-017 — Build/install/CI reproducibility
 ```
+
+Ни одна `V02-*` пока не имеет final PASS status; coverage наращивается по implementation sequence и закрывается `V0.2-IS-14`.
+
+---
+
+# 8. v0.2 implementation checkpoints
+
+| Step | Status | Result |
+|---|---|---|
+| `V0.2-IS-01` | **OPEN** | Interaction temporal & boundary-state foundation |
+| `V0.2-IS-02` | CLOSED | Lifecycle phases & KernelRuntime context bridge |
+| `V0.2-IS-03` | CLOSED | Environment contracts & capability split |
+| `V0.2-IS-04` | CLOSED | Deterministic MicroWorld core, MW0 & snapshot |
+| `V0.2-IS-05` | CLOSED | Controlled task families & hidden-rule controls |
+| `V0.2-IS-06` | CLOSED | Structured Perception |
+| `V0.2-IS-07` | CLOSED | External-task Goal System subset |
+| `V0.2-IS-08` | CLOSED | Deterministic Reference Policy |
+| `V0.2-IS-09` | CLOSED | Action Boundary, dispatch & reconciliation |
+| `V0.2-IS-10` | CLOSED | Append-only Experience Journal |
+| `V0.2-IS-11` | CLOSED | InteractionRuntime vertical orchestration |
+| `V0.2-IS-12` | CLOSED | v0.2 Composition Root & interaction profile |
+| `V0.2-IS-13` | CLOSED | CLI, clean artifact & CI profile |
+| `V0.2-IS-14` | CLOSED | Version acceptance hardening |
+
+`CLOSED` означает запрещённую implementation work до отдельного transition после audit предыдущего step.
+
+---
+
+# 9. Разрешённая текущая работа
+
+Единственная разрешённая implementation работа:
+
+```text
+V0.2-IS-01 — Interaction temporal & boundary-state foundation
+```
+
+Exact scope/forbidden scope/tests:
+
+- [`../versions/v0.2/implementation-sequence.md`](../versions/v0.2/implementation-sequence.md), section `V0.2-IS-01`.
+
+Запрещено в `IS-01` реализовывать Environment/MicroWorld, lifecycle phases, Perception, Goals, Policy, Action subsystem, Experience Journal, InteractionRuntime, v0.2 config или CLI.
+
+Следующий step автоматически не открывается после Codex completion/commit. Нужен independent ChatGPT audit.
+
+---
+
+# 10. Operational governance
+
+```text
+CSPT-02: applicable without bump
+MODE-DESIGN: COMPLETE
+MODE-TRANSITION: COMPLETE
+OPEN implementation step: V0.2-IS-01 only
+```
+
+`CSPT-02` остаётся достаточным, потому что v0.2-specific verification/evidence rules уже записаны в accepted version README/sequence, а template требует читать их, выполнять targeted + full current regression и честно фиксировать CI evidence.
+
+Workflow после operator push:
+
+```text
+MODE-AUDIT
+→ remote commit
+→ independent diff/code/tests/actions review
+→ AUDIT-PASS / AUDIT-PASS-PENDING-CI / CORRECTION-REQUIRED /
+   DOCUMENTATION-CLARIFICATION-REQUIRED / SEMANTIC-BLOCKER
+```
+
+Только после `AUDIT-PASS` и explicit «Хорошо. Идём дальше.» выполняется next MODE-TRANSITION.
