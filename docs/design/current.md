@@ -20,40 +20,59 @@ Version Roadmap DU-32: accepted
 Current milestone: v0.1 Core Kernel
 v0.1 exact design: accepted
 v0.1 implementation-sequence: accepted
-V0.1-IS-01 … V0.1-IS-13: accepted
-V0.1-IS-14: OPEN
-V0.1-IS-15+: CLOSED
+V0.1-IS-01 … V0.1-IS-14: accepted
+V0.1-IS-15: CLOSED — exact design clarification required
+V0.1-IS-16+: CLOSED
 ```
 
 Последний accepted implementation step:
 
 ```text
-V0.1-IS-13 — Configuration & Composition Root
-b2be887c7238d8d97a99f1b550e7ba73da9e6323
-feat(composition): add configuration and composition root
+V0.1-IS-14 — InterventionGateway
+9b6ca91389dcd05653ef1d8e072fe75984090749
+feat(runtime): add controlled state intervention gateway
 ```
 
 Independent acceptance evidence:
 
 ```text
-Targeted verification: PASS — 33 passed
-FULL-C0 local: PASS — 330 passed
+Targeted verification: PASS — 27 passed
+FULL-C0 local: PASS — 350 passed
 build: PASS
 git diff --check: PASS
-GitHub Actions run 33376628360
-head b2be887c7238d8d97a99f1b550e7ba73da9e6323
-Ubuntu Python 3.14: PASS
+GitHub Actions run 33382166078
+head 9b6ca91389dcd05653ef1d8e072fe75984090749
+Ubuntu Python 3.14: PASS — 350 passed
 Windows Python 3.14: PASS
 AUDIT-PASS
 ```
 
-VerificationObligations после IS-13:
+Final audit подтвердил:
 
-- `V01-007` — composition integration;
-- `V01-012` — closed architecture/composition semantics;
-- `V01-013` — substantial.
+- immutable `StateInterventionWrite` / `StateInterventionSpec` / exact-path `InterventionPolicy`;
+- default-disabled reference runtime и explicit allowlist для research/test composition;
+- exact base binding по `StateRevision + LineageId + BranchId`;
+- schema/policy/value validation до allocation intervention identities;
+- exact allocation order `InterventionId -> LineageId -> BranchId`;
+- one-shot multi-target public treatment публикуется одной новой `StateRevision` или не публикуется вовсе;
+- natural base snapshot остаётся immutable;
+- successful treatment получает новую treatment lineage/branch;
+- semantic field owner не меняется;
+- provenance использует `RuntimeBoundaryId("evaluation.intervention")` и explicit intervention/base refs;
+- O0 evidence exact order `intervention_applied -> state_revision_committed`;
+- evidence failure не заменяет `KernelRuntime.state`;
+- `KernelRuntime.apply_intervention()` доступен только между cognitive cycles;
+- `_cycle_active` reset сохраняется через `try/finally` при scheduler infrastructure failure;
+- subsequent normal cycle продолжает treatment lineage/branch;
+- cognitive modules не получили intervention capability;
+- private/module-result/backend intervention и full fork manager не реализованы.
 
-`V01-013` fully closed только после deterministic CLI smoke (`IS-15`) и final hardening.
+VerificationObligations после IS-14:
+
+- `V01-011` — closed;
+- `V01-009` — intervention lineage extension substantial/closed for v0.1 intervention producer.
+
+Overall `V01-009` final closure остаётся за deterministic end-to-end integration (`IS-15`) и version hardening (`IS-16`).
 
 ---
 
@@ -80,7 +99,7 @@ Version-specific:
 - [`../versions/v0.1/is-11-attempt-result-binding-correction.md`](../versions/v0.1/is-11-attempt-result-binding-correction.md);
 - [`../versions/v0.1/is-12-reference-synthetic-shape.md`](../versions/v0.1/is-12-reference-synthetic-shape.md);
 - [`../versions/v0.1/is-13-composition-root-shape.md`](../versions/v0.1/is-13-composition-root-shape.md);
-- [`../versions/v0.1/is-14-intervention-gateway-shape.md`](../versions/v0.1/is-14-intervention-gateway-shape.md) — accepted exact clarification текущего step;
+- [`../versions/v0.1/is-14-intervention-gateway-shape.md`](../versions/v0.1/is-14-intervention-gateway-shape.md);
 - [`../versions/codex-step-prompt-template.md`](../versions/codex-step-prompt-template.md), revision `CSPT-02`.
 
 ---
@@ -102,60 +121,82 @@ Version-specific:
 | `IS-11` | accepted | `e8aa2fa...` + correction `a0cc9dea...` |
 | `IS-12` | accepted | `39f48959...` |
 | `IS-13` | accepted | `b2be887c...` |
-| `IS-14` | OPEN | implementation not started |
+| `IS-14` | accepted | `9b6ca913...` |
+| `IS-15` | CLOSED — clarification required | implementation not started |
 
 ---
 
-# 4. Разрешённая текущая работа
+# 4. Transition gate перед `V0.1-IS-15`
 
-Открыт ровно один feature coding step:
+Следующий по accepted implementation sequence:
 
 ```text
-V0.1-IS-14 — InterventionGateway
+V0.1-IS-15 — CLI & deterministic end-to-end smoke
 ```
 
-Accepted exact clarification:
+Accepted version design уже фиксирует high-level semantics:
 
-- [`../versions/v0.1/is-14-intervention-gateway-shape.md`](../versions/v0.1/is-14-intervention-gateway-shape.md).
+- console script `mindra` уже объявлен через `mindra.entrypoints:main`;
+- `python -m mindra` делегирует тому же `main()`;
+- CLI использует stdlib `argparse`;
+- требуются `kernel-smoke --profile ...` и `validate-profile --profile ...`;
+- CLI делегирует accepted composition/runtime API и не собирает modules вручную;
+- reference smoke обязан пройти graph `source -> {double,triple} -> join` и получить final join `10`;
+- deterministic repeat должен сравнивать semantic plan, waves, state payload/revisions и logical O0 causal sequence, исключая physical timestamps;
+- `V01-009` и `V01-013` должны закрываться end-to-end evidence этого шага.
 
-Clarification фиксирует:
+Перед coding требуется exact clarification минимум для:
 
-- exact contracts/runtime file split;
-- only one-shot committed public `Available(value)` treatment in v0.1;
-- exact `StateInterventionWrite` / `StateInterventionSpec` base revision+lineage+branch semantics;
-- immutable exact-path `InterventionPolicy`, empty = disabled;
-- no intervention settings in KernelProfile/composition fingerprint;
-- `InterventionRecord` / `InterventionResult`;
-- Gateway validation before identity allocation;
-- exact `InterventionId -> LineageId -> BranchId` allocation order;
-- treatment-derived lineage/branch without claiming paired exact counterfactual clone;
-- semantic owner preservation and `evaluation.intervention` provenance;
-- multi-target all-or-nothing public state publication;
-- exact O0 order `intervention_applied -> state_revision_committed`;
-- default-disabled CompositionRoot/KernelRuntime integration;
-- between-cycle safe boundary and no cognitive capability leak;
-- required contract/integration/state-machine verification.
+- physical CLI/entrypoint file split;
+- exact argparse command/option surface и help behavior;
+- exact stdout/stderr contract для success/failure;
+- exit-code mapping для valid run, invalid profile/configuration и unexpected internal failure;
+- exact `validate-profile` behavior: parse-only либо parse + registry/factory/composition validation;
+- exact `kernel-smoke` assembly path и число cognitive cycles;
+- deterministic `IdFactory` seed/namespace policy для smoke/repeat tests;
+- exact concise success summary fields/order;
+- exact equality normalization для causal evidence sequence;
+- console-script и `python -m mindra` behavioral equivalence;
+- profile path/IO error reporting без traceback как normal configuration failure;
+- subprocess/in-process test matrix и installed-package/build smoke boundary;
+- запрет на stable SDK/output promises сверх v0.1 smoke contract.
 
-`V0.1-IS-15` и последующие steps остаются CLOSED.
+Текущий mode:
+
+```text
+MODE-DESIGN — V0.1-IS-15 exact clarification
+```
+
+До принятия clarification:
+
+```text
+V0.1-IS-15: CLOSED
+V0.1-IS-16+: CLOSED
+```
 
 ---
 
-# 5. VerificationObligations IS-14
+# 5. Разрешённая текущая работа
 
-Expected level после independent acceptance:
+Разрешена только documentation/design работа внутри accepted v0.1 semantics:
 
-- `V01-011` — closed;
-- `V01-009` — intervention lineage extension substantial/closed for v0.1 intervention producer.
+```text
+V0.1-IS-15 exact clarification
+```
 
-Overall `V01-009` final closure остаётся за final integration/hardening по implementation sequence.
+Нельзя:
+
+- начинать CLI/smoke implementation до accepted clarification;
+- выполнять version acceptance hardening (`IS-16`) заранее;
+- менять F31/ADR/version semantics;
+- открывать `IS-16`.
 
 ---
 
 # 6. Operational mode
 
-```text
-CSPT-02: applicable
-MODE-INSTRUCTION — V0.1-IS-14 only
-```
+Canonical template:
 
-Codex не меняет этот status и не открывает следующий step самостоятельно.
+- [`../versions/codex-step-prompt-template.md`](../versions/codex-step-prompt-template.md), revision `CSPT-02`.
+
+`CSPT-02` остаётся применимым, но `MODE-INSTRUCTION` для `IS-15` разрешён только после accepted exact clarification и явного открытия step в этом файле.
