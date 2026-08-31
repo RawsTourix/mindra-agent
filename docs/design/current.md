@@ -21,7 +21,7 @@ Current milestone: v0.1 Core Kernel
 v0.1 exact design: accepted
 v0.1 implementation-sequence: accepted
 V0.1-IS-01 … V0.1-IS-14: accepted
-V0.1-IS-15: CLOSED — exact design clarification required
+V0.1-IS-15: OPEN
 V0.1-IS-16+: CLOSED
 ```
 
@@ -46,26 +46,6 @@ Ubuntu Python 3.14: PASS — 350 passed
 Windows Python 3.14: PASS
 AUDIT-PASS
 ```
-
-Final audit подтвердил:
-
-- immutable `StateInterventionWrite` / `StateInterventionSpec` / exact-path `InterventionPolicy`;
-- default-disabled reference runtime и explicit allowlist для research/test composition;
-- exact base binding по `StateRevision + LineageId + BranchId`;
-- schema/policy/value validation до allocation intervention identities;
-- exact allocation order `InterventionId -> LineageId -> BranchId`;
-- one-shot multi-target public treatment публикуется одной новой `StateRevision` или не публикуется вовсе;
-- natural base snapshot остаётся immutable;
-- successful treatment получает новую treatment lineage/branch;
-- semantic field owner не меняется;
-- provenance использует `RuntimeBoundaryId("evaluation.intervention")` и explicit intervention/base refs;
-- O0 evidence exact order `intervention_applied -> state_revision_committed`;
-- evidence failure не заменяет `KernelRuntime.state`;
-- `KernelRuntime.apply_intervention()` доступен только между cognitive cycles;
-- `_cycle_active` reset сохраняется через `try/finally` при scheduler infrastructure failure;
-- subsequent normal cycle продолжает treatment lineage/branch;
-- cognitive modules не получили intervention capability;
-- private/module-result/backend intervention и full fork manager не реализованы.
 
 VerificationObligations после IS-14:
 
@@ -100,6 +80,7 @@ Version-specific:
 - [`../versions/v0.1/is-12-reference-synthetic-shape.md`](../versions/v0.1/is-12-reference-synthetic-shape.md);
 - [`../versions/v0.1/is-13-composition-root-shape.md`](../versions/v0.1/is-13-composition-root-shape.md);
 - [`../versions/v0.1/is-14-intervention-gateway-shape.md`](../versions/v0.1/is-14-intervention-gateway-shape.md);
+- [`../versions/v0.1/is-15-cli-smoke-shape.md`](../versions/v0.1/is-15-cli-smoke-shape.md) — accepted exact clarification текущего step;
 - [`../versions/codex-step-prompt-template.md`](../versions/codex-step-prompt-template.md), revision `CSPT-02`.
 
 ---
@@ -122,81 +103,59 @@ Version-specific:
 | `IS-12` | accepted | `39f48959...` |
 | `IS-13` | accepted | `b2be887c...` |
 | `IS-14` | accepted | `9b6ca913...` |
-| `IS-15` | CLOSED — clarification required | implementation not started |
+| `IS-15` | OPEN | implementation not started |
 
 ---
 
-# 4. Transition gate перед `V0.1-IS-15`
+# 4. Разрешённая текущая работа
 
-Следующий по accepted implementation sequence:
+Открыт ровно один feature coding step:
 
 ```text
 V0.1-IS-15 — CLI & deterministic end-to-end smoke
 ```
 
-Accepted version design уже фиксирует high-level semantics:
+Accepted exact clarification:
 
-- console script `mindra` уже объявлен через `mindra.entrypoints:main`;
-- `python -m mindra` делегирует тому же `main()`;
-- CLI использует stdlib `argparse`;
-- требуются `kernel-smoke --profile ...` и `validate-profile --profile ...`;
-- CLI делегирует accepted composition/runtime API и не собирает modules вручную;
-- reference smoke обязан пройти graph `source -> {double,triple} -> join` и получить final join `10`;
-- deterministic repeat должен сравнивать semantic plan, waves, state payload/revisions и logical O0 causal sequence, исключая physical timestamps;
-- `V01-009` и `V01-013` должны закрываться end-to-end evidence этого шага.
+- [`../versions/v0.1/is-15-cli-smoke-shape.md`](../versions/v0.1/is-15-cli-smoke-shape.md).
 
-Перед coding требуется exact clarification минимум для:
+Clarification фиксирует:
 
-- physical CLI/entrypoint file split;
-- exact argparse command/option surface и help behavior;
-- exact stdout/stderr contract для success/failure;
-- exit-code mapping для valid run, invalid profile/configuration и unexpected internal failure;
-- exact `validate-profile` behavior: parse-only либо parse + registry/factory/composition validation;
-- exact `kernel-smoke` assembly path и число cognitive cycles;
-- deterministic `IdFactory` seed/namespace policy для smoke/repeat tests;
-- exact concise success summary fields/order;
-- exact equality normalization для causal evidence sequence;
-- console-script и `python -m mindra` behavioral equivalence;
-- profile path/IO error reporting без traceback как normal configuration failure;
-- subprocess/in-process test matrix и installed-package/build smoke boundary;
-- запрет на stable SDK/output promises сверх v0.1 smoke contract.
+- exact `entrypoints/cli.py` + shared `main(argv)` boundary;
+- stdlib argparse surface только `validate-profile --profile` и `kernel-smoke --profile`;
+- standard argparse usage exit `2`;
+- deterministic CLI factories через `NAMESPACE_URL` и fixed v0.1 seeds;
+- `validate-profile` = full CompositionRoot validation без cognitive cycle;
+- `kernel-smoke` = ровно один normal deterministic cycle;
+- canonical success output lines;
+- domain/config failures = stderr + exit `2` без traceback;
+- normal smoke/internal failure = exit `1`;
+- canonical reference output `waves=3 revision=3 join=10`;
+- deterministic repeat normalization plan/state/O0 trace без physical timestamps;
+- behavioral equivalence `mindra` и `python -m mindra`;
+- subprocess installed-console tests внутри locked environment;
+- запрет на duplicate assembly, new runtime semantics и stable SDK/output promises.
 
-Текущий mode:
-
-```text
-MODE-DESIGN — V0.1-IS-15 exact clarification
-```
-
-До принятия clarification:
-
-```text
-V0.1-IS-15: CLOSED
-V0.1-IS-16+: CLOSED
-```
+`V0.1-IS-16` и последующие steps остаются CLOSED.
 
 ---
 
-# 5. Разрешённая текущая работа
+# 5. VerificationObligations IS-15
 
-Разрешена только documentation/design работа внутри accepted v0.1 semantics:
+Expected level после independent acceptance:
 
-```text
-V0.1-IS-15 exact clarification
-```
+- `V01-009` — closed at deterministic v0.1 end-to-end O0 integration;
+- `V01-013` — closed at deterministic runnable reference profile/CLI layer.
 
-Нельзя:
-
-- начинать CLI/smoke implementation до accepted clarification;
-- выполнять version acceptance hardening (`IS-16`) заранее;
-- менять F31/ADR/version semantics;
-- открывать `IS-16`.
+Final milestone acceptance/reconciliation остаётся за `IS-16` verification matrix/hardening.
 
 ---
 
 # 6. Operational mode
 
-Canonical template:
+```text
+CSPT-02: applicable
+MODE-INSTRUCTION — V0.1-IS-15 only
+```
 
-- [`../versions/codex-step-prompt-template.md`](../versions/codex-step-prompt-template.md), revision `CSPT-02`.
-
-`CSPT-02` остаётся применимым, но `MODE-INSTRUCTION` для `IS-15` разрешён только после accepted exact clarification и явного открытия step в этом файле.
+Codex не меняет этот status и не открывает `IS-16` самостоятельно.
