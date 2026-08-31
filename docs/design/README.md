@@ -4,7 +4,9 @@
 
 `docs/design/` — каноническое место общей архитектурной документации MINDRA.
 
-Общий design cycle `DU-00 … DU-32` завершён. Semantic architecture заморожена как baseline `F31`, software roadmap принят, exact design и implementation sequence `v0.1 Core Kernel` приняты. Production implementation ещё не начата.
+Общий design cycle `DU-00 … DU-32` завершён. Semantic architecture заморожена как baseline `F31`, software roadmap принят, а `v0.1 Core Kernel` полностью реализована, независимо проаудирована и принята.
+
+Version-specific exact design и implementation sequence хранятся в `docs/versions/`. Единственный live source of truth текущего implementation status — [`current.md`](current.md).
 
 ---
 
@@ -86,10 +88,13 @@ v0.1 Core Kernel
 → v1.0 MINDRA Research Baseline
 ```
 
-Current version-specific documents:
+Accepted historical `v0.1` documents:
 
 - [`../versions/v0.1/README.md`](../versions/v0.1/README.md) — accepted exact design;
-- [`../versions/v0.1/implementation-sequence.md`](../versions/v0.1/implementation-sequence.md) — accepted `IS-01 … IS-16`.
+- [`../versions/v0.1/implementation-sequence.md`](../versions/v0.1/implementation-sequence.md) — historical accepted `IS-01 … IS-16`;
+- [`../versions/v0.1/verification-matrix.md`](../versions/v0.1/verification-matrix.md) — final acceptance evidence.
+
+Текущие version-specific документы определяются через [`current.md`](current.md) и [`../versions/README.md`](../versions/README.md); этот index не хранит номер live implementation step.
 
 ---
 
@@ -119,15 +124,9 @@ Contracts `DU-07 … DU-30` semantic-frozen для `F31`; exact Python/API/seria
 DU-00 … DU-32 complete
 F31 semantic architecture accepted
 version roadmap accepted
-v0.1 exact design accepted
-v0.1 implementation sequence accepted
-production implementation not started
+v0.1 Core Kernel accepted
 ```
 
-Единственная разрешённая следующая работа:
+Фактический version/implementation gate, включая единственный разрешённый `OPEN` step, хранится только в [`current.md`](current.md).
 
-```text
-V0.1-IS-01 — Project bootstrap & verification shell
-```
-
-После каждого implementation step обязателен verification + ChatGPT audit. Фактический статус: [`current.md`](current.md).
+После каждого implementation step обязателен verification + ChatGPT audit.
