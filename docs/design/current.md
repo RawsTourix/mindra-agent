@@ -20,36 +20,43 @@ Version Roadmap DU-32: accepted
 Current milestone: v0.1 Core Kernel
 v0.1 exact design: accepted
 v0.1 implementation-sequence: accepted
-V0.1-IS-01 … V0.1-IS-11: accepted
-V0.1-IS-12: OPEN
-V0.1-IS-13+: CLOSED
+V0.1-IS-01 … V0.1-IS-12: accepted
+V0.1-IS-13: CLOSED — exact design clarification required
+V0.1-IS-14+: CLOSED
 ```
 
-`V0.1-IS-11 — WaveExecutor & Scheduler` принят после implementation + correction cycle.
-
-Implementation:
+`V0.1-IS-12 — Reference synthetic modules` принят после independent audit implementation commit:
 
 ```text
-e8aa2fa8528b2875c54c010de0777dd266e5bd49
-feat(runtime): add wave executor and cognitive scheduler
+39f48959e385d22a74c18dc4e793464e6fe4af2b
+feat(reference): add synthetic reference modules
 ```
 
-Correction implementation:
+Final audit подтвердил:
+
+- scope ровно `IS-12`: `mindra.reference.synthetic` + exports + focused tests;
+- exact classes `SyntheticSourceModule`, `SyntheticDoubleModule`, `SyntheticTripleModule`, `SyntheticJoinModule`;
+- exact ModuleId / ImplementationId / ImplementationRevision и four canonical int StateKeys;
+- stateless deterministic `COGNITIVE_CYCLE` descriptors;
+- `CURRENT_CYCLE`, required, `Available`-only dependency semantics;
+- source constructor `value: int` с reject `bool`/non-int без artificial range limits;
+- exact arithmetic `source`, `*2`, `*3`, `double + triple`;
+- staged proposal/provenance identities зеркалят `ModuleComputeRequest.context` и own descriptor;
+- `private_state_update=None` для всех reference modules;
+- production `mindra.reference` не импортирует runtime/composition/entrypoints;
+- existing Import Linter contracts остаются green;
+- existing `ExecutionPlanCompiler` для всех 24 descriptor permutations строит exact waves `source -> {double,triple} -> join`;
+- Composition Root/config/registry/schema builder/Scheduler/CommitCoordinator не изменялись.
+
+Verification evidence:
 
 ```text
-a0cc9deae5b35779ffc42d351ed26dea5de30120
-fix(runtime): bind staged results to module attempts
-```
-
-Final verification evidence:
-
-```text
-Targeted correction verification: PASS — 36 passed
-FULL-C0 local: PASS — 281 passed
+Targeted verification: PASS — 16 passed
+FULL-C0 local: PASS — 297 passed
 build: PASS
 git diff --check: PASS
-GitHub Actions run 33183260302
-head a0cc9deae5b35779ffc42d351ed26dea5de30120
+GitHub Actions run 33369411116
+head 39f48959e385d22a74c18dc4e793464e6fe4af2b
 Ubuntu Python 3.14: PASS
 Windows Python 3.14: PASS
 ```
@@ -58,18 +65,15 @@ Final verdict:
 
 ```text
 AUDIT-PASS
-V0.1-IS-11: accepted
+V0.1-IS-12: accepted
 ```
 
-VerificationObligations на предусмотренном `IS-11` уровне:
+VerificationObligations на предусмотренном `IS-12` уровне:
 
-- `V01-001` — closed;
-- `V01-002` — closed at runtime wave level;
-- `V01-008` — runtime closed;
-- `V01-009` — substantial;
-- `V01-010` — closed.
+- `V01-012` — closed at reference/runtime independence layer;
+- `V01-013` — foundation.
 
-`V01-009` полностью не закрывается до последующей composition/intervention producer integration.
+`V01-013` полностью не закрывается до configured runnable reference profile/Composition Root из `IS-13`.
 
 ---
 
@@ -100,7 +104,7 @@ Version-specific source of truth:
 - [`../versions/v0.1/is-10-evidence-plane-shape.md`](../versions/v0.1/is-10-evidence-plane-shape.md) — accepted exact clarification `IS-10`;
 - [`../versions/v0.1/is-11-wave-scheduler-shape.md`](../versions/v0.1/is-11-wave-scheduler-shape.md) — accepted exact clarification `IS-11`;
 - [`../versions/v0.1/is-11-attempt-result-binding-correction.md`](../versions/v0.1/is-11-attempt-result-binding-correction.md) — accepted correction clarification `IS-11`;
-- [`../versions/v0.1/is-12-reference-synthetic-shape.md`](../versions/v0.1/is-12-reference-synthetic-shape.md) — accepted exact clarification текущего `IS-12`;
+- [`../versions/v0.1/is-12-reference-synthetic-shape.md`](../versions/v0.1/is-12-reference-synthetic-shape.md) — accepted exact clarification `IS-12`;
 - [`../versions/codex-step-prompt-template.md`](../versions/codex-step-prompt-template.md) — canonical operational prompt template, revision `CSPT-02`.
 
 ---
@@ -120,78 +124,76 @@ Version-specific source of truth:
 | `IS-09` | accepted | `c11d79e7...` + clarification/correction `a4e99807...` / `978897ad...` |
 | `IS-10` | accepted | `510aad6f...` |
 | `IS-11` | accepted | `e8aa2fa...` + correction `a0cc9dea...` |
-| `IS-12` | OPEN | implementation not started |
+| `IS-12` | accepted | `39f48959...` |
+| `IS-13` | CLOSED — clarification required | implementation not started |
 
 ---
 
-# 4. Разрешённая текущая работа
+# 4. Transition gate перед `V0.1-IS-13`
 
-Открыт ровно один feature coding step:
-
-```text
-V0.1-IS-12 — Reference synthetic modules
-```
-
-Prerequisites `IS-01 … IS-11` приняты.
-
-Для `IS-12` принят exact clarification:
-
-- [`../versions/v0.1/is-12-reference-synthetic-shape.md`](../versions/v0.1/is-12-reference-synthetic-shape.md).
-
-Clarification фиксирует:
-
-- production split `mindra.reference.synthetic`;
-- exact classes `SyntheticSourceModule`, `SyntheticDoubleModule`, `SyntheticTripleModule`, `SyntheticJoinModule`;
-- canonical ModuleIds `synthetic.source/double/triple/join`;
-- canonical ImplementationIds `reference.synthetic_*.v1` и `ImplementationRevision("v1")`;
-- exact int StateKeys `synthetic.*.value`;
-- source immutable constructor setting `value: int`;
-- stateless deterministic `COGNITIVE_CYCLE` descriptors;
-- `CURRENT_CYCLE`, required, `Available`-only dependencies;
-- exact arithmetic `source`, `*2`, `*3`, `double+triple`;
-- ordinary staged proposals/provenance built only from `ModuleComputeRequest.context`;
-- reference → contracts-only production dependency;
-- graph proof through existing `ExecutionPlanCompiler` without production Composition Root.
-
-Expected plan:
+Следующий по accepted implementation sequence:
 
 ```text
-Wave 0: synthetic.source
-Wave 1: synthetic.double | synthetic.triple
-Wave 2: synthetic.join
+V0.1-IS-13 — Configuration & Composition Root
 ```
 
-For source `2`:
+Accepted v0.1 design уже фиксирует крупные semantics:
+
+- profile schema `mindra.kernel-profile/v1` и stdlib TOML;
+- immutable explicit `ImplementationRegistry` без import-time registration;
+- `CompositionRoot` как единственную production assembly boundary;
+- construction modules/schema/initial state/private store/plan/evidence/scheduler/runtime facade;
+- deterministic composition fingerprint;
+- schema-complete initial state с explicit availability и `StateRevision = 0`;
+- `KernelRuntime.run_cycle()` facade;
+- reference profile/config и `composition_resolved` / `plan_compiled` evidence.
+
+Но implementation sequence/version design ещё оставляют choices, которые нельзя отдавать Codex на самостоятельный архитектурный выбор. Перед coding требуется exact clarification минимум для:
+
+- physical package/file split `mindra.composition` и runtime facade ownership;
+- exact `KernelProfile` / module profile value-object shapes и parser API;
+- exact allowed/required TOML keys и strict unknown-key behavior на каждом уровне;
+- exact `ImplementationRegistry` / factory descriptor API, duplicate handling и immutable settings boundary;
+- exact reference factory settings validation (`SyntheticSourceModule.value` и no-settings modules);
+- schema construction source-of-truth из active descriptors/reference keys;
+- initial `CognitiveState` entries/availability/provenance/logical-time identities;
+- initial private-state construction for stateless/current supported modules;
+- exact composition revision / AgentRevisionId / lineage / branch / run-session identity ownership;
+- canonical normalized composition fingerprint representation;
+- exact `KernelRuntime` constructor/public surface and `run_cycle()` lifecycle/ID ownership;
+- exact `composition_resolved` / `plan_compiled` event timing and payload construction;
+- exact `configs/v0.1/reference.toml` contents;
+- failure/cleanup ordering so partial composition objects are not externally published.
+
+Текущий mode:
 
 ```text
-source = 2
-double = 4
-triple = 6
-join = 10
+MODE-DESIGN — V0.1-IS-13 exact clarification
 ```
 
-Required tests минимум:
+До принятия clarification:
 
 ```text
-tests/contract/test_reference_modules.py
-tests/architecture/test_reference_independence.py
-tests/integration/test_reference_plan.py
+V0.1-IS-13: CLOSED
+V0.1-IS-14+: CLOSED
 ```
-
-После targeted green обязателен полный `FULL-C0` и `git diff --check`.
-
-`V0.1-IS-13` и последующие steps остаются CLOSED.
 
 ---
 
-# 5. VerificationObligations текущего step
+# 5. Разрешённая текущая работа
 
-Ожидаемый уровень после accepted `IS-12`:
+Разрешена только documentation/design работа внутри accepted v0.1 semantics:
 
-- `V01-012` — closed at reference/runtime independence layer;
-- `V01-013` — foundation.
+```text
+V0.1-IS-13 exact clarification
+```
 
-`V01-013` fully closed не считается до configured runnable reference profile/Composition Root из `IS-13`.
+Нельзя:
+
+- начинать production Configuration/Composition Root implementation до accepted clarification;
+- реализовывать Intervention (`IS-14`);
+- менять F31/ADR/version semantics;
+- открывать `IS-14`.
 
 ---
 
@@ -201,32 +203,4 @@ Canonical template:
 
 - [`../versions/codex-step-prompt-template.md`](../versions/codex-step-prompt-template.md), revision `CSPT-02`.
 
-Applicability check:
-
-- verification semantics не изменились;
-- CI semantics не изменились;
-- reporting fields не изменились;
-- commit/push policy не изменился;
-- step-specific exact API/invariants добавлены clarification поверх template.
-
-Результат:
-
-```text
-CSPT-02: applicable
-MODE-INSTRUCTION разрешён только для V0.1-IS-12
-```
-
-Codex не открывает следующий implementation step самостоятельно.
-
----
-
-# 7. Ограничения
-
-- не переходить к `V0.1-IS-13` до independent acceptance `IS-12`;
-- не реализовывать Configuration/Composition Root/KernelRuntime/profile TOML заранее;
-- не создавать production registry/factory/schema builder в `IS-12`;
-- не реализовывать Intervention/CLI;
-- implementation-level correction допустима только внутри accepted `v0.1` semantics;
-- semantic blocker требует design review и нового ADR/freeze update;
-- Codex не меняет самостоятельно accepted version design/F31 и не открывает следующий implementation step;
-- live current status не дублировать в `AGENTS.md`, `docs/README.md` или `docs/versions/README.md`.
+`CSPT-02` остаётся применимым, но `MODE-INSTRUCTION` для `IS-13` разрешён только после accepted exact clarification и явного открытия step в этом файле.
