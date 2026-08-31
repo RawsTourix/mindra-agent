@@ -66,7 +66,7 @@ accepted previous step
 | Версия | Статус | Название |
 |---|---|---|
 | `v0.1` | accepted | Core Kernel |
-| `v0.2` | planned | MicroWorld Interaction |
+| `v0.2` | design + implementation sequence accepted | MicroWorld Interaction |
 | `v0.3` | planned | Cortex Gateway |
 | `v0.4` | planned | Memory & Restore |
 | `v0.5` | planned | World & Self |
@@ -84,6 +84,11 @@ Accepted historical baseline:
 - [`v0.1/README.md`](v0.1/README.md) — accepted exact design `Core Kernel`;
 - [`v0.1/implementation-sequence.md`](v0.1/implementation-sequence.md) — historical accepted sequence `V0.1-IS-01 … V0.1-IS-16`;
 - [`v0.1/verification-matrix.md`](v0.1/verification-matrix.md) — final verification evidence.
+
+Accepted current version design:
+
+- [`v0.2/README.md`](v0.2/README.md) — accepted exact design `MicroWorld Interaction`;
+- [`v0.2/implementation-sequence.md`](v0.2/implementation-sequence.md) — accepted dependency-ordered implementation sequence.
 
 Accepted step-specific clarification/correction docs и live version status перечисляются в [`../design/current.md`](../design/current.md), который является единственным live status.
 
