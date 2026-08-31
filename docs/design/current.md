@@ -21,7 +21,7 @@ Current milestone: v0.1 Core Kernel
 v0.1 exact design: accepted
 v0.1 implementation-sequence: accepted
 V0.1-IS-01 … V0.1-IS-13: accepted
-V0.1-IS-14: CLOSED — exact design clarification required
+V0.1-IS-14: OPEN
 V0.1-IS-15+: CLOSED
 ```
 
@@ -46,22 +46,6 @@ Ubuntu Python 3.14: PASS
 Windows Python 3.14: PASS
 AUDIT-PASS
 ```
-
-Final audit подтвердил:
-
-- strict immutable `mindra.kernel-profile/v1` TOML parsing;
-- canonical reference profile `ProfileId("v0_1.reference")`;
-- immutable explicit `ImplementationRegistry` без global/import-time registration;
-- strict reference factory settings validation;
-- deterministic normalized SHA-256 composition fingerprint;
-- schema-complete initial `CognitiveState` с revision 0 и `Unknown` fields;
-- initial runtime-boundary provenance `composition.initial_state`;
-- explicit `CompositionRoot` как единственную assembly boundary;
-- narrow `KernelRuntime.run_cycle()` с новым `CognitiveCycleId` на cycle и pinned outer scopes;
-- failed later wave сохраняет earlier committed state в facade;
-- root evidence exact order `composition_resolved -> plan_compiled`;
-- reference runtime реально исполняет `2 -> 4/6 -> 10`;
-- runtime/reference не импортируют composition, global Service Locator отсутствует.
 
 VerificationObligations после IS-13:
 
@@ -96,6 +80,7 @@ Version-specific:
 - [`../versions/v0.1/is-11-attempt-result-binding-correction.md`](../versions/v0.1/is-11-attempt-result-binding-correction.md);
 - [`../versions/v0.1/is-12-reference-synthetic-shape.md`](../versions/v0.1/is-12-reference-synthetic-shape.md);
 - [`../versions/v0.1/is-13-composition-root-shape.md`](../versions/v0.1/is-13-composition-root-shape.md);
+- [`../versions/v0.1/is-14-intervention-gateway-shape.md`](../versions/v0.1/is-14-intervention-gateway-shape.md) — accepted exact clarification текущего step;
 - [`../versions/codex-step-prompt-template.md`](../versions/codex-step-prompt-template.md), revision `CSPT-02`.
 
 ---
@@ -117,82 +102,60 @@ Version-specific:
 | `IS-11` | accepted | `e8aa2fa...` + correction `a0cc9dea...` |
 | `IS-12` | accepted | `39f48959...` |
 | `IS-13` | accepted | `b2be887c...` |
-| `IS-14` | CLOSED — clarification required | implementation not started |
+| `IS-14` | OPEN | implementation not started |
 
 ---
 
-# 4. Transition gate перед `V0.1-IS-14`
+# 4. Разрешённая текущая работа
 
-Следующий по accepted implementation sequence:
+Открыт ровно один feature coding step:
 
 ```text
 V0.1-IS-14 — InterventionGateway
 ```
 
-Accepted design уже фиксирует крупные semantics:
+Accepted exact clarification:
 
-- interventions default disabled в reference runtime;
-- research/test runtime использует explicit allowlist;
-- intervention применяется только к committed safe boundary;
-- schema/value validation сохраняется;
-- public intervention создаёт новую committed `StateRevision`;
-- semantic owner StateField не меняется;
-- provenance явно содержит `InterventionId` и не masquerade как natural module write;
-- Evidence Plane получает `intervention_applied`;
-- arbitrary private-state mutation отсутствует.
+- [`../versions/v0.1/is-14-intervention-gateway-shape.md`](../versions/v0.1/is-14-intervention-gateway-shape.md).
 
-Перед coding требуется exact clarification минимум для:
+Clarification фиксирует:
 
-- physical contracts/runtime file split;
-- exact `StateInterventionSpec` fields и construction invariants;
-- exact `InterventionPolicy` / allowlist representation и default-disabled behavior;
-- exact `InterventionGateway` constructor/public method surface;
-- ownership `InterventionId` и shared `IdFactory` integration;
-- exact accepted committed-state base/freshness validation;
-- target-path canonicalization, duplicates и multi-write atomicity;
-- exact intervention provenance `StateProvenance` fields/source/parent/intervention refs;
-- exact result/record shapes и revision semantics;
-- exact `InterventionAppliedEvent` timing/payload ordering;
-- integration boundary с `KernelRuntime` без cognitive module capability leak;
-- failure behavior и no-partial-publication guarantee;
-- tests/state-machine coverage и reference runtime disabled path.
+- exact contracts/runtime file split;
+- only one-shot committed public `Available(value)` treatment in v0.1;
+- exact `StateInterventionWrite` / `StateInterventionSpec` base revision+lineage+branch semantics;
+- immutable exact-path `InterventionPolicy`, empty = disabled;
+- no intervention settings in KernelProfile/composition fingerprint;
+- `InterventionRecord` / `InterventionResult`;
+- Gateway validation before identity allocation;
+- exact `InterventionId -> LineageId -> BranchId` allocation order;
+- treatment-derived lineage/branch without claiming paired exact counterfactual clone;
+- semantic owner preservation and `evaluation.intervention` provenance;
+- multi-target all-or-nothing public state publication;
+- exact O0 order `intervention_applied -> state_revision_committed`;
+- default-disabled CompositionRoot/KernelRuntime integration;
+- between-cycle safe boundary and no cognitive capability leak;
+- required contract/integration/state-machine verification.
 
-Текущий mode:
-
-```text
-MODE-DESIGN — V0.1-IS-14 exact clarification
-```
-
-До принятия clarification:
-
-```text
-V0.1-IS-14: CLOSED
-V0.1-IS-15+: CLOSED
-```
+`V0.1-IS-15` и последующие steps остаются CLOSED.
 
 ---
 
-# 5. Разрешённая текущая работа
+# 5. VerificationObligations IS-14
 
-Разрешена только documentation/design работа внутри accepted v0.1 semantics:
+Expected level после independent acceptance:
 
-```text
-V0.1-IS-14 exact clarification
-```
+- `V01-011` — closed;
+- `V01-009` — intervention lineage extension substantial/closed for v0.1 intervention producer.
 
-Нельзя:
-
-- начинать production InterventionGateway implementation до accepted clarification;
-- реализовывать CLI (`IS-15`);
-- менять F31/ADR/version semantics;
-- открывать `IS-15`.
+Overall `V01-009` final closure остаётся за final integration/hardening по implementation sequence.
 
 ---
 
 # 6. Operational mode
 
-Canonical template:
+```text
+CSPT-02: applicable
+MODE-INSTRUCTION — V0.1-IS-14 only
+```
 
-- [`../versions/codex-step-prompt-template.md`](../versions/codex-step-prompt-template.md), revision `CSPT-02`.
-
-`CSPT-02` остаётся применимым, но `MODE-INSTRUCTION` для `IS-14` разрешён только после accepted exact clarification и явного открытия step в этом файле.
+Codex не меняет этот status и не открывает следующий step самостоятельно.
