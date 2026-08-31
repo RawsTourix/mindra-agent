@@ -28,14 +28,22 @@ def test_runtime_and_reference_do_not_import_composition() -> None:
     )
 
 
-def test_entrypoints_do_not_assemble_composition_ahead_of_is_15() -> None:
+def test_entrypoints_use_only_public_composition_and_runtime_boundaries() -> None:
     paths = (*Path("src/mindra/entrypoints").glob("*.py"), Path("src/mindra/__main__.py"))
-    assert all(
-        not any(
-            name == "mindra.composition" or name.startswith("mindra.composition.")
-            for name in _production_imports(path)
+    imported = {name for path in paths for name in _production_imports(path)}
+
+    assert "mindra.reference.synthetic" not in imported
+    assert not any(
+        name.startswith(
+            (
+                "mindra.runtime.commit",
+                "mindra.runtime.intervention",
+                "mindra.runtime.private_state",
+                "mindra.runtime.scheduler",
+                "mindra.runtime.state_store",
+            )
         )
-        for path in paths
+        for name in imported
     )
 
 

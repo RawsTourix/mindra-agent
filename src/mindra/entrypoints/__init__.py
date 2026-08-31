@@ -1,10 +1,5 @@
 """Пользовательские точки входа MINDRA."""
 
-
-def main() -> int:
-    """Сообщить о текущем состоянии начальной настройки командной строки."""
-    print("MINDRA v0.1: команды Core Kernel ещё не реализованы.")
-    return 0
-
+from mindra.entrypoints.cli import main
 
 __all__ = ["main"]
