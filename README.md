@@ -36,13 +36,9 @@ v0.1 Core Kernel
 → v1.0 MINDRA Research Baseline
 ```
 
-Для **`v0.1 Core Kernel`** приняты exact version design и dependency-ordered implementation sequence.
+`v0.1 Core Kernel` полностью реализована, независимо проаудирована и принята. Exact design, историческая implementation sequence и verification evidence сохранены в version-specific документации.
 
-Production/research implementation ещё не начата. Первый разрешённый coding step:
-
-```text
-V0.1-IS-01 — Project bootstrap & verification shell
-```
+Следующая software version проектируется только после отдельного version-design gate. Фактический live status и единственный разрешённый implementation step всегда определяет [`docs/design/current.md`](docs/design/current.md); этот README намеренно не дублирует номер текущего `IS`.
 
 Каждый implementation step выполняется отдельно и перед переходом к следующему проходит verification + ChatGPT audit.
 
@@ -80,10 +76,11 @@ Roadmap:
 - [`docs/design/version-roadmap.md`](docs/design/version-roadmap.md)
 - [`docs/versions/README.md`](docs/versions/README.md)
 
-Текущая версия:
+Принятая историческая версия `v0.1`:
 
 - [`docs/versions/v0.1/README.md`](docs/versions/v0.1/README.md)
 - [`docs/versions/v0.1/implementation-sequence.md`](docs/versions/v0.1/implementation-sequence.md)
+- [`docs/versions/v0.1/verification-matrix.md`](docs/versions/v0.1/verification-matrix.md)
 
 Фактический текущий статус:
 
