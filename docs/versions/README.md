@@ -61,11 +61,11 @@ accepted previous step
 
 ---
 
-# Планируемые milestones
+# Software milestones
 
 | Версия | Статус | Название |
 |---|---|---|
-| `v0.1` | implementation in progress | Core Kernel |
+| `v0.1` | accepted | Core Kernel |
 | `v0.2` | planned | MicroWorld Interaction |
 | `v0.3` | planned | Cortex Gateway |
 | `v0.4` | planned | Memory & Restore |
@@ -79,12 +79,13 @@ accepted previous step
 | `v0.12` | planned | Integration Hardening |
 | `v1.0` | planned | MINDRA Research Baseline |
 
-Текущая версия:
+Accepted historical baseline:
 
 - [`v0.1/README.md`](v0.1/README.md) — accepted exact design `Core Kernel`;
-- [`v0.1/implementation-sequence.md`](v0.1/implementation-sequence.md) — accepted sequence `V0.1-IS-01 … V0.1-IS-16`.
+- [`v0.1/implementation-sequence.md`](v0.1/implementation-sequence.md) — historical accepted sequence `V0.1-IS-01 … V0.1-IS-16`;
+- [`v0.1/verification-matrix.md`](v0.1/verification-matrix.md) — final verification evidence.
 
-Accepted step-specific clarification/correction docs текущей версии перечисляются в [`../design/current.md`](../design/current.md), который является единственным live status.
+Accepted step-specific clarification/correction docs и live version status перечисляются в [`../design/current.md`](../design/current.md), который является единственным live status.
 
 Этот version index намеренно не дублирует номер текущего `IS`.
 
@@ -141,12 +142,9 @@ Accepted step-specific clarification/correction docs текущей версии
 
 # Verification workflow
 
-Для `v0.1` после `IS-01` каждый Codex task перед отчётом обязан выполнить:
+Каждая active version определяет свой полный local regression profile поверх обязательной engineering verification foundation.
 
-1. targeted verification своего step;
-2. полный `FULL-C0` regression gate;
-3. CI status/evidence для remote commit, если доступно;
-4. предложить краткое название коммита в стиле Conventional Commits.
+Для исторической `v0.1` после `IS-01` использовался `FULL-C0`: targeted verification каждого step, полный local regression gate, CI status/evidence и independent audit после push.
 
 Если изменения ещё не находятся на remote commit или среда Codex не имеет доступа к Actions, статус фиксируется как `PENDING`/`NOT AVAILABLE`, а не `PASS`.
 
@@ -164,6 +162,7 @@ Accepted step-specific clarification/correction docs текущей версии
 
 Именно он определяет:
 
+- какие version designs/sequences приняты;
 - какие steps accepted;
 - какой step `OPEN`;
 - какие последующие steps `CLOSED`;
@@ -171,5 +170,3 @@ Accepted step-specific clarification/correction docs текущей версии
 - какие implementation/correction commits считаются принятыми.
 
 Нельзя копировать live step number в этот README или другие index docs: такая информация быстро становится stale.
-
-Нельзя начинать `v0.2` до полного acceptance gate `v0.1`.
