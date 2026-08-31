@@ -7,18 +7,13 @@
 **Semantic baseline:** `F31`  
 **Roadmap owner:** `docs/design/version-roadmap.md`  
 **Implementation sequence:** [`implementation-sequence.md`](implementation-sequence.md) — `accepted`  
-**Implementation:** не начата
+**Implementation:** `implemented / independently audited / accepted`
 
 Этот документ конкретизирует foundation semantics `DU-01 … DU-06` и Engineering Verification foundation `DU-29` в exact software profile первой версии.
 
 Он не меняет `F31` и не вводит новую cognitive semantics.
 
-Перед реализацией обязательны:
-
-- этот README со статусом `accepted`;
-- `implementation-sequence.md` со статусом `accepted`.
-
-Оба условия выполнены. Coding выполняется только по одному implementation step за задачу, начиная с `V0.1-IS-01`.
+Историческая implementation sequence `V0.1-IS-01 … V0.1-IS-16` выполнена и принята. Финальное verification evidence зафиксировано в [`verification-matrix.md`](verification-matrix.md). Единственный live source of truth текущего implementation status — [`../../design/current.md`](../../design/current.md).
 
 ---
 
@@ -1634,10 +1629,12 @@ Dependency-ordered реализация определена в:
 docs/versions/v0.1/implementation-sequence.md
 ```
 
-Первый и единственный разрешённый coding step на старте:
+Исторический implementation gate закрыт:
 
 ```text
-V0.1-IS-01 — Project bootstrap & verification shell
+V0.1-IS-01 … V0.1-IS-16: accepted
+V01-001 … V01-014: PASS
+v0.1 Core Kernel: implemented / independently audited / accepted
 ```
 
-Следующий step открывается только после implementation + verification + ChatGPT audit предыдущего шага.
+Дальнейший live implementation status хранится только в `docs/design/current.md`.
