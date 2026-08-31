@@ -21,10 +21,11 @@ Current milestone: v0.1 Core Kernel
 v0.1 exact design: accepted
 v0.1 implementation-sequence: accepted
 V0.1-IS-01 … V0.1-IS-15: accepted
-V0.1-IS-16: CLOSED — exact acceptance-hardening clarification required
+V0.1-IS-16: OPEN — Version acceptance hardening
+v0.1 milestone acceptance: NOT YET
 ```
 
-Последний accepted implementation step:
+Последний accepted feature implementation step:
 
 ```text
 V0.1-IS-15 — CLI & deterministic end-to-end smoke
@@ -46,7 +47,7 @@ Windows Python 3.14: PASS
 AUDIT-PASS
 ```
 
-Final audit подтвердил:
+Final IS-15 audit подтвердил:
 
 - thin stdlib argparse entrypoint поверх public Composition Root/runtime API;
 - exact commands `validate-profile --profile` и `kernel-smoke --profile`;
@@ -65,7 +66,7 @@ VerificationObligations после IS-15:
 - `V01-009` — closed at deterministic v0.1 end-to-end O0 integration;
 - `V01-013` — closed at deterministic runnable reference profile/CLI layer.
 
-Final milestone acceptance и `V01-014` остаются за `IS-16` version acceptance hardening.
+Final reconciliation всех `V01-001 … V01-014` и milestone acceptance выполняется только через `IS-16` + independent final audit.
 
 ---
 
@@ -94,6 +95,7 @@ Version-specific:
 - [`../versions/v0.1/is-13-composition-root-shape.md`](../versions/v0.1/is-13-composition-root-shape.md);
 - [`../versions/v0.1/is-14-intervention-gateway-shape.md`](../versions/v0.1/is-14-intervention-gateway-shape.md);
 - [`../versions/v0.1/is-15-cli-smoke-shape.md`](../versions/v0.1/is-15-cli-smoke-shape.md);
+- [`../versions/v0.1/is-16-acceptance-hardening-shape.md`](../versions/v0.1/is-16-acceptance-hardening-shape.md) — accepted exact clarification текущего step;
 - [`../versions/codex-step-prompt-template.md`](../versions/codex-step-prompt-template.md), revision `CSPT-02`.
 
 ---
@@ -117,68 +119,61 @@ Version-specific:
 | `IS-13` | accepted | `b2be887c...` |
 | `IS-14` | accepted | `9b6ca913...` |
 | `IS-15` | accepted | `657b8140...` |
-| `IS-16` | CLOSED — clarification required | acceptance hardening not started |
+| `IS-16` | OPEN | acceptance hardening only |
 
 ---
 
-# 4. Transition gate перед `V0.1-IS-16`
+# 4. Разрешённая текущая работа
 
-Следующий и последний step accepted implementation sequence:
+Открыт ровно один final hardening step:
 
 ```text
 V0.1-IS-16 — Version acceptance hardening
 ```
 
-Это не feature step. Sequence уже требует:
+Accepted exact clarification:
 
-- исправлять только реальные defects внутри accepted semantics;
-- создать `docs/versions/v0.1/verification-matrix.md`;
-- дать explicit evidence для `V01-001 … V01-014`;
-- проверить Linux/Windows CI gates;
-- проверить clean locked build/install reproducibility;
-- подтвердить runtime dependencies = 0 third-party;
-- проверить documentation/comment language policy;
-- проверить отсутствие future cognitive responsibilities;
-- выполнить final FULL-C0 + canonical CLI smoke;
-- не переводить milestone в accepted самостоятельно.
+- [`../versions/v0.1/is-16-acceptance-hardening-shape.md`](../versions/v0.1/is-16-acceptance-hardening-shape.md).
 
-Перед Codex task требуется exact acceptance-hardening clarification минимум для:
+Clarification фиксирует:
 
-- exact schema/columns/status vocabulary `verification-matrix.md`;
-- canonical mapping каждого `V01-001 … V01-014` к tests/specs/commands;
-- format evidence refs для local verification и GitHub Actions;
-- exact clean-build/install procedure и что считать `V01-014 PASS`;
-- package/runtime dependency audit procedure;
-- source documentation/comment language-policy audit scope;
-- forbidden-future-responsibility audit scope;
-- handling обнаруженного defect: correction vs documentation-only evidence;
-- required final CLI/build commands и evidence capture;
-- final Codex report shape перед independent ChatGPT milestone acceptance audit.
+- exact schema/status vocabulary `verification-matrix.md`;
+- canonical mapping `V01-001 … V01-014` к tests/commands;
+- repository acceptance-scope architecture test;
+- mechanical zero-third-party runtime dependency audit;
+- clean built-wheel install/smoke в fresh temp Python 3.14 venv;
+- extension existing Linux/Windows CI теми же artifact/CLI gates;
+- language policy manual-review boundary;
+- future cognitive responsibility scope audit;
+- minimal-defect-only correction rule;
+- `V01-014 = PENDING-CI` до exact post-push candidate run;
+- запрет Codex самостоятельно принимать milestone.
 
-До принятия clarification:
-
-```text
-V0.1-IS-16: CLOSED
-v0.1 milestone acceptance: NOT YET
-```
+Новые features в IS-16 запрещены.
 
 ---
 
-# 5. Разрешённая текущая работа
+# 5. VerificationObligations IS-16
 
-Разрешена только documentation/design работа:
+До operator push ожидаемый Codex handoff:
 
 ```text
-V0.1-IS-16 exact acceptance-hardening clarification
+V01-001 … V01-013: PASS
+V01-014: PENDING-CI
+Post-push CI: PENDING
+v0.1 milestone acceptance: NOT YET
 ```
 
-Нельзя:
+После operator push independent ChatGPT final audit обязан проверить exact candidate SHA на Ubuntu/Windows и только затем может:
 
-- добавлять новые features;
-- делать refactor «на будущее»;
-- начинать v0.2;
-- менять F31/ADR/version semantics;
-- объявлять v0.1 accepted до final independent audit.
+```text
+V01-014 -> PASS
+V01-001 … V01-014 -> PASS
+V0.1-IS-16 -> accepted
+v0.1 Core Kernel -> implemented/accepted
+```
+
+`v0.2` автоматически не открывается.
 
 ---
 
@@ -186,7 +181,7 @@ V0.1-IS-16 exact acceptance-hardening clarification
 
 ```text
 CSPT-02: applicable
-MODE-DESIGN — V0.1-IS-16 exact acceptance-hardening clarification
+MODE-INSTRUCTION — V0.1-IS-16 only
 ```
 
-После accepted clarification и явного открытия IS-16 будет разрешён только hardening/verification task.
+Codex не меняет этот status и не объявляет milestone accepted самостоятельно.
