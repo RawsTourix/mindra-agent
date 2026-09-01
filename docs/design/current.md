@@ -26,10 +26,10 @@ v0.1 Core Kernel: implemented / independently audited / accepted
 
 v0.2 MicroWorld Interaction design: accepted
 v0.2 implementation-sequence: accepted
-V0.2-IS-01: accepted
-V0.2-IS-02: OPEN
-V0.2-IS-03 … V0.2-IS-14: CLOSED
-v0.2 implementation: active, 1 accepted implementation step
+V0.2-IS-01 … V0.2-IS-02: accepted
+V0.2-IS-03: OPEN
+V0.2-IS-04 … V0.2-IS-14: CLOSED
+v0.2 implementation: active, 2 accepted implementation steps
 ```
 
 Одновременно `OPEN` только один implementation step.
@@ -114,9 +114,10 @@ Accepted current `v0.2` design:
 - [`../versions/v0.2/README.md`](../versions/v0.2/README.md);
 - [`../versions/v0.2/implementation-sequence.md`](../versions/v0.2/implementation-sequence.md).
 
-Current mandatory step-specific clarification:
+Accepted step-specific clarifications:
 
-- [`../versions/v0.2/is-02-lifecycle-runtime-shape.md`](../versions/v0.2/is-02-lifecycle-runtime-shape.md) — accepted exact shape для `V0.2-IS-02`.
+- [`../versions/v0.2/is-02-lifecycle-runtime-shape.md`](../versions/v0.2/is-02-lifecycle-runtime-shape.md) — accepted exact shape для `V0.2-IS-02`;
+- [`../versions/v0.2/is-03-environment-contract-shape.md`](../versions/v0.2/is-03-environment-contract-shape.md) — **current mandatory** accepted exact shape для `V0.2-IS-03`.
 
 Canonical owners/contracts обязательные для v0.2:
 
@@ -235,12 +236,12 @@ V02-016 — Scope negative gate
 V02-017 — Build/install/CI reproducibility
 ```
 
-Accepted coverage после `V0.2-IS-01`:
+Accepted coverage после `V0.2-IS-02`:
 
 ```text
-V02-004 — foundation coverage accepted
-V02-005 — temporal foundation coverage accepted
-V02-016 — architecture/regression coverage accepted
+V02-004 — lifecycle foundation coverage accepted
+V02-005 — substantial Decision Window multiplicity coverage accepted
+V02-016 — architecture/regression layer coverage accepted
 ```
 
 Ни одна `V02-*` пока не имеет final version-wide PASS status; coverage наращивается по implementation sequence и закрывается `V0.2-IS-14`.
@@ -252,8 +253,8 @@ V02-016 — architecture/regression coverage accepted
 | Step | Status | Result |
 |---|---|---|
 | `V0.2-IS-01` | accepted | `5ddc0daff12536e080c9fd1bc50476464109a455` — Interaction temporal & boundary-state foundation |
-| `V0.2-IS-02` | **OPEN** | Lifecycle phases & KernelRuntime context bridge |
-| `V0.2-IS-03` | CLOSED | Environment contracts & capability split |
+| `V0.2-IS-02` | accepted | `c3f2dfb411c92d3048bd833732fdc18d696ec282` — Lifecycle phases & KernelRuntime context bridge |
+| `V0.2-IS-03` | **OPEN** | Environment contracts & capability split |
 | `V0.2-IS-04` | CLOSED | Deterministic MicroWorld core, MW0 & snapshot |
 | `V0.2-IS-05` | CLOSED | Controlled task families & hidden-rule controls |
 | `V0.2-IS-06` | CLOSED | Structured Perception |
@@ -324,51 +325,115 @@ clean wheel verification: PASS
 
 ---
 
-# 10. Разрешённая текущая работа
+# 10. Accepted evidence V0.2-IS-02
+
+Implementation commit:
+
+```text
+c3f2dfb411c92d3048bd833732fdc18d696ec282
+feat(v0.2): add lifecycle runtime context bridge
+```
+
+Independent audit:
+
+```text
+repository/commit: PASS
+scope: PASS
+F31 / v0.2 exact design: PASS
+phase ownership: PASS
+LifecycleCoordinator atomicity: PASS
+CognitiveScheduler separation: PASS
+CognitiveCycleId ownership: PASS
+O0 lifecycle evidence: PASS
+intervention boundary: PASS
+v0.1 regression: PASS
+AUDIT-PASS
+```
+
+Local implementation evidence reported and independently reconciled:
+
+```text
+required IS-02 trio: PASS — 16 passed
+affected compiler/module/scheduler/commit/evidence subset: PASS — 182 passed
+ruff: PASS
+format: PASS — 257 files
+mypy --strict: PASS — 102 source files
+Import Linter: PASS — 3 kept / 0 broken
+full pytest: PASS — 407 passed
+uv build: PASS
+v0.1 validate-profile: PASS — modules=4 waves=3
+v0.1 kernel-smoke: PASS — waves=3 revision=3 join=10
+git diff --check: PASS
+```
+
+Remote exact-HEAD CI:
+
+```text
+GitHub Actions run 33494536923
+head c3f2dfb411c92d3048bd833732fdc18d696ec282
+FULL-C0 ubuntu-latest / Python 3.14: PASS — 407 passed
+FULL-C0 windows-latest / Python 3.14: PASS
+locked install: PASS
+ruff / format / mypy / import contracts: PASS
+canonical v0.1 CLI: PASS
+wheel + sdist build: PASS
+clean wheel verification: PASS
+```
+
+---
+
+# 11. Разрешённая текущая работа
 
 Единственная разрешённая implementation работа:
 
 ```text
-V0.2-IS-02 — Lifecycle phases & KernelRuntime context bridge
+V0.2-IS-03 — Environment contracts & capability split
 ```
 
 Обязательные sources текущего step:
 
-- [`../versions/v0.2/implementation-sequence.md`](../versions/v0.2/implementation-sequence.md), section `V0.2-IS-02`;
-- [`../versions/v0.2/is-02-lifecycle-runtime-shape.md`](../versions/v0.2/is-02-lifecycle-runtime-shape.md).
+- [`../versions/v0.2/implementation-sequence.md`](../versions/v0.2/implementation-sequence.md), section `V0.2-IS-03`;
+- [`../versions/v0.2/is-03-environment-contract-shape.md`](../versions/v0.2/is-03-environment-contract-shape.md);
+- [`modules/environment.md`](modules/environment.md);
+- [`contracts/environment.md`](contracts/environment.md);
+- [`ADR-0007`](decisions/ADR-0007-two-plane-environment-boundary.md).
 
 Exact accepted direction:
 
 ```text
-ExecutionPhase += EPISODE_START / POST_OUTCOME
-DecisionContext = RunId + AgentSessionId + EpisodeId + DecisionWindowId
-ExecutionPlanCompiler becomes phase-aware with COGNITIVE_CYCLE default
-CognitiveScheduler remains COGNITIVE_CYCLE-only
-LifecycleCoordinator executes only non-cycle module phases
-CommitCoordinator remains module-only authority and becomes phase-aware
-KernelRuntime owns CognitiveCycleId for run_cycle_in(context)
-KernelRuntime exposes lifecycle facade only for wired lifecycle coordinators
-intervention forbidden during active cycle OR lifecycle phase
-no Environment/Dispatcher/InteractionRuntime calls
+contracts only — no concrete Environment engine
+EnvironmentInteraction ≠ EnvironmentResearch
+agent-visible records have no research/hidden escape hatch
+EnvironmentInteractionDescriptor is safe subset
+EnvironmentDescriptor is research-only
+Direction + Move/Interact/Pickup/Drop/Wait typed action vocabulary
+RawObservation / ExternalTaskSpecification / ExternalTaskFeedback frozen structured records
+EpisodeStartRequest supports research/control reset input without leaking it into result
+CommittedEnvironmentAction expresses only post-commit Environment-facing seam
+ActionCommitId → EnvironmentTransitionId receipt seam
+terminated ≠ truncated
+EnvironmentSnapshot is Protocol + immutable research metadata, no frozen serialization format
+clone/fork return capability bundle without exposing private core
+stdlib-only contracts
 ```
 
-Запрещено в `IS-02` реализовывать Environment/MicroWorld, Goal module, Perception, Policy, Action lifecycle, Experience Journal, InteractionRuntime, v0.2 config/CLI или generic scope-reset framework.
+Запрещено в `IS-03` реализовывать MicroWorld dynamics/RNG/snapshot contents, Perception, Goals, Policy, Action Boundary state machine, Dispatcher, Experience Journal, InteractionRuntime, v0.2 config/CLI или Gymnasium/NumPy dependency.
 
 Следующий step автоматически не открывается после Codex completion/commit. Нужен independent ChatGPT audit.
 
 ---
 
-# 11. Operational governance
+# 12. Operational governance
 
 ```text
 CSPT-02: applicable without bump
-MODE-AUDIT V0.2-IS-01: AUDIT-PASS
-MODE-DESIGN V0.2-IS-02: COMPLETE
+MODE-AUDIT V0.2-IS-02: AUDIT-PASS
+MODE-DESIGN V0.2-IS-03: COMPLETE
 MODE-TRANSITION: COMPLETE
-OPEN implementation step: V0.2-IS-02 only
+OPEN implementation step: V0.2-IS-03 only
 ```
 
-`CSPT-02` остаётся достаточным: новый exact API shape является step-specific clarification, а обязательные prompt sections, verification/CI semantics, reporting fields и commit/push policy не изменились.
+`CSPT-02` остаётся достаточным: exact Environment API shape фиксируется step-specific clarification, а обязательные prompt sections, verification/CI semantics, reporting fields и commit/push policy не изменились.
 
 Workflow после operator push:
 
