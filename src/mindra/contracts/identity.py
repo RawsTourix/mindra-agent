@@ -19,6 +19,22 @@ InterventionId = NewType("InterventionId", UUID)
 LineageId = NewType("LineageId", UUID)
 BranchId = NewType("BranchId", UUID)
 AgentRevisionId = NewType("AgentRevisionId", UUID)
+ObservationId = NewType("ObservationId", UUID)
+PerceptId = NewType("PerceptId", UUID)
+ExternalTaskId = NewType("ExternalTaskId", UUID)
+GoalProposalId = NewType("GoalProposalId", UUID)
+GoalId = NewType("GoalId", UUID)
+ActionIntentId = NewType("ActionIntentId", UUID)
+AuthorizedActionId = NewType("AuthorizedActionId", UUID)
+ActionCommitId = NewType("ActionCommitId", UUID)
+DispatchId = NewType("DispatchId", UUID)
+DispatchAttemptId = NewType("DispatchAttemptId", UUID)
+EnvironmentTransitionId = NewType("EnvironmentTransitionId", UUID)
+OutcomeId = NewType("OutcomeId", UUID)
+ExperienceEventId = NewType("ExperienceEventId", UUID)
+JournalId = NewType("JournalId", UUID)
+EnvironmentSnapshotId = NewType("EnvironmentSnapshotId", UUID)
+WorldInstanceId = NewType("WorldInstanceId", UUID)
 
 IdentityT = TypeVar("IdentityT", bound=UUID, covariant=True)
 
@@ -93,25 +109,41 @@ class RuntimeBoundaryId(_SemanticId):
 
 
 __all__ = [
+    "ActionCommitId",
+    "ActionIntentId",
     "AgentRevisionId",
     "AgentSessionId",
+    "AuthorizedActionId",
     "BranchId",
     "CognitiveCycleId",
     "CommitId",
     "DecisionWindowId",
+    "DispatchAttemptId",
+    "DispatchId",
+    "EnvironmentSnapshotId",
+    "EnvironmentTransitionId",
     "EpisodeId",
     "ExecutionPlanId",
+    "ExperienceEventId",
+    "ExternalTaskId",
+    "GoalId",
+    "GoalProposalId",
     "IdFactory",
     "IdentityType",
     "ImplementationId",
     "InterventionId",
+    "JournalId",
     "LineageId",
     "ModuleAttemptId",
     "ModuleId",
+    "ObservationId",
+    "OutcomeId",
+    "PerceptId",
     "ProfileId",
     "RunId",
     "RuntimeBoundaryId",
     "StateNamespace",
     "WaveAttemptId",
     "WaveId",
+    "WorldInstanceId",
 ]

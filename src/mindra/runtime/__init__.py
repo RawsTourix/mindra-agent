@@ -1,5 +1,10 @@
 """Слой исполнения Core Kernel MINDRA."""
 
+from mindra.runtime.boundary_commit import (
+    BoundaryCommitCoordinator,
+    BoundaryCommitRecord,
+    BoundaryCommitResult,
+)
 from mindra.runtime.commit import (
     CommitCoordinator,
     CommitRecord,
@@ -58,6 +63,9 @@ from mindra.runtime.state_store import (
 
 __all__ = [
     "AvailabilityError",
+    "BoundaryCommitCoordinator",
+    "BoundaryCommitRecord",
+    "BoundaryCommitResult",
     "CognitiveScheduler",
     "CommitCoordinator",
     "CommitRecord",

@@ -167,7 +167,7 @@ def test_state_entry_rejects_enum_with_mutable_underlying_value() -> None:
         )
 
 
-def test_read_spec_declares_only_current_v01_freshness_modes() -> None:
+def test_read_spec_declares_supported_freshness_modes() -> None:
     read = ReadSpec(
         key=_key(),
         required=True,
@@ -176,7 +176,12 @@ def test_read_spec_declares_only_current_v01_freshness_modes() -> None:
     )
 
     assert read.allowed_availability == frozenset({Available, Unknown})
-    assert {mode.name for mode in FreshnessMode} == {"ANY_COMMITTED", "CURRENT_CYCLE"}
+    assert {mode.name for mode in FreshnessMode} == {
+        "ANY_COMMITTED",
+        "CURRENT_CYCLE",
+        "CURRENT_DECISION_WINDOW",
+        "CURRENT_EPISODE",
+    }
     assert not hasattr(read, "read")
 
 

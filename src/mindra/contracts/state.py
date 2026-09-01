@@ -15,7 +15,13 @@ from mindra.contracts.errors import (
     SchemaError,
     UndeclaredReadError,
 )
-from mindra.contracts.identity import AgentRevisionId, BranchId, LineageId, ModuleId
+from mindra.contracts.identity import (
+    AgentRevisionId,
+    BranchId,
+    LineageId,
+    ModuleId,
+    RuntimeBoundaryId,
+)
 from mindra.contracts.provenance import StateProvenance
 from mindra.contracts.revisions import CompositionRevision, SchemaRevision, StateRevision
 from mindra.contracts.time import LogicalTime
@@ -120,14 +126,14 @@ class StateFieldSpec[ValueT]:
     """Schema declaration поля с explicit semantic owner."""
 
     key: StateKey[ValueT]
-    owner: ModuleId
+    owner: ModuleId | RuntimeBoundaryId
     value_contract: ValueContract[ValueT]
 
     def __post_init__(self) -> None:
         if not isinstance(self.key, StateKey):
             raise TypeError("key должен быть StateKey")
-        if not isinstance(self.owner, ModuleId):
-            raise TypeError("owner должен быть explicit ModuleId")
+        if not isinstance(self.owner, ModuleId | RuntimeBoundaryId):
+            raise TypeError("owner должен быть explicit ModuleId или RuntimeBoundaryId")
         if not isinstance(self.value_contract, ValueContract):
             raise TypeError("value_contract должен быть ValueContract")
 
@@ -240,10 +246,12 @@ class StateEnvelope:
 
 
 class FreshnessMode(Enum):
-    """Freshness semantics declared read dependency v0.1."""
+    """Freshness semantics declared read dependency."""
 
     ANY_COMMITTED = "any_committed"
     CURRENT_CYCLE = "current_cycle"
+    CURRENT_DECISION_WINDOW = "current_decision_window"
+    CURRENT_EPISODE = "current_episode"
 
 
 type AvailabilityVariant = (
@@ -410,26 +418,48 @@ class StateProjection:
                 f"Availability {availability_type.__name__} запрещена для StatePath: {key.path}"
             )
 
+        produced_at = entry.provenance.logical_time
         if read_spec.freshness is FreshnessMode.CURRENT_CYCLE:
-            produced_at = entry.provenance.logical_time
-            current_cycle = (
-                self._logical_time.run_id,
-                self._logical_time.agent_session_id,
-                self._logical_time.episode_id,
-                self._logical_time.decision_window_id,
-                self._logical_time.cognitive_cycle_id,
-            )
-            produced_cycle = (
-                produced_at.run_id,
-                produced_at.agent_session_id,
-                produced_at.episode_id,
-                produced_at.decision_window_id,
-                produced_at.cognitive_cycle_id,
-            )
-            if self._logical_time.cognitive_cycle_id is None or produced_cycle != current_cycle:
+            if self._logical_time.cognitive_cycle_id is None or any(
+                produced != current
+                for produced, current in (
+                    (produced_at.run_id, self._logical_time.run_id),
+                    (produced_at.agent_session_id, self._logical_time.agent_session_id),
+                    (produced_at.episode_id, self._logical_time.episode_id),
+                    (produced_at.decision_window_id, self._logical_time.decision_window_id),
+                    (produced_at.cognitive_cycle_id, self._logical_time.cognitive_cycle_id),
+                )
+            ):
                 raise AvailabilityError(
                     f"StatePath не произведён в текущем cognitive cycle: {key.path}"
                 )
+        elif read_spec.freshness is FreshnessMode.CURRENT_DECISION_WINDOW:
+            if (
+                self._logical_time.episode_id is None
+                or self._logical_time.decision_window_id is None
+                or any(
+                    produced != current
+                    for produced, current in (
+                        (produced_at.run_id, self._logical_time.run_id),
+                        (produced_at.agent_session_id, self._logical_time.agent_session_id),
+                        (produced_at.episode_id, self._logical_time.episode_id),
+                        (produced_at.decision_window_id, self._logical_time.decision_window_id),
+                    )
+                )
+            ):
+                raise AvailabilityError(
+                    f"StatePath не произведён в текущем decision window: {key.path}"
+                )
+        elif read_spec.freshness is FreshnessMode.CURRENT_EPISODE:
+            if self._logical_time.episode_id is None or any(
+                produced != current
+                for produced, current in (
+                    (produced_at.run_id, self._logical_time.run_id),
+                    (produced_at.agent_session_id, self._logical_time.agent_session_id),
+                    (produced_at.episode_id, self._logical_time.episode_id),
+                )
+            ):
+                raise AvailabilityError(f"StatePath не произведён в текущем episode: {key.path}")
 
         return cast(StateEntry[ValueT], entry)
 
