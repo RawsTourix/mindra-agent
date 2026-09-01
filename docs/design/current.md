@@ -26,10 +26,10 @@ v0.1 Core Kernel: implemented / independently audited / accepted
 
 v0.2 MicroWorld Interaction design: accepted
 v0.2 implementation-sequence: accepted
-V0.2-IS-01 … V0.2-IS-02: accepted
-V0.2-IS-03: OPEN
-V0.2-IS-04 … V0.2-IS-14: CLOSED
-v0.2 implementation: active, 2 accepted implementation steps
+V0.2-IS-01 … V0.2-IS-03: accepted
+V0.2-IS-04: OPEN
+V0.2-IS-05 … V0.2-IS-14: CLOSED
+v0.2 implementation: active, 3 accepted implementation steps
 ```
 
 Одновременно `OPEN` только один implementation step.
@@ -49,10 +49,7 @@ Final independent acceptance evidence:
 
 ```text
 Local FULL-C0: PASS — 366 passed
-ruff: PASS
-format: PASS — 243 files
-mypy: PASS — 91 source files
-Import Linter: PASS — 3 kept / 0 broken
+ruff / format / mypy / Import Linter: PASS
 canonical validate-profile: PASS
 canonical kernel-smoke: PASS — waves=3 revision=3 join=10
 clean wheel metadata/install verification: PASS
@@ -60,9 +57,8 @@ third-party runtime dependencies: 0
 future-responsibility scope audit: PASS
 language policy review: PASS
 GitHub Actions run 33424412605
-exact implementation head 3c1ec7f746c040ca49f232c12e5c9ba7bf28e597
-Ubuntu Python 3.14: PASS — 366 passed — clean wheel PASS
-Windows Python 3.14: PASS — 366 passed — clean wheel PASS
+Ubuntu Python 3.14: PASS
+Windows Python 3.14: PASS
 AUDIT-PASS
 ```
 
@@ -72,7 +68,7 @@ Canonical detailed evidence:
 
 Post-v0.1 documentation consistency cleanup завершён без изменения F31, roadmap, v0.1 code или accepted semantics.
 
-Рекомендуемый immutable tag target **до добавления v0.2 design**:
+Рекомендуемый immutable tag target до добавления v0.2 design:
 
 ```text
 b6910164fba150a6bf69e05d385827fb4fe064ac
@@ -117,71 +113,21 @@ Accepted current `v0.2` design:
 Accepted step-specific clarifications:
 
 - [`../versions/v0.2/is-02-lifecycle-runtime-shape.md`](../versions/v0.2/is-02-lifecycle-runtime-shape.md) — accepted exact shape для `V0.2-IS-02`;
-- [`../versions/v0.2/is-03-environment-contract-shape.md`](../versions/v0.2/is-03-environment-contract-shape.md) — **current mandatory** accepted exact shape для `V0.2-IS-03`.
+- [`../versions/v0.2/is-03-environment-contract-shape.md`](../versions/v0.2/is-03-environment-contract-shape.md) — accepted exact shape для `V0.2-IS-03`;
+- [`../versions/v0.2/is-04-microworld-core-shape.md`](../versions/v0.2/is-04-microworld-core-shape.md) — **current mandatory** accepted exact shape для `V0.2-IS-04`.
 
-Canonical owners/contracts обязательные для v0.2:
+Canonical owners/contracts обязательные для текущего Environment step:
 
+- `DU-07` Environment / MicroWorld;
 - `DU-03` Runtime / Temporal Model;
 - `DU-04` CognitiveState;
-- `DU-05` Module Lifecycle;
 - `DU-06` Observability / Intervention;
-- `DU-07` Environment;
-- `DU-08` Perception;
-- `DU-09` Goals;
-- `DU-23` Policy / Planner;
-- `DU-24` Action Boundary;
-- `DU-25` Experience / Data / Replay;
-- соответствующие ADR и semantic contracts.
+- [`contracts/environment.md`](contracts/environment.md);
+- [`ADR-0007`](decisions/ADR-0007-two-plane-environment-boundary.md).
 
 ---
 
-# 4. Historical implementation checkpoints v0.1
-
-| Step | Status | Implementation/correction |
-|---|---|---|
-| `IS-01` | accepted | bootstrap + correction `584db766...` |
-| `IS-02` | accepted | `e457ada1...` |
-| `IS-03` | accepted | `a5c9f314...` |
-| `IS-04` | accepted | `86d38ff6...` + `afc1937b...` |
-| `IS-05` | accepted | `df602abb...` |
-| `IS-06` | accepted | `633babaf...` |
-| `IS-07` | accepted | `c8852930...` + correction `5b60d001...` |
-| `IS-08` | accepted | `92a2dd75...` |
-| `IS-09` | accepted | `c11d79e7...` + correction `978897ad...` |
-| `IS-10` | accepted | `510aad6f...` |
-| `IS-11` | accepted | `e8aa2fa...` + correction `a0cc9dea...` |
-| `IS-12` | accepted | `39f48959...` |
-| `IS-13` | accepted | `b2be887c...` |
-| `IS-14` | accepted | `9b6ca913...` |
-| `IS-15` | accepted | `657b8140...` |
-| `IS-16` | accepted | `3c1ec7f7...` |
-
----
-
-# 5. VerificationObligations v0.1
-
-```text
-V01-001: PASS
-V01-002: PASS
-V01-003: PASS
-V01-004: PASS
-V01-005: PASS
-V01-006: PASS
-V01-007: PASS
-V01-008: PASS
-V01-009: PASS
-V01-010: PASS
-V01-011: PASS
-V01-012: PASS
-V01-013: PASS
-V01-014: PASS
-```
-
-`v0.1` acceptance scope ограничен Core Kernel и не означает реализацию Environment, Cortex, Memory, learning или других roadmap responsibilities.
-
----
-
-# 6. Accepted v0.2 exact design gate
+# 4. Accepted v0.2 exact design gate
 
 `v0.2` принято проектировать/реализовывать как:
 
@@ -212,9 +158,9 @@ No F31 change/ADR required by accepted design.
 
 ---
 
-# 7. VerificationObligations v0.2
+# 5. VerificationObligations v0.2
 
-Current obligations defined by accepted version design:
+Current obligations:
 
 ```text
 V02-001 — Canonical trajectory determinism
@@ -236,26 +182,29 @@ V02-016 — Scope negative gate
 V02-017 — Build/install/CI reproducibility
 ```
 
-Accepted coverage после `V0.2-IS-02`:
+Accepted coverage после `V0.2-IS-03`:
 
 ```text
+V02-003 — Environment contract foundation accepted
 V02-004 — lifecycle foundation coverage accepted
 V02-005 — substantial Decision Window multiplicity coverage accepted
-V02-016 — architecture/regression layer coverage accepted
+V02-010 — Environment action-interface foundation accepted
+V02-015 — reset/termination/truncation contract foundation accepted
+V02-016 — architecture/scope layer coverage accepted
 ```
 
-Ни одна `V02-*` пока не имеет final version-wide PASS status; coverage наращивается по implementation sequence и закрывается `V0.2-IS-14`.
+Ни одна `V02-*` пока не имеет final version-wide PASS status. `V02-002` должен закрыться на Environment layer в `IS-04`; end-to-end obligations продолжают наращиваться по sequence до `IS-14`.
 
 ---
 
-# 8. v0.2 implementation checkpoints
+# 6. v0.2 implementation checkpoints
 
 | Step | Status | Result |
 |---|---|---|
 | `V0.2-IS-01` | accepted | `5ddc0daff12536e080c9fd1bc50476464109a455` — Interaction temporal & boundary-state foundation |
 | `V0.2-IS-02` | accepted | `c3f2dfb411c92d3048bd833732fdc18d696ec282` — Lifecycle phases & KernelRuntime context bridge |
-| `V0.2-IS-03` | **OPEN** | Environment contracts & capability split |
-| `V0.2-IS-04` | CLOSED | Deterministic MicroWorld core, MW0 & snapshot |
+| `V0.2-IS-03` | accepted | `576248fd389a3211adc1d722e1d154c9c0eaabed` — Environment contracts & capability split |
+| `V0.2-IS-04` | **OPEN** | Deterministic MicroWorld core, MW0 & snapshot |
 | `V0.2-IS-05` | CLOSED | Controlled task families & hidden-rule controls |
 | `V0.2-IS-06` | CLOSED | Structured Perception |
 | `V0.2-IS-07` | CLOSED | External-task Goal System subset |
@@ -271,9 +220,9 @@ V02-016 — architecture/regression layer coverage accepted
 
 ---
 
-# 9. Accepted evidence V0.2-IS-01
+# 7. Accepted evidence V0.2-IS-01
 
-Implementation commit:
+Implementation:
 
 ```text
 5ddc0daff12536e080c9fd1bc50476464109a455
@@ -283,51 +232,20 @@ feat(v0.2): add interaction state ingress foundation
 Independent audit:
 
 ```text
-scope: PASS
-F31 consistency: PASS
+scope / F31 consistency: PASS
 runtime/module ownership separation: PASS
-CURRENT_DECISION_WINDOW / CURRENT_EPISODE semantics: PASS
+CURRENT_DECISION_WINDOW / CURRENT_EPISODE: PASS
 boundary atomicity/stale-base validation: PASS
 v0.1 regression: PASS
+GitHub Actions 33486615509 — Ubuntu/Windows PASS
 AUDIT-PASS
-```
-
-Local implementation evidence reported and independently reconciled:
-
-```text
-targeted pytest: PASS — 26 passed
-affected v0.1 subset: PASS — 67 passed
-ruff: PASS
-format: PASS
-mypy --strict: PASS — 97 source files
-Import Linter: PASS — 3 kept / 0 broken
-full pytest: PASS — 392 passed
-uv build: PASS
-v0.1 validate-profile: PASS
-v0.1 kernel-smoke: PASS — waves=3 revision=3 join=10
-git diff --check: PASS
-```
-
-Remote exact-HEAD CI:
-
-```text
-GitHub Actions run 33486615509
-head 5ddc0daff12536e080c9fd1bc50476464109a455
-FULL-C0 ubuntu-latest / Python 3.14: PASS
-FULL-C0 windows-latest / Python 3.14: PASS
-locked install: PASS
-ruff / format / mypy / import contracts: PASS
-pytest: PASS
-canonical v0.1 CLI: PASS
-wheel + sdist build: PASS
-clean wheel verification: PASS
 ```
 
 ---
 
-# 10. Accepted evidence V0.2-IS-02
+# 8. Accepted evidence V0.2-IS-02
 
-Implementation commit:
+Implementation:
 
 ```text
 c3f2dfb411c92d3048bd833732fdc18d696ec282
@@ -337,15 +255,41 @@ feat(v0.2): add lifecycle runtime context bridge
 Independent audit:
 
 ```text
-repository/commit: PASS
-scope: PASS
-F31 / v0.2 exact design: PASS
+scope / exact design: PASS
 phase ownership: PASS
 LifecycleCoordinator atomicity: PASS
 CognitiveScheduler separation: PASS
 CognitiveCycleId ownership: PASS
 O0 lifecycle evidence: PASS
 intervention boundary: PASS
+full pytest: 407 passed
+GitHub Actions 33494536923 — Ubuntu/Windows PASS
+AUDIT-PASS
+```
+
+---
+
+# 9. Accepted evidence V0.2-IS-03
+
+Implementation:
+
+```text
+576248fd389a3211adc1d722e1d154c9c0eaabed
+feat(v0.2): add environment contracts and capability split
+```
+
+Independent audit:
+
+```text
+repository/commit: PASS
+scope: PASS
+exact IS-03 contract: PASS
+Agent/Research separation: PASS
+privacy/escape-hatch audit: PASS
+action vocabulary: PASS
+ActionCommitId → EnvironmentTransitionId causal seam: PASS
+snapshot abstraction without premature serialization: PASS
+stdlib/dependency boundary: PASS
 v0.1 regression: PASS
 AUDIT-PASS
 ```
@@ -353,46 +297,47 @@ AUDIT-PASS
 Local implementation evidence reported and independently reconciled:
 
 ```text
-required IS-02 trio: PASS — 16 passed
-affected compiler/module/scheduler/commit/evidence subset: PASS — 182 passed
+targeted Environment contracts: PASS — 32 passed
+affected identity/lifecycle/value subset: PASS — 80 passed
 ruff: PASS
-format: PASS — 257 files
-mypy --strict: PASS — 102 source files
+format: PASS — 262 files
+mypy --strict: PASS — 106 source files
 Import Linter: PASS — 3 kept / 0 broken
-full pytest: PASS — 407 passed
-uv build: PASS
+full pytest: PASS — 439 passed
+uv build: PASS — package remains 0.1.0
 v0.1 validate-profile: PASS — modules=4 waves=3
 v0.1 kernel-smoke: PASS — waves=3 revision=3 join=10
-git diff --check: PASS
+runtime third-party dependencies: 0
 ```
 
 Remote exact-HEAD CI:
 
 ```text
-GitHub Actions run 33494536923
-head c3f2dfb411c92d3048bd833732fdc18d696ec282
-FULL-C0 ubuntu-latest / Python 3.14: PASS — 407 passed
+GitHub Actions run 33526074690
+head 576248fd389a3211adc1d722e1d154c9c0eaabed
+FULL-C0 ubuntu-latest / Python 3.14: PASS — 439 passed
 FULL-C0 windows-latest / Python 3.14: PASS
 locked install: PASS
 ruff / format / mypy / import contracts: PASS
 canonical v0.1 CLI: PASS
 wheel + sdist build: PASS
-clean wheel verification: PASS
+clean v0.1 wheel verification: PASS
 ```
 
 ---
 
-# 11. Разрешённая текущая работа
+# 10. Разрешённая текущая работа
 
 Единственная разрешённая implementation работа:
 
 ```text
-V0.2-IS-03 — Environment contracts & capability split
+V0.2-IS-04 — Deterministic MicroWorld core, MW0 & snapshot
 ```
 
 Обязательные sources текущего step:
 
-- [`../versions/v0.2/implementation-sequence.md`](../versions/v0.2/implementation-sequence.md), section `V0.2-IS-03`;
+- [`../versions/v0.2/implementation-sequence.md`](../versions/v0.2/implementation-sequence.md), section `V0.2-IS-04`;
+- [`../versions/v0.2/is-04-microworld-core-shape.md`](../versions/v0.2/is-04-microworld-core-shape.md);
 - [`../versions/v0.2/is-03-environment-contract-shape.md`](../versions/v0.2/is-03-environment-contract-shape.md);
 - [`modules/environment.md`](modules/environment.md);
 - [`contracts/environment.md`](contracts/environment.md);
@@ -401,39 +346,42 @@ V0.2-IS-03 — Environment contracts & capability split
 Exact accepted direction:
 
 ```text
-contracts only — no concrete Environment engine
-EnvironmentInteraction ≠ EnvironmentResearch
-agent-visible records have no research/hidden escape hatch
-EnvironmentInteractionDescriptor is safe subset
-EnvironmentDescriptor is research-only
-Direction + Move/Interact/Pickup/Drop/Wait typed action vocabulary
-RawObservation / ExternalTaskSpecification / ExternalTaskFeedback frozen structured records
-EpisodeStartRequest supports research/control reset input without leaking it into result
-CommittedEnvironmentAction expresses only post-commit Environment-facing seam
-ActionCommitId → EnvironmentTransitionId receipt seam
-terminated ≠ truncated
-EnvironmentSnapshot is Protocol + immutable research metadata, no frozen serialization format
-clone/fork return capability bundle without exposing private core
-stdlib-only contracts
+stdlib-only synchronous in-process MicroWorld
+private core + physically separate MicroWorldInteraction / MicroWorldResearch wrappers
+MW0_DIRECT_REACH only
+walls/floor/target + generic portable object primitive
+canonical fixed MW0 7x7 fixture + narrow guaranteed-solvable procedural MW0
+partial observation radius/occlusion + full-observation control through same safe RawObservation
+relative cell coordinates; no hidden/world IDs/seeds in Agent observation
+Move/Interact/Pickup/Drop/Wait all handled
+blocked movement = natural NO_EFFECT transition
+three independent instance-local random.Random streams
+exact SHA-256 role seed derivation
+staged reset/transition publication
+concrete frozen MicroWorldSnapshot with all RNG states
+restore exact continuation
+clone/fork without mutable world/RNG alias
+research transition records and privileged reasons only on Research Plane
+no MW1/MW3, door/key/switch/hidden-rule behavior
 ```
 
-Запрещено в `IS-03` реализовывать MicroWorld dynamics/RNG/snapshot contents, Perception, Goals, Policy, Action Boundary state machine, Dispatcher, Experience Journal, InteractionRuntime, v0.2 config/CLI или Gymnasium/NumPy dependency.
+Запрещено в `IS-04` реализовывать `IS-05+`: hidden causal rules, doors/keys/switches, Perception, Goals, Policy, Action Boundary, Dispatcher, Experience Journal, InteractionRuntime, v0.2 composition/profile/CLI или package metadata migration.
 
 Следующий step автоматически не открывается после Codex completion/commit. Нужен independent ChatGPT audit.
 
 ---
 
-# 12. Operational governance
+# 11. Operational governance
 
 ```text
 CSPT-02: applicable without bump
-MODE-AUDIT V0.2-IS-02: AUDIT-PASS
-MODE-DESIGN V0.2-IS-03: COMPLETE
+MODE-AUDIT V0.2-IS-03: AUDIT-PASS
+MODE-DESIGN V0.2-IS-04: COMPLETE
 MODE-TRANSITION: COMPLETE
-OPEN implementation step: V0.2-IS-03 only
+OPEN implementation step: V0.2-IS-04 only
 ```
 
-`CSPT-02` остаётся достаточным: exact Environment API shape фиксируется step-specific clarification, а обязательные prompt sections, verification/CI semantics, reporting fields и commit/push policy не изменились.
+`CSPT-02` остаётся достаточным: concrete MicroWorld exact shape фиксируется step-specific clarification, а обязательные prompt sections, verification/CI semantics, reporting fields и commit/push policy не изменились.
 
 Workflow после operator push:
 
