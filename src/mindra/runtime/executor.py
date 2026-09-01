@@ -7,12 +7,7 @@ from uuid import UUID
 from mindra.contracts.errors import ModuleExecutionError
 from mindra.contracts.evidence import ModuleAttemptOutcome, TraceFailure
 from mindra.contracts.identity import ModuleAttemptId, ModuleId
-from mindra.contracts.modules import (
-    CognitiveModule,
-    ExecutionPhase,
-    ModuleComputeRequest,
-    ModuleComputeResult,
-)
+from mindra.contracts.modules import CognitiveModule, ModuleComputeRequest, ModuleComputeResult
 
 
 @dataclass(frozen=True, slots=True)
@@ -34,8 +29,8 @@ class ModuleAttemptExecutionRequest:
             raise ValueError("Module descriptor identity не совпадает с execution request")
         if not isinstance(self.compute_request.context.module_attempt_id, UUID):
             raise TypeError("context должен содержать valid ModuleAttemptId")
-        if self.compute_request.context.phase is not ExecutionPhase.COGNITIVE_CYCLE:
-            raise ValueError("v0.1 executor поддерживает только COGNITIVE_CYCLE")
+        if self.compute_request.context.phase not in self.module.descriptor.phases:
+            raise ValueError("Module не объявил current execution phase")
 
 
 @dataclass(frozen=True, slots=True)

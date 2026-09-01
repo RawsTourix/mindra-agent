@@ -37,6 +37,9 @@ from mindra.contracts.evidence import (
     CycleStartedEvent,
     EvidenceRecorder,
     InterventionAppliedEvent,
+    LifecyclePhaseFailedEvent,
+    LifecyclePhaseFinishedEvent,
+    LifecyclePhaseStartedEvent,
     ModuleAttemptFinishedEvent,
     ModuleAttemptOutcome,
     ModuleAttemptStartedEvent,
@@ -136,7 +139,7 @@ from mindra.contracts.state import (
     StateSchema,
     ValueContract,
 )
-from mindra.contracts.time import LogicalTime, TemporalContext
+from mindra.contracts.time import DecisionContext, LogicalTime, TemporalContext
 
 __all__ = [
     "ActionCommitId",
@@ -166,6 +169,7 @@ __all__ = [
     "CycleFailedEvent",
     "CycleFinishedEvent",
     "CycleStartedEvent",
+    "DecisionContext",
     "DecisionWindowId",
     "DependencyCycleError",
     "DeterminismMode",
@@ -197,6 +201,9 @@ __all__ = [
     "InterventionPolicy",
     "JournalId",
     "KernelError",
+    "LifecyclePhaseFailedEvent",
+    "LifecyclePhaseFinishedEvent",
+    "LifecyclePhaseStartedEvent",
     "LineageId",
     "LogicalTime",
     "MissingFieldError",

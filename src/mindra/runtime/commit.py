@@ -177,6 +177,7 @@ class CommitCoordinator:
         descriptors: tuple[ModuleDescriptor, ...],
         private_store: PrivateStateStore,
         schema_revision: SchemaRevision,
+        phase: ExecutionPhase = ExecutionPhase.COGNITIVE_CYCLE,
     ) -> None:
         """Подтвердить exact active scheduler/coordinator boundary без выдачи authority."""
         if not isinstance(descriptors, tuple):
@@ -192,7 +193,18 @@ class CommitCoordinator:
                 "ExecutionPlan schema revision не совпадает с CommitCoordinator"
             )
 
-        expected = tuple(sorted(self._descriptors.values(), key=lambda item: item.module_id.value))
+        if not isinstance(phase, ExecutionPhase):
+            raise TypeError("phase должен быть ExecutionPhase")
+        expected = tuple(
+            sorted(
+                (
+                    descriptor
+                    for descriptor in self._descriptors.values()
+                    if phase in descriptor.phases
+                ),
+                key=lambda item: item.module_id.value,
+            )
+        )
         actual = tuple(sorted(descriptors, key=lambda item: item.module_id.value))
         if actual != expected:
             raise CommitValidationError(
@@ -205,12 +217,14 @@ class CommitCoordinator:
         current_state: CognitiveState,
         results: tuple[ModuleComputeResult, ...],
         logical_time: LogicalTime,
+        phase: ExecutionPhase = ExecutionPhase.COGNITIVE_CYCLE,
     ) -> CommitResult:
         """Validate transaction целиком и опубликовать все private effects atomically."""
         self._validate_base(current_state=current_state, logical_time=logical_time)
         canonical_results = self._canonicalize_results(
             current_state=current_state,
             results=results,
+            phase=phase,
         )
         public_writes = self._validate_public_writes(
             current_state=current_state,
@@ -278,9 +292,12 @@ class CommitCoordinator:
         *,
         current_state: CognitiveState,
         results: tuple[ModuleComputeResult, ...],
+        phase: ExecutionPhase,
     ) -> tuple[ModuleComputeResult, ...]:
         if not isinstance(results, tuple):
             raise TypeError("results должен быть tuple ModuleComputeResult")
+        if not isinstance(phase, ExecutionPhase):
+            raise TypeError("phase должен быть ExecutionPhase")
 
         producers: set[ModuleId] = set()
         attempts: set[ModuleAttemptId] = set()
@@ -306,8 +323,8 @@ class CommitCoordinator:
                     f"{proposal.base_state_revision.value}, current "
                     f"{current_state.envelope.state_revision.value}"
                 )
-            if ExecutionPhase.COGNITIVE_CYCLE not in descriptor.phases:
-                raise CommitValidationError(f"Producer не участвует в COGNITIVE_CYCLE: {producer}")
+            if phase not in descriptor.phases:
+                raise CommitValidationError(f"Producer не участвует в {phase.value}: {producer}")
 
             private_proposal = result.private_state_update
             if private_proposal is not None:

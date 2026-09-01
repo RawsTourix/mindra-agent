@@ -251,12 +251,14 @@ def _payload_cases() -> tuple[tuple[TraceEventKind, LogicalTime, TraceEventPaylo
     )
 
 
-def test_all_thirteen_event_kinds_have_exact_typed_payload_and_derived_kind() -> None:
+def test_v01_event_cases_have_exact_typed_payload_and_derived_kind() -> None:
     cases = _payload_cases()
     envelopes = tuple(TraceEventEnvelope(time, payload) for _, time, payload in cases)
 
     assert len(cases) == 13
-    assert {kind for kind, _, _ in cases} == set(TraceEventKind)
+    assert {kind for kind, _, _ in cases} == {
+        kind for kind in TraceEventKind if not kind.value.startswith("lifecycle_phase_")
+    }
     assert tuple(envelope.kind for envelope in envelopes) == tuple(kind for kind, _, _ in cases)
 
 

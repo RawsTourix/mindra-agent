@@ -58,11 +58,6 @@ def test_downstream_scopes_may_be_absent() -> None:
             "episode_id": EpisodeId(_uuid(3)),
             "cognitive_cycle_id": CognitiveCycleId(_uuid(5)),
         },
-        {
-            "episode_id": EpisodeId(_uuid(3)),
-            "decision_window_id": DecisionWindowId(_uuid(4)),
-            "wave_id": WaveId(_uuid(6)),
-        },
     ],
 )
 def test_logical_time_rejects_hierarchy_gaps(overrides: dict[str, UUID]) -> None:

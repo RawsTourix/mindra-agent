@@ -116,7 +116,7 @@ def test_descriptor_rejects_duplicate_write_paths() -> None:
 def test_descriptor_rejects_empty_or_unsupported_phases() -> None:
     with pytest.raises(ValueError, match="phases"):
         _descriptor(phases=frozenset())
-    with pytest.raises(ValueError, match="COGNITIVE_CYCLE"):
+    with pytest.raises(TypeError, match="ExecutionPhase"):
         _descriptor(phases=cast(frozenset[ExecutionPhase], frozenset({"future_phase"})))
 
 
@@ -152,6 +152,10 @@ def test_descriptor_allows_read_write_overlap() -> None:
 
 def test_execution_traits_contain_only_v01_fields_and_values() -> None:
     assert {field.name for field in fields(ExecutionTraits)} == {"statefulness", "determinism"}
-    assert {phase.name for phase in ExecutionPhase} == {"COGNITIVE_CYCLE"}
+    assert {phase.name for phase in ExecutionPhase} == {
+        "COGNITIVE_CYCLE",
+        "EPISODE_START",
+        "POST_OUTCOME",
+    }
     assert {trait.name for trait in ModuleStatefulness} == {"STATELESS", "STATEFUL"}
     assert {mode.name for mode in DeterminismMode} == {"DETERMINISTIC", "STOCHASTIC"}

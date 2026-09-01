@@ -42,6 +42,11 @@ from mindra.runtime.intervention import (
     InterventionRecord,
     InterventionResult,
 )
+from mindra.runtime.lifecycle import (
+    LifecycleCoordinator,
+    LifecycleExecutionOutcome,
+    LifecycleExecutionResult,
+)
 from mindra.runtime.planning import (
     ExecutionDependency,
     ExecutionPlan,
@@ -89,6 +94,9 @@ __all__ = [
     "InterventionRecord",
     "InterventionResult",
     "KernelError",
+    "LifecycleCoordinator",
+    "LifecycleExecutionOutcome",
+    "LifecycleExecutionResult",
     "MissingFieldError",
     "ModuleAttemptExecutionRequest",
     "ModuleAttemptRecord",

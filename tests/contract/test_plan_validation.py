@@ -230,7 +230,7 @@ def test_compiler_rejects_descriptor_without_cognitive_cycle() -> None:
     descriptor = _descriptor("alpha")
     object.__setattr__(descriptor, "phases", frozenset())
 
-    with pytest.raises(ExecutionPlanError, match="COGNITIVE_CYCLE"):
+    with pytest.raises(ExecutionPlanError, match="ExecutionPhase"):
         _compile((descriptor,), _schema())
 
 

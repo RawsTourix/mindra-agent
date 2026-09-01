@@ -1,13 +1,18 @@
 """Narrow facade одной fully assembled kernel composition."""
 
+from collections.abc import Mapping
 from dataclasses import dataclass
 from re import compile as compile_pattern
+from types import MappingProxyType
 from uuid import UUID
 
 from mindra.composition.profile import KernelProfile
 from mindra.contracts import (
     CognitiveCycleId,
     CognitiveState,
+    CompositionError,
+    DecisionContext,
+    ExecutionPhase,
     IdFactory,
     InterventionError,
     LogicalTime,
@@ -26,6 +31,8 @@ from mindra.runtime import (
     InMemoryEvidenceRecorder,
     InterventionGateway,
     InterventionResult,
+    LifecycleCoordinator,
+    LifecycleExecutionResult,
     PrivateStateStore,
 )
 
@@ -77,6 +84,8 @@ class KernelRuntime:
         "_evidence_recorder",
         "_id_factory",
         "_intervention_gateway",
+        "_lifecycle_active",
+        "_lifecycle_coordinators",
         "_plan",
         "_private_store",
         "_profile",
@@ -96,6 +105,8 @@ class KernelRuntime:
     _root_time: LogicalTime
     _intervention_gateway: InterventionGateway
     _cycle_active: bool
+    _lifecycle_active: bool
+    _lifecycle_coordinators: Mapping[ExecutionPhase, LifecycleCoordinator]
 
     def __init__(self, *args: object, **kwargs: object) -> None:
         raise TypeError("KernelRuntime создаётся только CompositionRoot")
@@ -142,12 +153,66 @@ class KernelRuntime:
         self._state = result.state
         return result
 
+    def run_cycle_in(self, context: DecisionContext) -> CycleExecutionResult:
+        """Исполнить cycle в заданном caller DecisionContext с runtime-owned ID."""
+        self._validate_decision_context(context)
+        cycle_time = LogicalTime(
+            run_id=context.run_id,
+            agent_session_id=context.agent_session_id,
+            episode_id=context.episode_id,
+            decision_window_id=context.decision_window_id,
+            cognitive_cycle_id=self._id_factory.new_id(CognitiveCycleId),
+            wave_id=None,
+        )
+        self._cycle_active = True
+        try:
+            result = self._scheduler.run_cycle(
+                current_state=self._state,
+                cycle_time=cycle_time,
+            )
+        finally:
+            self._cycle_active = False
+        self._state = result.state
+        return result
+
+    def run_lifecycle(
+        self,
+        phase: ExecutionPhase,
+        context: DecisionContext,
+    ) -> LifecycleExecutionResult:
+        """Исполнить wired стандартную non-cycle phase."""
+        if not isinstance(phase, ExecutionPhase):
+            raise TypeError("phase должен быть ExecutionPhase")
+        if phase is ExecutionPhase.COGNITIVE_CYCLE:
+            raise CompositionError("run_lifecycle запрещает COGNITIVE_CYCLE")
+        self._validate_decision_context(context)
+        coordinator = self._lifecycle_coordinators.get(phase)
+        if coordinator is None:
+            raise CompositionError(f"Lifecycle phase не wired: {phase.value}")
+        phase_time = LogicalTime(
+            run_id=context.run_id,
+            agent_session_id=context.agent_session_id,
+            episode_id=context.episode_id,
+            decision_window_id=context.decision_window_id,
+            cognitive_cycle_id=None,
+            wave_id=None,
+        )
+        self._lifecycle_active = True
+        try:
+            result = coordinator.run(current_state=self._state, phase_time=phase_time)
+        finally:
+            self._lifecycle_active = False
+        self._state = result.state
+        return result
+
     def apply_intervention(self, spec: StateInterventionSpec, /) -> InterventionResult:
         """Применить one-shot public treatment только at between-cycle boundary."""
         if not isinstance(spec, StateInterventionSpec):
             raise TypeError("spec должен быть StateInterventionSpec")
-        if self._cycle_active:
-            raise InterventionError("Intervention запрещена во время active cognitive cycle")
+        if self._cycle_active or self._lifecycle_active:
+            raise InterventionError(
+                "Intervention запрещена во время active cognitive cycle или lifecycle phase"
+            )
         logical_time = LogicalTime(
             run_id=self._root_time.run_id,
             agent_session_id=self._root_time.agent_session_id,
@@ -164,6 +229,23 @@ class KernelRuntime:
         self._state = result.state
         return result
 
+    def _validate_decision_context(self, context: DecisionContext) -> None:
+        if not isinstance(context, DecisionContext):
+            raise TypeError("context должен быть DecisionContext")
+        if context.run_id != self._root_time.run_id:
+            raise CompositionError("DecisionContext run_id не совпадает с runtime root")
+        if context.agent_session_id != self._root_time.agent_session_id:
+            raise CompositionError(
+                "DecisionContext agent_session_id не совпадает с runtime session"
+            )
+        state_time = self._state.envelope.logical_time
+        if state_time.episode_id != context.episode_id:
+            raise CompositionError("DecisionContext episode_id не совпадает с current state")
+        if state_time.decision_window_id != context.decision_window_id:
+            raise CompositionError(
+                "DecisionContext decision_window_id не совпадает с current state"
+            )
+
 
 def _build_kernel_runtime(
     *,
@@ -177,6 +259,7 @@ def _build_kernel_runtime(
     id_factory: IdFactory,
     root_time: LogicalTime,
     intervention_gateway: InterventionGateway,
+    lifecycle_coordinators: Mapping[ExecutionPhase, LifecycleCoordinator] | None = None,
 ) -> KernelRuntime:
     """Internal construction после полного assembly/validation."""
     runtime = object.__new__(KernelRuntime)
@@ -191,6 +274,21 @@ def _build_kernel_runtime(
     runtime._root_time = root_time
     runtime._intervention_gateway = intervention_gateway
     runtime._cycle_active = False
+    runtime._lifecycle_active = False
+    coordinators = {} if lifecycle_coordinators is None else dict(lifecycle_coordinators)
+    for phase, coordinator in coordinators.items():
+        if not isinstance(phase, ExecutionPhase):
+            raise TypeError("lifecycle_coordinators keys должны быть ExecutionPhase")
+        if not isinstance(coordinator, LifecycleCoordinator):
+            raise TypeError("lifecycle_coordinators values должны быть LifecycleCoordinator")
+        if phase is ExecutionPhase.COGNITIVE_CYCLE or coordinator.phase is not phase:
+            raise CompositionError("Lifecycle coordinator mapping не совпадает с plan phase")
+        coordinator._assert_kernel_binding(
+            private_store=private_store,
+            composition_revision=composition.composition_revision,
+            schema_revision=composition.schema_revision,
+        )
+    runtime._lifecycle_coordinators = MappingProxyType(coordinators)
     return runtime
 
 

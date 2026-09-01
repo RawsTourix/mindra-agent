@@ -109,8 +109,9 @@ class ExecutionPlanCompiler:
         *,
         composition_revision: CompositionRevision,
         plan_revision: ExecutionPlanRevision,
+        phase: ExecutionPhase = ExecutionPhase.COGNITIVE_CYCLE,
     ) -> ExecutionPlan:
-        """Validate descriptors and compile one immutable cognitive-cycle plan."""
+        """Validate full composition and compile immutable requested-phase plan."""
         if not isinstance(descriptors, tuple):
             raise TypeError("descriptors должен быть tuple ModuleDescriptor")
         if not isinstance(schema, StateSchema):
@@ -119,11 +120,17 @@ class ExecutionPlanCompiler:
             raise TypeError("composition_revision должна быть CompositionRevision")
         if not isinstance(plan_revision, ExecutionPlanRevision):
             raise TypeError("plan_revision должна быть ExecutionPlanRevision")
+        if not isinstance(phase, ExecutionPhase):
+            raise TypeError("phase должен быть ExecutionPhase")
 
-        canonical_descriptors = _validate_descriptors(descriptors, schema)
-        dependencies = _build_dependencies(canonical_descriptors)
+        _validate_unique_descriptors(descriptors)
+        phase_descriptors = tuple(
+            descriptor for descriptor in descriptors if phase in descriptor.phases
+        )
+        canonical_descriptors = _validate_descriptors(phase_descriptors, schema, phase=phase)
+        dependencies = _build_dependencies(canonical_descriptors, phase=phase)
         waves = _decompose_waves(canonical_descriptors, dependencies)
-        fingerprint = _build_fingerprint(canonical_descriptors, dependencies, waves)
+        fingerprint = _build_fingerprint(canonical_descriptors, dependencies, waves, phase=phase)
         plan_id = self._id_factory.new_id(ExecutionPlanId)
         return _build_execution_plan(
             plan_id=plan_id,
@@ -131,7 +138,7 @@ class ExecutionPlanCompiler:
             fingerprint=fingerprint,
             composition_revision=composition_revision,
             schema_revision=schema.revision,
-            phase=ExecutionPhase.COGNITIVE_CYCLE,
+            phase=phase,
             descriptors=canonical_descriptors,
             dependencies=dependencies,
             waves=waves,
@@ -176,8 +183,8 @@ def _validate_execution_plan_shape(plan: ExecutionPlan) -> None:
         raise TypeError("composition_revision должен быть CompositionRevision")
     if not isinstance(plan.schema_revision, SchemaRevision):
         raise TypeError("schema_revision должен быть SchemaRevision")
-    if plan.phase is not ExecutionPhase.COGNITIVE_CYCLE:
-        raise ValueError("v0.1 ExecutionPlan поддерживает только COGNITIVE_CYCLE")
+    if not isinstance(plan.phase, ExecutionPhase):
+        raise TypeError("phase должен быть ExecutionPhase")
     if not isinstance(plan.descriptors, tuple) or any(
         not isinstance(descriptor, ModuleDescriptor) for descriptor in plan.descriptors
     ):
@@ -207,25 +214,40 @@ def _validate_execution_plan_shape(plan: ExecutionPlan) -> None:
         raise ValueError("Каждый active ModuleId должен входить ровно в одну wave")
 
 
-def _validate_descriptors(
-    descriptors: tuple[ModuleDescriptor, ...], schema: StateSchema
-) -> tuple[ModuleDescriptor, ...]:
+def _validate_unique_descriptors(descriptors: tuple[ModuleDescriptor, ...]) -> None:
     for descriptor in descriptors:
         if not isinstance(descriptor, ModuleDescriptor):
             raise TypeError("descriptors должен содержать ModuleDescriptor")
-
+        if not descriptor.phases or any(
+            not isinstance(item, ExecutionPhase) for item in descriptor.phases
+        ):
+            raise ExecutionPlanError(
+                f"Module {descriptor.module_id} имеет invalid ExecutionPhase declarations"
+            )
     module_ids = [descriptor.module_id for descriptor in descriptors]
     if len(set(module_ids)) != len(module_ids):
         raise DuplicateIdentityError("Duplicate active ModuleId в execution plan")
 
+
+def _validate_descriptors(
+    descriptors: tuple[ModuleDescriptor, ...],
+    schema: StateSchema,
+    *,
+    phase: ExecutionPhase,
+) -> tuple[ModuleDescriptor, ...]:
     writers: dict[StatePath, ModuleId] = {}
     for descriptor in descriptors:
-        if ExecutionPhase.COGNITIVE_CYCLE not in descriptor.phases:
-            raise ExecutionPlanError(
-                f"Module {descriptor.module_id} не участвует в COGNITIVE_CYCLE"
-            )
+        if phase not in descriptor.phases:
+            raise ExecutionPlanError(f"Module {descriptor.module_id} не участвует в {phase.value}")
         for read in descriptor.reads:
             _lookup_plan_field(schema, read.key.path, "read")
+            if (
+                phase is not ExecutionPhase.COGNITIVE_CYCLE
+                and read.freshness is FreshnessMode.CURRENT_CYCLE
+            ):
+                raise ExecutionPlanError(
+                    f"CURRENT_CYCLE read {read.key.path} недопустим в {phase.value}"
+                )
         for write in descriptor.writes:
             spec = _lookup_plan_field(schema, write.path, "write")
             existing_writer = writers.get(write.path)
@@ -268,7 +290,11 @@ def _lookup_plan_field(
 
 def _build_dependencies(
     descriptors: tuple[ModuleDescriptor, ...],
+    *,
+    phase: ExecutionPhase,
 ) -> tuple[ExecutionDependency, ...]:
+    if phase is not ExecutionPhase.COGNITIVE_CYCLE:
+        return ()
     writers = {
         write.path: descriptor.module_id
         for descriptor in descriptors
@@ -325,9 +351,11 @@ def _build_fingerprint(
     descriptors: tuple[ModuleDescriptor, ...],
     dependencies: tuple[ExecutionDependency, ...],
     waves: tuple[ExecutionWave, ...],
+    *,
+    phase: ExecutionPhase,
 ) -> PlanFingerprint:
     payload = {
-        "phase": ExecutionPhase.COGNITIVE_CYCLE.value,
+        "phase": phase.value,
         "descriptors": [_descriptor_payload(descriptor) for descriptor in descriptors],
         "dependencies": [
             {

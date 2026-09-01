@@ -30,9 +30,11 @@ class ImplementationRevision:
 
 
 class ExecutionPhase(Enum):
-    """Единственная execution phase Core Kernel v0.1."""
+    """Стандартные execution phases kernel."""
 
     COGNITIVE_CYCLE = "cognitive_cycle"
+    EPISODE_START = "episode_start"
+    POST_OUTCOME = "post_outcome"
 
 
 class ModuleStatefulness(Enum):
@@ -214,8 +216,8 @@ class ModuleDescriptor:
             raise TypeError("phases должен быть frozenset ExecutionPhase")
         if not self.phases:
             raise ValueError("phases не может быть пустым")
-        if any(phase is not ExecutionPhase.COGNITIVE_CYCLE for phase in self.phases):
-            raise ValueError("v0.1 поддерживает только COGNITIVE_CYCLE phase")
+        if any(not isinstance(phase, ExecutionPhase) for phase in self.phases):
+            raise TypeError("phases должен содержать ExecutionPhase")
         if not isinstance(self.traits, ExecutionTraits):
             raise TypeError("traits должен быть ExecutionTraits")
         if self.private_state is not None and not isinstance(

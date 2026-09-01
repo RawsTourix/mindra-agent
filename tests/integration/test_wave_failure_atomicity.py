@@ -7,6 +7,7 @@ from mindra.contracts import (
     Available,
     CognitiveState,
     CommitAttemptedEvent,
+    ExecutionPhase,
     LogicalTime,
     ModuleAttemptFinishedEvent,
     ModuleAttemptId,
@@ -60,12 +61,14 @@ class RecordingCommitCoordinator(CommitCoordinator):
         current_state: CognitiveState,
         results: tuple[ModuleComputeResult, ...],
         logical_time: LogicalTime,
+        phase: ExecutionPhase = ExecutionPhase.COGNITIVE_CYCLE,
     ) -> CommitResult:
         self.calls += 1
         return super().commit(
             current_state=current_state,
             results=results,
             logical_time=logical_time,
+            phase=phase,
         )
 
 

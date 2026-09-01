@@ -54,6 +54,9 @@ class TraceEventKind(Enum):
     INTERVENTION_APPLIED = "intervention_applied"
     CYCLE_FINISHED = "cycle_finished"
     CYCLE_FAILED = "cycle_failed"
+    LIFECYCLE_PHASE_STARTED = "lifecycle_phase_started"
+    LIFECYCLE_PHASE_FINISHED = "lifecycle_phase_finished"
+    LIFECYCLE_PHASE_FAILED = "lifecycle_phase_failed"
 
 
 class ModuleAttemptOutcome(Enum):
@@ -275,8 +278,8 @@ class PlanCompiledEvent:
             raise TypeError("composition_revision должен быть CompositionRevision")
         if not isinstance(self.schema_revision, SchemaRevision):
             raise TypeError("schema_revision должен быть SchemaRevision")
-        if self.phase is not ExecutionPhase.COGNITIVE_CYCLE:
-            raise ValueError("v0.1 evidence поддерживает только COGNITIVE_CYCLE")
+        if not isinstance(self.phase, ExecutionPhase):
+            raise TypeError("phase должен быть ExecutionPhase")
         _validate_fingerprint(self.plan_fingerprint, "plan_fingerprint")
         if not isinstance(self.dependencies, tuple) or any(
             not isinstance(dependency, PlanDependencyTrace) for dependency in self.dependencies
@@ -556,6 +559,70 @@ class CycleFailedEvent:
             raise TypeError("failure должен быть TraceFailure")
 
 
+def _validate_lifecycle_phase(phase: object) -> None:
+    if phase not in (ExecutionPhase.EPISODE_START, ExecutionPhase.POST_OUTCOME):
+        raise ValueError("Lifecycle event требует non-cycle ExecutionPhase")
+
+
+@dataclass(frozen=True, slots=True)
+class LifecyclePhaseStartedEvent:
+    """Structural evidence начала стандартной lifecycle phase."""
+
+    phase: ExecutionPhase
+    base_state_revision: StateRevision
+    plan_id: ExecutionPlanId
+    plan_revision: ExecutionPlanRevision
+    agent_revision_id: AgentRevisionId
+
+    def __post_init__(self) -> None:
+        _validate_lifecycle_phase(self.phase)
+        if not isinstance(self.base_state_revision, StateRevision):
+            raise TypeError("base_state_revision должен быть StateRevision")
+        _validate_uuid(self.plan_id, "plan_id")
+        if not isinstance(self.plan_revision, ExecutionPlanRevision):
+            raise TypeError("plan_revision должен быть ExecutionPlanRevision")
+        _validate_uuid(self.agent_revision_id, "agent_revision_id")
+
+
+@dataclass(frozen=True, slots=True)
+class LifecyclePhaseFinishedEvent:
+    """Structural evidence успешного завершения lifecycle phase."""
+
+    phase: ExecutionPhase
+    base_state_revision: StateRevision
+    resulting_state_revision: StateRevision
+
+    def __post_init__(self) -> None:
+        _validate_lifecycle_phase(self.phase)
+        if not isinstance(self.base_state_revision, StateRevision):
+            raise TypeError("base_state_revision должен быть StateRevision")
+        if not isinstance(self.resulting_state_revision, StateRevision):
+            raise TypeError("resulting_state_revision должен быть StateRevision")
+        if self.resulting_state_revision < self.base_state_revision:
+            raise ValueError("resulting_state_revision не может быть меньше base")
+
+
+@dataclass(frozen=True, slots=True)
+class LifecyclePhaseFailedEvent:
+    """Structural evidence ошибки lifecycle phase без rollback прошлых waves."""
+
+    phase: ExecutionPhase
+    base_state_revision: StateRevision
+    current_state_revision: StateRevision
+    failure: TraceFailure
+
+    def __post_init__(self) -> None:
+        _validate_lifecycle_phase(self.phase)
+        if not isinstance(self.base_state_revision, StateRevision):
+            raise TypeError("base_state_revision должен быть StateRevision")
+        if not isinstance(self.current_state_revision, StateRevision):
+            raise TypeError("current_state_revision должен быть StateRevision")
+        if self.current_state_revision < self.base_state_revision:
+            raise ValueError("current_state_revision не может быть меньше base")
+        if not isinstance(self.failure, TraceFailure):
+            raise TypeError("failure должен быть TraceFailure")
+
+
 type TraceEventPayload = (
     CompositionResolvedEvent
     | PlanCompiledEvent
@@ -570,6 +637,9 @@ type TraceEventPayload = (
     | InterventionAppliedEvent
     | CycleFinishedEvent
     | CycleFailedEvent
+    | LifecyclePhaseStartedEvent
+    | LifecyclePhaseFinishedEvent
+    | LifecyclePhaseFailedEvent
 )
 
 _PAYLOAD_KIND: dict[type[object], TraceEventKind] = {
@@ -586,6 +656,9 @@ _PAYLOAD_KIND: dict[type[object], TraceEventKind] = {
     InterventionAppliedEvent: TraceEventKind.INTERVENTION_APPLIED,
     CycleFinishedEvent: TraceEventKind.CYCLE_FINISHED,
     CycleFailedEvent: TraceEventKind.CYCLE_FAILED,
+    LifecyclePhaseStartedEvent: TraceEventKind.LIFECYCLE_PHASE_STARTED,
+    LifecyclePhaseFinishedEvent: TraceEventKind.LIFECYCLE_PHASE_FINISHED,
+    LifecyclePhaseFailedEvent: TraceEventKind.LIFECYCLE_PHASE_FAILED,
 }
 _CYCLE_SCOPED_KINDS = {
     TraceEventKind.CYCLE_STARTED,
@@ -599,6 +672,11 @@ _WAVE_SCOPED_KINDS = {
     TraceEventKind.COMMIT_ATTEMPTED,
     TraceEventKind.COMMIT_SUCCEEDED,
     TraceEventKind.COMMIT_FAILED,
+}
+_LIFECYCLE_PHASE_KINDS = {
+    TraceEventKind.LIFECYCLE_PHASE_STARTED,
+    TraceEventKind.LIFECYCLE_PHASE_FINISHED,
+    TraceEventKind.LIFECYCLE_PHASE_FAILED,
 }
 
 
@@ -624,6 +702,13 @@ class TraceEventEnvelope:
             raise ValueError(f"{self.kind.value} требует cognitive_cycle_id")
         if self.kind in _WAVE_SCOPED_KINDS and self.logical_time.wave_id is None:
             raise ValueError(f"{self.kind.value} требует wave_id")
+        if self.kind in _LIFECYCLE_PHASE_KINDS and (
+            self.logical_time.episode_id is None
+            or self.logical_time.decision_window_id is None
+            or self.logical_time.cognitive_cycle_id is not None
+            or self.logical_time.wave_id is not None
+        ):
+            raise ValueError(f"{self.kind.value} требует DecisionContext без cycle/wave identities")
 
     @property
     def kind(self) -> TraceEventKind:
@@ -650,6 +735,9 @@ __all__ = [
     "CycleStartedEvent",
     "EvidenceRecorder",
     "InterventionAppliedEvent",
+    "LifecyclePhaseFailedEvent",
+    "LifecyclePhaseFinishedEvent",
+    "LifecyclePhaseStartedEvent",
     "ModuleAttemptFinishedEvent",
     "ModuleAttemptOutcome",
     "ModuleAttemptStartedEvent",

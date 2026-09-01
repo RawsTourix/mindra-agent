@@ -169,11 +169,11 @@ class CognitiveScheduler:
                     f"Concrete module descriptor не совпадает с ExecutionPlan: {module_id}"
                 )
 
-        private_store._assert_compatible_descriptors(plan_descriptors)
         commit_coordinator._assert_runtime_binding(
             descriptors=plan.descriptors,
             private_store=private_store,
             schema_revision=plan.schema_revision,
+            phase=plan.phase,
         )
 
         self._plan = plan

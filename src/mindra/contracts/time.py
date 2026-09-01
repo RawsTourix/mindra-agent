@@ -14,6 +14,28 @@ from mindra.contracts.identity import (
 
 
 @dataclass(frozen=True, slots=True)
+class DecisionContext:
+    """Заданные caller identities текущей Episode/Decision boundary."""
+
+    run_id: RunId
+    agent_session_id: AgentSessionId
+    episode_id: EpisodeId
+    decision_window_id: DecisionWindowId
+
+    def __post_init__(self) -> None:
+        if any(
+            not isinstance(identity, UUID)
+            for identity in (
+                self.run_id,
+                self.agent_session_id,
+                self.episode_id,
+                self.decision_window_id,
+            )
+        ):
+            raise TypeError("DecisionContext identities должны быть UUID")
+
+
+@dataclass(frozen=True, slots=True)
 class LogicalTime:
     """Causal temporal envelope без wall-clock metadata."""
 
@@ -48,7 +70,7 @@ class LogicalTime:
                 "cognitive_cycle_id",
                 "decision_window_id",
             ),
-            (self.wave_id, self.cognitive_cycle_id, "wave_id", "cognitive_cycle_id"),
+            (self.wave_id, self.decision_window_id, "wave_id", "decision_window_id"),
         )
         for child, parent, child_name, parent_name in hierarchy:
             if child is not None and parent is None:
@@ -57,4 +79,4 @@ class LogicalTime:
 
 TemporalContext = LogicalTime
 
-__all__ = ["LogicalTime", "TemporalContext"]
+__all__ = ["DecisionContext", "LogicalTime", "TemporalContext"]
